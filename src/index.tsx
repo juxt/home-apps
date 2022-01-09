@@ -4,42 +4,18 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
-  KanbanDataQuery,
   useKanbanDataQuery,
   useUpdateCardMutation,
   Column as TColumn,
-  Card as TCard,
+  useCreateCardMutation,
 } from "./generated/graphql";
+import { TBoard, TCard } from "./types";
+import { immutableMove, moveCard, notEmpty } from "./kanbanHelpers";
 
 import "./styles.css";
-import { QueryClient, QueryClientProvider, UseQueryResult } from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const queryClient = new QueryClient();
-
-type Boards = NonNullable<KanbanDataQuery["allBoards"]>;
-type Board = Boards[0];
-
-export function isDefined<T>(argument: T | undefined): argument is T {
-  return argument !== undefined;
-}
-export function notEmpty<TValue>(
-  value: TValue | null | undefined
-): value is TValue {
-  if (value === null || value === undefined) return false;
-  return true;
-}
-
-function indexById<T extends { id: string }>(
-  array: Array<T>
-): { [id: string]: T } {
-  const initialValue = {};
-  return array.reduce((obj, item) => {
-    return {
-      ...obj,
-      [item.id]: item,
-    };
-  }, initialValue);
-}
 
 const CardContainer = styled.div<{ isDragging: boolean }>`
   border: 1px solid lightgrey;
@@ -50,10 +26,10 @@ const CardContainer = styled.div<{ isDragging: boolean }>`
   transition: background 0.1s;
 `;
 
-interface CardProps {
+type CardProps = {
   card: TCard;
   index: number;
-}
+};
 
 const DraggableCard = React.memo(({ card, index }: CardProps) => {
   return (
@@ -121,156 +97,102 @@ const Column = React.memo(({ column, cards }: ColumnProps) => (
   </Container>
 ));
 
-function processBoard(board: Board) {
-  const columns = board?.columns || [];
-  const indexedCols = indexById(columns.filter(notEmpty));
-  const columnOrder = columns.map((column) => column?.id).filter(notEmpty);
+function processBoard(board: TBoard) {
+  const columns = board?.columns.filter(notEmpty) || [];
   return {
-    cards:
-      board?.cards.filter(notEmpty).sort((a, b) => a.priority - b.priority) ||
-      [],
-    columns: indexedCols,
-    columnOrder,
+    ...board,
+    columns: columns.map((c) => ({
+      ...c,
+      cards: c.cards
+        .filter((card) => board?.cards.find((bCard) => bCard?.id === card?.id))
+        .filter(notEmpty)
+        .sort((a, b) => a.priority - b.priority),
+    })),
   };
 }
 
-function immutableMove<T>(arr: Array<T>, from: number, to: number) {
-  return arr.reduce((prev, current, idx, self) => {
-    if (from === to) {
-      prev.push(current);
-    }
-    if (idx === from) {
-      return prev;
-    }
-    if (from < to) {
-      prev.push(current);
-    }
-    if (idx === to) {
-      prev.push(self[from]);
-    }
-    if (from > to) {
-      prev.push(current);
-    }
-    return prev;
-  }, [] as Array<T>);
-}
-
-function Board({ board }: { board: Board }) {
+function Board({ board }: { board: TBoard }) {
   const data = React.useMemo(() => processBoard(board), [board]);
-  const [state, setState] = React.useState(data);
-
+  const [state, setState] = React.useState<TBoard>();
   React.useEffect(() => {
-    console.log("Board changed");
-    setState(data);
+    if (data?.name) {
+      setState(data as TBoard);
+    }
   }, [data]);
+  const cols =
+    state?.columns.filter(notEmpty).map((c) => {
+      return {
+        ...c,
+        cards: c.cards.filter(notEmpty),
+      };
+    }) || [];
+
   const updateMutation = useUpdateCardMutation({
     onSettled: () => {
       queryClient.refetchQueries(useKanbanDataQuery.getKey());
     },
   });
+  const addMutation = useCreateCardMutation({
+    onSettled: () => {
+      queryClient.refetchQueries(useKanbanDataQuery.getKey());
+    },
+  });
+  const addCard = () => {
+    if (!board) return;
+    const newCard = {
+      title: "New Card" + Math.random(),
+      priority: 0,
+      description: "",
+      boardId: board.id,
+      columnId: cols[0].id,
+    };
+    addMutation.mutate({
+      ...newCard,
+    });
+  };
+
   return (
     <>
-      <h1>{board?.name}</h1>
-      {board?.description && <p>{board.description}</p>}
-      <DragDropContext
-        onDragEnd={({ destination, source, draggableId }) => {
-          const draggedCard = state.cards.find(
-            (card) => card.id === draggableId
-          );
-          if (!destination || !draggedCard) {
-            return;
-          }
-          if (
-            destination.droppableId === source.droppableId &&
-            destination.index === source.index
-          ) {
-            return;
-          }
-
-          const startcol = state.columns[source.droppableId];
-          const endcol = state.columns[destination.droppableId];
-          const orderedCards = immutableMove(
-            state.cards,
-            source.index,
-            destination.index
-          );
-          if (startcol === endcol) {
-            orderedCards.map((card, index) => {
-              if (card.priority !== index) {
-                updateMutation.mutate({
-                  cardId: card.id,
-                  priority: index,
-                });
-              }
+      <h1>{data?.name}</h1>
+      {data?.description && <p>{data.description}</p>}
+      <button onClick={addCard}>Add Card</button>
+      {state && (
+        <DragDropContext
+          onDragEnd={({ destination, source, draggableId }) => {
+            if (
+              !destination ||
+              (destination.droppableId === source.droppableId &&
+                destination.index === source.index)
+            ) {
+              return;
+            }
+            const newState = moveCard(state, source, destination);
+            newState?.columns.filter(notEmpty).map((col) => {
+              col.cards.filter(notEmpty).map((card, index) => {
+                if (card.id === draggableId || card.priority !== index) {
+                  updateMutation.mutate({
+                    cardId: card.id,
+                    columnId: col.id,
+                    priority: index,
+                  });
+                }
+              });
             });
-
-            const newState = {
-              ...state,
-              cards: orderedCards,
-            };
             setState(newState);
-            return;
-          }
-          const startColCards = [
-            ...startcol.cards
-              .filter((card) => card?.id !== draggableId)
-              .filter(notEmpty),
-          ];
-          const newStart = {
-            ...startcol,
-            cards: startColCards,
-          };
-          const endColCards = [...endcol.cards.filter(notEmpty)];
-          endColCards.splice(destination.index, 0, draggedCard);
-          const newEnd = {
-            ...endcol,
-            cards: endColCards,
-          };
-          const newCards = [
-            ...state.cards
-              .filter((card) => card?.id !== draggableId)
-              .filter(notEmpty),
-            { ...draggedCard, priority: destination.index },
-          ].sort((a, b) => a.priority - b.priority);
-          const newState = {
-            ...state,
-            cards: newCards,
-            columns: {
-              ...state.columns,
-              [newStart.id]: newStart,
-              [newEnd.id]: newEnd,
-            },
-          };
-          setState(newState);
-          updateMutation.mutate({
-            cardId: draggedCard.id,
-            priority: destination.index,
-            columnId: endcol.id,
-          });
-        }}
-      >
-        <Droppable droppableId="columns" direction="horizontal" type="column">
-          {(provided) => (
-            <Columns {...provided.droppableProps} ref={provided.innerRef}>
-              {state.columnOrder.map((id) => {
-                const col = state.columns[id];
-                const cards = state.cards.filter((card) =>
-                  col.cards.find((task) => task && task.id === card.id)
-                );
-
-                return (
-                  <Column
-                    key={col.id}
-                    column={col as TColumn}
-                    cards={cards as TCard[]}
-                  />
-                );
-              })}
-              {provided.placeholder}
-            </Columns>
-          )}
-        </Droppable>
-      </DragDropContext>
+          }}
+        >
+          <Droppable droppableId="columns" direction="horizontal" type="column">
+            {(provided) => (
+              <Columns {...provided.droppableProps} ref={provided.innerRef}>
+                {cols.map((col) => {
+                  return <Column key={col.id} column={col} cards={col.cards} />;
+                })}
+                {provided.placeholder}
+              </Columns>
+            )}
+          </Droppable>
+        </DragDropContext>
+      )}
     </>
   );
 }

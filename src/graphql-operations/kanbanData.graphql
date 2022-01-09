@@ -9,13 +9,11 @@ query kanbanData {
       cards {
         id
         priority
+        title
       }
     }
     cards {
-      title
-      priority
       id
-      description
     }
   }
   allColumns {

@@ -69,6 +69,6 @@ type Card {
   title: String!
   description: String
   priority: Int!
-  board: Board! @site(ref: "boardId")
-  state: Column! @site(ref: "columnId")
+  board: Board @site(ref: "boardId")
+  state: Column @site(ref: "columnId")
 }
