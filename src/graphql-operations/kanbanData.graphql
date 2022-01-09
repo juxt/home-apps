@@ -1,0 +1,24 @@
+query kanbanData {
+  allBoards {
+    name
+    description
+    id
+    columns {
+      id
+      name
+      cards {
+        id
+      }
+    }
+    cards {
+      title
+      priority
+      id
+      description
+    }
+  }
+  allColumns {
+    id
+    name
+  }
+}

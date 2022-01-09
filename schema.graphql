@@ -1,0 +1,74 @@
+schema @site(type: "kanban/test2") {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  allBoards: [Board]
+  board(id: ID!): Board
+  allCards: [Card]
+  card(id: ID!): Card
+  allColumns: [Column]
+  column(id: ID!): Column
+}
+
+type Mutation {
+  createBoard(name: String!, description: String, ColumnIds: [ID!]!): Board
+  createCard(
+    title: String!
+    description: String
+    priority: Int!
+    columnId: ID!
+    boardId: ID!
+  ): Card
+  createColumn(name: String!, description: String): Column
+  updateCard(
+    id: ID!
+    title: String
+    description: String
+    columnId: ID
+    priority: Int
+    boardId: ID
+  ): Card @site(mutation: "update")
+  deleteCard(id: ID!): Card @site(mutation: "delete")
+}
+
+type Board {
+  id: ID!
+  name: String!
+  description: String
+  columns: [Column]!
+    @site(
+      q: {
+        find: [col]
+        where: [
+          [card, type, "Card"]
+          [card, { keyword: "boardId" }, object]
+          [card, { keyword: "columnId" }, col]
+        ]
+      }
+    )
+  cards: [Card]!
+    @site(
+      q: {
+        find: [e]
+        where: [[e, type, "Card"], [e, { keyword: "boardId" }, object]]
+      }
+    )
+}
+
+type Column {
+  id: ID!
+  name: String!
+  description: String
+  cards: [Card]! @site(ref: "columnId")
+}
+
+type Card {
+  id: ID!
+  title: String!
+  description: String
+  priority: Int!
+  board: Board! @site(ref: "boardId")
+  state: Column! @site(ref: "columnId")
+}

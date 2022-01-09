@@ -1,0 +1,68 @@
+{
+  "name": "react-beaufitul-dnd-with-typescript",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "dnd",
+    "react",
+    "drag and drop",
+    "typescript"
+  ],
+  "main": "src/index.tsx",
+  "dependencies": {
+    "@atlaskit/css-reset": "6.3.4",
+    "@types/react": "17.0.38",
+    "@types/react-beautiful-dnd": "13.1.2",
+    "@types/react-dom": "17.0.11",
+    "@types/styled-components": "5.1.19",
+    "graphql": "^16.2.0",
+    "react": "17.0.2",
+    "react-beautiful-dnd": "13.1.0",
+    "react-dom": "17.0.2",
+    "react-query": "^3.34.7",
+    "react-scripts": "5.0.0",
+    "styled-components": "5.3.3",
+    "typescript": "^4.5.4"
+  },
+  "scripts": {
+    "generate": "graphql-codegen",
+    "_lint": "eslint --config ./.eslintrc.js --ext js --ext jsx --ext tsx --ext ts",
+    "lint": "npm run _lint -- ./src/",
+    "lint:fix": "npm run _lint -- --fix ./src/",
+    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,scss,md,json}' --config ./.prettierrc",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "prepare": "cd ../.. && husky install opt/insite-console/.husky"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@graphql-codegen/cli": "^2.3.1",
+    "@graphql-codegen/typescript-operations": "^2.2.2",
+    "@graphql-codegen/typescript-react-query": "^3.3.0",
+    "@types/react-table": "^7.7.9",
+    "@types/swagger-ui-react": "^4.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "eslint": "^8.6.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "husky": ">=6",
+    "lint-staged": ">=10",
+    "prettier": "^2.5.1"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix"
+  }
+}
