@@ -8,6 +8,7 @@ query kanbanData {
       name
       cards {
         id
+        priority
       }
     }
     cards {

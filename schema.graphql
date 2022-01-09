@@ -13,7 +13,18 @@ type Query {
 }
 
 type Mutation {
-  createBoard(name: String!, description: String, ColumnIds: [ID!]!): Board
+  createBoard(name: String!, description: String, columnIds: [ID!]!): Board
+  updateBoard(
+    id: ID!
+    name: String
+    description: String
+    columnIds: [ID]
+  ): Board @site(mutation: "update")
+  deleteBoard(id: ID!): Board @site(mutation: "delete")
+  createColumn(name: String!, description: String): Column
+  updateColumn(id: ID!, name: String, description: String): Column
+    @site(mutation: "update")
+  deleteColumn(id: ID!): Column @site(mutation: "delete")
   createCard(
     title: String!
     description: String
@@ -21,7 +32,6 @@ type Mutation {
     columnId: ID!
     boardId: ID!
   ): Card
-  createColumn(name: String!, description: String): Column
   updateCard(
     id: ID!
     title: String
@@ -37,17 +47,7 @@ type Board {
   id: ID!
   name: String!
   description: String
-  columns: [Column]!
-    @site(
-      q: {
-        find: [col]
-        where: [
-          [card, type, "Card"]
-          [card, { keyword: "boardId" }, object]
-          [card, { keyword: "columnId" }, col]
-        ]
-      }
-    )
+  columns: [Column]! @site(each: "columnIds")
   cards: [Card]!
     @site(
       q: {
