@@ -1,0 +1,14 @@
+mutation createColumn(
+  $colId: ID!
+  $columnIds: [ID!]!
+  $boardId: ID!
+  $columnName: String!
+  $description: String
+) {
+  updateColumn(id: $colId, name: $columnName, description: $description) {
+    id
+  }
+  updateBoard(id: $boardId, columnIds: $columnIds) {
+    id
+  }
+}

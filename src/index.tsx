@@ -8,9 +8,10 @@ import {
   useUpdateCardMutation,
   Column as TColumn,
   useCreateCardMutation,
+  useCreateColumnMutation,
 } from "./generated/graphql";
 import { TBoard, TCard } from "./types";
-import { moveCard, notEmpty } from "./kanbanHelpers";
+import { indexById, moveCard, notEmpty } from "./kanbanHelpers";
 
 import "./styles.css";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -152,12 +153,36 @@ function Board({ board }: { board: TBoard }) {
       ...newCard,
     });
   };
+  const colNameRef = React.useRef<HTMLInputElement>(null);
+  const addColMutation = useCreateColumnMutation({
+    onSettled: () => {
+      queryClient.refetchQueries(useKanbanDataQuery.getKey());
+    },
+  });
+
+  const addColumn = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("add column", colNameRef.current?.value);
+    if (board && colNameRef.current?.value) {
+      const colId = `col-${Date.now()}`;
+      addColMutation.mutate({
+        colId,
+        columnIds: [...cols.map((c) => c.id), colId],
+        boardId: board.id,
+        columnName: colNameRef.current?.value,
+      });
+    }
+  };
 
   return (
     <>
       <h1>{data?.name}</h1>
       {data?.description && <p>{data.description}</p>}
       <button onClick={addCard}>Add Card</button>
+      <form onSubmit={addColumn}>
+        <input ref={colNameRef} type="text" />
+        <button>Add Column</button>
+      </form>
       {state && (
         <DragDropContext
           onDragEnd={({ destination, source, draggableId }) => {
