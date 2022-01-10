@@ -10,7 +10,7 @@ import {
   useCreateCardMutation,
 } from "./generated/graphql";
 import { TBoard, TCard } from "./types";
-import { immutableMove, moveCard, notEmpty } from "./kanbanHelpers";
+import { moveCard, notEmpty } from "./kanbanHelpers";
 
 import "./styles.css";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -41,7 +41,7 @@ const DraggableCard = React.memo(({ card, index }: CardProps) => {
           ref={provided.innerRef}
           isDragging={snapshot.isDragging}
         >
-          {card.title}
+          {card.id}
         </CardContainer>
       )}
     </Draggable>
@@ -103,10 +103,7 @@ function processBoard(board: TBoard) {
     ...board,
     columns: columns.map((c) => ({
       ...c,
-      cards: c.cards
-        .filter((card) => board?.cards.find((bCard) => bCard?.id === card?.id))
-        .filter(notEmpty)
-        .sort((a, b) => a.priority - b.priority),
+      cards: c.cards.filter(notEmpty),
     })),
   };
 }
@@ -116,7 +113,9 @@ function Board({ board }: { board: TBoard }) {
   const [state, setState] = React.useState<TBoard>();
   React.useEffect(() => {
     if (data?.name) {
+      // no idea why typescript thinks data.name is possibly undefined here...
       setState(data as TBoard);
+      console.log("board update from server");
     }
   }, [data]);
   const cols =
@@ -132,15 +131,18 @@ function Board({ board }: { board: TBoard }) {
       queryClient.refetchQueries(useKanbanDataQuery.getKey());
     },
   });
-  const addMutation = useCreateCardMutation({
+  const addMutation = useUpdateCardMutation({
     onSettled: () => {
       queryClient.refetchQueries(useKanbanDataQuery.getKey());
     },
   });
   const addCard = () => {
     if (!board) return;
+    const newId = `card-${Date.now()}`;
     const newCard = {
       title: "New Card" + Math.random(),
+      cardId: newId,
+      cardIds: [...cols[0].cards.map((c) => c.id), newId],
       priority: 0,
       description: "",
       boardId: board.id,
@@ -167,17 +169,36 @@ function Board({ board }: { board: TBoard }) {
               return;
             }
             const newState = moveCard(state, source, destination);
-            newState?.columns.filter(notEmpty).map((col) => {
-              col.cards.filter(notEmpty).map((card, index) => {
-                if (card.id === draggableId || card.priority !== index) {
-                  updateMutation.mutate({
-                    cardId: card.id,
-                    columnId: col.id,
-                    priority: index,
-                  });
-                }
+            const startCol = cols.find((c) => c.id === source.droppableId);
+            const endCol = cols.find((c) => c.id === destination.droppableId);
+            if (startCol) {
+              const cards =
+                newState?.columns
+                  .filter(notEmpty)
+                  .find((c) => c.id === source.droppableId)
+                  ?.cards.filter(notEmpty)
+                  .map((c) => c.id) || [];
+              updateMutation.mutate({
+                columnId: startCol?.id,
+                cardId: draggableId,
+                cardIds: cards,
               });
-            });
+            }
+
+            if (endCol && startCol !== endCol) {
+              const cards =
+                newState?.columns
+                  .filter(notEmpty)
+                  .find((c) => c.id === destination.droppableId)
+                  ?.cards.filter(notEmpty)
+                  .map((c) => c.id) || [];
+              updateMutation.mutate({
+                columnId: endCol?.id,
+                cardId: draggableId,
+                cardIds: cards,
+              });
+            }
+
             setState(newState);
           }}
         >

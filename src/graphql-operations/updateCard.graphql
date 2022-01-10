@@ -1,19 +1,22 @@
 mutation updateCard(
   $boardId: ID
-  $columnId: ID
+  $columnId: ID!
   $description: String
   $cardId: ID!
+  $cardIds: [ID]
   $priority: Int
   $title: String
 ) {
   updateCard(
     boardId: $boardId
-    columnId: $columnId
     id: $cardId
     priority: $priority
     title: $title
     description: $description
   ) {
+    id
+  }
+  updateColumn(id: $columnId, cardIds: $cardIds) {
     id
   }
 }

@@ -12,9 +12,6 @@ query kanbanData {
         title
       }
     }
-    cards {
-      id
-    }
   }
   allColumns {
     id

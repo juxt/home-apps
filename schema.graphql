@@ -1,4 +1,4 @@
-schema @site(type: "kanban/test2") {
+schema @site(type: "kanban/test3") {
   query: Query
   mutation: Mutation
 }
@@ -21,22 +21,24 @@ type Mutation {
     columnIds: [ID]
   ): Board @site(mutation: "update")
   deleteBoard(id: ID!): Board @site(mutation: "delete")
-  createColumn(name: String!, description: String): Column
-  updateColumn(id: ID!, name: String, description: String): Column
-    @site(mutation: "update")
+  createColumn(name: String!, description: String, cardIds: [ID]): Column
+  updateColumn(
+    id: ID!
+    name: String
+    description: String
+    cardIds: [ID]
+  ): Column @site(mutation: "update")
   deleteColumn(id: ID!): Column @site(mutation: "delete")
   createCard(
     title: String!
     description: String
     priority: Int!
-    columnId: ID!
     boardId: ID!
   ): Card
   updateCard(
     id: ID!
     title: String
     description: String
-    columnId: ID
     priority: Int
     boardId: ID
   ): Card @site(mutation: "update")
@@ -48,20 +50,13 @@ type Board {
   name: String!
   description: String
   columns: [Column]! @site(each: "columnIds")
-  cards: [Card]!
-    @site(
-      q: {
-        find: [e]
-        where: [[e, type, "Card"], [e, { keyword: "boardId" }, object]]
-      }
-    )
 }
 
 type Column {
   id: ID!
   name: String!
   description: String
-  cards: [Card]! @site(ref: "columnId")
+  cards: [Card]! @site(each: "cardIds")
 }
 
 type Card {
@@ -70,5 +65,4 @@ type Card {
   description: String
   priority: Int!
   board: Board @site(ref: "boardId")
-  state: Column @site(ref: "columnId")
 }
