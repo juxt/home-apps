@@ -1,0 +1,5 @@
+mutation createBoard($name: String!, $description: String, $columnIds: [ID]) {
+  createBoard(name: $name, description: $description, columnIds: $columnIds) {
+    id
+  }
+}

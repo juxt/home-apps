@@ -13,7 +13,7 @@ type Query {
 }
 
 type Mutation {
-  createBoard(name: String!, description: String, columnIds: [ID!]!): Board
+  createBoard(name: String!, description: String, columnIds: [ID]): Board
   updateBoard(
     id: ID!
     name: String

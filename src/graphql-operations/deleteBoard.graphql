@@ -1,0 +1,5 @@
+mutation deleteBoard($boardId: ID!) {
+  deleteBoard(id: $boardId) {
+    id
+  }
+}
