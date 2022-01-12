@@ -65,11 +65,15 @@ export type CheckboxInputDefinition = CheckboxProps & WithIdAndType<"checkbox">;
 
 export type TextAreaInputDefinition = TextAreaProps & WithIdAndType<"textarea">;
 
+export type Option = {
+  value: string;
+  label: string;
+  key?: string;
+  disabled?: boolean;
+};
+
 export type MultiSelectDefinition = {
-  options: {
-    value: string;
-    label: string;
-  }[];
+  options: Option[];
 } & Omit<Omit<ISelectProps, "labelledBy">, "value"> &
   WithIdAndType<"multiselect">;
 

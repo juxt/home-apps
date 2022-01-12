@@ -12,6 +12,12 @@ export function notEmpty<TValue>(
   return true;
 }
 
+export function distinctBy<T>(array: Array<T>, propertyName: keyof T) {
+  return array.filter(
+    (e, i) => array.findIndex((a) => a[propertyName] === e[propertyName]) === i
+  );
+}
+
 export function indexById<T extends { id: string }>(
   array: Array<T>
 ): { [id: string]: T } {

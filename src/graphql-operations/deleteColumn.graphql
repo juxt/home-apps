@@ -1,0 +1,8 @@
+mutation deleteColumn($id: ID!, $boardId: ID!, $columnIds: [ID!]!) {
+  deleteColumn(id: $id) {
+    id
+  }
+  updateBoard(id: $boardId, columnIds: $columnIds) {
+    id
+  }
+}

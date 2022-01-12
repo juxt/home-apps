@@ -1,6 +1,4 @@
 import { ModalForm } from "./components/Modal";
-import { ReactQueryDevtools } from "react-query/devtools";
-import { Option } from "react-multi-select-component/dist/types/lib/interfaces";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
@@ -12,9 +10,11 @@ import {
   MutationCreateBoardArgs,
   useDeleteBoardMutation,
   useAllColumnsQuery,
+  CreateColumnMutationVariables,
+  useDeleteColumnMutation,
 } from "./generated/graphql";
-import { ModalProps, TBoard, TCard } from "./types";
-import { moveCard, notEmpty } from "./kanbanHelpers";
+import { Option, TBoard, TCard } from "./types";
+import { distinctBy, moveCard, notEmpty } from "./kanbanHelpers";
 import { QueryClient, useQueryClient } from "react-query";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -83,27 +83,46 @@ const Columns = styled.div`
 type ColumnProps = {
   column: TColumn;
   cards: TCard[];
+  board: NonNullable<TBoard>;
 };
 
-const Column = React.memo(({ column, cards }: ColumnProps) => (
-  <Container isDragging={false}>
-    <Title>{column.name}</Title>
-    <Droppable droppableId={column.id} type="card">
-      {(provided, snapshot) => (
-        <List
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-          isDraggingOver={snapshot.isDraggingOver}
-        >
-          {cards.map((t, i) => (
-            <DraggableCard key={t.id} card={t} index={i} />
-          ))}
-          {provided.placeholder}
-        </List>
-      )}
-    </Droppable>
-  </Container>
-));
+const Column = React.memo(({ column, cards, board }: ColumnProps) => {
+  const queryClient = useQueryClient();
+  const deleteColMutation = useDeleteColumnMutation({
+    ...defaultMutationProps(queryClient),
+  });
+  const boardColumns = board?.columns.filter(notEmpty).map((c) => c.id) || [];
+  return (
+    <Container isDragging={false}>
+      <button
+        onClick={() =>
+          deleteColMutation.mutate({
+            id: column.id,
+            boardId: board.id,
+            columnIds: [...boardColumns.filter((c) => c !== column.id)],
+          })
+        }
+      >
+        Delete
+      </button>
+      <Title>{column.name}</Title>
+      <Droppable droppableId={column.id} type="card">
+        {(provided, snapshot) => (
+          <List
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            isDraggingOver={snapshot.isDraggingOver}
+          >
+            {cards.map((t, i) => (
+              <DraggableCard key={t.id} card={t} index={i} />
+            ))}
+            {provided.placeholder}
+          </List>
+        )}
+      </Droppable>
+    </Container>
+  );
+});
 
 function processBoard(board: TBoard) {
   const columns = board?.columns.filter(notEmpty) || [];
@@ -115,6 +134,11 @@ function processBoard(board: TBoard) {
     })),
   };
 }
+
+type AddColumnInput = Omit<
+  Omit<Omit<CreateColumnMutationVariables, "colId">, "columnIds">,
+  "boardId"
+>;
 
 function Board({ board }: { board: TBoard }) {
   const data = React.useMemo(() => processBoard(board), [board]);
@@ -163,21 +187,21 @@ function Board({ board }: { board: TBoard }) {
   const addColMutation = useCreateColumnMutation({
     ...defaultMutationProps(queryClient),
   });
-
-  const addColumn = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("add column", colNameRef.current?.value);
-    if (board && colNameRef.current?.value) {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const addColumn = (col: AddColumnInput) => {
+    if (board) {
+      setIsModalOpen(false);
       const colId = `col-${Date.now()}`;
       addColMutation.mutate({
-        colId,
+        ...col,
         columnIds: [...cols.map((c) => c.id), colId],
         boardId: board.id,
-        columnName: colNameRef.current?.value,
+        colId,
       });
     }
   };
   const crudButtonClass = "px-4";
+  const formHooks = useForm<AddColumnInput>();
   return (
     <>
       <div className="flex bg-red-500 justify-between max-w-lg">
@@ -200,13 +224,28 @@ function Board({ board }: { board: TBoard }) {
           >
             Delete
           </button>
+          <button onClick={() => setIsModalOpen(true)}>Add Column</button>
         </div>
       </div>
       {data?.description && <p>{data.description}</p>}
-      <form onSubmit={addColumn}>
-        <input ref={colNameRef} type="text" />
-        <button>Add Column</button>
-      </form>
+      <ModalForm<AddColumnInput>
+        title="Add Column"
+        formHooks={formHooks}
+        onSubmit={formHooks.handleSubmit(addColumn, console.warn)}
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        fields={[
+          {
+            id: "name",
+            path: "columnName",
+            rules: {
+              required: true,
+            },
+            label: "Column Name",
+            type: "text",
+          },
+        ]}
+      />
       {state && (
         <DragDropContext
           onDragEnd={({ destination, source, draggableId }) => {
@@ -255,7 +294,14 @@ function Board({ board }: { board: TBoard }) {
             {(provided) => (
               <Columns {...provided.droppableProps} ref={provided.innerRef}>
                 {cols.map((col) => {
-                  return <Column key={col.id} column={col} cards={col.cards} />;
+                  return (
+                    <Column
+                      key={col.id}
+                      column={col}
+                      board={board as NonNullable<TBoard>}
+                      cards={col.cards}
+                    />
+                  );
                 })}
                 {provided.placeholder}
               </Columns>
@@ -268,24 +314,46 @@ function Board({ board }: { board: TBoard }) {
 }
 
 type AddBoardInput = Omit<MutationCreateBoardArgs, "columnIds"> & {
-  columnIds: Option[];
+  columnIds: Option[] | undefined;
 };
 
 export function App() {
   const kanbanQueryResult = useKanbanDataQuery();
   const boards = kanbanQueryResult.data?.allBoards || [];
-  const addBoardMutation = useCreateBoardMutation({ ...defaultMutationProps });
+  const queryClient = useQueryClient();
+  const addBoardMutation = useCreateBoardMutation({
+    ...defaultMutationProps(queryClient),
+  });
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const addBoard = (input: AddBoardInput) => {
     console.log("add board", input);
+    setIsModalOpen(false);
+    const { columnIds, ...boardInput } = input;
+
+    const newColumns =
+      columnIds?.map((c) => {
+        return {
+          name: c.label,
+          id: "col" + Math.random().toString(),
+        };
+      }) || [];
     const data = {
-      ...input,
-      columnIds: input["columnIds"]?.map((option) => option?.value),
+      ...boardInput,
+      columns: newColumns,
+      columnIds: newColumns?.map((c) => c.id),
     };
     addBoardMutation.mutate(data);
   };
   const formHooks = useForm<AddBoardInput>();
   const columnResult = useAllColumnsQuery();
+  const cols =
+    columnResult.data?.allColumns?.filter(notEmpty).map((c) => {
+      return {
+        value: c.id,
+        label: c.name,
+      };
+    }) || [];
+  const columns = distinctBy<typeof cols[0]>(cols, "label") || [];
   return (
     <div>
       {kanbanQueryResult.isLoading && <div>Loading...</div>}
@@ -296,11 +364,7 @@ export function App() {
           {
             id: "columns",
             type: "multiselect",
-            options:
-              columnResult.data?.allColumns?.filter(notEmpty)?.map((c) => ({
-                label: c.name,
-                value: c.id,
-              })) || [],
+            options: columns,
             path: "columnIds",
             label: "Columns",
           },
@@ -324,7 +388,14 @@ export function App() {
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
       />
-      <button onClick={() => setIsModalOpen(true)}>Add Board</button>
+      <button
+        onClick={() => {
+          queryClient.refetchQueries(["allColumns"]);
+          return setIsModalOpen(true);
+        }}
+      >
+        Add Board
+      </button>
       {boards.length > 0 &&
         boards
           .filter(notEmpty)

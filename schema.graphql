@@ -7,7 +7,7 @@ type Query {
   allBoards: [Board]
   board(id: ID!): Board
   allCards: [Card]
-  card(id: ID!): Card
+  card(id: ID!): [Card] @site(history: "asc")
   allColumns: [Column]
   column(id: ID!): Column
 }
@@ -21,7 +21,8 @@ type Mutation {
     columnIds: [ID]
   ): Board @site(mutation: "update")
   deleteBoard(id: ID!): Board @site(mutation: "delete")
-  createColumn(name: String!, description: String, cardIds: [ID]): Column
+  createColumn(column: ColumnInput): Column
+  createColumns(columns: [ColumnInput]): [Column]
   updateColumn(
     id: ID!
     name: String
@@ -45,6 +46,13 @@ type Mutation {
   deleteCard(id: ID!): Card @site(mutation: "delete")
 }
 
+input ColumnInput {
+  id: ID
+  name: String!
+  description: String
+  cardIds: [ID]
+}
+
 type Board {
   id: ID!
   name: String!
@@ -62,6 +70,7 @@ type Column {
 type Card {
   id: ID!
   title: String!
+  _siteValidTime: String
   description: String
   priority: Int!
   board: Board @site(ref: "boardId")
