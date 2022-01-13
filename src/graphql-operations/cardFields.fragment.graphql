@@ -1,0 +1,5 @@
+fragment CardFields on Card {
+  id
+  title
+  description
+}

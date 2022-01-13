@@ -1,15 +1,13 @@
 mutation createCard(
-  $boardId: ID!
-  $description: String
-  $priority: Int!
-  $title: String!
+  $card: CardInput!
+  $cardId: ID!
+  $cardIds: [ID!]!
+  $columnId: ID!
 ) {
-  createCard(
-    boardId: $boardId
-    priority: $priority
-    title: $title
-    description: $description
-  ) {
+  updateCard(id: $cardId, Card: $card) {
+    id
+  }
+  updateColumn(id: $columnId, cardIds: $cardIds) {
     id
   }
 }

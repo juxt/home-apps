@@ -4,13 +4,7 @@ query kanbanData {
     description
     id
     columns {
-      id
-      name
-      cards {
-        id
-        priority
-        title
-      }
+      ...ColumnFields
     }
   }
   allColumns {

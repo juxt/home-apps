@@ -1,29 +1,18 @@
-import { ModalForm } from "./components/Modal";
+import { AddBoardModal, UpdateBoardModal } from "./components/BoardForms";
+import { AddColumnModal } from "./components/ColumnForms";
+import { AddCardModal } from "./components/CardForms";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   useKanbanDataQuery,
-  useUpdateCardMutation,
-  Column as TColumn,
-  useCreateColumnMutation,
-  useCreateBoardMutation,
-  MutationCreateBoardArgs,
   useDeleteBoardMutation,
-  useAllColumnsQuery,
-  CreateColumnMutationVariables,
   useDeleteColumnMutation,
+  useMoveCardMutation,
 } from "./generated/graphql";
-import { Option, TBoard, TCard } from "./types";
-import { distinctBy, moveCard, notEmpty } from "./kanbanHelpers";
-import { QueryClient, useQueryClient } from "react-query";
+import { BoardFormModalTypes, TBoard, TCard, TColumn } from "./types";
+import { defaultMutationProps, moveCard, notEmpty } from "./kanbanHelpers";
+import { useQueryClient } from "react-query";
 import React from "react";
-import { useForm } from "react-hook-form";
-
-const defaultMutationProps = (queryClient: QueryClient) => ({
-  onSettled: () => {
-    queryClient.refetchQueries(useKanbanDataQuery.getKey());
-  },
-});
 
 const CardContainer = styled.div<{ isDragging: boolean }>`
   border: 1px solid lightgrey;
@@ -49,7 +38,7 @@ const DraggableCard = React.memo(({ card, index }: CardProps) => {
           ref={provided.innerRef}
           isDragging={snapshot.isDragging}
         >
-          {card.id}
+          {card.id + " " + card.title + " " + card?.description}
         </CardContainer>
       )}
     </Draggable>
@@ -91,17 +80,28 @@ const Column = React.memo(({ column, cards, board }: ColumnProps) => {
   const deleteColMutation = useDeleteColumnMutation({
     ...defaultMutationProps(queryClient),
   });
-  const boardColumns = board?.columns.filter(notEmpty).map((c) => c.id) || [];
+  const boardColumns = board?.columns.filter(notEmpty);
   return (
     <Container isDragging={false}>
       <button
-        onClick={() =>
-          deleteColMutation.mutate({
+        onClick={() => {
+          const hasCards = cards.length > 0;
+          if (hasCards) {
+            alert(
+              "Cannot delete a column with cards, please move them somewhere else"
+            );
+            return;
+          }
+          return deleteColMutation.mutate({
             id: column.id,
             boardId: board.id,
-            columnIds: [...boardColumns.filter((c) => c !== column.id)],
-          })
-        }
+            columnIds: [
+              ...boardColumns
+                .filter((c) => c.id !== column.id)
+                .map((c) => c.id),
+            ],
+          });
+        }}
       >
         Delete
       </button>
@@ -135,11 +135,6 @@ function processBoard(board: TBoard) {
   };
 }
 
-type AddColumnInput = Omit<
-  Omit<Omit<CreateColumnMutationVariables, "colId">, "columnIds">,
-  "boardId"
->;
-
 function Board({ board }: { board: TBoard }) {
   const data = React.useMemo(() => processBoard(board), [board]);
   const [state, setState] = React.useState<TBoard>();
@@ -158,60 +153,45 @@ function Board({ board }: { board: TBoard }) {
       };
     }) || [];
   const queryClient = useQueryClient();
-  const updateMutation = useUpdateCardMutation({
-    ...defaultMutationProps(queryClient),
-  });
-  const addMutation = useUpdateCardMutation({
+  const moveCardMutation = useMoveCardMutation({
     ...defaultMutationProps(queryClient),
   });
   const deleteBoardMutation = useDeleteBoardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const addCard = () => {
-    if (!board) return;
-    const newId = `card-${Date.now()}`;
-    const newCard = {
-      title: "New Card" + Math.random(),
-      cardId: newId,
-      cardIds: [...cols[0].cards.map((c) => c.id), newId],
-      priority: 0,
-      description: "",
-      boardId: board.id,
-      columnId: cols[0].id,
-    };
-    addMutation.mutate({
-      ...newCard,
-    });
-  };
-  const colNameRef = React.useRef<HTMLInputElement>(null);
-  const addColMutation = useCreateColumnMutation({
-    ...defaultMutationProps(queryClient),
-  });
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const addColumn = (col: AddColumnInput) => {
-    if (board) {
-      setIsModalOpen(false);
-      const colId = `col-${Date.now()}`;
-      addColMutation.mutate({
-        ...col,
-        columnIds: [...cols.map((c) => c.id), colId],
-        boardId: board.id,
-        colId,
-      });
-    }
-  };
+  const [formModal, setFormModal] = React.useState<BoardFormModalTypes>();
+
   const crudButtonClass = "px-4";
-  const formHooks = useForm<AddColumnInput>();
   return (
     <>
       <div className="flex bg-red-500 justify-between max-w-lg">
+        {board?.id && (
+          <>
+            <UpdateBoardModal
+              isOpen={formModal === "editBoard"}
+              setIsOpen={setFormModal}
+              board={board}
+            />
+            <AddColumnModal
+              isOpen={formModal === "addColumn"}
+              setIsOpen={setFormModal}
+              board={board}
+              cols={cols}
+            />
+            <AddCardModal
+              isOpen={formModal === "addCard"}
+              setIsOpen={setFormModal}
+              board={board}
+              cols={cols}
+            />
+          </>
+        )}
+
         <h1>{data?.name}</h1>
         <div className="flex justify-around">
           <button
             className={crudButtonClass}
-            onClick={() => {
-              console.log("edit board");
-            }}
+            onClick={() => setFormModal("editBoard")}
           >
             Edit
           </button>
@@ -224,28 +204,12 @@ function Board({ board }: { board: TBoard }) {
           >
             Delete
           </button>
-          <button onClick={() => setIsModalOpen(true)}>Add Column</button>
+          <button onClick={() => setFormModal("addColumn")}>Add Column</button>
+          <button onClick={() => setFormModal("addCard")}> Add Card</button>
         </div>
       </div>
       {data?.description && <p>{data.description}</p>}
-      <ModalForm<AddColumnInput>
-        title="Add Column"
-        formHooks={formHooks}
-        onSubmit={formHooks.handleSubmit(addColumn, console.warn)}
-        isOpen={isModalOpen}
-        setIsOpen={setIsModalOpen}
-        fields={[
-          {
-            id: "name",
-            path: "columnName",
-            rules: {
-              required: true,
-            },
-            label: "Column Name",
-            type: "text",
-          },
-        ]}
-      />
+
       {state && (
         <DragDropContext
           onDragEnd={({ destination, source, draggableId }) => {
@@ -266,9 +230,8 @@ function Board({ board }: { board: TBoard }) {
                   .find((c) => c.id === source.droppableId)
                   ?.cards.filter(notEmpty)
                   .map((c) => c.id) || [];
-              updateMutation.mutate({
+              moveCardMutation.mutate({
                 columnId: startCol?.id,
-                cardId: draggableId,
                 cardIds: cards,
               });
             }
@@ -280,9 +243,8 @@ function Board({ board }: { board: TBoard }) {
                   .find((c) => c.id === destination.droppableId)
                   ?.cards.filter(notEmpty)
                   .map((c) => c.id) || [];
-              updateMutation.mutate({
+              moveCardMutation.mutate({
                 columnId: endCol?.id,
-                cardId: draggableId,
                 cardIds: cards,
               });
             }
@@ -313,85 +275,22 @@ function Board({ board }: { board: TBoard }) {
   );
 }
 
-type AddBoardInput = Omit<MutationCreateBoardArgs, "columnIds"> & {
-  columnIds: Option[] | undefined;
-};
-
 export function App() {
   const kanbanQueryResult = useKanbanDataQuery();
   const boards = kanbanQueryResult.data?.allBoards || [];
   const queryClient = useQueryClient();
-  const addBoardMutation = useCreateBoardMutation({
-    ...defaultMutationProps(queryClient),
-  });
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const addBoard = (input: AddBoardInput) => {
-    console.log("add board", input);
-    setIsModalOpen(false);
-    const { columnIds, ...boardInput } = input;
 
-    const newColumns =
-      columnIds?.map((c) => {
-        return {
-          name: c.label,
-          id: "col" + Math.random().toString(),
-        };
-      }) || [];
-    const data = {
-      ...boardInput,
-      columns: newColumns,
-      columnIds: newColumns?.map((c) => c.id),
-    };
-    addBoardMutation.mutate(data);
-  };
-  const formHooks = useForm<AddBoardInput>();
-  const columnResult = useAllColumnsQuery();
-  const cols =
-    columnResult.data?.allColumns?.filter(notEmpty).map((c) => {
-      return {
-        value: c.id,
-        label: c.name,
-      };
-    }) || [];
-  const columns = distinctBy<typeof cols[0]>(cols, "label") || [];
+  const [isModalOpen, setIsModalOpen] =
+    React.useState<BoardFormModalTypes>(false);
+
   return (
     <div>
       {kanbanQueryResult.isLoading && <div>Loading...</div>}
-      <ModalForm<AddBoardInput>
-        title="Add Board"
-        formHooks={formHooks}
-        fields={[
-          {
-            id: "columns",
-            type: "multiselect",
-            options: columns,
-            path: "columnIds",
-            label: "Columns",
-          },
-          {
-            id: "BoardName",
-            placeholder: "Board Name",
-            type: "text",
-            rules: {
-              required: true,
-            },
-            path: "name",
-          },
-          {
-            id: "BoardDescription",
-            placeholder: "Board Description",
-            type: "text",
-            path: "description",
-          },
-        ]}
-        onSubmit={formHooks.handleSubmit(addBoard, console.warn)}
-        isOpen={isModalOpen}
-        setIsOpen={setIsModalOpen}
-      />
+      <AddBoardModal isOpen={!!isModalOpen} setIsOpen={setIsModalOpen} />
       <button
         onClick={() => {
           queryClient.refetchQueries(["allColumns"]);
-          return setIsModalOpen(true);
+          return setIsModalOpen("addBoard");
         }}
       >
         Add Board

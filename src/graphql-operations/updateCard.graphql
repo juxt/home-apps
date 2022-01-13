@@ -1,22 +1,5 @@
-mutation updateCard(
-  $boardId: ID
-  $columnId: ID!
-  $description: String
-  $cardId: ID!
-  $cardIds: [ID]
-  $priority: Int
-  $title: String
-) {
-  updateCard(
-    boardId: $boardId
-    id: $cardId
-    priority: $priority
-    title: $title
-    description: $description
-  ) {
-    id
-  }
-  updateColumn(id: $columnId, cardIds: $cardIds) {
+mutation updateCard($card: CardInput!, $cardId: ID!) {
+  updateCard(id: $cardId, Card: $card) {
     id
   }
 }

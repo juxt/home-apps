@@ -1,0 +1,15 @@
+mutation updateBoard(
+  $id: ID!
+  $columnIds: [ID]
+  $description: String
+  $name: String
+) {
+  updateBoard(
+    id: $id
+    description: $description
+    columnIds: $columnIds
+    name: $name
+  ) {
+    id
+  }
+}

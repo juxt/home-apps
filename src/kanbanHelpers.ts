@@ -1,5 +1,6 @@
 import { DraggableLocation } from "react-beautiful-dnd";
-import { Column as TColumn } from "./generated/graphql";
+import { QueryClient } from "react-query";
+import { Column as TColumn, useKanbanDataQuery } from "./generated/graphql";
 import { TBoard, TCard } from "./types";
 
 export function isDefined<T>(argument: T | undefined): argument is T {
@@ -248,7 +249,14 @@ function changeCard(board: { columns: any[] }, cardId: any, newCard: any) {
   };
 }
 
+const defaultMutationProps = (queryClient: QueryClient) => ({
+  onSettled: () => {
+    queryClient.refetchQueries(useKanbanDataQuery.getKey());
+  },
+});
+
 export {
+  defaultMutationProps,
   moveColumn,
   moveCard,
   addColumn,

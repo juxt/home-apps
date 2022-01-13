@@ -21,7 +21,7 @@ type Mutation {
     columnIds: [ID]
   ): Board @site(mutation: "update")
   deleteBoard(id: ID!): Board @site(mutation: "delete")
-  createColumn(column: ColumnInput): Column
+  createColumn(Column: ColumnInput): Column
   createColumns(columns: [ColumnInput]): [Column]
   updateColumn(
     id: ID!
@@ -30,34 +30,29 @@ type Mutation {
     cardIds: [ID]
   ): Column @site(mutation: "update")
   deleteColumn(id: ID!): Column @site(mutation: "delete")
-  createCard(
-    title: String!
-    description: String
-    priority: Int!
-    boardId: ID!
-  ): Card
-  updateCard(
-    id: ID!
-    title: String
-    description: String
-    priority: Int
-    boardId: ID
-  ): Card @site(mutation: "update")
+  createCard(Card: CardInput): Card
+  updateCard(id: ID!, Card: CardInput): Card @site(mutation: "update")
   deleteCard(id: ID!): Card @site(mutation: "delete")
 }
 
 input ColumnInput {
   id: ID
-  name: String!
+  name: String
   description: String
   cardIds: [ID]
+}
+
+input CardInput {
+  title: String
+  description: String
+  boardId: ID
 }
 
 type Board {
   id: ID!
   name: String!
   description: String
-  columns: [Column]! @site(each: "columnIds")
+  columns: [Column!]! @site(each: "columnIds")
 }
 
 type Column {
@@ -72,6 +67,5 @@ type Card {
   title: String!
   _siteValidTime: String
   description: String
-  priority: Int!
   board: Board @site(ref: "boardId")
 }

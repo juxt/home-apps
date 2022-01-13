@@ -1,0 +1,5 @@
+mutation moveCard($columnId: ID!, $cardIds: [ID!]!) {
+  updateColumn(id: $columnId, cardIds: $cardIds) {
+    id
+  }
+}

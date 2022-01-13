@@ -1,10 +1,7 @@
-/* This example requires Tailwind CSS v2.0+ */
-import { Dispatch, Fragment, SetStateAction, useRef } from "react";
+import { Dispatch, Fragment, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { ExclamationIcon } from "@heroicons/react/outline";
 import { Form } from "./Form";
-import { ModalFormProps } from "../types";
-import { useForm } from "react-hook-form";
+import { ModalFormProps, ModalStateProps } from "../types";
 
 export function ModalContent({ children }: { children: React.ReactNode }) {
   return (
@@ -45,20 +42,18 @@ export function ModalBody({ children }: { children: React.ReactNode }) {
 }
 
 export function Modal({
-  open,
-  setOpen,
+  isOpen,
+  setIsOpen,
   children,
-}: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+}: ModalStateProps & {
   children: React.ReactNode;
 }) {
   return (
-    <Transition.Root show={open} as={Fragment}>
+    <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
         as="div"
         className="fixed z-10 inset-0 overflow-y-auto"
-        onClose={setOpen}
+        onClose={() => setIsOpen(false)}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -103,8 +98,24 @@ export function ModalForm<T>(props: ModalFormProps<T>) {
   const { setIsOpen } = props;
 
   return (
-    <Modal open={props.isOpen} setOpen={setIsOpen}>
+    <Modal isOpen={props.isOpen} setIsOpen={setIsOpen}>
       <Form {...props} onSubmit={props.onSubmit} />
+      <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          type="submit"
+          form={props?.id || props.title}
+          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+        >
+          Submit
+        </button>
+        <button
+          type="button"
+          className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          onClick={() => setIsOpen(false)}
+        >
+          Cancel
+        </button>
+      </div>
     </Modal>
   );
 }

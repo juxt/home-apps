@@ -12,7 +12,11 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { ISelectProps } from "react-multi-select-component/dist/types/lib/interfaces";
-import { KanbanDataQuery, Column as TColumn } from "./generated/graphql";
+import {
+  KanbanDataQuery,
+  CardFieldsFragment,
+  ColumnFieldsFragment,
+} from "./generated/graphql";
 
 declare module "react" {
   function forwardRef<T, P = {}>(
@@ -22,7 +26,8 @@ declare module "react" {
 
 export type TBoards = NonNullable<KanbanDataQuery["allBoards"]>;
 export type TBoard = TBoards[0];
-export type TCard = NonNullable<TColumn["cards"][0]>;
+export type TCard = CardFieldsFragment;
+export type TColumn = ColumnFieldsFragment;
 
 type WithIdAndType<
   T extends
@@ -32,6 +37,7 @@ type WithIdAndType<
     | "textarea"
     | "submit"
     | "multiselect"
+    | "hidden"
 > = {
   id: string;
   type: T;
@@ -41,6 +47,10 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 type TextInputProps = InputProps & {
   type: "text";
   value?: string;
+};
+type HiddenInputProps = InputProps & {
+  type: "hidden";
+  value: string;
 };
 type NumberInputProps = InputProps & {
   type: "number";
@@ -58,6 +68,8 @@ type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
 };
 
 export type TextInputDefinition = TextInputProps & WithIdAndType<"text">;
+
+export type HiddenInputDefinition = HiddenInputProps & WithIdAndType<"hidden">;
 
 export type NumberInputDefinition = NumberInputProps & WithIdAndType<"number">;
 
@@ -86,6 +98,7 @@ export type FormInputField<T> = {
   rules?: RegisterOptions;
 } & (
   | TextInputDefinition
+  | HiddenInputDefinition
   | NumberInputDefinition
   | CheckboxInputDefinition
   | TextAreaInputDefinition
@@ -94,16 +107,25 @@ export type FormInputField<T> = {
 
 export type FormProps<T> = {
   fields?: FormInputField<T>[];
+  id?: string;
   formHooks: UseFormReturn<T, object>;
+  title?: string;
+  description?: string;
   onSubmit: () => void;
 };
 
-export type ModalProps<T> = FormProps<T> & {
-  title?: string;
-  description?: string;
+export type BoardFormModalTypes =
+  | "addCard"
+  | "addColumn"
+  | "editBoard"
+  | "addBoard"
+  | null
+  | false
+  | undefined;
+
+export type ModalStateProps = {
   isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<BoardFormModalTypes>>;
 };
 
-export type ModalFormProps<T> = ModalProps<T> & {
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
+export type ModalFormProps<T> = FormProps<T> & ModalStateProps;
