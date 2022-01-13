@@ -5,6 +5,7 @@ import { MultiSelect } from "react-multi-select-component";
 
 import { Option } from "react-multi-select-component/dist/types/lib/interfaces";
 import { FormInputField, FormProps, ModalFormProps } from "../types";
+import { Tiptap } from "./Tiptap";
 
 const inputClass =
   "relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base";
@@ -52,11 +53,27 @@ export function RenderField<T>({
         />
       );
     case "textarea":
+      return <textarea {...defaultProps} {...field} className={inputClass} />;
+    case "tiptap":
       return (
-        <textarea
-          {...defaultProps}
-          rows={3}
-          className="max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
+        <Controller
+          name={field.path}
+          control={control}
+          render={(controlProps) => {
+            let { value, onChange, name } = controlProps.field;
+            return (
+              <Tiptap
+                onChange={onChange}
+                content={value as string}
+                withTaskListExtension={true}
+                withLinkExtension={true}
+                withEmojisReplacer={true}
+                withTypographyExtension={true}
+                withHexColorsDecorator={true}
+                withMentionSuggestion={true}
+              />
+            );
+          }}
         />
       );
     case "hidden":

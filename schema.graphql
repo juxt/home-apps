@@ -1,4 +1,4 @@
-schema @site(type: "kanban/test3") {
+schema @site(type: "kanban/test6") {
   query: Query
   mutation: Mutation
 }
@@ -52,14 +52,14 @@ type Board {
   id: ID!
   name: String!
   description: String
-  columns: [Column!]! @site(each: "columnIds")
+  columns: [Column]! @site(each: "columnIds")
 }
 
 type Column {
   id: ID!
   name: String!
   description: String
-  cards: [Card]! @site(each: "cardIds")
+  cards: [Card] @site(each: "cardIds")
 }
 
 type Card {

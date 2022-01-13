@@ -11,12 +11,14 @@ import {
   UseFormRegister,
   UseFormReturn,
 } from "react-hook-form";
+import { MakeGenerics } from "react-location";
 import { ISelectProps } from "react-multi-select-component/dist/types/lib/interfaces";
 import {
   KanbanDataQuery,
   CardFieldsFragment,
   ColumnFieldsFragment,
 } from "./generated/graphql";
+import { TiptapProps } from "./components/Tiptap";
 
 declare module "react" {
   function forwardRef<T, P = {}>(
@@ -37,6 +39,7 @@ type WithIdAndType<
     | "textarea"
     | "submit"
     | "multiselect"
+    | "tiptap"
     | "hidden"
 > = {
   id: string;
@@ -77,6 +80,9 @@ export type CheckboxInputDefinition = CheckboxProps & WithIdAndType<"checkbox">;
 
 export type TextAreaInputDefinition = TextAreaProps & WithIdAndType<"textarea">;
 
+export type TiptapDefinition = Omit<TiptapProps, "onChange"> &
+  WithIdAndType<"tiptap">;
+
 export type Option = {
   value: string;
   label: string;
@@ -103,6 +109,7 @@ export type FormInputField<T> = {
   | CheckboxInputDefinition
   | TextAreaInputDefinition
   | MultiSelectDefinition
+  | TiptapDefinition
 );
 
 export type FormProps<T> = {
@@ -119,13 +126,26 @@ export type BoardFormModalTypes =
   | "addColumn"
   | "editBoard"
   | "addBoard"
+  | "editColumn"
+  | "editCard"
   | null
   | false
   | undefined;
 
+export type LocationGenerics = MakeGenerics<{
+  Search: {
+    modalState: {
+      formModalType: BoardFormModalTypes;
+      boardId?: string;
+      column?: ColumnFieldsFragment;
+      card?: CardFieldsFragment;
+    };
+  };
+}>;
+
 export type ModalStateProps = {
   isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<BoardFormModalTypes>>;
+  setIsOpen: (isOpen: boolean) => void;
 };
 
 export type ModalFormProps<T> = FormProps<T> & ModalStateProps;

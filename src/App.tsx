@@ -1,6 +1,7 @@
 import { AddBoardModal, UpdateBoardModal } from "./components/BoardForms";
-import { AddColumnModal } from "./components/ColumnForms";
-import { AddCardModal } from "./components/CardForms";
+import { useModalForm } from "./hooks";
+import { AddColumnModal, UpdateColumnModal } from "./components/ColumnForms";
+import { AddCardModal, UpdateCardModal } from "./components/CardForms";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
@@ -9,10 +10,23 @@ import {
   useDeleteColumnMutation,
   useMoveCardMutation,
 } from "./generated/graphql";
-import { BoardFormModalTypes, TBoard, TCard, TColumn } from "./types";
-import { defaultMutationProps, moveCard, notEmpty } from "./kanbanHelpers";
+import {
+  BoardFormModalTypes,
+  LocationGenerics,
+  TBoard,
+  TCard,
+  TColumn,
+} from "./types";
+import {
+  defaultMutationProps,
+  hasDuplicateCards,
+  moveCard,
+  notEmpty,
+} from "./kanbanHelpers";
 import { useQueryClient } from "react-query";
 import React from "react";
+import { toast } from "react-toastify";
+import { useNavigate, useSearch } from "react-location";
 
 const CardContainer = styled.div<{ isDragging: boolean }>`
   border: 1px solid lightgrey;
@@ -25,20 +39,34 @@ const CardContainer = styled.div<{ isDragging: boolean }>`
 
 type CardProps = {
   card: TCard;
+  board: TBoard;
   index: number;
 };
 
-const DraggableCard = React.memo(({ card, index }: CardProps) => {
+const DraggableCard = React.memo(({ card, index, board }: CardProps) => {
+  const [, setIsOpen] = useModalForm({
+    formModalType: "editCard",
+    card: card,
+    boardId: board?.id,
+  });
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided, snapshot) => (
         <CardContainer
+          onClick={() => board?.id && setIsOpen(true)}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
           isDragging={snapshot.isDragging}
         >
-          {card.id + " " + card.title + " " + card?.description}
+          <pre>{card.id}</pre>
+          <p>{card.title}</p>
+          {card?.description && (
+            <div
+              className="ProseMirror h-auto w-full"
+              dangerouslySetInnerHTML={{ __html: card.description }}
+            />
+          )}
         </CardContainer>
       )}
     </Draggable>
@@ -80,14 +108,19 @@ const Column = React.memo(({ column, cards, board }: ColumnProps) => {
   const deleteColMutation = useDeleteColumnMutation({
     ...defaultMutationProps(queryClient),
   });
+  const [, setIsOpen] = useModalForm({
+    formModalType: "editColumn",
+    column,
+  });
   const boardColumns = board?.columns.filter(notEmpty);
   return (
     <Container isDragging={false}>
+      <button onClick={() => setIsOpen(true)}>Edit Column</button>
       <button
         onClick={() => {
           const hasCards = cards.length > 0;
           if (hasCards) {
-            alert(
+            toast.error(
               "Cannot delete a column with cards, please move them somewhere else"
             );
             return;
@@ -114,7 +147,7 @@ const Column = React.memo(({ column, cards, board }: ColumnProps) => {
             isDraggingOver={snapshot.isDraggingOver}
           >
             {cards.map((t, i) => (
-              <DraggableCard key={t.id} card={t} index={i} />
+              <DraggableCard key={t.id} card={t} board={board} index={i} />
             ))}
             {provided.placeholder}
           </List>
@@ -125,23 +158,24 @@ const Column = React.memo(({ column, cards, board }: ColumnProps) => {
 });
 
 function processBoard(board: TBoard) {
+  if (!board) return null;
   const columns = board?.columns.filter(notEmpty) || [];
   return {
     ...board,
     columns: columns.map((c) => ({
       ...c,
-      cards: c.cards.filter(notEmpty),
+      cards: c.cards?.filter(notEmpty) || [],
     })),
   };
 }
 
 function Board({ board }: { board: TBoard }) {
+  if (!board?.id) return null;
   const data = React.useMemo(() => processBoard(board), [board]);
   const [state, setState] = React.useState<TBoard>();
   React.useEffect(() => {
-    if (data?.name) {
-      // no idea why typescript thinks data.name is possibly undefined here...
-      setState(data as TBoard);
+    if (data) {
+      setState(data);
       console.log("board update from server");
     }
   }, [data]);
@@ -149,7 +183,7 @@ function Board({ board }: { board: TBoard }) {
     state?.columns.filter(notEmpty).map((c) => {
       return {
         ...c,
-        cards: c.cards.filter(notEmpty),
+        cards: c.cards?.filter(notEmpty) || [],
       };
     }) || [];
   const queryClient = useQueryClient();
@@ -159,7 +193,19 @@ function Board({ board }: { board: TBoard }) {
   const deleteBoardMutation = useDeleteBoardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const [formModal, setFormModal] = React.useState<BoardFormModalTypes>();
+  const [isUpdateBoard, setIsUpdateBoard] = useModalForm({
+    formModalType: "editBoard",
+    boardId: board.id,
+  });
+  const [isAddColumn, setIsAddColumn] = useModalForm({
+    formModalType: "addColumn",
+    boardId: board.id,
+  });
+  const [isAddCard, setIsAddCard] = useModalForm({
+    formModalType: "addCard",
+    boardId: board.id,
+  });
+  const navigate = useNavigate<LocationGenerics>();
 
   const crudButtonClass = "px-4";
   return (
@@ -168,20 +214,19 @@ function Board({ board }: { board: TBoard }) {
         {board?.id && (
           <>
             <UpdateBoardModal
-              isOpen={formModal === "editBoard"}
-              setIsOpen={setFormModal}
+              isOpen={isUpdateBoard}
+              setIsOpen={setIsUpdateBoard}
               board={board}
             />
             <AddColumnModal
-              isOpen={formModal === "addColumn"}
-              setIsOpen={setFormModal}
+              isOpen={isAddColumn}
+              setIsOpen={setIsAddColumn}
               board={board}
               cols={cols}
             />
             <AddCardModal
-              isOpen={formModal === "addCard"}
-              setIsOpen={setFormModal}
-              board={board}
+              isOpen={isAddCard}
+              setIsOpen={setIsAddCard}
               cols={cols}
             />
           </>
@@ -191,7 +236,17 @@ function Board({ board }: { board: TBoard }) {
         <div className="flex justify-around">
           <button
             className={crudButtonClass}
-            onClick={() => setFormModal("editBoard")}
+            onClick={() => {
+              if (!board?.id) {
+                toast.error("No Board ID Found");
+                return;
+              }
+              navigate({
+                search: {
+                  modalState: { boardId: board.id, formModalType: "editBoard" },
+                },
+              });
+            }}
           >
             Edit
           </button>
@@ -204,15 +259,15 @@ function Board({ board }: { board: TBoard }) {
           >
             Delete
           </button>
-          <button onClick={() => setFormModal("addColumn")}>Add Column</button>
-          <button onClick={() => setFormModal("addCard")}> Add Card</button>
+          <button onClick={() => setIsAddColumn(true)}>Add Column</button>
+          <button onClick={() => setIsAddCard(true)}> Add Card</button>
         </div>
       </div>
       {data?.description && <p>{data.description}</p>}
 
       {state && (
         <DragDropContext
-          onDragEnd={({ destination, source, draggableId }) => {
+          onDragEnd={({ destination, source }) => {
             if (
               !destination ||
               (destination.droppableId === source.droppableId &&
@@ -223,29 +278,36 @@ function Board({ board }: { board: TBoard }) {
             const newState = moveCard(state, source, destination);
             const startCol = cols.find((c) => c.id === source.droppableId);
             const endCol = cols.find((c) => c.id === destination.droppableId);
+            if (
+              (startCol && hasDuplicateCards(startCol)) ||
+              (endCol && hasDuplicateCards(endCol))
+            ) {
+              toast.error("Cannot move card to same column");
+              return;
+            }
             if (startCol) {
-              const cards =
+              const cardsInSourceCol =
                 newState?.columns
                   .filter(notEmpty)
                   .find((c) => c.id === source.droppableId)
-                  ?.cards.filter(notEmpty)
+                  ?.cards?.filter(notEmpty)
                   .map((c) => c.id) || [];
               moveCardMutation.mutate({
                 columnId: startCol?.id,
-                cardIds: cards,
+                cardIds: cardsInSourceCol,
               });
             }
 
             if (endCol && startCol !== endCol) {
-              const cards =
+              const cardsInEndCol =
                 newState?.columns
                   .filter(notEmpty)
                   .find((c) => c.id === destination.droppableId)
-                  ?.cards.filter(notEmpty)
+                  ?.cards?.filter(notEmpty)
                   .map((c) => c.id) || [];
               moveCardMutation.mutate({
                 columnId: endCol?.id,
-                cardIds: cards,
+                cardIds: cardsInEndCol,
               });
             }
 
@@ -260,8 +322,8 @@ function Board({ board }: { board: TBoard }) {
                     <Column
                       key={col.id}
                       column={col}
-                      board={board as NonNullable<TBoard>}
                       cards={col.cards}
+                      board={board}
                     />
                   );
                 })}
@@ -279,18 +341,32 @@ export function App() {
   const kanbanQueryResult = useKanbanDataQuery();
   const boards = kanbanQueryResult.data?.allBoards || [];
   const queryClient = useQueryClient();
-
-  const [isModalOpen, setIsModalOpen] =
-    React.useState<BoardFormModalTypes>(false);
+  const [isModalOpen, setIsModalOpen] = useModalForm({
+    formModalType: "addBoard",
+  });
+  const [isCardModalOpen, setIsCardModalOpen] = useModalForm({
+    formModalType: "editCard",
+  });
+  const [isColumnModalOpen, setIsColumnModalOpen] = useModalForm({
+    formModalType: "editColumn",
+  });
 
   return (
     <div>
       {kanbanQueryResult.isLoading && <div>Loading...</div>}
       <AddBoardModal isOpen={!!isModalOpen} setIsOpen={setIsModalOpen} />
+      <UpdateColumnModal
+        isOpen={!!isColumnModalOpen}
+        setIsOpen={setIsColumnModalOpen}
+      />
+      <UpdateCardModal
+        isOpen={isCardModalOpen}
+        setIsOpen={setIsCardModalOpen}
+      />
       <button
         onClick={() => {
           queryClient.refetchQueries(["allColumns"]);
-          return setIsModalOpen("addBoard");
+          setIsModalOpen(true);
         }}
       >
         Add Board

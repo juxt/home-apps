@@ -11,6 +11,7 @@ import {
 } from "../generated/graphql";
 import { defaultMutationProps, distinctBy, notEmpty } from "../kanbanHelpers";
 import { useQueryClient } from "react-query";
+import { toast } from "react-toastify";
 
 type AddBoardInput = Omit<CreateBoardMutationVariables, "columnIds"> & {
   columnIds: Option[] | undefined;
@@ -40,7 +41,11 @@ export function AddBoardModal({ isOpen, setIsOpen }: AddBoardModalProps) {
       columns: newColumns,
       columnIds: newColumns?.map((c) => c.id),
     };
-    addBoardMutation.mutate(data);
+    toast.promise(addBoardMutation.mutateAsync(data), {
+      pending: "Creating board...",
+      success: "Board created!",
+      error: "Error creating board",
+    });
   };
 
   const formHooks = useForm<AddBoardInput>();
@@ -94,7 +99,7 @@ type UpdateBoardInput = Omit<UpdateBoardMutationVariables, "columnIds"> & {
 
 type UpdateBoardModalProps = {
   isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<BoardFormModalTypes>>;
+  setIsOpen: (isOpen: boolean) => void;
   board: TBoard;
 };
 
@@ -109,7 +114,7 @@ export function UpdateBoardModal({
   });
 
   const updateBoard = (input: UpdateBoardInput) => {
-    setIsOpen(null);
+    setIsOpen(false);
     const { columnIds, ...boardInput } = input;
     const data = {
       ...boardInput,

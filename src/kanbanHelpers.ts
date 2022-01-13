@@ -97,6 +97,7 @@ function reorderCardsOnColumn(
   column: TColumn,
   reorderCards: (cards: TCard[]) => TCard[]
 ): TColumn {
+  if (!column?.cards) return column;
   return { ...column, cards: reorderCards(column.cards.filter(notEmpty)) };
 }
 
@@ -111,6 +112,15 @@ function moveColumn(
   };
 }
 
+function hasDuplicateCards(col: TColumn) {
+  const cards = col?.cards?.filter(notEmpty) ?? [];
+  if (cards.length > 0) {
+    return cards.filter(notEmpty).some((card, index) => {
+      return cards.findIndex((c) => c.id === card.id) !== index;
+    });
+  }
+}
+
 function moveCard(
   board: TBoard,
   { index: fromPosition, droppableId: fromColumnId }: DraggableLocation,
@@ -120,7 +130,7 @@ function moveCard(
   const cols = board.columns.filter(notEmpty).map((col) => {
     return {
       ...col,
-      cards: col.cards.filter(notEmpty),
+      cards: col.cards?.filter(notEmpty) ?? [],
     };
   });
   const sourceColumn = cols.find((column) => column.id === fromColumnId);
@@ -257,6 +267,7 @@ const defaultMutationProps = (queryClient: QueryClient) => ({
 
 export {
   defaultMutationProps,
+  hasDuplicateCards,
   moveColumn,
   moveCard,
   addColumn,

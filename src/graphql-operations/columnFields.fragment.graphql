@@ -1,6 +1,7 @@
 fragment ColumnFields on Column {
   id
   name
+  description
   cards {
     ...CardFields
   }

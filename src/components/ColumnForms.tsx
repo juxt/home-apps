@@ -1,12 +1,16 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useSearch } from "react-location";
 import { useQueryClient } from "react-query";
+import { toast } from "react-toastify";
 import {
   CreateColumnMutationVariables,
+  UpdateColumnMutationVariables,
   useCreateColumnMutation,
+  useUpdateColumnMutation,
 } from "../generated/graphql";
 import { defaultMutationProps } from "../kanbanHelpers";
-import { ModalStateProps, TBoard } from "../types";
+import { LocationGenerics, ModalStateProps, TBoard } from "../types";
 import { ModalForm } from "./Modal";
 
 type AddColumnInput = Omit<
@@ -57,6 +61,72 @@ export function AddColumnModal({
             required: true,
           },
           label: "Column Name",
+          type: "text",
+        },
+      ]}
+    />
+  );
+}
+
+type UpdateColumnInput = Omit<
+  Omit<Omit<UpdateColumnMutationVariables, "colId">, "columnIds">,
+  "boardId"
+>;
+
+type UpdateColumnModalProps = ModalStateProps;
+
+export function UpdateColumnModal({
+  isOpen,
+  setIsOpen,
+}: UpdateColumnModalProps) {
+  const queryClient = useQueryClient();
+  const updateColMutation = useUpdateColumnMutation({
+    ...defaultMutationProps(queryClient),
+  });
+  const { modalState } = useSearch<LocationGenerics>();
+  const column = modalState?.column;
+  const colId = column?.id;
+
+  const updateColumn = (col: UpdateColumnInput) => {
+    if (colId) {
+      setIsOpen(false);
+      updateColMutation.mutate({
+        ...col,
+        colId,
+      });
+    }
+  };
+  const formHooks = useForm<UpdateColumnInput>();
+  useEffect(() => {
+    if (column) {
+      formHooks.setValue("name", column.name);
+      if (column?.description) {
+        formHooks.setValue("description", column.description);
+      }
+    }
+  }, [column]);
+
+  return (
+    <ModalForm<UpdateColumnInput>
+      title="Update Column"
+      formHooks={formHooks}
+      onSubmit={formHooks.handleSubmit(updateColumn, console.warn)}
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      fields={[
+        {
+          id: "name",
+          path: "name",
+          rules: {
+            required: true,
+          },
+          label: "Column Name",
+          type: "text",
+        },
+        {
+          id: "description",
+          path: "description",
+          label: "Description",
           type: "text",
         },
       ]}

@@ -1,5 +1,11 @@
-import { Dispatch, SetStateAction } from "react";
-import { ModalStateProps, Option, TBoard, TCard } from "../types";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import {
+  LocationGenerics,
+  ModalStateProps,
+  Option,
+  TBoard,
+  TCard,
+} from "../types";
 import { useForm } from "react-hook-form";
 import { ModalForm } from "./Modal";
 import {
@@ -8,32 +14,34 @@ import {
   UpdateCardMutationVariables,
   useAllColumnsQuery,
   useCreateCardMutation,
+  useKanbanDataQuery,
   useUpdateCardMutation,
 } from "../generated/graphql";
 import { defaultMutationProps, distinctBy, notEmpty } from "../kanbanHelpers";
 import { useQueryClient } from "react-query";
+import { toast } from "react-toastify";
+import { useSearch } from "react-location";
 
 type AddCardInput = CardInput;
 
 type AddCardModalProps = ModalStateProps & {
-  board: TBoard;
   cols: Array<{ cards: TCard[]; id: string }>;
 };
 
-export function AddCardModal({
-  isOpen,
-  setIsOpen,
-  board,
-  cols,
-}: AddCardModalProps) {
+export function AddCardModal({ isOpen, setIsOpen, cols }: AddCardModalProps) {
   const queryClient = useQueryClient();
   const addCardMutation = useCreateCardMutation({
     ...defaultMutationProps(queryClient),
   });
-  console.log(cols, board);
-  if (!board?.id) return null;
+  const { modalState } = useSearch<LocationGenerics>();
+  const boardId = modalState?.boardId;
+
   const addCard = (card: AddCardInput) => {
-    if (!cols.length) return;
+    if (!cols.length) {
+      toast.error("No columns to add card to");
+      return;
+    }
+    setIsOpen(false);
     const newId = `card-${Date.now()}`;
     const newCard = {
       cardId: newId,
@@ -44,15 +52,22 @@ export function AddCardModal({
         id: newId,
       },
     };
-    addCardMutation.mutate({
-      ...newCard,
-    });
+    toast.promise(
+      addCardMutation.mutateAsync({
+        ...newCard,
+      }),
+      {
+        pending: "Creating card...",
+        success: "Card created!",
+        error: "Error creating card",
+      }
+    );
   };
 
   const formHooks = useForm<AddCardInput>({
     defaultValues: {
       description: "",
-      boardId: board.id,
+      boardId: boardId,
     },
   });
   return (
@@ -85,16 +100,11 @@ export function AddCardModal({
 
 type UpdateCardInput = UpdateCardMutationVariables;
 
-type UpdateCardModalProps = ModalStateProps & {
-  board: TBoard;
-};
+type UpdateCardModalProps = ModalStateProps;
 
-export function UpdateCardModal({
-  isOpen,
-  setIsOpen,
-  board,
-}: UpdateCardModalProps) {
-  if (!board) return null;
+export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
+  const { modalState } = useSearch<LocationGenerics>();
+  const boardId = modalState?.boardId;
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateCardMutation({
     ...defaultMutationProps(queryClient),
@@ -104,9 +114,17 @@ export function UpdateCardModal({
     setIsOpen(false);
     updateCardMutation.mutate(input);
   };
+  const card = modalState?.card;
+
   const formHooks = useForm<UpdateCardInput>({
-    defaultValues: { card: { boardId: board.id } },
+    defaultValues: { card: { ...card, boardId: boardId }, cardId: card?.id },
   });
+
+  useEffect(() => {
+    if (card) {
+      formHooks.setValue("card", { ...card, boardId: boardId });
+    }
+  }, [card]);
 
   return (
     <ModalForm<UpdateCardInput>
@@ -121,11 +139,13 @@ export function UpdateCardModal({
             required: true,
           },
           path: "card.title",
+          label: "Name",
         },
         {
+          label: "Description",
           id: "CardDescription",
           placeholder: "Card Description",
-          type: "text",
+          type: "tiptap",
           path: "card.description",
         },
       ]}
