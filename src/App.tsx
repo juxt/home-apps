@@ -1,4 +1,5 @@
 import { AddBoardModal, UpdateBoardModal } from "./components/BoardForms";
+import NaturalDragAnimation from "natural-drag-animation-rbdnd";
 import { useModalForm } from "./hooks";
 import { AddColumnModal, UpdateColumnModal } from "./components/ColumnForms";
 import { AddCardModal, UpdateCardModal } from "./components/CardForms";
@@ -9,6 +10,7 @@ import {
   useDeleteBoardMutation,
   useDeleteColumnMutation,
   useMoveCardMutation,
+  useCardHistoryQuery,
 } from "./generated/graphql";
 import { LocationGenerics, TBoard, TCard, TColumn } from "./types";
 import {
@@ -33,35 +35,42 @@ const DraggableCard = React.memo(({ card, index, board }: CardProps) => {
   const [, setIsOpen] = useModalForm({
     formModalType: "editCard",
     card: card,
-    boardId: board?.id,
+    board: board,
   });
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided, snapshot) => {
         const isDragging = snapshot.isDragging;
         const cardStyles = classNames(
-          "bg-white rounded border-2 transition mb-2 p-2 border-gray-500 hover:border-blue-400",
+          "bg-white rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400",
           isDragging && "bg-blue-50 border-blue-400"
         );
-        console.log(provided);
 
         return (
-          <div
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            className={cardStyles}
-            onClick={() => board?.id && setIsOpen(true)}
-            ref={provided.innerRef}
+          <NaturalDragAnimation
+            style={provided.draggableProps.style}
+            snapshot={snapshot}
           >
-            <pre>{card.id}</pre>
-            <p>{card.title}</p>
-            {card?.description && card.description !== "<p></p>" && (
+            {(style: object) => (
               <div
-                className="ProseMirror h-auto w-full"
-                dangerouslySetInnerHTML={{ __html: card.description }}
-              />
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                style={style}
+                className={cardStyles}
+                onClick={() => board?.id && setIsOpen(true)}
+                ref={provided.innerRef}
+              >
+                <pre>{card.id}</pre>
+                <p>{card.title}</p>
+                {card?.description && card.description !== "<p></p>" && (
+                  <div
+                    className="ProseMirror h-auto w-full"
+                    dangerouslySetInnerHTML={{ __html: card.description }}
+                  />
+                )}
+              </div>
             )}
-          </div>
+          </NaturalDragAnimation>
         );
       }}
     </Draggable>
@@ -72,7 +81,7 @@ const Container = styled.div<{ isDragging: boolean }>`
   margin: 8px;
   border: 1px solid lightgrey;
   border-radius: 2px;
-  width: 200px;
+  width: 210px;
   display: flex;
   flex-direction: column;
   background-color: ${(props) => (props.isDragging ? "lightgreen" : "white")};
@@ -103,14 +112,14 @@ const Column = React.memo(({ column, cards, board }: ColumnProps) => {
   const deleteColMutation = useDeleteColumnMutation({
     ...defaultMutationProps(queryClient),
   });
-  const [, setIsOpen] = useModalForm({
+  const [, setEditColumnOpen] = useModalForm({
     formModalType: "editColumn",
     column,
   });
   const boardColumns = board?.columns.filter(notEmpty);
   return (
     <Container isDragging={false}>
-      <button onClick={() => setIsOpen(true)}>Edit Column</button>
+      <button onClick={() => setEditColumnOpen(true)}>Edit Column</button>
       <button
         onClick={() => {
           const hasCards = cards.length > 0;
@@ -188,45 +197,24 @@ function Board({ board }: { board: TBoard }) {
   const deleteBoardMutation = useDeleteBoardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const [isUpdateBoard, setIsUpdateBoard] = useModalForm({
-    formModalType: "editBoard",
-    boardId: board.id,
-  });
-  const [isAddColumn, setIsAddColumn] = useModalForm({
-    formModalType: "addColumn",
-    boardId: board.id,
-  });
-  const [isAddCard, setIsAddCard] = useModalForm({
-    formModalType: "addCard",
-    boardId: board.id,
-  });
-  const navigate = useNavigate<LocationGenerics>();
 
+  const navigate = useNavigate<LocationGenerics>();
+  const [, setIsUpdateBoard] = useModalForm({
+    formModalType: "editBoard",
+    board: board,
+  });
+  const [, setIsAddColumn] = useModalForm({
+    formModalType: "addColumn",
+    board: board,
+  });
+  const [, setIsAddCard] = useModalForm({
+    formModalType: "addCard",
+    board: board,
+  });
   const crudButtonClass = "px-4";
   return (
     <>
       <div className="flex bg-red-500 justify-between max-w-lg">
-        {board?.id && (
-          <>
-            <UpdateBoardModal
-              isOpen={isUpdateBoard}
-              setIsOpen={setIsUpdateBoard}
-              board={board}
-            />
-            <AddColumnModal
-              isOpen={isAddColumn}
-              setIsOpen={setIsAddColumn}
-              board={board}
-              cols={cols}
-            />
-            <AddCardModal
-              isOpen={isAddCard}
-              setIsOpen={setIsAddCard}
-              cols={cols}
-            />
-          </>
-        )}
-
         <h1>{data?.name}</h1>
         <div className="flex justify-around">
           <button
@@ -236,11 +224,7 @@ function Board({ board }: { board: TBoard }) {
                 toast.error("No Board ID Found");
                 return;
               }
-              navigate({
-                search: {
-                  modalState: { boardId: board.id, formModalType: "editBoard" },
-                },
-              });
+              setIsUpdateBoard(true);
             }}
           >
             Edit
@@ -345,6 +329,15 @@ export function App() {
   const [isColumnModalOpen, setIsColumnModalOpen] = useModalForm({
     formModalType: "editColumn",
   });
+  const [isUpdateBoard, setIsUpdateBoard] = useModalForm({
+    formModalType: "editBoard",
+  });
+  const [isAddColumn, setIsAddColumn] = useModalForm({
+    formModalType: "addColumn",
+  });
+  const [isAddCard, setIsAddCard] = useModalForm({
+    formModalType: "addCard",
+  });
 
   return (
     <div>
@@ -358,6 +351,10 @@ export function App() {
         isOpen={isCardModalOpen}
         setIsOpen={setIsCardModalOpen}
       />
+      <UpdateBoardModal isOpen={isUpdateBoard} setIsOpen={setIsUpdateBoard} />
+      <AddColumnModal isOpen={isAddColumn} setIsOpen={setIsAddColumn} />
+      <AddCardModal isOpen={isAddCard} setIsOpen={setIsAddCard} />
+
       <button
         onClick={() => {
           queryClient.refetchQueries(["allColumns"]);

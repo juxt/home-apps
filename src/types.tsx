@@ -136,7 +136,7 @@ export type LocationGenerics = MakeGenerics<{
   Search: {
     modalState: {
       formModalType: BoardFormModalTypes;
-      boardId?: string;
+      board?: TBoard;
       column?: ColumnFieldsFragment;
       card?: CardFieldsFragment;
     };

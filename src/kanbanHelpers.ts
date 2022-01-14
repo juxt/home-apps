@@ -1,7 +1,32 @@
 import { DraggableLocation } from "react-beautiful-dnd";
 import { QueryClient } from "react-query";
-import { Column as TColumn, useKanbanDataQuery } from "./generated/graphql";
+import {
+  Column as TColumn,
+  useCardHistoryQuery,
+  useKanbanDataQuery,
+} from "./generated/graphql";
 import { TBoard, TCard } from "./types";
+
+export type ObjectKeys<T> = T extends object
+  ? (keyof T)[]
+  : T extends number
+  ? []
+  : T extends Array<any> | string
+  ? string[]
+  : never;
+
+export interface ObjectConstructor {
+  keys<T>(o: T): ObjectKeys<T>;
+}
+
+export function mapKeys<T, K extends keyof T>(
+  obj: T,
+  mapper: (key: K) => K
+): { [P in K]: T[P] } {
+  return Object.keys(obj).reduce((acc, key) => {
+    return { ...acc, [mapper(key as K)]: obj[key as K] };
+  }, {} as { [P in K]: T[P] });
+}
 
 export function isDefined<T>(argument: T | undefined): argument is T {
   return argument !== undefined;

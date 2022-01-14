@@ -7,7 +7,8 @@ type Query {
   allBoards: [Board]
   board(id: ID!): Board
   allCards: [Card]
-  card(id: ID!): [Card] @site(history: "asc")
+  cardHistory(id: ID!): [Card] @site(history: "desc")
+  card(id: ID!): [Card]
   allColumns: [Column]
   column(id: ID!): Column
 }
@@ -62,10 +63,18 @@ type Column {
   cards: [Card] @site(each: "cardIds")
 }
 
+type Task {
+  title: String!
+  description: String
+  boardId: ID
+  columnId: ID
+}
+
 type Card {
   id: ID!
   title: String!
   _siteValidTime: String
   description: String
   board: Board @site(ref: "boardId")
+  tasks: [Task]
 }

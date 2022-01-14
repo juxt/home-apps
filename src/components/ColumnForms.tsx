@@ -9,7 +9,7 @@ import {
   useCreateColumnMutation,
   useUpdateColumnMutation,
 } from "../generated/graphql";
-import { defaultMutationProps } from "../kanbanHelpers";
+import { defaultMutationProps, mapKeys, notEmpty } from "../kanbanHelpers";
 import { LocationGenerics, ModalStateProps, TBoard } from "../types";
 import { ModalForm } from "./Modal";
 
@@ -18,21 +18,16 @@ type AddColumnInput = Omit<
   "boardId"
 >;
 
-type AddColumnModalProps = ModalStateProps & {
-  board: TBoard;
-  cols: Array<{ id: string }>;
-};
+type AddColumnModalProps = ModalStateProps;
 
-export function AddColumnModal({
-  isOpen,
-  setIsOpen,
-  board,
-  cols,
-}: AddColumnModalProps) {
+export function AddColumnModal({ isOpen, setIsOpen }: AddColumnModalProps) {
   const queryClient = useQueryClient();
   const addColMutation = useCreateColumnMutation({
     ...defaultMutationProps(queryClient),
   });
+  const { modalState } = useSearch<LocationGenerics>();
+  const board = modalState?.board;
+  const cols = board?.columns.filter(notEmpty) ?? [];
   const addColumn = (col: AddColumnInput) => {
     if (board) {
       setIsOpen(false);
@@ -97,15 +92,13 @@ export function UpdateColumnModal({
     }
   };
   const formHooks = useForm<UpdateColumnInput>();
+  const formVals = formHooks.getValues();
   useEffect(() => {
-    if (column) {
-      formHooks.setValue("name", column.name);
-      if (column?.description) {
-        formHooks.setValue("description", column.description);
-      }
-    }
+    mapKeys(formVals, (key) => {
+      column && formHooks.setValue(key, column[key]);
+      return key;
+    });
   }, [column]);
-
   return (
     <ModalForm<UpdateColumnInput>
       title="Update Column"

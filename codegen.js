@@ -18,6 +18,7 @@ module.exports = {
           fetchParams: JSON.stringify({
             headers: {
               "Content-Type": "application/json",
+              Accept: "application/json",
             },
             credentials: "include",
           }),

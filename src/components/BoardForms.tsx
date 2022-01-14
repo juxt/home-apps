@@ -1,5 +1,11 @@
-import { Dispatch, SetStateAction } from "react";
-import { BoardFormModalTypes, ModalStateProps, Option, TBoard } from "../types";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import {
+  BoardFormModalTypes,
+  LocationGenerics,
+  ModalStateProps,
+  Option,
+  TBoard,
+} from "../types";
 import { useForm } from "react-hook-form";
 import { ModalForm } from "./Modal";
 import {
@@ -9,9 +15,16 @@ import {
   useCreateBoardMutation,
   useUpdateBoardMutation,
 } from "../generated/graphql";
-import { defaultMutationProps, distinctBy, notEmpty } from "../kanbanHelpers";
+import {
+  defaultMutationProps,
+  distinctBy,
+  mapKeys,
+  notEmpty,
+} from "../kanbanHelpers";
 import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
+import { useSearch } from "react-location";
+import { mapValues } from "lodash-es";
 
 type AddBoardInput = Omit<CreateBoardMutationVariables, "columnIds"> & {
   columnIds: Option[] | undefined;
@@ -100,14 +113,9 @@ type UpdateBoardInput = Omit<UpdateBoardMutationVariables, "columnIds"> & {
 type UpdateBoardModalProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  board: TBoard;
 };
 
-export function UpdateBoardModal({
-  isOpen,
-  setIsOpen,
-  board,
-}: UpdateBoardModalProps) {
+export function UpdateBoardModal({ isOpen, setIsOpen }: UpdateBoardModalProps) {
   const queryClient = useQueryClient();
   const updateBoardMutation = useUpdateBoardMutation({
     ...defaultMutationProps(queryClient),
@@ -121,10 +129,16 @@ export function UpdateBoardModal({
     };
     updateBoardMutation.mutate(data);
   };
-  const formHooks = useForm<UpdateBoardInput>({
-    defaultValues: { ...board },
-  });
-
+  const formHooks = useForm<UpdateBoardInput>();
+  const { modalState } = useSearch<LocationGenerics>();
+  const board = modalState?.board;
+  const { columnIds, ...formVals } = formHooks.getValues();
+  useEffect(() => {
+    mapKeys(formVals, (key) => {
+      board && formHooks.setValue(key, board[key]);
+      return key;
+    });
+  }, [board]);
   return (
     <ModalForm<UpdateBoardInput>
       title="Update Board"
