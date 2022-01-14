@@ -1,7 +1,12 @@
 .ProseMirror {
-  @apply h-56 w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base;
-  @apply prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none;
-  /* Hide scrollbar for Chrome, Safari and Opera */
+  @apply prose prose-sm sm:prose focus:outline-none;
+  @apply h-56 w-full rounded leading-none text-gray-700 bg-gray-50 border border-gray-300 p-3 text-base;
+
+  &.ProseMirror-editable {
+    @apply transition-colors ease-in-out placeholder-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30;
+  }
+
+  overflow-y: auto;
 
   &:focus-visible {
     outline: none;

@@ -4,7 +4,7 @@ import { Controller, FieldValues } from "react-hook-form";
 import { MultiSelect } from "react-multi-select-component";
 
 import { Option } from "react-multi-select-component/dist/types/lib/interfaces";
-import { FormInputField, FormProps, ModalFormProps } from "../types";
+import { FormInputField, FormProps } from "../types";
 import { Tiptap } from "./Tiptap";
 
 const inputClass =
@@ -69,8 +69,10 @@ export function RenderField<T>({
                 withLinkExtension={true}
                 withEmojisReplacer={true}
                 withTypographyExtension={true}
+                withPlaceholderExtension={true}
                 withHexColorsDecorator={true}
                 withMentionSuggestion={true}
+                {...field}
               />
             );
           }}

@@ -2,6 +2,7 @@ import React from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Typography from "@tiptap/extension-typography";
+import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
@@ -14,9 +15,8 @@ import {
   EmojiReplacer,
   HexColorDecorator,
 } from "./extensions";
-import { formatHtml, markdownToHtml, htmlToMarkdown } from "./helpers/";
+import { markdownToHtml, htmlToMarkdown } from "./helpers/";
 
-import { Toolbar } from "./Toolbar";
 import { Popover } from "./Popover";
 
 import "./Tiptap.scss";
@@ -40,7 +40,7 @@ function Tiptap({
   content = "",
   onChange,
   editable = true,
-  placeholder = "Type '/' for actions…",
+  placeholder = "Write something...",
   withTypographyExtension = false,
   withLinkExtension = false,
   withTaskListExtension = false,
@@ -50,7 +50,7 @@ function Tiptap({
   withEmojisReplacer = false,
   withHexColorsDecorator = false,
 }: TiptapProps) {
-  const extensions: Extensions = [StarterKit.configure()];
+  const extensions: Extensions = [StarterKit.configure(), Highlight];
 
   if (withTypographyExtension) {
     extensions.push(Typography);
@@ -138,7 +138,6 @@ function Tiptap({
 
   return (
     <>
-      <Toolbar editor={editor} />
       <Popover editor={editor} />
       <EditorContent editor={editor} />
     </>

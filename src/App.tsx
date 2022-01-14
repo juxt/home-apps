@@ -10,13 +10,7 @@ import {
   useDeleteColumnMutation,
   useMoveCardMutation,
 } from "./generated/graphql";
-import {
-  BoardFormModalTypes,
-  LocationGenerics,
-  TBoard,
-  TCard,
-  TColumn,
-} from "./types";
+import { LocationGenerics, TBoard, TCard, TColumn } from "./types";
 import {
   defaultMutationProps,
   hasDuplicateCards,
@@ -26,16 +20,8 @@ import {
 import { useQueryClient } from "react-query";
 import React from "react";
 import { toast } from "react-toastify";
-import { useNavigate, useSearch } from "react-location";
-
-const CardContainer = styled.div<{ isDragging: boolean }>`
-  border: 1px solid lightgrey;
-  padding: 8px;
-  border-radius: 2px;
-  margin-bottom: 8px;
-  background-color: ${(props) => (props.isDragging ? "red" : "white")};
-  transition: background 0.1s;
-`;
+import { useNavigate } from "react-location";
+import classNames from "classnames";
 
 type CardProps = {
   card: TCard;
@@ -51,24 +37,33 @@ const DraggableCard = React.memo(({ card, index, board }: CardProps) => {
   });
   return (
     <Draggable draggableId={card.id} index={index}>
-      {(provided, snapshot) => (
-        <CardContainer
-          onClick={() => board?.id && setIsOpen(true)}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-          isDragging={snapshot.isDragging}
-        >
-          <pre>{card.id}</pre>
-          <p>{card.title}</p>
-          {card?.description && (
-            <div
-              className="ProseMirror h-auto w-full"
-              dangerouslySetInnerHTML={{ __html: card.description }}
-            />
-          )}
-        </CardContainer>
-      )}
+      {(provided, snapshot) => {
+        const isDragging = snapshot.isDragging;
+        const cardStyles = classNames(
+          "bg-white rounded border-2 transition mb-2 p-2 border-gray-500 hover:border-blue-400",
+          isDragging && "bg-blue-50 border-blue-400"
+        );
+        console.log(provided);
+
+        return (
+          <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            className={cardStyles}
+            onClick={() => board?.id && setIsOpen(true)}
+            ref={provided.innerRef}
+          >
+            <pre>{card.id}</pre>
+            <p>{card.title}</p>
+            {card?.description && card.description !== "<p></p>" && (
+              <div
+                className="ProseMirror h-auto w-full"
+                dangerouslySetInnerHTML={{ __html: card.description }}
+              />
+            )}
+          </div>
+        );
+      }}
     </Draggable>
   );
 });
