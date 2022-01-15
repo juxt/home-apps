@@ -125,7 +125,6 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
 
   const updateCard = (input: UpdateCardInput) => {
     setIsOpen(false);
-    console.log(input);
 
     const card = { ...input.card, projectId: input.project?.value || null };
     updateCardMutation.mutate({ card, cardId: input.cardId });

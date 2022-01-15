@@ -183,7 +183,6 @@ function filteredCards(
   if (!filters) {
     return cards;
   }
-  console.log(filters, cards);
 
   return (
     cards?.filter(
@@ -306,26 +305,35 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
               unfilteredStartCol?.cards?.findIndex(
                 (c) => c?.id === draggableId
               ) || source.index;
-            const unfilteredCardIdx = newFilteredState?.workflowStates
-              .find((c) => c?.id === destination.droppableId)
-              ?.cards?.findIndex((c) => c?.id === draggableId);
+            const newEndCol = newFilteredState?.workflowStates.find(
+              (c) => c?.id === destination.droppableId
+            );
+            const unfilteredCardIdx = newEndCol?.cards?.findIndex(
+              (c) => c?.id === draggableId
+            );
+            const endCards = newEndCol?.cards?.filter(notEmpty) || [];
             const prevCardId =
               destination.index === 0
                 ? undefined
-                : unfilteredCardIdx && endCol?.cards[unfilteredCardIdx - 1]?.id;
-            const prevCardIdx = prevCardId
-              ? unfilteredEndCol?.cards?.findIndex(
-                  (c) => c?.id === prevCardId
-                ) || destination.index - 1
-              : -1;
-            const unfilteredDestinationIdx = prevCardIdx + 1;
+                : unfilteredCardIdx && endCards[unfilteredCardIdx - 1]?.id;
+            const prevCardIdx = unfilteredEndCol?.cards?.findIndex(
+              (c) => c?.id === prevCardId
+            );
+            const unfilteredSource = { ...source, index: unfilteredSourceIdx };
+            if (typeof prevCardIdx !== "number") {
+              console.log("no prev card idx");
+              return;
+            }
+            const unfilteredDestination = {
+              ...destination,
+              index: prevCardIdx + 1,
+            };
+            console.log(unfilteredSource, unfilteredDestination);
+
             const newState = moveCard(
               unfilteredWorkflow,
-              { ...source, index: unfilteredSourceIdx },
-              {
-                ...destination,
-                index: unfilteredDestinationIdx,
-              }
+              unfilteredSource,
+              unfilteredDestination
             );
             if (
               (startCol && hasDuplicateCards(startCol)) ||
