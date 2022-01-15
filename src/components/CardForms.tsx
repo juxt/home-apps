@@ -3,7 +3,7 @@ import {
   LocationGenerics,
   ModalStateProps,
   Option,
-  TBoard,
+  TWorkflow,
   TCard,
 } from "../types";
 import { useForm } from "react-hook-form";
@@ -12,7 +12,8 @@ import {
   CardInput,
   CreateCardMutationVariables,
   UpdateCardMutationVariables,
-  useAllColumnsQuery,
+  useAllProjectsQuery,
+  useAllWorkflowStatesQuery,
   useCreateCardMutation,
   useKanbanDataQuery,
   useUpdateCardMutation,
@@ -38,20 +39,20 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
     ...defaultMutationProps(queryClient),
   });
   const { modalState } = useSearch<LocationGenerics>();
-  const board = modalState?.board;
-  const boardId = board?.id;
-  const cols = board?.columns.filter(notEmpty) ?? [];
+  const workflow = modalState?.workflow;
+  const workflowId = workflow?.id;
+  const cols = workflow?.workflowStates.filter(notEmpty) ?? [];
 
   const addCard = (card: AddCardInput) => {
     if (!cols.length) {
-      toast.error("No columns to add card to");
+      toast.error("No workflowStates to add card to");
       return;
     }
     setIsOpen(false);
     const newId = `card-${Date.now()}`;
     const newCard = {
       cardId: newId,
-      columnId: cols[0].id,
+      workflowStateId: cols[0].id,
       cardIds: [
         ...(cols[0].cards?.filter(notEmpty).map((c) => c.id) || []),
         newId,
@@ -76,7 +77,7 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
   const formHooks = useForm<AddCardInput>({
     defaultValues: {
       description: "",
-      boardId: boardId,
+      workflowId: workflowId,
     },
   });
   return (
@@ -107,14 +108,16 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
   );
 }
 
-type UpdateCardInput = UpdateCardMutationVariables;
+type UpdateCardInput = UpdateCardMutationVariables & {
+  project: Option;
+};
 
 type UpdateCardModalProps = ModalStateProps;
 
 export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
   const { modalState } = useSearch<LocationGenerics>();
-  const board = modalState?.board;
-  const boardId = board?.id;
+  const workflow = modalState?.workflow;
+  const workflowId = workflow?.id;
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateCardMutation({
     ...defaultMutationProps(queryClient),
@@ -122,22 +125,47 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
 
   const updateCard = (input: UpdateCardInput) => {
     setIsOpen(false);
-    updateCardMutation.mutate(input);
+    console.log(input);
+
+    const card = { ...input.card, projectId: input.project?.value || null };
+    updateCardMutation.mutate({ card, cardId: input.cardId });
   };
   const card = modalState?.card;
 
   const formHooks = useForm<UpdateCardInput>({
-    defaultValues: { card: { ...card, boardId: boardId }, cardId: card?.id },
+    defaultValues: {
+      card: { ...card, workflowId: workflowId },
+      cardId: card?.id,
+    },
   });
 
   useEffect(() => {
     if (card) {
-      formHooks.setValue("card", { ...card, boardId: boardId });
+      const projectId = card.project?.id;
+      const cardInput = {
+        ...card,
+      };
+      formHooks.setValue("card", { ...card, workflowId: workflowId });
+      if (card.project?.name && projectId) {
+        formHooks.setValue("project", {
+          label: card.project?.name,
+          value: projectId,
+        });
+      } else {
+        formHooks.setValue("project", { label: "", value: "" });
+      }
     }
   }, [card]);
 
   const title = "Update Card";
-
+  const projectQuery = useAllProjectsQuery();
+  const projectOptions =
+    projectQuery?.data?.allProjects?.filter(notEmpty).map((p) => {
+      return {
+        label: p.name,
+        value: p.id,
+      };
+    }) ?? [];
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
       <div>
@@ -145,6 +173,13 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
           title={title}
           formHooks={formHooks}
           fields={[
+            {
+              id: "CardProject",
+              type: "select",
+              options: projectOptions,
+              label: "Project",
+              path: "project",
+            },
             {
               id: "CardName",
               placeholder: "Card Name",

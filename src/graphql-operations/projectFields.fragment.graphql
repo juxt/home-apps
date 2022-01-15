@@ -1,0 +1,5 @@
+fragment projectFields on Project {
+  id
+  name
+  description
+}

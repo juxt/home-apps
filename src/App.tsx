@@ -1,18 +1,23 @@
-import { AddBoardModal, UpdateBoardModal } from "./components/BoardForms";
+import { AddWorkflowModal } from "./components/WorkflowForms";
 import NaturalDragAnimation from "natural-drag-animation-rbdnd";
 import { useModalForm } from "./hooks";
-import { AddColumnModal, UpdateColumnModal } from "./components/ColumnForms";
+import {
+  AddWorkflowStateModal,
+  UpdateWorkflowStateModal,
+} from "./components/WorkflowStateForms";
+import { AddProjectModal } from "./components/ProjectForms";
 import { AddCardModal, UpdateCardModal } from "./components/CardForms";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   useKanbanDataQuery,
-  useDeleteBoardMutation,
-  useDeleteColumnMutation,
+  useDeleteWorkflowMutation,
+  useDeleteWorkflowStateMutation,
   useMoveCardMutation,
   useCardHistoryQuery,
+  useAllProjectsQuery,
 } from "./generated/graphql";
-import { LocationGenerics, TBoard, TCard, TColumn } from "./types";
+import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from "./types";
 import {
   defaultMutationProps,
   hasDuplicateCards,
@@ -22,20 +27,20 @@ import {
 import { useQueryClient } from "react-query";
 import React from "react";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-location";
+import { useNavigate, useSearch } from "react-location";
 import classNames from "classnames";
 
 type CardProps = {
   card: TCard;
-  board: TBoard;
+  workflow: TWorkflow;
   index: number;
 };
 
-const DraggableCard = React.memo(({ card, index, board }: CardProps) => {
+const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
   const [, setIsOpen] = useModalForm({
     formModalType: "editCard",
     card: card,
-    board: board,
+    workflow: workflow,
   });
   return (
     <Draggable draggableId={card.id} index={index}>
@@ -57,11 +62,12 @@ const DraggableCard = React.memo(({ card, index, board }: CardProps) => {
                 {...provided.dragHandleProps}
                 style={style}
                 className={cardStyles}
-                onClick={() => board?.id && setIsOpen(true)}
+                onClick={() => workflow?.id && setIsOpen(true)}
                 ref={provided.innerRef}
               >
                 <pre>{card.id}</pre>
                 <p>{card.title}</p>
+                <p>{card.project?.name}</p>
                 {card?.description && card.description !== "<p></p>" && (
                   <div
                     className="ProseMirror h-auto w-full"
@@ -97,94 +103,129 @@ const List = styled.div<{ isDraggingOver: boolean }>`
   flex-grow: 1;
 `;
 
-const Columns = styled.div`
+const WorkflowStates = styled.div`
   display: flex;
 `;
 
-type ColumnProps = {
-  column: TColumn;
+type WorkflowStateProps = {
+  workflowState: TWorkflowState;
   cards: TCard[];
-  board: NonNullable<TBoard>;
+  workflow: NonNullable<TWorkflow>;
 };
 
-const Column = React.memo(({ column, cards, board }: ColumnProps) => {
-  const queryClient = useQueryClient();
-  const deleteColMutation = useDeleteColumnMutation({
-    ...defaultMutationProps(queryClient),
-  });
-  const [, setEditColumnOpen] = useModalForm({
-    formModalType: "editColumn",
-    column,
-  });
-  const boardColumns = board?.columns.filter(notEmpty);
-  return (
-    <Container isDragging={false}>
-      <button onClick={() => setEditColumnOpen(true)}>Edit Column</button>
-      <button
-        onClick={() => {
-          const hasCards = cards.length > 0;
-          if (hasCards) {
-            toast.error(
-              "Cannot delete a column with cards, please move them somewhere else"
-            );
-            return;
-          }
-          return deleteColMutation.mutate({
-            id: column.id,
-            boardId: board.id,
-            columnIds: [
-              ...boardColumns
-                .filter((c) => c.id !== column.id)
-                .map((c) => c.id),
-            ],
-          });
-        }}
-      >
-        Delete
-      </button>
-      <Title>{column.name}</Title>
-      <Droppable droppableId={column.id} type="card">
-        {(provided, snapshot) => (
-          <List
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            isDraggingOver={snapshot.isDraggingOver}
-          >
-            {cards.map((t, i) => (
-              <DraggableCard key={t.id} card={t} board={board} index={i} />
-            ))}
-            {provided.placeholder}
-          </List>
-        )}
-      </Droppable>
-    </Container>
-  );
-});
+const WorkflowState = React.memo(
+  ({ workflowState, cards, workflow }: WorkflowStateProps) => {
+    const queryClient = useQueryClient();
+    const deleteColMutation = useDeleteWorkflowStateMutation({
+      ...defaultMutationProps(queryClient),
+    });
+    const [, setEditWorkflowStateOpen] = useModalForm({
+      formModalType: "editWorkflowState",
+      workflowState,
+    });
+    const workflowWorkflowStates = workflow?.workflowStates.filter(notEmpty);
+    return (
+      <Container isDragging={false}>
+        <button onClick={() => setEditWorkflowStateOpen(true)}>
+          Edit WorkflowState
+        </button>
+        <button
+          onClick={() => {
+            const hasCards = cards.length > 0;
+            if (hasCards) {
+              toast.error(
+                "Cannot delete a workflowState with cards, please move them somewhere else"
+              );
+              return;
+            }
+            return deleteColMutation.mutate({
+              id: workflowState.id,
+              workflowId: workflow.id,
+              workflowStateIds: [
+                ...workflowWorkflowStates
+                  .filter((c) => c.id !== workflowState.id)
+                  .map((c) => c.id),
+              ],
+            });
+          }}
+        >
+          Delete
+        </button>
+        <Title>{workflowState.name}</Title>
+        <Droppable droppableId={workflowState.id} type="card">
+          {(provided, snapshot) => (
+            <List
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              isDraggingOver={snapshot.isDraggingOver}
+            >
+              {cards.map((t, i) => (
+                <DraggableCard
+                  key={t.id}
+                  card={t}
+                  workflow={workflow}
+                  index={i}
+                />
+              ))}
+              {provided.placeholder}
+            </List>
+          )}
+        </Droppable>
+      </Container>
+    );
+  }
+);
 
-function processBoard(board: TBoard) {
-  if (!board) return null;
-  const columns = board?.columns.filter(notEmpty) || [];
+function filteredCards(
+  cards: TCard[] | undefined,
+  filters: LocationGenerics["Search"]["filters"] | undefined
+) {
+  if (!filters) {
+    return cards;
+  }
+  console.log(filters, cards);
+
+  return (
+    cards?.filter(
+      (card) => !filters.projectId || card.project?.id === filters.projectId
+    ) ?? []
+  );
+}
+
+function processWorkflow(
+  workflow: TWorkflow,
+  filters: LocationGenerics["Search"]["filters"] | undefined
+) {
+  if (!workflow) return null;
+  const workflowStates = workflow?.workflowStates.filter(notEmpty) || [];
   return {
-    ...board,
-    columns: columns.map((c) => ({
+    ...workflow,
+    workflowStates: workflowStates.map((c) => ({
       ...c,
-      cards: c.cards?.filter(notEmpty) || [],
+      cards: filteredCards(c.cards?.filter(notEmpty), filters),
     })),
   };
 }
 
-function Board({ board }: { board: TBoard }) {
-  if (!board?.id) return null;
-  const data = React.useMemo(() => processBoard(board), [board]);
-  const [state, setState] = React.useState<TBoard>();
+function Workflow({ workflow }: { workflow: TWorkflow }) {
+  if (!workflow?.id) return null;
+  const { filters } = useSearch<LocationGenerics>();
+  const data = React.useMemo(
+    () => processWorkflow(workflow, filters),
+    [workflow, filters]
+  );
+  const [filteredState, setState] = React.useState<TWorkflow>();
+  const unfilteredWorkflow = useKanbanDataQuery()?.data?.allWorkflows?.find(
+    (c) => c?.id === workflow.id
+  );
   React.useEffect(() => {
     if (data) {
       setState(data);
-      console.log("board update from server");
+      console.log("workflow update from server");
     }
   }, [data]);
   const cols =
-    state?.columns.filter(notEmpty).map((c) => {
+    filteredState?.workflowStates.filter(notEmpty).map((c) => {
       return {
         ...c,
         cards: c.cards?.filter(notEmpty) || [],
@@ -194,22 +235,17 @@ function Board({ board }: { board: TBoard }) {
   const moveCardMutation = useMoveCardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const deleteBoardMutation = useDeleteBoardMutation({
+  const deleteWorkflowMutation = useDeleteWorkflowMutation({
     ...defaultMutationProps(queryClient),
   });
 
-  const navigate = useNavigate<LocationGenerics>();
-  const [, setIsUpdateBoard] = useModalForm({
-    formModalType: "editBoard",
-    board: board,
-  });
-  const [, setIsAddColumn] = useModalForm({
-    formModalType: "addColumn",
-    board: board,
+  const [, setIsAddWorkflowState] = useModalForm({
+    formModalType: "addWorkflowState",
+    workflow,
   });
   const [, setIsAddCard] = useModalForm({
     formModalType: "addCard",
-    board: board,
+    workflow,
   });
   const crudButtonClass = "px-4";
   return (
@@ -219,34 +255,32 @@ function Board({ board }: { board: TBoard }) {
         <div className="flex justify-around">
           <button
             className={crudButtonClass}
-            onClick={() => {
-              if (!board?.id) {
-                toast.error("No Board ID Found");
-                return;
-              }
-              setIsUpdateBoard(true);
-            }}
-          >
-            Edit
-          </button>
-
-          <button
-            className={crudButtonClass}
             onClick={() =>
-              data?.id && deleteBoardMutation.mutate({ boardId: data.id })
+              data?.id && deleteWorkflowMutation.mutate({ workflowId: data.id })
             }
           >
             Delete
           </button>
-          <button onClick={() => setIsAddColumn(true)}>Add Column</button>
-          <button onClick={() => setIsAddCard(true)}> Add Card</button>
+          <button
+            className={crudButtonClass}
+            onClick={() => setIsAddWorkflowState(true)}
+          >
+            Add WorkflowState
+          </button>
+          <button
+            className={crudButtonClass}
+            onClick={() => setIsAddCard(true)}
+          >
+            {" "}
+            Add Card
+          </button>
         </div>
       </div>
       {data?.description && <p>{data.description}</p>}
 
-      {state && (
+      {filteredState && (
         <DragDropContext
-          onDragEnd={({ destination, source }) => {
+          onDragEnd={({ destination, source, draggableId }) => {
             if (
               !destination ||
               (destination.droppableId === source.droppableId &&
@@ -254,60 +288,103 @@ function Board({ board }: { board: TBoard }) {
             ) {
               return;
             }
-            const newState = moveCard(state, source, destination);
+            const newFilteredState = moveCard(
+              filteredState,
+              source,
+              destination
+            );
             const startCol = cols.find((c) => c.id === source.droppableId);
             const endCol = cols.find((c) => c.id === destination.droppableId);
+
+            const unfilteredStartCol = unfilteredWorkflow?.workflowStates.find(
+              (c) => c?.id === source.droppableId
+            );
+            const unfilteredEndCol = unfilteredWorkflow?.workflowStates.find(
+              (c) => c?.id === destination.droppableId
+            );
+            const unfilteredSourceIdx =
+              unfilteredStartCol?.cards?.findIndex(
+                (c) => c?.id === draggableId
+              ) || source.index;
+            const unfilteredCardIdx = newFilteredState?.workflowStates
+              .find((c) => c?.id === destination.droppableId)
+              ?.cards?.findIndex((c) => c?.id === draggableId);
+            const prevCardId =
+              destination.index === 0
+                ? undefined
+                : unfilteredCardIdx && endCol?.cards[unfilteredCardIdx - 1]?.id;
+            const prevCardIdx = prevCardId
+              ? unfilteredEndCol?.cards?.findIndex(
+                  (c) => c?.id === prevCardId
+                ) || destination.index - 1
+              : -1;
+            const unfilteredDestinationIdx = prevCardIdx + 1;
+            const newState = moveCard(
+              unfilteredWorkflow,
+              { ...source, index: unfilteredSourceIdx },
+              {
+                ...destination,
+                index: unfilteredDestinationIdx,
+              }
+            );
             if (
               (startCol && hasDuplicateCards(startCol)) ||
               (endCol && hasDuplicateCards(endCol))
             ) {
-              toast.error("Cannot move card to same column");
+              toast.error("Cannot move card to same workflowState");
               return;
             }
             if (startCol) {
               const cardsInSourceCol =
-                newState?.columns
+                newState?.workflowStates
                   .filter(notEmpty)
                   .find((c) => c.id === source.droppableId)
                   ?.cards?.filter(notEmpty)
                   .map((c) => c.id) || [];
               moveCardMutation.mutate({
-                columnId: startCol?.id,
+                workflowStateId: startCol?.id,
                 cardIds: cardsInSourceCol,
               });
             }
 
             if (endCol && startCol !== endCol) {
               const cardsInEndCol =
-                newState?.columns
+                newState?.workflowStates
                   .filter(notEmpty)
                   .find((c) => c.id === destination.droppableId)
                   ?.cards?.filter(notEmpty)
                   .map((c) => c.id) || [];
               moveCardMutation.mutate({
-                columnId: endCol?.id,
+                workflowStateId: endCol?.id,
                 cardIds: cardsInEndCol,
               });
             }
 
-            setState(newState);
+            setState(newFilteredState);
           }}
         >
-          <Droppable droppableId="columns" direction="horizontal" type="column">
+          <Droppable
+            droppableId="workflowStates"
+            direction="horizontal"
+            type="workflowState"
+          >
             {(provided) => (
-              <Columns {...provided.droppableProps} ref={provided.innerRef}>
+              <WorkflowStates
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
                 {cols.map((col) => {
                   return (
-                    <Column
+                    <WorkflowState
                       key={col.id}
-                      column={col}
+                      workflowState={col}
                       cards={col.cards}
-                      board={board}
+                      workflow={workflow}
                     />
                   );
                 })}
                 {provided.placeholder}
-              </Columns>
+              </WorkflowStates>
             )}
           </Droppable>
         </DragDropContext>
@@ -317,56 +394,79 @@ function Board({ board }: { board: TBoard }) {
 }
 
 export function App() {
-  const kanbanQueryResult = useKanbanDataQuery();
-  const boards = kanbanQueryResult.data?.allBoards || [];
+  const kanbanQueryResult = useKanbanDataQuery({}, {});
+  const workflows = kanbanQueryResult.data?.allWorkflows || [];
+  const navigate = useNavigate<LocationGenerics>();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useModalForm({
-    formModalType: "addBoard",
+    formModalType: "addWorkflowState",
   });
   const [isCardModalOpen, setIsCardModalOpen] = useModalForm({
     formModalType: "editCard",
   });
-  const [isColumnModalOpen, setIsColumnModalOpen] = useModalForm({
-    formModalType: "editColumn",
+  const [isWorkflowStateModalOpen, setIsWorkflowStateModalOpen] = useModalForm({
+    formModalType: "editWorkflowState",
   });
-  const [isUpdateBoard, setIsUpdateBoard] = useModalForm({
-    formModalType: "editBoard",
-  });
-  const [isAddColumn, setIsAddColumn] = useModalForm({
-    formModalType: "addColumn",
-  });
+
   const [isAddCard, setIsAddCard] = useModalForm({
     formModalType: "addCard",
   });
-
+  const [isAddProject, setIsAddProject] = useModalForm({
+    formModalType: "addProject",
+  });
+  const search = useSearch<LocationGenerics>();
+  const projectQuery = useAllProjectsQuery();
+  const projects = projectQuery.data?.allProjects || [];
   return (
     <div>
       {kanbanQueryResult.isLoading && <div>Loading...</div>}
-      <AddBoardModal isOpen={!!isModalOpen} setIsOpen={setIsModalOpen} />
-      <UpdateColumnModal
-        isOpen={!!isColumnModalOpen}
-        setIsOpen={setIsColumnModalOpen}
+      <AddWorkflowStateModal
+        isOpen={!!isModalOpen}
+        setIsOpen={setIsModalOpen}
+      />
+      <UpdateWorkflowStateModal
+        isOpen={!!isWorkflowStateModalOpen}
+        setIsOpen={setIsWorkflowStateModalOpen}
       />
       <UpdateCardModal
         isOpen={isCardModalOpen}
         setIsOpen={setIsCardModalOpen}
       />
-      <UpdateBoardModal isOpen={isUpdateBoard} setIsOpen={setIsUpdateBoard} />
-      <AddColumnModal isOpen={isAddColumn} setIsOpen={setIsAddColumn} />
       <AddCardModal isOpen={isAddCard} setIsOpen={setIsAddCard} />
-
-      <button
-        onClick={() => {
-          queryClient.refetchQueries(["allColumns"]);
-          setIsModalOpen(true);
-        }}
-      >
-        Add Board
-      </button>
-      {boards.length > 0 &&
-        boards
+      <AddProjectModal isOpen={isAddProject} setIsOpen={setIsAddProject} />
+      {projects.length > 0 &&
+        [...projects, { id: undefined, name: "All" }]
           .filter(notEmpty)
-          .map((board) => <Board key={board.id} board={board} />)}
+          .map((project) => (
+            <div key={project.id + project.name}>
+              <h1>{project.name}</h1>
+              <div>
+                <button
+                  onClick={() =>
+                    navigate({
+                      search: {
+                        ...search,
+                        filters: {
+                          ...search.filters,
+                          projectId: project.id,
+                        },
+                      },
+                    })
+                  }
+                >
+                  View
+                </button>
+              </div>
+            </div>
+          ))}
+
+      <button onClick={() => setIsAddProject(true)}>Add Project</button>
+      {workflows.length > 0 &&
+        workflows
+          .filter(notEmpty)
+          .map((workflow) => (
+            <Workflow key={workflow.id} workflow={workflow} />
+          ))}
     </div>
   );
 }

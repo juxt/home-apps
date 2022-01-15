@@ -2,12 +2,12 @@ mutation createCard(
   $card: CardInput!
   $cardId: ID!
   $cardIds: [ID!]!
-  $columnId: ID!
+  $workflowStateId: ID!
 ) {
   updateCard(id: $cardId, Card: $card) {
     id
   }
-  updateColumn(id: $columnId, cardIds: $cardIds) {
+  updateWorkflowState(id: $workflowStateId, cardIds: $cardIds) {
     id
   }
 }

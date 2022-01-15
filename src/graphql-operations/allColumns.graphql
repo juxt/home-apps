@@ -1,9 +1,0 @@
-query allColumns {
-  allColumns {
-    id
-    name
-    cards {
-      title
-    }
-  }
-}

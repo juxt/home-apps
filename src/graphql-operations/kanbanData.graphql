@@ -1,13 +1,13 @@
 query kanbanData {
-  allBoards {
+  allWorkflows {
     name
     description
     id
-    columns {
-      ...ColumnFields
+    workflowStates {
+      ...WorkflowStateFields
     }
   }
-  allColumns {
+  allWorkflowStates {
     id
     name
   }

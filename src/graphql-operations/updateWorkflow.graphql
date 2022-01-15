@@ -1,13 +1,13 @@
-mutation updateBoard(
+mutation updateWorkflow(
   $id: ID!
-  $columnIds: [ID]
+  $workflowStateIds: [ID]
   $description: String
   $name: String
 ) {
-  updateBoard(
+  updateWorkflow(
     id: $id
     description: $description
-    columnIds: $columnIds
+    workflowStateIds: $workflowStateIds
     name: $name
   ) {
     id

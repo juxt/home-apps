@@ -1,0 +1,9 @@
+mutation updateWorkflowState(
+  $colId: ID!
+  $name: String!
+  $description: String
+) {
+  updateWorkflowState(id: $colId, name: $name, description: $description) {
+    id
+  }
+}

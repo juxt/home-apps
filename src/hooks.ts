@@ -6,26 +6,28 @@ type ModalState = LocationGenerics["Search"]["modalState"];
 export function useModalForm(
   modalState: ModalState
 ): [boolean, (shouldOpen: boolean) => void] {
-  const search = useSearch<LocationGenerics>();
+  const { modalState: currentModalState, ...search } =
+    useSearch<LocationGenerics>();
   const navigate = useNavigate();
   const isModalOpen =
-    search?.modalState?.formModalType === modalState.formModalType;
+    currentModalState?.formModalType === modalState.formModalType;
 
   const setIsModalOpen = (shouldOpen: boolean) => {
     if (shouldOpen) {
       navigate({
+        replace: true,
         to: ".",
         search: {
           ...search,
-          modalState: { ...search?.modalState, ...modalState },
+          modalState: { ...currentModalState, ...modalState },
         },
       });
     } else {
       navigate({
         to: ".",
+        replace: true,
         search: {
           ...search,
-          modalState: null,
         },
       });
     }

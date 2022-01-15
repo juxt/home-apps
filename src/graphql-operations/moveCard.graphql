@@ -1,5 +1,5 @@
-mutation moveCard($columnId: ID!, $cardIds: [ID!]!) {
-  updateColumn(id: $columnId, cardIds: $cardIds) {
+mutation moveCard($workflowStateId: ID!, $cardIds: [ID!]!) {
+  updateWorkflowState(id: $workflowStateId, cardIds: $cardIds) {
     id
   }
 }

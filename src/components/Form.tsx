@@ -2,13 +2,21 @@ import { Dialog } from "@headlessui/react";
 import React from "react";
 import { Controller, FieldValues } from "react-hook-form";
 import { MultiSelect } from "react-multi-select-component";
+import Select, { GroupBase, Props as SelectProps } from "react-select";
 
-import { Option } from "react-multi-select-component/dist/types/lib/interfaces";
-import { FormInputField, FormProps } from "../types";
+import { FormInputField, FormProps, Option } from "../types";
 import { Tiptap } from "./Tiptap";
 
 const inputClass =
   "relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base";
+
+function CustomSelect<
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>(props: SelectProps<Option, IsMulti, Group>) {
+  return <Select {...props} />;
+}
 
 export function RenderField<T>({
   field,
@@ -24,6 +32,7 @@ export function RenderField<T>({
     className: inputClass,
     type: field.type,
   };
+
   switch (field.type) {
     case "text":
       return <input {...defaultProps} />;
@@ -31,6 +40,28 @@ export function RenderField<T>({
       return <input {...defaultProps} />;
     case "checkbox":
       return <input {...defaultProps} checked={!!field.value} />;
+    case "select":
+      return (
+        <Controller
+          name={field.path}
+          control={control}
+          render={(controlProps) => {
+            let { value, onChange, name } = controlProps.field;
+
+            return (
+              <CustomSelect
+                {...controlProps}
+                options={field.options}
+                onChange={(selected) => {
+                  onChange(selected);
+                }}
+                value={value}
+                name={name}
+              />
+            );
+          }}
+        />
+      );
     case "multiselect":
       return (
         <Controller

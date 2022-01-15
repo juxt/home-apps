@@ -23,7 +23,7 @@ ReactDOM.render(
       location={location}
       routes={[
         {
-          path: "/_apps/kanban/index.html",
+          // path = "/*"
           element: <App />,
         },
       ]}

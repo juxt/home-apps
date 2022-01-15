@@ -16,7 +16,7 @@ import { ISelectProps } from "react-multi-select-component/dist/types/lib/interf
 import {
   KanbanDataQuery,
   CardFieldsFragment,
-  ColumnFieldsFragment,
+  WorkflowStateFieldsFragment,
 } from "./generated/graphql";
 import { TiptapProps } from "./components/Tiptap";
 
@@ -26,10 +26,17 @@ declare module "react" {
   ): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 }
 
-export type TBoards = NonNullable<KanbanDataQuery["allBoards"]>;
-export type TBoard = TBoards[0];
+export type TWorkflows = NonNullable<KanbanDataQuery["allWorkflows"]>;
+export type TWorkflow = TWorkflows[0];
 export type TCard = CardFieldsFragment;
-export type TColumn = ColumnFieldsFragment;
+export type TWorkflowState = WorkflowStateFieldsFragment;
+
+export type Option = {
+  value: string;
+  label: string;
+  key?: string;
+  disabled?: boolean;
+};
 
 type WithIdAndType<
   T extends
@@ -38,6 +45,7 @@ type WithIdAndType<
     | "checkbox"
     | "textarea"
     | "submit"
+    | "select"
     | "multiselect"
     | "tiptap"
     | "hidden"
@@ -67,7 +75,13 @@ type SubmitProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   type: "submit";
 };
 type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  type: "textarea";
   value?: string;
+};
+type SelectProps = {
+  type: "select";
+  options: any[];
+  default?: string;
 };
 
 export type TextInputDefinition = TextInputProps & WithIdAndType<"text">;
@@ -83,12 +97,7 @@ export type TextAreaInputDefinition = TextAreaProps & WithIdAndType<"textarea">;
 export type TiptapDefinition = Omit<TiptapProps, "onChange"> &
   WithIdAndType<"tiptap">;
 
-export type Option = {
-  value: string;
-  label: string;
-  key?: string;
-  disabled?: boolean;
-};
+export type SelectInputDefinition = SelectProps & WithIdAndType<"select">;
 
 export type MultiSelectDefinition = {
   options: Option[];
@@ -108,6 +117,7 @@ export type FormInputField<T> = {
   | NumberInputDefinition
   | CheckboxInputDefinition
   | TextAreaInputDefinition
+  | SelectInputDefinition
   | MultiSelectDefinition
   | TiptapDefinition
 );
@@ -121,12 +131,12 @@ export type FormProps<T> = {
   onSubmit: () => void;
 };
 
-export type BoardFormModalTypes =
+export type WorkflowFormModalTypes =
   | "addCard"
-  | "addColumn"
-  | "editBoard"
-  | "addBoard"
-  | "editColumn"
+  | "addProject"
+  | "addWorkflowState"
+  | "addWorkflow"
+  | "editWorkflowState"
   | "editCard"
   | null
   | false
@@ -135,10 +145,13 @@ export type BoardFormModalTypes =
 export type LocationGenerics = MakeGenerics<{
   Search: {
     modalState: {
-      formModalType: BoardFormModalTypes;
-      board?: TBoard;
-      column?: ColumnFieldsFragment;
+      formModalType: WorkflowFormModalTypes;
+      workflow?: TWorkflow;
+      workflowState?: WorkflowStateFieldsFragment;
       card?: CardFieldsFragment;
+    };
+    filters: {
+      projectId?: string;
     };
   };
 }>;

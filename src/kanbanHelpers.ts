@@ -1,11 +1,11 @@
 import { DraggableLocation } from "react-beautiful-dnd";
 import { QueryClient } from "react-query";
 import {
-  Column as TColumn,
+  WorkflowStateFieldsFragment as TWorkflowState,
   useCardHistoryQuery,
   useKanbanDataQuery,
 } from "./generated/graphql";
-import { TBoard, TCard } from "./types";
+import { TWorkflow, TCard } from "./types";
 
 export type ObjectKeys<T> = T extends object
   ? (keyof T)[]
@@ -118,26 +118,33 @@ function pickPropOut(object: { [x: string]: any }, prop: string) {
   }, {});
 }
 
-function reorderCardsOnColumn(
-  column: TColumn,
+function reorderCardsOnWorkflowState(
+  workflowState: TWorkflowState,
   reorderCards: (cards: TCard[]) => TCard[]
-): TColumn {
-  if (!column?.cards) return column;
-  return { ...column, cards: reorderCards(column.cards.filter(notEmpty)) };
+): TWorkflowState {
+  if (!workflowState?.cards) return workflowState;
+  return {
+    ...workflowState,
+    cards: reorderCards(workflowState.cards.filter(notEmpty)),
+  };
 }
 
-function moveColumn(
-  board: { columns: any },
+function moveWorkflowState(
+  workflow: { workflowStates: any },
   { fromPosition }: any,
   { toPosition }: any
 ) {
   return {
-    ...board,
-    columns: immutableMove(board.columns, fromPosition, toPosition),
+    ...workflow,
+    workflowStates: immutableMove(
+      workflow.workflowStates,
+      fromPosition,
+      toPosition
+    ),
   };
 }
 
-function hasDuplicateCards(col: TColumn) {
+function hasDuplicateCards(col: TWorkflowState) {
   const cards = col?.cards?.filter(notEmpty) ?? [];
   if (cards.length > 0) {
     return cards.filter(notEmpty).some((card, index) => {
@@ -147,128 +154,162 @@ function hasDuplicateCards(col: TColumn) {
 }
 
 function moveCard(
-  board: TBoard,
-  { index: fromPosition, droppableId: fromColumnId }: DraggableLocation,
-  { index: toPosition, droppableId: toColumnId }: DraggableLocation
+  workflow: TWorkflow,
+  { index: fromPosition, droppableId: fromWorkflowStateId }: DraggableLocation,
+  { index: toPosition, droppableId: toWorkflowStateId }: DraggableLocation
 ) {
-  if (!board) return;
-  const cols = board.columns.filter(notEmpty).map((col) => {
+  if (!workflow) return;
+  const cols = workflow.workflowStates.filter(notEmpty).map((col) => {
     return {
       ...col,
       cards: col.cards?.filter(notEmpty) ?? [],
     };
   });
-  const sourceColumn = cols.find((column) => column.id === fromColumnId);
-  const destinationColumn = cols.find((column) => column.id === toColumnId);
+  const sourceWorkflowState = cols.find(
+    (workflowState) => workflowState.id === fromWorkflowStateId
+  );
+  const destinationWorkflowState = cols.find(
+    (workflowState) => workflowState.id === toWorkflowStateId
+  );
 
-  if (!sourceColumn || !destinationColumn) return board;
+  if (!sourceWorkflowState || !destinationWorkflowState) return workflow;
 
-  const reorderColumnsOnBoard = (
-    reorderColumnsMapper: (col: TColumn) => TColumn
+  const reorderWorkflowStatesOnWorkflow = (
+    reorderWorkflowStatesMapper: (col: TWorkflowState) => TWorkflowState
   ) => ({
-    ...board,
-    columns: cols.map(reorderColumnsMapper),
+    ...workflow,
+    workflowStates: cols.map(reorderWorkflowStatesMapper),
   });
 
-  if (sourceColumn.id === destinationColumn.id) {
-    const reorderedCardsOnColumn = reorderCardsOnColumn(
-      sourceColumn,
+  if (sourceWorkflowState.id === destinationWorkflowState.id) {
+    const reorderedCardsOnWorkflowState = reorderCardsOnWorkflowState(
+      sourceWorkflowState,
       (cards: TCard[]) => {
         return immutableMove(cards, fromPosition, toPosition);
       }
     );
-    return reorderColumnsOnBoard((column: TColumn) =>
-      column.id === sourceColumn.id ? reorderedCardsOnColumn : column
+    return reorderWorkflowStatesOnWorkflow((workflowState: TWorkflowState) =>
+      workflowState.id === sourceWorkflowState.id
+        ? reorderedCardsOnWorkflowState
+        : workflowState
     );
   } else {
-    const reorderedCardsOnSourceColumn = reorderCardsOnColumn(
-      sourceColumn,
+    const reorderedCardsOnSourceWorkflowState = reorderCardsOnWorkflowState(
+      sourceWorkflowState,
       (cards: TCard[]) => {
         return removeFromArrayAtPosition(cards, fromPosition);
       }
     );
-    const reorderedCardsOnDestinationColumn = reorderCardsOnColumn(
-      destinationColumn,
-      (cards: TCard[]) => {
-        return addInArrayAtPosition(
-          cards,
-          sourceColumn.cards[fromPosition],
-          toPosition
-        );
-      }
-    );
-    return reorderColumnsOnBoard((column: TColumn) => {
-      if (column.id === sourceColumn.id) return reorderedCardsOnSourceColumn;
-      if (column.id === destinationColumn.id)
-        return reorderedCardsOnDestinationColumn;
-      return column;
+    const reorderedCardsOnDestinationWorkflowState =
+      reorderCardsOnWorkflowState(
+        destinationWorkflowState,
+        (cards: TCard[]) => {
+          return addInArrayAtPosition(
+            cards,
+            sourceWorkflowState.cards[fromPosition],
+            toPosition
+          );
+        }
+      );
+    return reorderWorkflowStatesOnWorkflow((workflowState: TWorkflowState) => {
+      if (workflowState.id === sourceWorkflowState.id)
+        return reorderedCardsOnSourceWorkflowState;
+      if (workflowState.id === destinationWorkflowState.id)
+        return reorderedCardsOnDestinationWorkflowState;
+      return workflowState;
     });
   }
 }
 
-function addColumn(board: { columns: string | any[] }, column: any) {
-  return {
-    ...board,
-    columns: addInArrayAtPosition(board.columns, column, board.columns.length),
-  };
-}
-
-function removeColumn(board: { columns: any[] }, column: { id: any }) {
-  return {
-    ...board,
-    columns: board.columns.filter(({ id }) => id !== column.id),
-  };
-}
-
-function changeColumn(
-  board: { columns: any },
-  column: { id: any },
-  newColumn: any
+function addWorkflowState(
+  workflow: { workflowStates: string | any[] },
+  workflowState: any
 ) {
-  const changedColumns = replaceElementOfArray(board.columns)({
-    when: ({ id }) => id === column.id,
-    for: (value: any) => ({ ...value, ...newColumn }),
+  return {
+    ...workflow,
+    workflowStates: addInArrayAtPosition(
+      workflow.workflowStates,
+      workflowState,
+      workflow.workflowStates.length
+    ),
+  };
+}
+
+function removeWorkflowState(
+  workflow: { workflowStates: any[] },
+  workflowState: { id: any }
+) {
+  return {
+    ...workflow,
+    workflowStates: workflow.workflowStates.filter(
+      ({ id }) => id !== workflowState.id
+    ),
+  };
+}
+
+function changeWorkflowState(
+  workflow: { workflowStates: any },
+  workflowState: { id: any },
+  newWorkflowState: any
+) {
+  const changedWorkflowStates = replaceElementOfArray(workflow.workflowStates)({
+    when: ({ id }) => id === workflowState.id,
+    for: (value: any) => ({ ...value, ...newWorkflowState }),
   });
-  return { ...board, columns: changedColumns };
+  return { ...workflow, workflowStates: changedWorkflowStates };
 }
 
 function addCard(
-  board: { columns: any[] },
-  inColumn: { id: any },
+  workflow: { workflowStates: any[] },
+  inWorkflowState: { id: any },
   card: any,
   opts = { on: "top" }
 ) {
   const on = opts.on;
-  const columnToAdd = board.columns.find(({ id }) => id === inColumn.id);
-  const cards = addInArrayAtPosition(
-    columnToAdd.cards,
-    card,
-    on === "top" ? 0 : columnToAdd.cards.length
+  const workflowStateToAdd = workflow.workflowStates.find(
+    ({ id }) => id === inWorkflowState.id
   );
-  const columns = replaceElementOfArray(board.columns)({
-    when: ({ id }) => inColumn.id === id,
+  const cards = addInArrayAtPosition(
+    workflowStateToAdd.cards,
+    card,
+    on === "top" ? 0 : workflowStateToAdd.cards.length
+  );
+  const workflowStates = replaceElementOfArray(workflow.workflowStates)({
+    when: ({ id }) => inWorkflowState.id === id,
     for: (value: any) => ({ ...value, cards }),
   });
-  return { ...board, columns };
+  return { ...workflow, workflowStates };
 }
 
 function removeCard(
-  board: { columns: any[] },
-  fromColumn: { id: any },
+  workflow: { workflowStates: any[] },
+  fromWorkflowState: { id: any },
   card: { id: any }
 ) {
-  const columnToRemove = board.columns.find(({ id }) => id === fromColumn.id);
-  const filteredCards = columnToRemove.cards.filter(
+  const workflowStateToRemove = workflow.workflowStates.find(
+    ({ id }) => id === fromWorkflowState.id
+  );
+  const filteredCards = workflowStateToRemove.cards.filter(
     ({ id }: { id: string }) => card.id !== id
   );
-  const columnWithoutCard = { ...columnToRemove, cards: filteredCards };
-  const filteredColumns = board.columns.map((column: { id: any }) =>
-    fromColumn.id === column.id ? columnWithoutCard : column
+  const workflowStateWithoutCard = {
+    ...workflowStateToRemove,
+    cards: filteredCards,
+  };
+  const filteredWorkflowStates = workflow.workflowStates.map(
+    (workflowState: { id: any }) =>
+      fromWorkflowState.id === workflowState.id
+        ? workflowStateWithoutCard
+        : workflowState
   );
-  return { ...board, columns: filteredColumns };
+  return { ...workflow, workflowStates: filteredWorkflowStates };
 }
 
-function changeCard(board: { columns: any[] }, cardId: any, newCard: any) {
+function changeCard(
+  workflow: { workflowStates: any[] },
+  cardId: any,
+  newCard: any
+) {
   const changedCards = (cards: any) =>
     replaceElementOfArray(cards)({
       when: ({ id }) => id === cardId,
@@ -276,11 +317,13 @@ function changeCard(board: { columns: any[] }, cardId: any, newCard: any) {
     });
 
   return {
-    ...board,
-    columns: board.columns.filter(notEmpty).map((column: { cards: any[] }) => ({
-      ...column,
-      cards: changedCards(column.cards),
-    })),
+    ...workflow,
+    workflowStates: workflow.workflowStates
+      .filter(notEmpty)
+      .map((workflowState: { cards: any[] }) => ({
+        ...workflowState,
+        cards: changedCards(workflowState.cards),
+      })),
   };
 }
 
@@ -293,11 +336,11 @@ const defaultMutationProps = (queryClient: QueryClient) => ({
 export {
   defaultMutationProps,
   hasDuplicateCards,
-  moveColumn,
+  moveWorkflowState,
   moveCard,
-  addColumn,
-  removeColumn,
-  changeColumn,
+  addWorkflowState,
+  removeWorkflowState,
+  changeWorkflowState,
   addCard,
   removeCard,
   changeCard,

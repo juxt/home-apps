@@ -1,5 +1,0 @@
-mutation updateColumn($colId: ID!, $name: String!, $description: String) {
-  updateColumn(id: $colId, name: $name, description: $description) {
-    id
-  }
-}

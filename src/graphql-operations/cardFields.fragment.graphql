@@ -2,4 +2,8 @@ fragment CardFields on Card {
   id
   title
   description
+  project {
+    id
+    name
+  }
 }
