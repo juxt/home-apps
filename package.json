@@ -9,6 +9,7 @@
     "typescript"
   ],
   "main": "src/index.tsx",
+  "homepage": "https://alexd.uk/site/_apps/kanban",
   "dependencies": {
     "@atlaskit/css-reset": "6.3.4",
     "@headlessui/react": "^1.4.2",

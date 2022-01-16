@@ -8,7 +8,12 @@ import {
 import { AddProjectModal } from "./components/ProjectForms";
 import { AddCardModal, UpdateCardModal } from "./components/CardForms";
 import styled from "styled-components";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DraggableLocation,
+} from "react-beautiful-dnd";
 import {
   useKanbanDataQuery,
   useDeleteWorkflowMutation,
@@ -247,6 +252,42 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
     workflow,
   });
   const crudButtonClass = "px-4";
+  const updateServerCards = React.useCallback(
+    (
+      state: TWorkflow,
+      startCol: TWorkflowState,
+      endCol: TWorkflowState,
+      source: DraggableLocation,
+      destination: DraggableLocation
+    ) => {
+      if (startCol) {
+        const cardsInSourceCol =
+          state?.workflowStates
+            .filter(notEmpty)
+            .find((c) => c.id === source.droppableId)
+            ?.cards?.filter(notEmpty)
+            .map((c) => c.id) || [];
+        moveCardMutation.mutate({
+          workflowStateId: startCol?.id,
+          cardIds: cardsInSourceCol,
+        });
+      }
+
+      if (endCol && startCol !== endCol) {
+        const cardsInEndCol =
+          state?.workflowStates
+            .filter(notEmpty)
+            .find((c) => c.id === destination.droppableId)
+            ?.cards?.filter(notEmpty)
+            .map((c) => c.id) || [];
+        moveCardMutation.mutate({
+          workflowStateId: endCol?.id,
+          cardIds: cardsInEndCol,
+        });
+      }
+    },
+    [moveCardMutation]
+  );
   return (
     <>
       <div className="flex bg-red-500 justify-between max-w-lg">
@@ -294,78 +335,82 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             );
             const startCol = cols.find((c) => c.id === source.droppableId);
             const endCol = cols.find((c) => c.id === destination.droppableId);
+            if (!startCol || !endCol) return;
 
-            const unfilteredStartCol = unfilteredWorkflow?.workflowStates.find(
-              (c) => c?.id === source.droppableId
-            );
-            const unfilteredEndCol = unfilteredWorkflow?.workflowStates.find(
-              (c) => c?.id === destination.droppableId
-            );
-            const unfilteredSourceIdx =
-              unfilteredStartCol?.cards?.findIndex(
+            if (!filters || !Object.keys(filters) || !filters?.projectId) {
+              // if there are no filters, just use the local state in the mutation
+              updateServerCards(
+                newFilteredState,
+                startCol,
+                endCol,
+                source,
+                destination
+              );
+            } else {
+              // if there are filters, things are more tricky...
+              // the general idea is to find the card behind the new location of our dragged card
+              // and then find that previousCards index in the unfiltered workflow-state
+              // then we can move the card in the unfiltered workflow-state and use that to update the server
+
+              const unfilteredStartCol =
+                unfilteredWorkflow?.workflowStates.find(
+                  (c) => c?.id === source.droppableId
+                );
+              const unfilteredEndCol = unfilteredWorkflow?.workflowStates.find(
+                (c) => c?.id === destination.droppableId
+              );
+              const unfilteredSourceIdx =
+                unfilteredStartCol?.cards?.findIndex(
+                  (c) => c?.id === draggableId
+                ) || source.index;
+              const newEndCol = newFilteredState?.workflowStates.find(
+                (c) => c?.id === destination.droppableId
+              );
+              const unfilteredCardIdx = newEndCol?.cards?.findIndex(
                 (c) => c?.id === draggableId
-              ) || source.index;
-            const newEndCol = newFilteredState?.workflowStates.find(
-              (c) => c?.id === destination.droppableId
-            );
-            const unfilteredCardIdx = newEndCol?.cards?.findIndex(
-              (c) => c?.id === draggableId
-            );
-            const endCards = newEndCol?.cards?.filter(notEmpty) || [];
-            const prevCardId =
-              destination.index === 0
-                ? undefined
-                : unfilteredCardIdx && endCards[unfilteredCardIdx - 1]?.id;
-            const prevCardIdx = unfilteredEndCol?.cards?.findIndex(
-              (c) => c?.id === prevCardId
-            );
-            const unfilteredSource = { ...source, index: unfilteredSourceIdx };
-            if (typeof prevCardIdx !== "number") {
-              console.log("no prev card idx");
-              return;
-            }
-            const unfilteredDestination = {
-              ...destination,
-              index: prevCardIdx + 1,
-            };
-            console.log(unfilteredSource, unfilteredDestination);
+              );
+              const endCards = newEndCol?.cards?.filter(notEmpty) || [];
+              const prevCardId =
+                destination.index === 0
+                  ? undefined
+                  : unfilteredCardIdx && endCards[unfilteredCardIdx - 1]?.id;
+              const prevCardIdx = unfilteredEndCol?.cards?.findIndex(
+                (c) => c?.id === prevCardId
+              );
+              const unfilteredSource = {
+                ...source,
+                index: unfilteredSourceIdx,
+              };
+              if (typeof prevCardIdx !== "number") {
+                console.log("no prev card idx");
+                return;
+              }
+              const isSameColMoveDown =
+                source.droppableId === destination.droppableId &&
+                source.index < destination.index;
+              const newCardIdx = isSameColMoveDown
+                ? prevCardIdx
+                : prevCardIdx + 1;
+              const unfilteredDestination = {
+                ...destination,
+                index: newCardIdx,
+              };
+              console.log(unfilteredSource, unfilteredDestination);
 
-            const newState = moveCard(
-              unfilteredWorkflow,
-              unfilteredSource,
-              unfilteredDestination
-            );
-            if (
-              (startCol && hasDuplicateCards(startCol)) ||
-              (endCol && hasDuplicateCards(endCol))
-            ) {
-              toast.error("Cannot move card to same workflowState");
-              return;
-            }
-            if (startCol) {
-              const cardsInSourceCol =
-                newState?.workflowStates
-                  .filter(notEmpty)
-                  .find((c) => c.id === source.droppableId)
-                  ?.cards?.filter(notEmpty)
-                  .map((c) => c.id) || [];
-              moveCardMutation.mutate({
-                workflowStateId: startCol?.id,
-                cardIds: cardsInSourceCol,
-              });
-            }
-
-            if (endCol && startCol !== endCol) {
-              const cardsInEndCol =
-                newState?.workflowStates
-                  .filter(notEmpty)
-                  .find((c) => c.id === destination.droppableId)
-                  ?.cards?.filter(notEmpty)
-                  .map((c) => c.id) || [];
-              moveCardMutation.mutate({
-                workflowStateId: endCol?.id,
-                cardIds: cardsInEndCol,
-              });
+              const newState = moveCard(
+                unfilteredWorkflow,
+                unfilteredSource,
+                unfilteredDestination
+              );
+              if (unfilteredStartCol && unfilteredEndCol) {
+                updateServerCards(
+                  newState,
+                  unfilteredStartCol,
+                  unfilteredEndCol,
+                  unfilteredSource,
+                  unfilteredDestination
+                );
+              }
             }
 
             setState(newFilteredState);
