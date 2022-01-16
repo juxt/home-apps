@@ -1,5 +1,8 @@
 import NaturalDragAnimation from "natural-drag-animation-rbdnd";
 import { useModalForm } from "./hooks";
+import { Tabs } from "./components/Tabs";
+import { Popover } from "./components/Popover";
+import { Heading } from "./components/Headings";
 import {
   AddWorkflowStateModal,
   UpdateWorkflowStateModal,
@@ -11,6 +14,7 @@ import {
   Droppable,
   Draggable,
   DraggableLocation,
+  DroppableProvided,
 } from "react-beautiful-dnd";
 import {
   useKanbanDataQuery,
@@ -20,12 +24,18 @@ import {
   useAllProjectsQuery,
 } from "./generated/graphql";
 import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from "./types";
-import { defaultMutationProps, moveCard, notEmpty } from "./kanbanHelpers";
+import {
+  defaultMutationProps,
+  removeDuplicateCards,
+  moveCard,
+  notEmpty,
+} from "./kanbanHelpers";
 import { useQueryClient } from "react-query";
 import React from "react";
 import { toast } from "react-toastify";
 import { useNavigate, useSearch } from "react-location";
 import classNames from "classnames";
+import _ from "lodash";
 
 type CardProps = {
   card: TCard;
@@ -45,7 +55,7 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
         const isDragging = snapshot.isDragging;
         const cardStyles = classNames(
           "bg-white rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400",
-          isDragging && "bg-blue-50 border-blue-400"
+          isDragging && "bg-blue-50 border-blue-400 shadow-lg"
         );
 
         return (
@@ -88,66 +98,69 @@ type WorkflowStateProps = {
 
 const WorkflowState = React.memo(
   ({ workflowState, cards, workflow }: WorkflowStateProps) => {
-    const queryClient = useQueryClient();
-    const deleteColMutation = useDeleteWorkflowStateMutation({
-      ...defaultMutationProps(queryClient),
-    });
-    const [, setEditWorkflowStateOpen] = useModalForm({
+    const isFirst = workflow.workflowStates?.[0]?.id === workflowState.id;
+    const [, setIsOpen] = useModalForm({
       formModalType: "editWorkflowState",
       workflowState,
     });
-    const workflowWorkflowStates = workflow?.workflowStates.filter(notEmpty);
+    const [popoverEl, setPopoverEl] = React.useState<HTMLElement | null>(null);
+    const [showPopper, setShowPopper] = React.useState(false);
     return (
-      <div className="m-2 border-2 border-gray-400 w-52 flex flex-col">
-        <button onClick={() => setEditWorkflowStateOpen(true)}>
-          Edit WorkflowState
-        </button>
-        <button
-          onClick={() => {
-            const hasCards = cards.length > 0;
-            if (hasCards) {
-              toast.error(
-                "Cannot delete a workflowState with cards, please move them somewhere else"
-              );
-              return;
-            }
-            return deleteColMutation.mutate({
-              id: workflowState.id,
-              workflowId: workflow.id,
-              workflowStateIds: [
-                ...workflowWorkflowStates
-                  .filter((c) => c.id !== workflowState.id)
-                  .map((c) => c.id),
-              ],
-            });
-          }}
-        >
-          Delete
-        </button>
-        <h3 className="p-2">{workflowState.name}</h3>
+      <>
+        <Popover referenceEl={popoverEl} showPopper={showPopper}>
+          <p>{workflowState.id}</p>
+          <h1>{workflowState.name}</h1>
+          <p>{workflowState.description}</p>
+          <p>Click To Edit</p>
+        </Popover>
         <Droppable droppableId={workflowState.id} type="card">
           {(provided, snapshot) => (
             <div
+              style={{
+                borderColor: snapshot.isDraggingOver ? "gray" : "white",
+              }}
               className={classNames(
-                "p-2 transition flex-grow",
-                snapshot.isDraggingOver && "bg-gray-50"
+                "transition sm:mx-1 h-full border-4",
+                isFirst && "sm:ml-0",
+                snapshot.isDraggingOver &&
+                  "bg-blue-50 shadow-sm  border-dashed  h-full",
+                " mt-4 flex flex-col sm:w-8",
+                cards.length > 0 && "min-w-fit "
               )}
-              ref={provided.innerRef}
-              {...provided.droppableProps}
             >
-              {cards.map((t, i) => (
-                <DraggableCard
-                  key={t.id}
-                  card={t}
-                  workflow={workflow}
-                  index={i}
-                />
-              ))}
-              {provided.placeholder}
+              <div
+                onClick={() => workflow?.id && setIsOpen(true)}
+                ref={setPopoverEl}
+                onMouseEnter={() => setShowPopper(true)}
+                onMouseLeave={() => setShowPopper(false)}
+                className={classNames(
+                  "prose xl:prose-xl cursor-pointer isolate",
+                  cards.length === 0 &&
+                    "sm:rotate-90 sm:relative sm:top-2 sm:left-7 sm:origin-top-left sm:whitespace-nowrap"
+                )}
+              >
+                <h3>{workflowState.name}</h3>
+              </div>
+
+              <div
+                className="juxt-kanban-cols-container overflow-scroll no-scrollbar"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {cards.map((t, i) => (
+                  <DraggableCard
+                    key={t.id}
+                    card={t}
+                    workflow={workflow}
+                    index={i}
+                  />
+                ))}
+                {provided.placeholder}
+              </div>
             </div>
           )}
         </Droppable>
-      </div>
+      </>
     );
   }
 );
@@ -182,6 +195,36 @@ function processWorkflow(
   };
 }
 
+function WorkflowStateContainer({
+  provided,
+  cols,
+  workflow,
+}: {
+  provided: DroppableProvided;
+  cols: NonNullable<TWorkflowState[]>;
+  workflow: NonNullable<TWorkflow>;
+}) {
+  return (
+    <div
+      className="isolate flex sm:flex-row flex-col max-w-full"
+      {...provided.droppableProps}
+      ref={provided.innerRef}
+    >
+      {cols.map((col) => {
+        return (
+          <WorkflowState
+            key={col.id}
+            workflowState={col}
+            cards={col?.cards?.filter(notEmpty) || []}
+            workflow={workflow}
+          />
+        );
+      })}
+      {provided.placeholder}
+    </div>
+  );
+}
+
 function Workflow({ workflow }: { workflow: TWorkflow }) {
   if (!workflow?.id) return null;
   const { filters } = useSearch<LocationGenerics>();
@@ -210,19 +253,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
   const moveCardMutation = useMoveCardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const deleteWorkflowMutation = useDeleteWorkflowMutation({
-    ...defaultMutationProps(queryClient),
-  });
 
-  const [, setIsAddWorkflowState] = useModalForm({
-    formModalType: "addWorkflowState",
-    workflow,
-  });
-  const [, setIsAddCard] = useModalForm({
-    formModalType: "addCard",
-    workflow,
-  });
-  const crudButtonClass = "px-4";
   const updateServerCards = React.useCallback(
     (
       state: TWorkflow,
@@ -240,7 +271,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             .map((c) => c.id) || [];
         moveCardMutation.mutate({
           workflowStateId: startCol?.id,
-          cardIds: cardsInSourceCol,
+          cardIds: _.uniq(cardsInSourceCol),
         });
       }
 
@@ -253,42 +284,16 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             .map((c) => c.id) || [];
         moveCardMutation.mutate({
           workflowStateId: endCol?.id,
-          cardIds: cardsInEndCol,
+          cardIds: _.uniq(cardsInEndCol),
         });
       }
     },
     [moveCardMutation]
   );
-  return (
-    <>
-      <div className="flex bg-red-500 justify-between max-w-lg">
-        <h1>{data?.name}</h1>
-        <div className="flex justify-around">
-          <button
-            className={crudButtonClass}
-            onClick={() =>
-              data?.id && deleteWorkflowMutation.mutate({ workflowId: data.id })
-            }
-          >
-            Delete
-          </button>
-          <button
-            className={crudButtonClass}
-            onClick={() => setIsAddWorkflowState(true)}
-          >
-            Add WorkflowState
-          </button>
-          <button
-            className={crudButtonClass}
-            onClick={() => setIsAddCard(true)}
-          >
-            {" "}
-            Add Card
-          </button>
-        </div>
-      </div>
-      {data?.description && <p>{data.description}</p>}
 
+  return (
+    <div className="px-4">
+      <Heading workflow={workflow} />
       {filteredState && (
         <DragDropContext
           onDragEnd={({ destination, source, draggableId }) => {
@@ -393,34 +398,23 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             type="workflowState"
           >
             {(provided) => (
-              <div
-                className="flex"
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-              >
-                {cols.map((col) => {
-                  return (
-                    <WorkflowState
-                      key={col.id}
-                      workflowState={col}
-                      cards={col.cards}
-                      workflow={workflow}
-                    />
-                  );
-                })}
-                {provided.placeholder}
-              </div>
+              <WorkflowStateContainer
+                key={provided.droppableProps["data-rbd-droppable-context-id"]}
+                workflow={workflow}
+                provided={provided}
+                cols={cols}
+              />
             )}
           </Droppable>
         </DragDropContext>
       )}
-    </>
+    </div>
   );
 }
 
 export function App() {
   const kanbanQueryResult = useKanbanDataQuery({}, {});
-  const workflows = kanbanQueryResult.data?.allWorkflows || [];
+  const workflow = kanbanQueryResult.data?.allWorkflows?.[0];
   const navigate = useNavigate<LocationGenerics>();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useModalForm({
@@ -442,6 +436,7 @@ export function App() {
   const search = useSearch<LocationGenerics>();
   const projectQuery = useAllProjectsQuery();
   const projects = projectQuery.data?.allProjects || [];
+
   return (
     <div>
       {kanbanQueryResult.isLoading && <div>Loading...</div>}
@@ -459,39 +454,38 @@ export function App() {
       />
       <AddCardModal isOpen={isAddCard} setIsOpen={setIsAddCard} />
       <AddProjectModal isOpen={isAddProject} setIsOpen={setIsAddProject} />
-      {projects.length > 0 &&
-        [...projects, { id: undefined, name: "All" }]
+      <Tabs
+        tabs={[...projects, { id: undefined, name: "All" }]
           .filter(notEmpty)
-          .map((project) => (
-            <div key={project.id + project.name}>
-              <h1>{project.name}</h1>
-              <div>
-                <button
-                  onClick={() =>
-                    navigate({
-                      search: {
-                        ...search,
-                        filters: {
-                          ...search.filters,
-                          projectId: project.id,
-                        },
-                      },
-                    })
-                  }
-                >
-                  View
-                </button>
-              </div>
-            </div>
-          ))}
+          .map((project) => ({
+            id: project.id,
+            name: project.name,
+            current: search.filters?.projectId === project.id,
+            count:
+              workflow?.workflowStates.reduce(
+                (acc, ws) =>
+                  acc +
+                  (ws?.cards?.filter(
+                    (c) => !project?.id || c?.project?.id === project.id
+                  )?.length || 0),
+                0
+              ) || 0,
+          }))}
+        onTabClick={(id?: string) => {
+          navigate({
+            to: ".",
+            search: {
+              ...search,
+              filters: {
+                ...search.filters,
+                projectId: id,
+              },
+            },
+          });
+        }}
+      />
 
-      <button onClick={() => setIsAddProject(true)}>Add Project</button>
-      {workflows.length > 0 &&
-        workflows
-          .filter(notEmpty)
-          .map((workflow) => (
-            <Workflow key={workflow.id} workflow={workflow} />
-          ))}
+      {workflow && <Workflow key={workflow.id} workflow={workflow} />}
     </div>
   );
 }

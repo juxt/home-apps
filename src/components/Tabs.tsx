@@ -1,0 +1,100 @@
+import { SearchIcon } from "@heroicons/react/solid";
+import classNames from "classnames";
+import { Link } from "react-location";
+import Select from "react-select";
+
+type Tab = {
+  id?: string;
+  name: string;
+  count: number;
+  current: boolean;
+};
+
+export function Tabs({
+  tabs,
+  onTabClick,
+}: {
+  tabs: Tab[];
+  onTabClick: (tabId?: string) => void;
+}) {
+  const options = tabs.map((tab) => ({
+    value: tab.id,
+    label: tab.name,
+  }));
+
+  return (
+    <div className="mb-2">
+      <div className="sm:hidden">
+        <label htmlFor="tabs" className="sr-only">
+          Select a tab
+        </label>
+        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+        <Select
+          className="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          id="tabs"
+          name="tabs"
+          onChange={(e) => {
+            return e && onTabClick(e.value);
+          }}
+          placeholder="Select a Project"
+          options={options}
+        />
+      </div>
+      <div className="hidden sm:block">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <div className="flex items-center justify-center px-2  lg:justify-start">
+              <div className="max-w-lg w-full lg:max-w-xs">
+                <label htmlFor="search" className="sr-only">
+                  Search
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <SearchIcon
+                      className="h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <input
+                    id="search"
+                    name="search"
+                    className="block w-4/5 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="Search"
+                    type="search"
+                  />
+                </div>
+              </div>
+            </div>
+            {tabs.map((tab) => (
+              <a
+                key={tab.id + tab.name}
+                onClick={() => onTabClick(tab.id)}
+                className={classNames(
+                  tab.current
+                    ? "border-indigo-500 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200",
+                  "whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm"
+                )}
+                aria-current={tab.current ? "page" : undefined}
+              >
+                {tab.name}
+                {typeof tab.count === "number" ? (
+                  <span
+                    className={classNames(
+                      tab.current
+                        ? "bg-indigo-100 text-indigo-600"
+                        : "bg-gray-100 text-gray-900",
+                      "hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block"
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                ) : null}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -60,6 +60,7 @@ export function AddProjectModal({ isOpen, setIsOpen }: AddProjectModalProps) {
         {
           id: "ProjectName",
           placeholder: "Project Name",
+          label: "Project Name",
           type: "text",
           rules: {
             required: true,
@@ -68,6 +69,7 @@ export function AddProjectModal({ isOpen, setIsOpen }: AddProjectModalProps) {
         },
         {
           id: "ProjectDescription",
+          label: "Project Description",
           placeholder: "Project Description",
           type: "text",
           path: "project.description",

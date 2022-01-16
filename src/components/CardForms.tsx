@@ -29,7 +29,9 @@ import { toast } from "react-toastify";
 import { useSearch } from "react-location";
 import { Form } from "./Form";
 
-type AddCardInput = CardInput;
+type AddCardInput = CardInput & {
+  project: Option;
+};
 
 type AddCardModalProps = ModalStateProps;
 
@@ -38,10 +40,10 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
   const addCardMutation = useCreateCardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const { modalState } = useSearch<LocationGenerics>();
+  const { modalState, filters } = useSearch<LocationGenerics>();
   const workflow = modalState?.workflow;
-  const workflowId = workflow?.id;
   const cols = workflow?.workflowStates.filter(notEmpty) ?? [];
+  const currentProject = filters?.projectId;
 
   const addCard = (card: AddCardInput) => {
     if (!cols.length) {
@@ -50,21 +52,19 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
     }
     setIsOpen(false);
     const newId = `card-${Date.now()}`;
-    const newCard = {
-      cardId: newId,
-      workflowStateId: cols[0].id,
-      cardIds: [
-        ...(cols[0].cards?.filter(notEmpty).map((c) => c.id) || []),
-        newId,
-      ],
-      card: {
-        ...card,
-        id: newId,
-      },
-    };
+    const { project, ...cardInput } = card;
     toast.promise(
       addCardMutation.mutateAsync({
-        ...newCard,
+        cardId: newId,
+        workflowStateId: cols[0].id,
+        cardIds: [
+          ...(cols[0].cards?.filter(notEmpty).map((c) => c.id) || []),
+          newId,
+        ],
+        card: {
+          ...cardInput,
+          projectId: project?.value,
+        },
       }),
       {
         pending: "Creating card...",
@@ -74,17 +74,38 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
     );
   };
 
-  const formHooks = useForm<AddCardInput>({
-    defaultValues: {
-      description: "",
-      workflowId: workflowId,
-    },
-  });
+  const formHooks = useForm<AddCardInput>();
+  useEffect(() => {
+    if (currentProject) {
+      if (currentProject) {
+        formHooks.setValue("project", {
+          label:
+            projectOptions.find((p) => p.value === currentProject)?.label ?? "",
+          value: currentProject,
+        });
+      }
+    }
+  }, [currentProject]);
+  const projectQuery = useAllProjectsQuery();
+  const projectOptions =
+    projectQuery?.data?.allProjects?.filter(notEmpty).map((p) => {
+      return {
+        label: p.name,
+        value: p.id,
+      };
+    }) ?? [];
   return (
     <ModalForm<AddCardInput>
       title="Add Card"
       formHooks={formHooks}
       fields={[
+        {
+          id: "CardProject",
+          type: "select",
+          options: projectOptions,
+          label: "Project",
+          path: "project",
+        },
         {
           id: "CardName",
           placeholder: "Card Name",
@@ -141,9 +162,6 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
   useEffect(() => {
     if (card) {
       const projectId = card.project?.id;
-      const cardInput = {
-        ...card,
-      };
       formHooks.setValue("card", { ...card, workflowId: workflowId });
       if (card.project?.name && projectId) {
         formHooks.setValue("project", {

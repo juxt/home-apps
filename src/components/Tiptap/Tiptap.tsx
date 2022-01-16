@@ -9,12 +9,7 @@ import TaskItem from "@tiptap/extension-task-item";
 import Placeholder from "@tiptap/extension-placeholder";
 
 import type { Extensions } from "@tiptap/react";
-import {
-  EmojiSuggestion,
-  MentionSuggestion,
-  EmojiReplacer,
-  HexColorDecorator,
-} from "./extensions";
+import { MentionSuggestion } from "./extensions";
 import { markdownToHtml, htmlToMarkdown } from "./helpers/";
 
 import { Popover } from "./Popover";
@@ -31,9 +26,6 @@ export type TiptapProps = {
   withTaskListExtension?: boolean;
   withPlaceholderExtension?: boolean;
   withMentionSuggestion?: boolean;
-  withEmojiSuggestion?: boolean;
-  withEmojisReplacer?: boolean;
-  withHexColorsDecorator?: boolean;
 };
 
 function Tiptap({
@@ -46,9 +38,6 @@ function Tiptap({
   withTaskListExtension = false,
   withPlaceholderExtension = false,
   withMentionSuggestion = false,
-  withEmojiSuggestion = false,
-  withEmojisReplacer = false,
-  withHexColorsDecorator = false,
 }: TiptapProps) {
   const extensions: Extensions = [StarterKit.configure(), Highlight];
 
@@ -88,19 +77,6 @@ function Tiptap({
             }),
         )*/
   }
-
-  if (withEmojiSuggestion) {
-    extensions.push(EmojiSuggestion);
-  }
-
-  if (withEmojisReplacer) {
-    extensions.push(EmojiReplacer);
-  }
-
-  if (withHexColorsDecorator) {
-    extensions.push(HexColorDecorator);
-  }
-
   const [editorHtmlContent, setEditorHtmlContent] = React.useState(
     content.trim()
   );

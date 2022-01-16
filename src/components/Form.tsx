@@ -98,10 +98,8 @@ export function RenderField<T>({
                 content={value as string}
                 withTaskListExtension={true}
                 withLinkExtension={true}
-                withEmojisReplacer={true}
                 withTypographyExtension={true}
                 withPlaceholderExtension={true}
-                withHexColorsDecorator={true}
                 withMentionSuggestion={true}
                 {...field}
               />

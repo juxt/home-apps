@@ -6,3 +6,8 @@
   font-family: sans-serif;
   text-align: center;
 }
+@media screen(sm) {
+  .juxt-kanban-cols-container {
+    height: calc(100vh - 250px);
+  }
+}

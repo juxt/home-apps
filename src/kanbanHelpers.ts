@@ -153,6 +153,15 @@ function hasDuplicateCards(col: TWorkflowState) {
   }
 }
 
+function removeDuplicateCards(state: TWorkflow, cardList: string[]) {
+  return cardList.filter((cardId) => {
+    const col = state?.workflowStates.find((col) =>
+      col?.cards?.find((c) => c?.id === cardId)
+    );
+    return col?.cards?.find((c) => c?.id === cardId) === undefined;
+  });
+}
+
 function moveCard(
   workflow: TWorkflow,
   { index: fromPosition, droppableId: fromWorkflowStateId }: DraggableLocation,
@@ -281,30 +290,6 @@ function addCard(
   return { ...workflow, workflowStates };
 }
 
-function removeCard(
-  workflow: { workflowStates: any[] },
-  fromWorkflowState: { id: any },
-  card: { id: any }
-) {
-  const workflowStateToRemove = workflow.workflowStates.find(
-    ({ id }) => id === fromWorkflowState.id
-  );
-  const filteredCards = workflowStateToRemove.cards.filter(
-    ({ id }: { id: string }) => card.id !== id
-  );
-  const workflowStateWithoutCard = {
-    ...workflowStateToRemove,
-    cards: filteredCards,
-  };
-  const filteredWorkflowStates = workflow.workflowStates.map(
-    (workflowState: { id: any }) =>
-      fromWorkflowState.id === workflowState.id
-        ? workflowStateWithoutCard
-        : workflowState
-  );
-  return { ...workflow, workflowStates: filteredWorkflowStates };
-}
-
 function changeCard(
   workflow: { workflowStates: any[] },
   cardId: any,
@@ -336,12 +321,12 @@ const defaultMutationProps = (queryClient: QueryClient) => ({
 export {
   defaultMutationProps,
   hasDuplicateCards,
+  removeDuplicateCards,
   moveWorkflowState,
   moveCard,
   addWorkflowState,
   removeWorkflowState,
   changeWorkflowState,
   addCard,
-  removeCard,
   changeCard,
 };

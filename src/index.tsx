@@ -6,14 +6,7 @@ import "./styles.css";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ToastContainer } from "react-toastify";
-import {
-  Link,
-  MakeGenerics,
-  Outlet,
-  ReactLocation,
-  Router,
-  useMatch,
-} from "react-location";
+import { Outlet, ReactLocation, Router } from "react-location";
 const location = new ReactLocation();
 const queryClient = new QueryClient();
 const rootElement = document.getElementById("root");
@@ -23,7 +16,11 @@ ReactDOM.render(
       location={location}
       routes={[
         {
-          // path = "/*"
+          path: "/site/_apps/kanban/index.html",
+          element: <App />,
+        },
+        {
+          path: "/site/_apps/kanban",
           element: <App />,
         },
       ]}

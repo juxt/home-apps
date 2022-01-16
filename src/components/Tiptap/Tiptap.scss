@@ -89,16 +89,6 @@
     }
   }
 
-  span[data-emoji-suggestion],
-  span[data-emoji-replacer] {
-    > img {
-      width: 1.1em;
-      height: 1.1em;
-      margin: 0 0.05em;
-      vertical-align: -0.25em;
-    }
-  }
-
   p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     float: left;
@@ -259,4 +249,27 @@
 .no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+.popper-arrow {
+  #arrow {
+    &:after {
+      content: " ";
+      background-color: white;
+      box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      top: -25px; // padding + popper height
+      left: 0;
+      transform: rotate(45deg);
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  &[data-popper-placement^="top"] > #arrow {
+    bottom: -30px;
+    :after {
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+    }
+  }
 }
