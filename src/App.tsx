@@ -1,4 +1,3 @@
-import { AddWorkflowModal } from "./components/WorkflowForms";
 import NaturalDragAnimation from "natural-drag-animation-rbdnd";
 import { useModalForm } from "./hooks";
 import {
@@ -7,7 +6,6 @@ import {
 } from "./components/WorkflowStateForms";
 import { AddProjectModal } from "./components/ProjectForms";
 import { AddCardModal, UpdateCardModal } from "./components/CardForms";
-import styled from "styled-components";
 import {
   DragDropContext,
   Droppable,
@@ -19,16 +17,10 @@ import {
   useDeleteWorkflowMutation,
   useDeleteWorkflowStateMutation,
   useMoveCardMutation,
-  useCardHistoryQuery,
   useAllProjectsQuery,
 } from "./generated/graphql";
 import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from "./types";
-import {
-  defaultMutationProps,
-  hasDuplicateCards,
-  moveCard,
-  notEmpty,
-} from "./kanbanHelpers";
+import { defaultMutationProps, moveCard, notEmpty } from "./kanbanHelpers";
 import { useQueryClient } from "react-query";
 import React from "react";
 import { toast } from "react-toastify";
@@ -88,30 +80,6 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
   );
 });
 
-const Container = styled.div<{ isDragging: boolean }>`
-  margin: 8px;
-  border: 1px solid lightgrey;
-  border-radius: 2px;
-  width: 210px;
-  display: flex;
-  flex-direction: column;
-  background-color: ${(props) => (props.isDragging ? "lightgreen" : "white")};
-`;
-const Title = styled.h3`
-  padding: 8px;
-`;
-const List = styled.div<{ isDraggingOver: boolean }>`
-  padding: 8px;
-  transition: background 0.1s;
-  background-color: ${(props) =>
-    props.isDraggingOver ? "lightgrey" : "inherit "};
-  flex-grow: 1;
-`;
-
-const WorkflowStates = styled.div`
-  display: flex;
-`;
-
 type WorkflowStateProps = {
   workflowState: TWorkflowState;
   cards: TCard[];
@@ -130,7 +98,7 @@ const WorkflowState = React.memo(
     });
     const workflowWorkflowStates = workflow?.workflowStates.filter(notEmpty);
     return (
-      <Container isDragging={false}>
+      <div className="m-2 border-2 border-gray-400 w-52 flex flex-col">
         <button onClick={() => setEditWorkflowStateOpen(true)}>
           Edit WorkflowState
         </button>
@@ -156,13 +124,16 @@ const WorkflowState = React.memo(
         >
           Delete
         </button>
-        <Title>{workflowState.name}</Title>
+        <h3 className="p-2">{workflowState.name}</h3>
         <Droppable droppableId={workflowState.id} type="card">
           {(provided, snapshot) => (
-            <List
+            <div
+              className={classNames(
+                "p-2 transition flex-grow",
+                snapshot.isDraggingOver && "bg-gray-50"
+              )}
               ref={provided.innerRef}
               {...provided.droppableProps}
-              isDraggingOver={snapshot.isDraggingOver}
             >
               {cards.map((t, i) => (
                 <DraggableCard
@@ -173,10 +144,10 @@ const WorkflowState = React.memo(
                 />
               ))}
               {provided.placeholder}
-            </List>
+            </div>
           )}
         </Droppable>
-      </Container>
+      </div>
     );
   }
 );
@@ -422,7 +393,8 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             type="workflowState"
           >
             {(provided) => (
-              <WorkflowStates
+              <div
+                className="flex"
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
@@ -437,7 +409,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
                   );
                 })}
                 {provided.placeholder}
-              </WorkflowStates>
+              </div>
             )}
           </Droppable>
         </DragDropContext>
