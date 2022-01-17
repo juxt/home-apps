@@ -6,4 +6,9 @@ fragment CardFields on Card {
     id
     name
   }
+  files {
+    name
+    lzbase64
+    type
+  }
 }

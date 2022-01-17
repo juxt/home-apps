@@ -3230,6 +3230,11 @@ at-least-node@^1.0.0:
   resolved "https://registry.yarnpkg.com/at-least-node/-/at-least-node-1.0.0.tgz#602cd4b46e844ad4effc92a8011a3c46e0238dc2"
   integrity sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==
 
+attr-accept@^2.2.1:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/attr-accept/-/attr-accept-2.2.2.tgz#646613809660110749e92f2c10833b70968d929b"
+  integrity sha512-7prDjvt9HmqiZ0cl5CRjtS84sEyhsHP2coDkaZKRKVfCDo9s7iw7ChVmar78Gu9pC4SoR/28wFu/G5JJhTnqEg==
+
 auto-bind@~4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/auto-bind/-/auto-bind-4.0.0.tgz#e3589fc6c2da8f7ca43ba9f84fa52a744fc997fb"
@@ -5484,6 +5489,13 @@ file-loader@^6.2.0:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
 
+file-selector@^0.2.2:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/file-selector/-/file-selector-0.2.4.tgz#7b98286f9dbb9925f420130ea5ed0a69238d4d80"
+  integrity sha512-ZDsQNbrv6qRi1YTDOEWzf5J2KjZ9KMI1Q2SGeTkCJmNNW25Jg4TW4UMcmoqcg4WrAyKRcpBXdbWRxkfrOzVRbA==
+  dependencies:
+    tslib "^2.0.3"
+
 filelist@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/filelist/-/filelist-1.0.2.tgz#80202f21462d4d1c2e214119b1807c1bc0380e5b"
@@ -6069,6 +6081,11 @@ hoopy@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/hoopy/-/hoopy-0.1.4.tgz#609207d661100033a9a9402ad3dea677381c1b1d"
   integrity sha512-HRcs+2mr52W0K+x8RzcLzuPPmVIKMSv97RGHy0Ea9y/mpcaK+xTrjICA04KAHi4GRzxliNqNJEFYWHghy3rSfQ==
+
+hotkeys-js@3.8.7:
+  version "3.8.7"
+  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.8.7.tgz#c16cab978b53d7242f860ca3932e976b92399981"
+  integrity sha512-ckAx3EkUr5XjDwjEHDorHxRO2Kb7z6Z2Sxul4MbBkN8Nho7XDslQsgMJT+CiJ5Z4TgRxxvKHEpuLE3imzqy4Lg==
 
 hpack.js@^2.1.6:
   version "2.1.6"
@@ -7750,6 +7767,13 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+lzutf8@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/lzutf8/-/lzutf8-0.6.0.tgz#ddfced3aa9959be68cc46d12c609e64d41e710f8"
+  integrity sha512-Ji0WsBU3OIA/c/RHd/vvHbda+WnbnXREpE1xHgdoyy601dQn3ZFlkDtGKDh/AtFpbO1+3YFL01KqJrD7NYuWHg==
+  dependencies:
+    readable-stream "^3.6.0"
+
 magic-string@^0.25.0, magic-string@^0.25.7:
   version "0.25.7"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.25.7.tgz#3f497d6fd34c669c6798dcb821f2ef31f5445051"
@@ -9407,6 +9431,15 @@ react-dom@17.0.2:
     object-assign "^4.1.1"
     scheduler "^0.20.2"
 
+react-dropzone@^11.5.1:
+  version "11.5.1"
+  resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-11.5.1.tgz#f4d664437bf8af6acfccbf5040a9890c6780a49f"
+  integrity sha512-eNhttdq4ZDe3eKbXAe54Opt+sbtqmNK5NWTHf/l5d+1TdZqShJ8gMjBrya00qx5zkI//TYxRhu1d9pemTgaWwg==
+  dependencies:
+    attr-accept "^2.2.1"
+    file-selector "^0.2.2"
+    prop-types "^15.7.2"
+
 react-error-overlay@^6.0.10:
   version "6.0.10"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.10.tgz#0fe26db4fa85d9dbb8624729580e90e7159a59a6"
@@ -9422,10 +9455,22 @@ react-hook-form@^7.24.0:
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.24.0.tgz#d4d25eb7df6d36753ebb8b37d35cb36458fc5d79"
   integrity sha512-N2GT4wmdcgP5bw72q/a+vKUBqy14iNQz+4vaFBJLz9Bw+KNYKUjTzcV/kHfOYbcboMeHP2zgf4i4wTmAwrXssg==
 
+react-hotkeys-hook@^3.4.4:
+  version "3.4.4"
+  resolved "https://registry.yarnpkg.com/react-hotkeys-hook/-/react-hotkeys-hook-3.4.4.tgz#52ba5d8ef5e47cc2e776c70a9036d518e0993d51"
+  integrity sha512-vaORq07rWgmuF3owWRhgFV/3VL8/l2q9lz0WyVEddJnWTtKW+AOgU5YgYKuwN6h6h7bCcLG3MFsJIjCrM/5DvQ==
+  dependencies:
+    hotkeys-js "3.8.7"
+
 react-icons@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.3.1.tgz#2fa92aebbbc71f43d2db2ed1aed07361124e91ca"
   integrity sha512-cB10MXLTs3gVuXimblAdI71jrJx8njrJZmNMEMC+sQu5B/BIOmlsAjskdqpn81y8UBVEGuHODd7/ci5DvoSzTQ==
+
+react-image-file-resizer@^0.4.7:
+  version "0.4.7"
+  resolved "https://registry.yarnpkg.com/react-image-file-resizer/-/react-image-file-resizer-0.4.7.tgz#74b33a03832c0771c6c03b037bae9ba6baf10703"
+  integrity sha512-Dak7Ecrd6WEV5LjqoRYFI49ASn7eB1VTlrw6dri9HeIMS6aJang4nli6q5xeckEMY+7QwgqgWqAQD5tgkm4bJg==
 
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
@@ -9593,7 +9638,7 @@ readable-stream@^2.0.1:
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
-readable-stream@^3.0.6, readable-stream@^3.4.0:
+readable-stream@^3.0.6, readable-stream@^3.4.0, readable-stream@^3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.6.0.tgz#337bbda3adc0706bd3e024426a286d4b4b2c9198"
   integrity sha512-BViHy7LKeTz4oNnkcLJ+lVSL6vpiFeX6/d3oSH8zCW7UxP2onchk+vTGB143xuFjHS3deTgkKoXXymXqymiIdA==

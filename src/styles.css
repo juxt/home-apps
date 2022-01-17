@@ -8,6 +8,11 @@
 }
 @media screen(sm) {
   .juxt-kanban-cols-container {
-    height: calc(100vh - 250px);
+    height: calc(100vh - 275px);
+  }
+}
+@media screen(lg) {
+  .juxt-kanban-cols-container {
+    height: calc(100vh - 200px);
   }
 }

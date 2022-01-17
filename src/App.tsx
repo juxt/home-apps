@@ -1,5 +1,6 @@
 import NaturalDragAnimation from "natural-drag-animation-rbdnd";
-import { useModalForm } from "./hooks";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useMobileDetect, useModalForm } from "./hooks";
 import { Tabs } from "./components/Tabs";
 import { Popover } from "./components/Popover";
 import { Heading } from "./components/Headings";
@@ -29,6 +30,7 @@ import {
   removeDuplicateCards,
   moveCard,
   notEmpty,
+  uncompressBase64,
 } from "./kanbanHelpers";
 import { useQueryClient } from "react-query";
 import React from "react";
@@ -46,18 +48,23 @@ type CardProps = {
 const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
   const [, setIsOpen] = useModalForm({
     formModalType: "editCard",
-    card: card,
-    workflow: workflow,
+    cardId: card.id,
+    workflowId: workflow?.id,
+    workflowStateId: workflow?.workflowStates.find((state) =>
+      state?.cards?.find((c) => c?.id === card.id)
+    )?.id,
   });
+  const imageString = card?.files?.filter((file) =>
+    file?.type.startsWith("image")
+  )?.[0]?.lzbase64;
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided, snapshot) => {
-        const isDragging = snapshot.isDragging;
+        const isDragging = snapshot.isDragging && !snapshot.isDropAnimating;
         const cardStyles = classNames(
           "bg-white rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400",
           isDragging && "bg-blue-50 border-blue-400 shadow-lg"
         );
-
         return (
           <NaturalDragAnimation
             style={provided.draggableProps.style}
@@ -81,6 +88,15 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                     dangerouslySetInnerHTML={{ __html: card.description }}
                   />
                 )}
+                {imageString && (
+                  <img
+                    src={uncompressBase64(imageString)}
+                    width={100}
+                    height={100}
+                    className="rounded"
+                    alt="Card Image"
+                  />
+                )}
               </div>
             )}
           </NaturalDragAnimation>
@@ -92,27 +108,31 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
 
 type WorkflowStateProps = {
   workflowState: TWorkflowState;
+  isDragging: boolean;
   cards: TCard[];
   workflow: NonNullable<TWorkflow>;
 };
 
 const WorkflowState = React.memo(
-  ({ workflowState, cards, workflow }: WorkflowStateProps) => {
+  ({ workflowState, cards, workflow, isDragging }: WorkflowStateProps) => {
     const isFirst = workflow.workflowStates?.[0]?.id === workflowState.id;
     const [, setIsOpen] = useModalForm({
       formModalType: "editWorkflowState",
-      workflowState,
+      workflowStateId: workflowState.id,
     });
     const [popoverEl, setPopoverEl] = React.useState<HTMLElement | null>(null);
     const [showPopper, setShowPopper] = React.useState(false);
+    const detectMobile = useMobileDetect();
     return (
       <>
-        <Popover referenceEl={popoverEl} showPopper={showPopper}>
-          <p>{workflowState.id}</p>
-          <h1>{workflowState.name}</h1>
-          <p>{workflowState.description}</p>
-          <p>Click To Edit</p>
-        </Popover>
+        {!isDragging && detectMobile.isDesktop() && (
+          <Popover referenceEl={popoverEl} showPopper={showPopper}>
+            <p>{workflowState.id}</p>
+            <h1>{workflowState.name}</h1>
+            <p>{workflowState.description}</p>
+            <p>Click To Edit</p>
+          </Popover>
+        )}
         <Droppable droppableId={workflowState.id} type="card">
           {(provided, snapshot) => (
             <div
@@ -124,8 +144,17 @@ const WorkflowState = React.memo(
                 isFirst && "sm:ml-0",
                 snapshot.isDraggingOver &&
                   "bg-blue-50 shadow-sm  border-dashed  h-full",
-                " mt-4 flex flex-col sm:w-8",
-                cards.length > 0 && "min-w-fit "
+                " mt-4 flex flex-col ",
+                detectMobile.isMobile() &&
+                  cards.length === 0 &&
+                  !snapshot.isDraggingOver &&
+                  " h-16",
+                detectMobile.isMobile() &&
+                  cards.length === 0 &&
+                  snapshot.isDraggingOver &&
+                  "h-36",
+                cards.length > 0 && "min-w-fit ",
+                cards.length === 0 && "relative"
               )}
             >
               <div
@@ -136,14 +165,22 @@ const WorkflowState = React.memo(
                 className={classNames(
                   "prose xl:prose-xl cursor-pointer isolate",
                   cards.length === 0 &&
-                    "sm:rotate-90 sm:relative sm:top-2 sm:left-7 sm:origin-top-left sm:whitespace-nowrap"
+                    !snapshot.isDraggingOver &&
+                    "sm:transition sm:rotate-90 sm:relative sm:top-2 sm:left-10 sm:origin-top-left sm:whitespace-nowrap"
                 )}
               >
-                <h3>{workflowState.name}</h3>
+                {cards.length === 0 && !snapshot.isDraggingOver ? (
+                  <>
+                    <h3 className="text-white">col</h3>
+                    <h3 className="absolute top-2">{workflowState.name}</h3>
+                  </>
+                ) : (
+                  <h3>{workflowState.name}</h3>
+                )}
               </div>
 
               <div
-                className="juxt-kanban-cols-container overflow-scroll no-scrollbar"
+                className="h-full juxt-kanban-cols-container overflow-scroll no-scrollbar"
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
@@ -197,10 +234,12 @@ function processWorkflow(
 
 function WorkflowStateContainer({
   provided,
+  isDragging,
   cols,
   workflow,
 }: {
   provided: DroppableProvided;
+  isDragging: boolean;
   cols: NonNullable<TWorkflowState[]>;
   workflow: NonNullable<TWorkflow>;
 }) {
@@ -214,6 +253,7 @@ function WorkflowStateContainer({
         return (
           <WorkflowState
             key={col.id}
+            isDragging={isDragging}
             workflowState={col}
             cards={col?.cards?.filter(notEmpty) || []}
             workflow={workflow}
@@ -291,12 +331,24 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
     [moveCardMutation]
   );
 
+  const [, setIsAddCard] = useModalForm({
+    formModalType: "addCard",
+    workflowId: workflow.id,
+  });
+
+  useHotkeys("n", () => {
+    setIsAddCard(true);
+  });
+  const [isDragging, setIsDragging] = React.useState(false);
+
   return (
     <div className="px-4">
-      <Heading workflow={workflow} />
+      <Heading workflow={workflow} handleAddCard={() => setIsAddCard(true)} />
       {filteredState && (
         <DragDropContext
+          onDragStart={() => setIsDragging(true)}
           onDragEnd={({ destination, source, draggableId }) => {
+            setIsDragging(false);
             if (
               !destination ||
               (destination.droppableId === source.droppableId &&
@@ -400,6 +452,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             {(provided) => (
               <WorkflowStateContainer
                 key={provided.droppableProps["data-rbd-droppable-context-id"]}
+                isDragging={isDragging}
                 workflow={workflow}
                 provided={provided}
                 cols={cols}
@@ -413,10 +466,14 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
 }
 
 export function App() {
-  const kanbanQueryResult = useKanbanDataQuery({}, {});
+  const search = useSearch<LocationGenerics>();
+  const refetch = search.modalState?.formModalType ? false : 2000;
+  const kanbanQueryResult = useKanbanDataQuery(
+    {},
+    { refetchInterval: refetch }
+  );
   const workflow = kanbanQueryResult.data?.allWorkflows?.[0];
   const navigate = useNavigate<LocationGenerics>();
-  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useModalForm({
     formModalType: "addWorkflowState",
   });
@@ -433,7 +490,6 @@ export function App() {
   const [isAddProject, setIsAddProject] = useModalForm({
     formModalType: "addProject",
   });
-  const search = useSearch<LocationGenerics>();
   const projectQuery = useAllProjectsQuery();
   const projects = projectQuery.data?.allProjects || [];
 

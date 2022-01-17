@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import {
   CreateWorkflowStateMutationVariables,
   UpdateWorkflowStateMutationVariables,
+  useAllWorkflowStatesQuery,
   useCreateWorkflowStateMutation,
   useUpdateWorkflowStateMutation,
 } from "../generated/graphql";
@@ -29,16 +30,17 @@ export function AddWorkflowStateModal({
     ...defaultMutationProps(queryClient),
   });
   const { modalState } = useSearch<LocationGenerics>();
-  const workflow = modalState?.workflow;
-  const cols = workflow?.workflowStates.filter(notEmpty) ?? [];
+  const workflowId = modalState?.workflowId;
+  const cols =
+    useAllWorkflowStatesQuery().data?.allWorkflowStates?.filter(notEmpty) ?? [];
   const addWorkflowState = (col: AddWorkflowStateInput) => {
-    if (workflow) {
+    if (workflowId) {
       setIsOpen(false);
       const colId = `col-${Date.now()}`;
       addColMutation.mutate({
         ...col,
         workflowStateIds: [...cols.map((c) => c.id), colId],
-        workflowId: workflow.id,
+        workflowId,
         colId,
       });
     }
@@ -82,8 +84,11 @@ export function UpdateWorkflowStateModal({
     ...defaultMutationProps(queryClient),
   });
   const { modalState } = useSearch<LocationGenerics>();
-  const workflowState = modalState?.workflowState;
-  const colId = workflowState?.id;
+  const colId = modalState?.workflowStateId;
+  const workflowState =
+    useAllWorkflowStatesQuery().data?.allWorkflowStates?.find(
+      (c) => c?.id === colId
+    );
 
   const updateWorkflowState = (col: UpdateWorkflowStateInput) => {
     if (colId) {
@@ -95,16 +100,18 @@ export function UpdateWorkflowStateModal({
     }
   };
   const formHooks = useForm<UpdateWorkflowStateInput>();
-  const formVals = formHooks.getValues();
   useEffect(() => {
-    mapKeys(formVals, (key) => {
-      workflowState && formHooks.setValue(key, workflowState[key]);
-      return key;
-    });
-  }, [workflowState, formVals]);
+    if (workflowState) {
+      formHooks.setValue("name", workflowState.name);
+      if (workflowState?.description) {
+        formHooks.setValue("description", workflowState.description);
+      }
+    }
+  }, [workflowState]);
+
   return (
     <ModalForm<UpdateWorkflowStateInput>
-      title="Update WorkflowState"
+      title="Update Column"
       formHooks={formHooks}
       onSubmit={formHooks.handleSubmit(updateWorkflowState, console.warn)}
       isOpen={isOpen}
@@ -116,7 +123,7 @@ export function UpdateWorkflowStateModal({
           rules: {
             required: true,
           },
-          label: "WorkflowState Name",
+          label: "Column Name",
           type: "text",
         },
         {

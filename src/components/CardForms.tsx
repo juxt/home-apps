@@ -19,10 +19,12 @@ import {
   useUpdateCardMutation,
 } from "../generated/graphql";
 import {
+  base64FileToImage,
   defaultMutationProps,
   distinctBy,
   mapKeys,
   notEmpty,
+  uncompressBase64,
 } from "../kanbanHelpers";
 import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
@@ -41,8 +43,8 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
     ...defaultMutationProps(queryClient),
   });
   const { modalState, filters } = useSearch<LocationGenerics>();
-  const workflow = modalState?.workflow;
-  const cols = workflow?.workflowStates.filter(notEmpty) ?? [];
+  const cols =
+    useAllWorkflowStatesQuery().data?.allWorkflowStates?.filter(notEmpty) ?? [];
   const currentProject = filters?.projectId;
 
   const addCard = (card: AddCardInput) => {
@@ -137,8 +139,9 @@ type UpdateCardModalProps = ModalStateProps;
 
 export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
   const { modalState } = useSearch<LocationGenerics>();
-  const workflow = modalState?.workflow;
-  const workflowId = workflow?.id;
+  const workflowId = modalState?.workflowId;
+  const workflowStateId = modalState?.workflowStateId;
+  const cardId = modalState?.cardId;
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateCardMutation({
     ...defaultMutationProps(queryClient),
@@ -146,11 +149,19 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
 
   const updateCard = (input: UpdateCardInput) => {
     setIsOpen(false);
-
     const card = { ...input.card, projectId: input.project?.value || null };
     updateCardMutation.mutate({ card, cardId: input.cardId });
   };
-  const card = modalState?.card;
+  const { data: card } = useAllWorkflowStatesQuery(
+    {},
+    {
+      select: (data) => {
+        return data.allWorkflowStates
+          ?.find((w) => w?.id === workflowStateId)
+          ?.cards?.find((c) => c?.id === cardId);
+      },
+    }
+  );
 
   const formHooks = useForm<UpdateCardInput>({
     defaultValues: {
@@ -159,10 +170,27 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
     },
   });
 
+  const processCard = async () => {
+    if (!card) return;
+    const processFiles = card.files?.filter(notEmpty).map(async (f) => {
+      const previewUrl =
+        f.name.startsWith("image") && uncompressBase64(f.lzbase64);
+      return {
+        ...f,
+        preview: previewUrl,
+      };
+    });
+    const doneFiles = processFiles && (await Promise.all(processFiles));
+    formHooks.setValue("card.files", doneFiles);
+  };
+
   useEffect(() => {
     if (card) {
-      const projectId = card.project?.id;
-      formHooks.setValue("card", { ...card, workflowId: workflowId });
+      const projectId = card?.project?.id;
+      formHooks.setValue("card", { ...card, files: [] });
+      card?.files && processCard();
+      formHooks.setValue("card.workflowId", workflowId);
+
       if (card.project?.name && projectId) {
         formHooks.setValue("project", {
           label: card.project?.name,
@@ -191,13 +219,6 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
           formHooks={formHooks}
           fields={[
             {
-              id: "CardProject",
-              type: "select",
-              options: projectOptions,
-              label: "Project",
-              path: "project",
-            },
-            {
               id: "CardName",
               placeholder: "Card Name",
               type: "text",
@@ -208,11 +229,25 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
               label: "Name",
             },
             {
+              id: "CardProject",
+              type: "select",
+              options: projectOptions,
+              label: "Project",
+              path: "project",
+            },
+            {
               label: "Description",
               id: "CardDescription",
               placeholder: "Card Description",
               type: "tiptap",
               path: "card.description",
+            },
+            {
+              label: "Files",
+              accept: "image/jpeg, image/png, image/gif, application/pdf",
+              id: "CardFiles",
+              type: "file",
+              path: "card.files",
             },
           ]}
           onSubmit={formHooks.handleSubmit(updateCard, console.warn)}

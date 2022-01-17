@@ -59,11 +59,18 @@ input WorkflowStateInput {
   cardIds: [ID]
 }
 
+input FileInput {
+  name: String!
+  type: String!
+  lzbase64: String!
+}
+
 input CardInput {
   title: String
   description: String
   projectId: ID
   workflowId: ID
+  files: [FileInput]
 }
 
 type Workflow {
@@ -105,11 +112,18 @@ type Project {
   description: String
 }
 
+type File {
+  name: String!
+  type: String!
+  lzbase64: String!
+}
+
 type Card {
   id: ID!
   title: String!
   _siteValidTime: String
   project: Project @site(ref: "projectId")
   description: String
+  files: [File]
   workflow: Workflow @site(ref: "workflowId")
 }

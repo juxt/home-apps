@@ -11,16 +11,26 @@ import {
   LinkIcon,
   LocationMarkerIcon,
   PencilIcon,
+  PlusIcon,
+  TableIcon,
 } from "@heroicons/react/solid";
 import { Menu, Transition } from "@headlessui/react";
 import classNames from "classnames";
 import { useSearch } from "react-location";
 import { useAllProjectsQuery } from "../generated/graphql";
+import { useMobileDetect } from "../hooks";
 
-export function Heading({ workflow }: { workflow: TWorkflow }) {
+export function Heading({
+  workflow,
+  handleAddCard,
+}: {
+  workflow: TWorkflow;
+  handleAddCard: () => void;
+}) {
   const { filters } = useSearch<LocationGenerics>();
   const projects = useAllProjectsQuery()?.data?.allProjects || [];
   const currentProject = projects.find((p) => p?.id === filters?.projectId);
+  const isMobile = useMobileDetect().isMobile();
 
   return (
     <div className="lg:flex lg:items-center lg:justify-between">
@@ -75,11 +85,11 @@ export function Heading({ workflow }: { workflow: TWorkflow }) {
             type="button"
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            <LinkIcon
+            <TableIcon
               className="-ml-1 mr-2 h-5 w-5 text-gray-500"
               aria-hidden="true"
             />
-            View
+            Grid View
           </button>
         </span>
 
@@ -87,9 +97,10 @@ export function Heading({ workflow }: { workflow: TWorkflow }) {
           <button
             type="button"
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={handleAddCard}
           >
-            <CheckIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-            Publish
+            <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+            Add Card{!isMobile && " (n)"}
           </button>
         </span>
 

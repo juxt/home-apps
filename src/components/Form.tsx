@@ -1,11 +1,22 @@
 import { Dialog } from "@headlessui/react";
-import React from "react";
+import Dropzone, { FileRejection } from "react-dropzone";
+import React, { useCallback } from "react";
 import { Controller, FieldValues } from "react-hook-form";
 import { MultiSelect } from "react-multi-select-component";
 import Select, { GroupBase, Props as SelectProps } from "react-select";
 
 import { FormInputField, FormProps, Option } from "../types";
 import { Tiptap } from "./Tiptap";
+import classNames from "classnames";
+import {
+  notEmpty,
+  fileToString,
+  base64FileToImage,
+  downloadFile,
+  uncompressBase64,
+} from "../kanbanHelpers";
+import { toast } from "react-toastify";
+import { CardFieldsFragment } from "../generated/graphql";
 
 const inputClass =
   "relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base";
@@ -16,6 +27,106 @@ function CustomSelect<
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: SelectProps<Option, IsMulti, Group>) {
   return <Select {...props} />;
+}
+
+function ImagePreview({
+  image,
+  title,
+  handleDelete,
+}: {
+  image: string;
+  title: string;
+  handleDelete: () => void;
+}) {
+  return (
+    <li className="block p-1 w-2/3 h-24">
+      <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 relative text-transparent hover:text-black shadow-sm">
+        <img
+          alt="upload preview"
+          className="w-full h-full sticky object-cover rounded-md bg-fixed group-hover:opacity-30"
+          src={image}
+        />
+
+        <section className="flex flex-col justify-between rounded-md text-xs break-words w-full h-full z-20 absolute top-0 py-2 px-3">
+          <h1 className="truncate hover:overflow-visible">{title}</h1>
+          <button
+            onClick={handleDelete}
+            className="delete ml-auto cursor-pointer focus:outline-none hover:bg-gray-300 p-1 rounded-md"
+          >
+            <svg
+              className="pointer-events-none fill-current w-4 h-4 ml-auto"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path
+                className="pointer-events-none"
+                d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z"
+              />
+            </svg>
+          </button>
+        </section>
+      </article>
+    </li>
+  );
+}
+
+type TFile = NonNullable<CardFieldsFragment["files"]>[0] & {
+  preview: string;
+};
+
+function FilePreview({
+  file,
+  handleDelete,
+}: {
+  file: NonNullable<TFile>;
+  handleDelete: () => void;
+}) {
+  if (!file) return <div>No file</div>;
+
+  const data = uncompressBase64(file.lzbase64);
+
+  return (
+    <>
+      {file.type.startsWith("image") ? (
+        <ImagePreview
+          title={file.name}
+          image={data}
+          handleDelete={handleDelete}
+        />
+      ) : (
+        <>
+          <p>Type: {file.type}</p>
+          <a
+            href={data}
+            download={file.name}
+            title="Download"
+            className="flex justify-between py-2 cursor-pointer"
+          >
+            <h1 className="truncate">{file.name}</h1>
+            <button
+              onClick={handleDelete}
+              className="delete ml-auto focus:outline-none hover:bg-gray-300 p-1 rounded-md"
+            >
+              <svg
+                className="pointer-events-none fill-current w-4 h-4 ml-auto"
+                xmlns=""
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  className="pointer-events-none"
+                  d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z"
+                />
+              </svg>
+            </button>
+          </a>
+        </>
+      )}
+    </>
+  );
 }
 
 export function RenderField<T>({
@@ -40,6 +151,115 @@ export function RenderField<T>({
       return <input {...defaultProps} />;
     case "checkbox":
       return <input {...defaultProps} checked={!!field.value} />;
+    case "file":
+      return (
+        <Controller
+          render={(controlProps) => {
+            const { onChange, value } = controlProps.field;
+            const files: TFile[] | undefined =
+              Array.isArray(value) && value.filter(notEmpty).length > 0
+                ? value.filter(notEmpty)
+                : undefined;
+            const handleDelete = (file: TFile) => {
+              const newValue = files?.filter((f) => f !== file);
+              file?.preview && URL.revokeObjectURL(file.preview);
+              onChange(newValue);
+            };
+
+            const handleDrop = async (
+              acceptedFiles: File[],
+              fileRejections: FileRejection[]
+            ) => {
+              fileRejections.map((rejection) => {
+                toast.error(
+                  `Couldn't upload file ${
+                    rejection.file.name
+                  }. ${rejection.errors.map((e) => e.message).join(", ")}`
+                );
+              });
+              acceptedFiles.filter(notEmpty).map(async (f) => {
+                const lzbase64 = await fileToString(f);
+                const isImage = f.type.startsWith("image");
+                const newFile = {
+                  name: f.name,
+                  type: f.type,
+                  preview: isImage && (await base64FileToImage(f)),
+                  lzbase64,
+                };
+
+                const newValue = [...(files || []), newFile];
+                onChange(newValue);
+              });
+            };
+
+            return (
+              <Dropzone
+                onDrop={handleDrop}
+                accept={field.accept}
+                multiple
+                maxSize={5000000}
+              >
+                {({
+                  getRootProps,
+                  getInputProps,
+                  isDragAccept,
+                  isDragActive,
+                  isDragReject,
+                }) => {
+                  return (
+                    <section>
+                      <div {...getRootProps()}>
+                        <div
+                          className={classNames(
+                            "max-w-lg flex justify-center cursor-pointer px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md",
+                            isDragActive && "border-blue-500",
+                            isDragAccept && "border-green-500 cursor-copy",
+                            isDragReject && "border-red-500 cursor-no-drop"
+                          )}
+                        >
+                          <div className="space-y-1 text-center">
+                            <div className="flex text-sm text-gray-600">
+                              <label
+                                htmlFor="file-upload"
+                                className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                              >
+                                <input {...getInputProps()} />
+                                <p>
+                                  Drag 'n' drop some files here, or click to
+                                  select files
+                                </p>
+                              </label>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              PDF, PNG, JPG, GIF up to 5MB
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      {files && (
+                        <div className="pt-2 text-gray-800 text-sm">
+                          {files.length} files selected
+                          {files.filter(notEmpty).map((file, i) => (
+                            <div key={file.name + i} className="pt-2 mt-2">
+                              <FilePreview
+                                file={file}
+                                handleDelete={() => handleDelete(file)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                }}
+              </Dropzone>
+            );
+          }}
+          name={field.path}
+          control={control}
+          rules={field.rules}
+        />
+      );
     case "select":
       return (
         <Controller

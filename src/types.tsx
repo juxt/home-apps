@@ -19,6 +19,7 @@ import {
   WorkflowStateFieldsFragment,
 } from "./generated/graphql";
 import { TiptapProps } from "./components/Tiptap";
+import { DropzoneProps } from "react-dropzone";
 
 declare module "react" {
   function forwardRef<T, P = {}>(
@@ -45,6 +46,7 @@ type WithIdAndType<
     | "checkbox"
     | "textarea"
     | "submit"
+    | "file"
     | "select"
     | "multiselect"
     | "tiptap"
@@ -63,6 +65,10 @@ type HiddenInputProps = InputProps & {
   type: "hidden";
   value: string;
 };
+type FileInputProps = InputProps &
+  DropzoneProps & {
+    type: "file";
+  };
 type NumberInputProps = InputProps & {
   type: "number";
   value?: number;
@@ -87,6 +93,8 @@ type SelectProps = {
 export type TextInputDefinition = TextInputProps & WithIdAndType<"text">;
 
 export type HiddenInputDefinition = HiddenInputProps & WithIdAndType<"hidden">;
+
+export type FileInputDefinition = FileInputProps & WithIdAndType<"file">;
 
 export type NumberInputDefinition = NumberInputProps & WithIdAndType<"number">;
 
@@ -116,6 +124,7 @@ export type FormInputField<T> = {
   | HiddenInputDefinition
   | NumberInputDefinition
   | CheckboxInputDefinition
+  | FileInputDefinition
   | TextAreaInputDefinition
   | SelectInputDefinition
   | MultiSelectDefinition
@@ -146,9 +155,9 @@ export type LocationGenerics = MakeGenerics<{
   Search: {
     modalState: {
       formModalType: WorkflowFormModalTypes;
-      workflow?: TWorkflow;
-      workflowState?: WorkflowStateFieldsFragment;
-      card?: CardFieldsFragment;
+      workflowId?: string;
+      workflowStateId?: string;
+      cardId?: string;
     };
     filters: {
       projectId?: string;

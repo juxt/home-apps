@@ -1,5 +1,8 @@
 import { DraggableLocation } from "react-beautiful-dnd";
 import { QueryClient } from "react-query";
+import LZUTF8 from "lzutf8";
+import Resizer from "react-image-file-resizer";
+import { toast } from "react-toastify";
 import {
   WorkflowStateFieldsFragment as TWorkflowState,
   useCardHistoryQuery,
@@ -318,8 +321,90 @@ const defaultMutationProps = (queryClient: QueryClient) => ({
   },
 });
 
+function uncompressBase64(base64: string): string {
+  return LZUTF8.decompress(base64, {
+    inputEncoding: "Base64",
+    outputEncoding: "String",
+  });
+}
+
+function compressBase64(base64: string): string {
+  return LZUTF8.compress(base64, {
+    outputEncoding: "Base64",
+    inputEncoding: "String",
+  });
+}
+
+function compressImage(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      200,
+      200,
+      "JPEG",
+      60,
+      0,
+      (uri) => {
+        resolve(compressBase64(uri.toString()));
+      },
+      "base64"
+    );
+  });
+}
+
+function base64FileToImage(file: File) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("File is not an image"));
+    }
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+
+    reader.onerror = () => {
+      toast.error("Error reading file");
+      reject(reader.error);
+    };
+  });
+}
+
+function fileToString(file: File): Promise<string> {
+  if (file.type.startsWith("image/")) {
+    return compressImage(file);
+  } else {
+    return new Promise((resolve, reject) => {
+      let reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        resolve(compressBase64(reader.result?.toString() ?? ""));
+      };
+
+      reader.onerror = () => {
+        toast.error("Error reading file");
+        reject(reader.error);
+      };
+    });
+  }
+}
+
+function downloadFile(blob: Blob, filename: string) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  link.remove();
+  // in case the Blob uses a lot of memory
+  setTimeout(() => URL.revokeObjectURL(link.href), 7000);
+}
+
 export {
   defaultMutationProps,
+  fileToString,
+  downloadFile,
+  uncompressBase64,
+  base64FileToImage,
   hasDuplicateCards,
   removeDuplicateCards,
   moveWorkflowState,
