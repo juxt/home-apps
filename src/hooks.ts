@@ -84,7 +84,7 @@ export function useStatesOptions() {
 export function useWorkflowState(id?: string) {
   const workflowStateResult = useKanbanDataQuery(undefined, {
     select: (data) =>
-      data?.allWorkflowStates?.filter(notEmpty).find((c) => c.id === id),
+      data?.allWorkflowStates?.filter(notEmpty).find((s) => s.id === id),
   });
   return workflowStateResult;
 }
