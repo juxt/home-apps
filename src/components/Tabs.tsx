@@ -21,6 +21,9 @@ export function Tabs({
     value: tab.id,
     label: tab.name,
   }));
+  const currentOption = options.find(
+    (option) => option.value === tabs.find((tab) => tab.current)?.id
+  );
 
   return (
     <div className="mb-2">
@@ -33,6 +36,7 @@ export function Tabs({
           className="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
           id="tabs"
           name="tabs"
+          value={currentOption}
           onChange={(e) => {
             return e && onTabClick(e.value);
           }}

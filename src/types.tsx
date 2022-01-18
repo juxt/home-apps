@@ -134,6 +134,7 @@ export type FormInputField<T> = {
 export type FormProps<T> = {
   fields?: FormInputField<T>[];
   id?: string;
+  handleDelete?: () => void;
   formHooks: UseFormReturn<T, object>;
   title?: string;
   description?: string;
@@ -145,6 +146,7 @@ export type WorkflowFormModalTypes =
   | "addProject"
   | "addWorkflowState"
   | "addWorkflow"
+  | "editProject"
   | "editWorkflowState"
   | "editCard"
   | null
@@ -155,6 +157,7 @@ export type LocationGenerics = MakeGenerics<{
   Search: {
     modalState: {
       formModalType: WorkflowFormModalTypes;
+      projectId?: string;
       workflowId?: string;
       workflowStateId?: string;
       cardId?: string;
@@ -162,6 +165,8 @@ export type LocationGenerics = MakeGenerics<{
     filters: {
       projectId?: string;
     };
+    view?: "card" | "table";
+    devMode?: boolean;
   };
 }>;
 

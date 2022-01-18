@@ -8,7 +8,7 @@ import {
   AddWorkflowStateModal,
   UpdateWorkflowStateModal,
 } from "./components/WorkflowStateForms";
-import { AddProjectModal } from "./components/ProjectForms";
+import { AddProjectModal, UpdateProjectModal } from "./components/ProjectForms";
 import { AddCardModal, UpdateCardModal } from "./components/CardForms";
 import {
   DragDropContext,
@@ -60,6 +60,7 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
       select: (data) => data?.cardsByIds?.filter(notEmpty)[0],
     }
   );
+  const search = useSearch<LocationGenerics>();
 
   const imageString = detailedCard?.files?.filter((file) =>
     file?.type.startsWith("image")
@@ -69,8 +70,9 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
       {(provided, snapshot) => {
         const isDragging = snapshot.isDragging && !snapshot.isDropAnimating;
         const cardStyles = classNames(
-          "bg-white rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400",
-          isDragging && "bg-blue-50 border-blue-400 shadow-lg"
+          "bg-white w-full sm:w-52 lg:w-64 rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400",
+          isDragging && "bg-blue-50 border-blue-400 shadow-lg",
+          !card?.project && "border-red-500 bg-red-50"
         );
         return (
           <NaturalDragAnimation
@@ -86,13 +88,15 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                 onClick={() => workflow?.id && setIsOpen(true)}
                 ref={provided.innerRef}
               >
-                <pre>{card.id}</pre>
-                <p>{card.title}</p>
-                <p>{card.project?.name}</p>
+                {search?.devMode && <pre>{card.id}</pre>}
+                <p className="uppercase text-gray-800 font-extralight text-sm">
+                  {card.project?.name}
+                </p>
+                <p className="prose lg:prose-xl">{card.title}</p>
                 {detailedCard?.description &&
                   detailedCard.description !== "<p></p>" && (
                     <div
-                      className="ProseMirror h-auto w-full"
+                      className="ProseMirror h-min max-h-32 w-full my-2"
                       dangerouslySetInnerHTML={{
                         __html: detailedCard.description,
                       }}
@@ -163,8 +167,7 @@ const WorkflowState = React.memo(
                   cards.length === 0 &&
                   snapshot.isDraggingOver &&
                   "h-36",
-                cards.length > 0 && "min-w-fit ",
-                cards.length === 0 && "relative"
+                cards.length === 0 && "w-48"
               )}
             >
               <div
@@ -185,7 +188,15 @@ const WorkflowState = React.memo(
                     <h3 className="absolute top-2">{workflowState.name}</h3>
                   </>
                 ) : (
-                  <h3>{workflowState.name}</h3>
+                  <div
+                    style={{ marginBlock: "8px" }}
+                    className="flex items-center justify-between my-2"
+                  >
+                    <h3 style={{ marginBlock: 0 }}>{workflowState.name}</h3>
+                    <span className="px-2 bg-blue-50  text-gray-500 font-extralight rounded-md ">
+                      {cards.length}
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -222,7 +233,10 @@ function filteredCards(
 
   return (
     cards?.filter(
-      (card) => !filters.projectId || card.project?.id === filters.projectId
+      (card) =>
+        !filters ||
+        (filters.projectId === "" && card?.project) ||
+        (card?.project?.name && card.project?.id === filters.projectId)
     ) ?? []
   );
 }
@@ -255,7 +269,7 @@ function WorkflowStateContainer({
 }) {
   return (
     <div
-      className="isolate flex sm:flex-row flex-col max-w-full"
+      className="flex sm:flex-row flex-col max-w-full"
       {...provided.droppableProps}
       ref={provided.innerRef}
     >
@@ -433,7 +447,6 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
                 ...destination,
                 index: newCardIdx,
               };
-              console.log(unfilteredSource, unfilteredDestination);
 
               const newState = moveCard(
                 unfilteredWorkflow,
@@ -499,6 +512,9 @@ export function App() {
   const [isAddProject, setIsAddProject] = useModalForm({
     formModalType: "addProject",
   });
+  const [isEditProject, setIsEditProject] = useModalForm({
+    formModalType: "editProject",
+  });
   const projects = kanbanQueryResult.data?.allProjects || [];
   const allCardIds =
     workflow?.workflowStates
@@ -507,8 +523,6 @@ export function App() {
 
   const queryClient = useQueryClient();
   const prefetchCards = async () => {
-    console.log("running initial prefetch of cards");
-
     const data = await queryClient.fetchQuery(
       useCardByIdsQuery.getKey({ ids: _.uniq(allCardIds) }),
       useCardByIdsQuery.fetcher({ ids: _.uniq(allCardIds) }),
@@ -531,7 +545,6 @@ export function App() {
 
   useEffect(() => {
     if (workflow) {
-      console.log("refetching card info");
       workflow.workflowStates.forEach((ws) => {
         ws?.cards?.forEach((c) => {
           if (!c) return;
@@ -540,15 +553,11 @@ export function App() {
           );
           const currentTime = currentCard?.cardsByIds?.[0]?._siteValidTime;
           if (!currentTime) {
-            console.log("no currentTime");
             return;
           }
           if (currentCard && currentTime === c._siteValidTime) {
-            console.log("card up to date");
             return;
           }
-
-          console.log("fetching card", c, currentCard);
 
           queryClient.fetchQuery(
             useCardByIdsQuery.getKey({ ids: [c.id] }),
@@ -576,8 +585,9 @@ export function App() {
       />
       <AddCardModal isOpen={isAddCard} setIsOpen={setIsAddCard} />
       <AddProjectModal isOpen={isAddProject} setIsOpen={setIsAddProject} />
+      <UpdateProjectModal isOpen={isEditProject} setIsOpen={setIsEditProject} />
       <Tabs
-        tabs={[...projects, { id: undefined, name: "All" }]
+        tabs={[...projects, { id: "", name: "All" }]
           .filter(notEmpty)
           .map((project) => ({
             id: project.id,
@@ -587,9 +597,13 @@ export function App() {
               workflow?.workflowStates.reduce(
                 (acc, ws) =>
                   acc +
-                  (ws?.cards?.filter(
-                    (c) => !project?.id || c?.project?.id === project.id
-                  )?.length || 0),
+                  (ws?.cards?.filter((c) => {
+                    if (project.id === "") {
+                      return c?.project?.id;
+                    } else {
+                      return project?.id && c?.project?.id === project.id;
+                    }
+                  })?.length || 0),
                 0
               ) || 0,
           }))}

@@ -12,6 +12,8 @@ type Query {
   allWorkflowStates: [WorkflowState]
   workflowState(id: ID!): WorkflowState
   allProjects: [Project]
+  commentsForCard(id: ID!): [Comment] @site(itemForId: "cardId")
+  cardsForProject(id: ID!): [Card] @site(itemForId: "projectId")
 }
 
 type Mutation {
@@ -45,6 +47,17 @@ type Mutation {
   updateProject(id: ID!, Project: ProjectInput): Project
     @site(mutation: "update")
   deleteProject(id: ID!): Project @site(mutation: "delete")
+  createComment(Comment: CommentInput): Comment
+  updateComment(id: ID!, Comment: CommentInput): Comment
+    @site(mutation: "update")
+  deleteComment(id: ID!): Comment @site(mutation: "delete")
+}
+
+input CommentInput {
+  text: String!
+  parentId: ID
+  userId: ID!
+  cardId: ID!
 }
 
 input ProjectInput {
@@ -126,4 +139,14 @@ type Card {
   description: String
   files: [File]
   workflow: Workflow @site(ref: "workflowId")
+}
+
+type Comment {
+  id: ID!
+  text: String!
+  userId: String
+  parentId: String
+  card: Card @site(ref: "cardId")
+  children: [Comment] @site(ref: "parentId")
+  _siteQuery: String
 }

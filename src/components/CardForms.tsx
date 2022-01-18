@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { Modal, ModalForm } from "./Modal";
 import {
   CardInput,
+  CreateCardMutationVariables,
   UpdateCardMutationVariables,
   useCardByIdsQuery,
   useCreateCardMutation,
@@ -19,8 +20,9 @@ import { toast } from "react-toastify";
 import { useSearch } from "react-location";
 import { Form } from "./Form";
 import { useProjectOptions, useWorkflowStates } from "../hooks";
+import { OptionsMenu } from "./Menus";
 
-type AddCardInput = CardInput & {
+type AddCardInput = CreateCardMutationVariables & {
   project: Option;
 };
 
@@ -97,13 +99,20 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
           rules: {
             required: true,
           },
-          path: "title",
+          path: "card.title",
         },
         {
           id: "CardDescription",
           placeholder: "Card Description",
           type: "tiptap",
-          path: "description",
+          path: "card.description",
+        },
+        {
+          label: "Files",
+          accept: "image/jpeg, image/png, image/gif, application/pdf",
+          id: "CardFiles",
+          type: "file",
+          path: "card.files",
         },
       ]}
       onSubmit={formHooks.handleSubmit(addCard, console.warn)}
@@ -185,7 +194,37 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
   const projectOptions = useProjectOptions();
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
-      <div>
+      <div className="relative">
+        <div className="absolute top-7 sm:top-5 right-4">
+          <OptionsMenu
+            options={[
+              {
+                label: "Delete",
+                id: "delete",
+                props: {
+                  onClick: () => {
+                    setIsOpen(false);
+                    if (card?.id) {
+                      toast.promise(
+                        updateCardMutation.mutateAsync({
+                          cardId: card.id,
+                          card: {
+                            projectId: null,
+                          },
+                        }),
+                        {
+                          pending: "Deleting card...",
+                          success: "Card deleted!",
+                          error: "Error deleting card",
+                        }
+                      );
+                    }
+                  },
+                },
+              },
+            ]}
+          />
+        </div>
         <Form
           title={title}
           formHooks={formHooks}
