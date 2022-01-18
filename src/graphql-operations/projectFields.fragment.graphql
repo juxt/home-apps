@@ -1,4 +1,4 @@
-fragment projectFields on Project {
+fragment ProjectFields on Project {
   id
   name
   description

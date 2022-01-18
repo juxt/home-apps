@@ -3,12 +3,12 @@ import { useForm } from "react-hook-form";
 import { ModalForm } from "./Modal";
 import {
   CreateWorkflowMutationVariables,
-  useAllWorkflowStatesQuery,
   useCreateWorkflowMutation,
 } from "../generated/graphql";
-import { defaultMutationProps, distinctBy, notEmpty } from "../kanbanHelpers";
+import { defaultMutationProps, distinctBy } from "../kanbanHelpers";
 import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
+import { useStatesOptions } from "../hooks";
 
 type AddWorkflowInput = Omit<
   CreateWorkflowMutationVariables,
@@ -49,14 +49,7 @@ export function AddWorkflowModal({ isOpen, setIsOpen }: AddWorkflowModalProps) {
   };
 
   const formHooks = useForm<AddWorkflowInput>();
-  const workflowStateResult = useAllWorkflowStatesQuery();
-  const cols =
-    workflowStateResult.data?.allWorkflowStates?.filter(notEmpty).map((c) => {
-      return {
-        value: c.id,
-        label: c.name,
-      };
-    }) || [];
+  const cols = useStatesOptions();
   const workflowStates: Option[] =
     distinctBy<typeof cols[0]>(cols, "label") || [];
   return (

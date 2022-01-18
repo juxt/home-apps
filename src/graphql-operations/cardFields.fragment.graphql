@@ -1,14 +1,9 @@
 fragment CardFields on Card {
   id
   title
-  description
+  _siteValidTime
   project {
     id
     name
-  }
-  files {
-    name
-    lzbase64
-    type
   }
 }

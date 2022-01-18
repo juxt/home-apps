@@ -1,0 +1,28 @@
+query cardByIds($ids: [ID]!) {
+  cardsByIds(ids: $ids) {
+    id
+    description
+    _siteValidTime
+    files {
+      lzbase64
+      name
+      type
+    }
+    project {
+      description
+      id
+      name
+    }
+    title
+    workflow {
+      name
+      description
+      workflowStates {
+        type
+        name
+        description
+      }
+      id
+    }
+  }
+}

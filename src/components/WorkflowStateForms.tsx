@@ -1,17 +1,16 @@
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSearch } from "react-location";
 import { useQueryClient } from "react-query";
-import { toast } from "react-toastify";
 import {
   CreateWorkflowStateMutationVariables,
   UpdateWorkflowStateMutationVariables,
-  useAllWorkflowStatesQuery,
   useCreateWorkflowStateMutation,
   useUpdateWorkflowStateMutation,
 } from "../generated/graphql";
-import { defaultMutationProps, mapKeys, notEmpty } from "../kanbanHelpers";
-import { LocationGenerics, ModalStateProps, TWorkflow } from "../types";
+import { useWorkflowState, useWorkflowStates } from "../hooks";
+import { defaultMutationProps } from "../kanbanHelpers";
+import { LocationGenerics, ModalStateProps } from "../types";
 import { ModalForm } from "./Modal";
 
 type AddWorkflowStateInput = Omit<
@@ -31,8 +30,8 @@ export function AddWorkflowStateModal({
   });
   const { modalState } = useSearch<LocationGenerics>();
   const workflowId = modalState?.workflowId;
-  const cols =
-    useAllWorkflowStatesQuery().data?.allWorkflowStates?.filter(notEmpty) ?? [];
+  const cols = useWorkflowStates().data || [];
+
   const addWorkflowState = (col: AddWorkflowStateInput) => {
     if (workflowId) {
       setIsOpen(false);
@@ -85,10 +84,7 @@ export function UpdateWorkflowStateModal({
   });
   const { modalState } = useSearch<LocationGenerics>();
   const colId = modalState?.workflowStateId;
-  const workflowState =
-    useAllWorkflowStatesQuery().data?.allWorkflowStates?.find(
-      (c) => c?.id === colId
-    );
+  const workflowState = useWorkflowState(colId)?.data;
 
   const updateWorkflowState = (col: UpdateWorkflowStateInput) => {
     if (colId) {

@@ -19,22 +19,19 @@ import {
 } from "react-beautiful-dnd";
 import {
   useKanbanDataQuery,
-  useDeleteWorkflowMutation,
-  useDeleteWorkflowStateMutation,
   useMoveCardMutation,
-  useAllProjectsQuery,
+  useCardByIdsQuery,
+  CardByIdsQuery,
 } from "./generated/graphql";
 import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from "./types";
 import {
   defaultMutationProps,
-  removeDuplicateCards,
   moveCard,
   notEmpty,
   uncompressBase64,
 } from "./kanbanHelpers";
 import { useQueryClient } from "react-query";
-import React from "react";
-import { toast } from "react-toastify";
+import React, { useEffect } from "react";
 import { useNavigate, useSearch } from "react-location";
 import classNames from "classnames";
 import _ from "lodash";
@@ -54,7 +51,17 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
       state?.cards?.find((c) => c?.id === card.id)
     )?.id,
   });
-  const imageString = card?.files?.filter((file) =>
+  const { data: detailedCard } = useCardByIdsQuery(
+    {
+      ids: [card.id],
+    },
+    {
+      enabled: false,
+      select: (data) => data?.cardsByIds?.filter(notEmpty)[0],
+    }
+  );
+
+  const imageString = detailedCard?.files?.filter((file) =>
     file?.type.startsWith("image")
   )?.[0]?.lzbase64;
   return (
@@ -82,12 +89,15 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                 <pre>{card.id}</pre>
                 <p>{card.title}</p>
                 <p>{card.project?.name}</p>
-                {card?.description && card.description !== "<p></p>" && (
-                  <div
-                    className="ProseMirror h-auto w-full"
-                    dangerouslySetInnerHTML={{ __html: card.description }}
-                  />
-                )}
+                {detailedCard?.description &&
+                  detailedCard.description !== "<p></p>" && (
+                    <div
+                      className="ProseMirror h-auto w-full"
+                      dangerouslySetInnerHTML={{
+                        __html: detailedCard.description,
+                      }}
+                    />
+                  )}
                 {imageString && (
                   <img
                     src={uncompressBase64(imageString)}
@@ -468,10 +478,9 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
 export function App() {
   const search = useSearch<LocationGenerics>();
   const refetch = search.modalState?.formModalType ? false : 2000;
-  const kanbanQueryResult = useKanbanDataQuery(
-    {},
-    { refetchInterval: refetch }
-  );
+  const kanbanQueryResult = useKanbanDataQuery(undefined, {
+    refetchInterval: refetch,
+  });
   const workflow = kanbanQueryResult.data?.allWorkflows?.[0];
   const navigate = useNavigate<LocationGenerics>();
   const [isModalOpen, setIsModalOpen] = useModalForm({
@@ -490,8 +499,65 @@ export function App() {
   const [isAddProject, setIsAddProject] = useModalForm({
     formModalType: "addProject",
   });
-  const projectQuery = useAllProjectsQuery();
-  const projects = projectQuery.data?.allProjects || [];
+  const projects = kanbanQueryResult.data?.allProjects || [];
+  const allCardIds =
+    workflow?.workflowStates
+      ?.flatMap((ws) => ws?.cards?.map((c) => c?.id))
+      .filter(notEmpty) || [];
+
+  const queryClient = useQueryClient();
+  const prefetchCards = async () => {
+    console.log("running initial prefetch of cards");
+
+    const data = await queryClient.fetchQuery(
+      useCardByIdsQuery.getKey({ ids: _.uniq(allCardIds) }),
+      useCardByIdsQuery.fetcher({ ids: _.uniq(allCardIds) }),
+      { staleTime: Infinity }
+    );
+    console.log("prefetched cards", data);
+    data?.cardsByIds?.forEach((c) => {
+      if (!c) return;
+      queryClient.setQueryData(useCardByIdsQuery.getKey({ ids: [c.id] }), {
+        cardsByIds: [c],
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (allCardIds.length > 0) {
+      prefetchCards();
+    }
+  }, [JSON.stringify(allCardIds)]);
+
+  useEffect(() => {
+    if (workflow) {
+      console.log("refetching card info");
+      workflow.workflowStates.forEach((ws) => {
+        ws?.cards?.forEach((c) => {
+          if (!c) return;
+          const currentCard = queryClient.getQueryData<CardByIdsQuery>(
+            useCardByIdsQuery.getKey({ ids: [c.id] })
+          );
+          const currentTime = currentCard?.cardsByIds?.[0]?._siteValidTime;
+          if (!currentTime) {
+            console.log("no currentTime");
+            return;
+          }
+          if (currentCard && currentTime === c._siteValidTime) {
+            console.log("card up to date");
+            return;
+          }
+
+          console.log("fetching card", c, currentCard);
+
+          queryClient.fetchQuery(
+            useCardByIdsQuery.getKey({ ids: [c.id] }),
+            useCardByIdsQuery.fetcher({ ids: [c.id] })
+          );
+        });
+      });
+    }
+  }, [workflow]);
 
   return (
     <div>

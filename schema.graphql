@@ -8,7 +8,7 @@ type Query {
   workflow(id: ID!): Workflow
   allCards: [Card]
   cardHistory(id: ID!): [Card] @site(history: "desc")
-  card(id: ID!): [Card]
+  cardsByIds(ids: [ID]!): [Card]
   allWorkflowStates: [WorkflowState]
   workflowState(id: ID!): WorkflowState
   allProjects: [Project]

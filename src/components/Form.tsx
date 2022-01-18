@@ -1,9 +1,11 @@
 import { Dialog } from "@headlessui/react";
 import Dropzone, { FileRejection } from "react-dropzone";
-import React, { useCallback } from "react";
+import { MenuOption, OptionsMenu } from "./Menus";
+import React, { useCallback, useMemo } from "react";
 import { Controller, FieldValues } from "react-hook-form";
 import { MultiSelect } from "react-multi-select-component";
 import Select, { GroupBase, Props as SelectProps } from "react-select";
+import { DownloadIcon, TrashIcon } from "@heroicons/react/solid";
 
 import { FormInputField, FormProps, Option } from "../types";
 import { Tiptap } from "./Tiptap";
@@ -16,7 +18,7 @@ import {
   uncompressBase64,
 } from "../kanbanHelpers";
 import { toast } from "react-toastify";
-import { CardFieldsFragment } from "../generated/graphql";
+import { CardByIdsQuery, CardFieldsFragment } from "../generated/graphql";
 
 const inputClass =
   "relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base";
@@ -29,17 +31,9 @@ function CustomSelect<
   return <Select {...props} />;
 }
 
-function ImagePreview({
-  image,
-  title,
-  handleDelete,
-}: {
-  image: string;
-  title: string;
-  handleDelete: () => void;
-}) {
+function ImagePreview({ image, title }: { image: string; title: string }) {
   return (
-    <li className="block p-1 w-2/3 h-24">
+    <li className="block p-1 w-2/3 h-24 isolate">
       <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 relative text-transparent hover:text-black shadow-sm">
         <img
           alt="upload preview"
@@ -49,30 +43,15 @@ function ImagePreview({
 
         <section className="flex flex-col justify-between rounded-md text-xs break-words w-full h-full z-20 absolute top-0 py-2 px-3">
           <h1 className="truncate hover:overflow-visible">{title}</h1>
-          <button
-            onClick={handleDelete}
-            className="delete ml-auto cursor-pointer focus:outline-none hover:bg-gray-300 p-1 rounded-md"
-          >
-            <svg
-              className="pointer-events-none fill-current w-4 h-4 ml-auto"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path
-                className="pointer-events-none"
-                d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z"
-              />
-            </svg>
-          </button>
         </section>
       </article>
     </li>
   );
 }
 
-type TFile = NonNullable<CardFieldsFragment["files"]>[0] & {
+type TFile = NonNullable<
+  NonNullable<NonNullable<CardByIdsQuery["cardsByIds"]>[0]>["files"]
+>[0] & {
   preview: string;
 };
 
@@ -85,47 +64,45 @@ function FilePreview({
 }) {
   if (!file) return <div>No file</div>;
 
-  const data = uncompressBase64(file.lzbase64);
+  const data = useMemo(() => uncompressBase64(file.lzbase64), [file.lzbase64]);
+  const options = [
+    {
+      label: (
+        <div className="flex items-center">
+          <TrashIcon className="w-3 h-3 mr-2" /> Delete
+        </div>
+      ),
+      id: "delete",
+      props: {
+        onClick: handleDelete,
+      },
+    },
+    {
+      label: (
+        <div className="flex items-center">
+          <DownloadIcon className="w-3 h-3 mr-2" /> Download
+        </div>
+      ),
+      id: "download",
+      props: {
+        href: data,
+        download: file.name,
+      },
+    },
+  ];
 
   return (
-    <>
+    <div className="flex flex-row justify-between">
       {file.type.startsWith("image") ? (
-        <ImagePreview
-          title={file.name}
-          image={data}
-          handleDelete={handleDelete}
-        />
+        <ImagePreview title={file.name} image={data} />
       ) : (
-        <>
+        <div>
           <p>Type: {file.type}</p>
-          <a
-            href={data}
-            download={file.name}
-            title="Download"
-            className="flex justify-between py-2 cursor-pointer"
-          >
-            <h1 className="truncate">{file.name}</h1>
-            <button
-              onClick={handleDelete}
-              className="delete ml-auto focus:outline-none hover:bg-gray-300 p-1 rounded-md"
-            >
-              <svg
-                className="pointer-events-none fill-current w-4 h-4 ml-auto"
-                xmlns=""
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  className="pointer-events-none"
-                  d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z"
-                />
-              </svg>
-            </button>
-          </a>
-        </>
+          <h1 className="truncate">{file.name}</h1>
+        </div>
       )}
-    </>
+      <OptionsMenu options={options} />
+    </div>
   );
 }
 

@@ -1,28 +1,16 @@
-import { Dispatch, SetStateAction, useEffect } from "react";
-import {
-  LocationGenerics,
-  ModalStateProps,
-  Option,
-  TWorkflow,
-  TCard,
-} from "../types";
+import { useEffect } from "react";
+import { LocationGenerics, ModalStateProps, Option } from "../types";
 import { useForm } from "react-hook-form";
 import { Modal, ModalForm } from "./Modal";
 import {
   CardInput,
-  CreateCardMutationVariables,
   UpdateCardMutationVariables,
-  useAllProjectsQuery,
-  useAllWorkflowStatesQuery,
+  useCardByIdsQuery,
   useCreateCardMutation,
-  useKanbanDataQuery,
   useUpdateCardMutation,
 } from "../generated/graphql";
 import {
-  base64FileToImage,
   defaultMutationProps,
-  distinctBy,
-  mapKeys,
   notEmpty,
   uncompressBase64,
 } from "../kanbanHelpers";
@@ -30,6 +18,7 @@ import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
 import { useSearch } from "react-location";
 import { Form } from "./Form";
+import { useProjectOptions, useWorkflowStates } from "../hooks";
 
 type AddCardInput = CardInput & {
   project: Option;
@@ -42,9 +31,8 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
   const addCardMutation = useCreateCardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const { modalState, filters } = useSearch<LocationGenerics>();
-  const cols =
-    useAllWorkflowStatesQuery().data?.allWorkflowStates?.filter(notEmpty) ?? [];
+  const { filters } = useSearch<LocationGenerics>();
+  const cols = useWorkflowStates().data || [];
   const currentProject = filters?.projectId;
 
   const addCard = (card: AddCardInput) => {
@@ -77,6 +65,8 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
   };
 
   const formHooks = useForm<AddCardInput>();
+
+  const projectOptions = useProjectOptions();
   useEffect(() => {
     if (currentProject) {
       if (currentProject) {
@@ -88,14 +78,6 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
       }
     }
   }, [currentProject]);
-  const projectQuery = useAllProjectsQuery();
-  const projectOptions =
-    projectQuery?.data?.allProjects?.filter(notEmpty).map((p) => {
-      return {
-        label: p.name,
-        value: p.id,
-      };
-    }) ?? [];
   return (
     <ModalForm<AddCardInput>
       title="Add Card"
@@ -140,7 +122,6 @@ type UpdateCardModalProps = ModalStateProps;
 export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
   const { modalState } = useSearch<LocationGenerics>();
   const workflowId = modalState?.workflowId;
-  const workflowStateId = modalState?.workflowStateId;
   const cardId = modalState?.cardId;
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateCardMutation({
@@ -152,14 +133,12 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
     const card = { ...input.card, projectId: input.project?.value || null };
     updateCardMutation.mutate({ card, cardId: input.cardId });
   };
-  const { data: card } = useAllWorkflowStatesQuery(
-    {},
+  const { data: card } = useCardByIdsQuery(
+    { ids: [cardId || ""] },
     {
-      select: (data) => {
-        return data.allWorkflowStates
-          ?.find((w) => w?.id === workflowStateId)
-          ?.cards?.find((c) => c?.id === cardId);
-      },
+      select: (data) => data?.cardsByIds?.filter(notEmpty)[0],
+      enabled: !!cardId,
+      staleTime: Infinity,
     }
   );
 
@@ -203,14 +182,7 @@ export function UpdateCardModal({ isOpen, setIsOpen }: UpdateCardModalProps) {
   }, [card]);
 
   const title = "Update Card";
-  const projectQuery = useAllProjectsQuery();
-  const projectOptions =
-    projectQuery?.data?.allProjects?.filter(notEmpty).map((p) => {
-      return {
-        label: p.name,
-        value: p.id,
-      };
-    }) ?? [];
+  const projectOptions = useProjectOptions();
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
       <div>

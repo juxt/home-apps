@@ -1,24 +1,16 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment } from "react";
-import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from "../types";
+import { TWorkflow } from "../types";
 import {
-  BriefcaseIcon,
-  CalendarIcon,
-  CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  CurrencyDollarIcon,
-  LinkIcon,
-  LocationMarkerIcon,
   PencilIcon,
   PlusIcon,
   TableIcon,
 } from "@heroicons/react/solid";
 import { Menu, Transition } from "@headlessui/react";
 import classNames from "classnames";
-import { useSearch } from "react-location";
-import { useAllProjectsQuery } from "../generated/graphql";
-import { useMobileDetect } from "../hooks";
+import { useCurrentProject, useMobileDetect } from "../hooks";
 
 export function Heading({
   workflow,
@@ -27,9 +19,7 @@ export function Heading({
   workflow: TWorkflow;
   handleAddCard: () => void;
 }) {
-  const { filters } = useSearch<LocationGenerics>();
-  const projects = useAllProjectsQuery()?.data?.allProjects || [];
-  const currentProject = projects.find((p) => p?.id === filters?.projectId);
+  const currentProject = useCurrentProject().data;
   const isMobile = useMobileDetect().isMobile();
 
   return (

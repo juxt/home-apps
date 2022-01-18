@@ -10,5 +10,16 @@ query kanbanData {
   allWorkflowStates {
     id
     name
+    description
+    cards {
+      id
+    }
+  }
+  allCards {
+    id
+    _siteValidTime
+  }
+  allProjects {
+    ...ProjectFields
   }
 }
