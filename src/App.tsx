@@ -151,23 +151,15 @@ const WorkflowState = React.memo(
           {(provided, snapshot) => (
             <div
               style={{
-                borderColor: snapshot.isDraggingOver ? "gray" : "white",
+                borderColor: snapshot.isDraggingOver ? "gray" : "transparent",
               }}
               className={classNames(
-                "transition sm:mx-1 h-full border-4",
+                "transition sm:mx-1 border-4",
                 isFirst && "sm:ml-0",
                 snapshot.isDraggingOver &&
-                  "bg-blue-50 shadow-sm  border-dashed  h-full",
+                  "bg-blue-50 shadow-sm  border-dashed ",
                 " mt-4 flex flex-col ",
-                detectMobile.isMobile() &&
-                  cards.length === 0 &&
-                  !snapshot.isDraggingOver &&
-                  " h-16",
-                detectMobile.isMobile() &&
-                  cards.length === 0 &&
-                  snapshot.isDraggingOver &&
-                  "h-36",
-                cards.length === 0 && "w-48"
+                cards.length === 0 && "relative h-36"
               )}
             >
               <div
@@ -269,7 +261,7 @@ function WorkflowStateContainer({
 }) {
   return (
     <div
-      className="flex sm:flex-row flex-col max-w-full"
+      className="flex sm:flex-row flex-col max-w-full h-full"
       {...provided.droppableProps}
       ref={provided.innerRef}
     >
