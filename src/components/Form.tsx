@@ -1,7 +1,7 @@
 import { Dialog } from "@headlessui/react";
 import Dropzone, { FileRejection } from "react-dropzone";
 import { MenuOption, OptionsMenu } from "./Menus";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, FieldValues } from "react-hook-form";
 import { MultiSelect } from "react-multi-select-component";
 import Select, { GroupBase, Props as SelectProps } from "react-select";
@@ -288,8 +288,14 @@ export function RenderField<T>({
           name={field.path}
           control={control}
           render={(controlProps) => {
-            let { value, onChange, name } = controlProps.field;
-            return (
+            const { value, onChange } = controlProps.field;
+            const [showDescription, setShowDescription] = useState(!!value);
+            useEffect(() => {
+              if (showDescription !== !!value) {
+                setShowDescription(!!value);
+              }
+            }, [value]);
+            const TipTap = (
               <Tiptap
                 onChange={onChange}
                 content={value as string}
@@ -301,6 +307,18 @@ export function RenderField<T>({
                 {...field}
               />
             );
+            const Editor = showDescription ? (
+              TipTap
+            ) : (
+              <button
+                type="button"
+                className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                onClick={() => setShowDescription(true)}
+              >
+                Add description
+              </button>
+            );
+            return Editor;
           }}
         />
       );

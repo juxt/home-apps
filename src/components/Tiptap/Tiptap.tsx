@@ -114,7 +114,6 @@ function Tiptap({
 
   return (
     <>
-      <Popover editor={editor} />
       <EditorContent editor={editor} />
     </>
   );
