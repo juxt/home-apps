@@ -24,6 +24,7 @@ import { OptionsMenu } from "./Menus";
 
 type AddCardInput = CreateCardMutationVariables & {
   project: Option;
+  workflowState: Option;
 };
 
 type AddCardModalProps = ModalStateProps;
@@ -35,26 +36,36 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
   });
   const { filters } = useSearch<LocationGenerics>();
   const cols = useWorkflowStates().data || [];
+  const stateOptions = cols.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
   const currentProject = filters?.projectId;
 
+  const formHooks = useForm<AddCardInput>();
   const addCard = (card: AddCardInput) => {
     if (!cols.length) {
       toast.error("No workflowStates to add card to");
       return;
     }
     setIsOpen(false);
+    console.log("render");
+
     const newId = `card-${Date.now()}`;
-    const { project, ...cardInput } = card;
+    const { project, workflowState, ...cardInput } = card;
     toast.promise(
       addCardMutation.mutateAsync({
         cardId: newId,
-        workflowStateId: cols[0].id,
+        workflowStateId: workflowState?.value || cols[0].id,
         cardIds: [
-          ...(cols[0].cards?.filter(notEmpty).map((c) => c.id) || []),
+          ...(cols
+            .find((c) => c.id === workflowState?.value)
+            ?.cards?.filter(notEmpty)
+            .map((c) => c.id) || []),
           newId,
         ],
         card: {
-          ...cardInput,
+          ...cardInput.card,
           projectId: project?.value,
         },
       }),
@@ -65,8 +76,6 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
       }
     );
   };
-
-  const formHooks = useForm<AddCardInput>();
 
   const projectOptions = useProjectOptions();
   useEffect(() => {
@@ -85,6 +94,16 @@ export function AddCardModal({ isOpen, setIsOpen }: AddCardModalProps) {
       title="Add Card"
       formHooks={formHooks}
       fields={[
+        {
+          id: "CardState",
+          label: "Card State",
+          rules: {
+            required: true,
+          },
+          options: stateOptions,
+          path: "workflowState",
+          type: "select",
+        },
         {
           id: "CardProject",
           type: "select",
