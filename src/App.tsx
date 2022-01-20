@@ -1,7 +1,7 @@
 import NaturalDragAnimation from "natural-drag-animation-rbdnd";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useMobileDetect, useModalForm } from "./hooks";
-import { Tabs } from "./components/Tabs";
+import { NavTabs } from "./components/Tabs";
 import { Popover } from "./components/Popover";
 import { Heading } from "./components/Headings";
 import {
@@ -9,7 +9,7 @@ import {
   UpdateWorkflowStateModal,
 } from "./components/WorkflowStateForms";
 import { AddProjectModal, UpdateProjectModal } from "./components/ProjectForms";
-import { AddCardModal, UpdateCardModal } from "./components/CardForms";
+import { AddCardModal, CardModal } from "./components/CardForms";
 import {
   DragDropContext,
   Droppable,
@@ -217,33 +217,29 @@ const WorkflowState = React.memo(
 
 function filteredCards(
   cards: TCard[] | undefined,
-  filters: LocationGenerics["Search"]["filters"] | undefined
+  projectId: string | undefined
 ) {
-  if (!filters) {
+  if (!projectId) {
     return cards;
   }
 
   return (
     cards?.filter(
       (card) =>
-        !filters ||
-        (filters.projectId === "" && card?.project) ||
-        (card?.project?.name && card.project?.id === filters.projectId)
+        (projectId === "" && card?.project) ||
+        (card?.project?.name && card.project?.id === projectId)
     ) ?? []
   );
 }
 
-function processWorkflow(
-  workflow: TWorkflow,
-  filters: LocationGenerics["Search"]["filters"] | undefined
-) {
+function processWorkflow(workflow: TWorkflow, projectId: string | undefined) {
   if (!workflow) return null;
   const workflowStates = workflow?.workflowStates.filter(notEmpty) || [];
   return {
     ...workflow,
     workflowStates: workflowStates.map((c) => ({
       ...c,
-      cards: filteredCards(c.cards?.filter(notEmpty), filters),
+      cards: filteredCards(c.cards?.filter(notEmpty), projectId),
     })),
   };
 }
@@ -283,10 +279,10 @@ function WorkflowStateContainer({
 
 function Workflow({ workflow }: { workflow: TWorkflow }) {
   if (!workflow?.id) return null;
-  const { filters } = useSearch<LocationGenerics>();
+  const { workflowProjectId } = useSearch<LocationGenerics>();
   const data = React.useMemo(
-    () => processWorkflow(workflow, filters),
-    [workflow, filters]
+    () => processWorkflow(workflow, workflowProjectId),
+    [workflow, workflowProjectId]
   );
   const [filteredState, setState] = React.useState<TWorkflow>();
   const unfilteredWorkflow = useKanbanDataQuery()?.data?.allWorkflows?.find(
@@ -381,7 +377,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             const endCol = cols.find((c) => c.id === destination.droppableId);
             if (!startCol || !endCol) return;
 
-            if (!filters || !Object.keys(filters) || !filters?.projectId) {
+            if (!workflowProjectId) {
               // if there are no filters, just use the local state in the mutation
               updateServerCards(
                 newFilteredState,
@@ -571,20 +567,18 @@ export function App() {
         isOpen={!!isWorkflowStateModalOpen}
         setIsOpen={setIsWorkflowStateModalOpen}
       />
-      <UpdateCardModal
-        isOpen={isCardModalOpen}
-        setIsOpen={setIsCardModalOpen}
-      />
+      <CardModal isOpen={isCardModalOpen} setIsOpen={setIsCardModalOpen} />
       <AddCardModal isOpen={isAddCard} setIsOpen={setIsAddCard} />
       <AddProjectModal isOpen={isAddProject} setIsOpen={setIsAddProject} />
       <UpdateProjectModal isOpen={isEditProject} setIsOpen={setIsEditProject} />
-      <Tabs
+      <NavTabs
+        navName="workflowProjectId"
         tabs={[...projects, { id: "", name: "All" }]
           .filter(notEmpty)
           .map((project) => ({
             id: project.id,
             name: project.name,
-            current: search.filters?.projectId === project.id,
+            current: search.workflowProjectId === project.id,
             count:
               workflow?.workflowStates.reduce(
                 (acc, ws) =>
@@ -599,18 +593,6 @@ export function App() {
                 0
               ) || 0,
           }))}
-        onTabClick={(id?: string) => {
-          navigate({
-            to: ".",
-            search: {
-              ...search,
-              filters: {
-                ...search.filters,
-                projectId: id,
-              },
-            },
-          });
-        }}
       />
 
       {workflow && <Workflow key={workflow.id} workflow={workflow} />}

@@ -1,22 +1,22 @@
 import { SearchIcon } from "@heroicons/react/solid";
 import classNames from "classnames";
-import { Link } from "react-location";
+import { Link, useNavigate, useSearch } from "react-location";
 import Select from "react-select";
+import { LocationGenerics } from "../types";
 
 type Tab = {
-  id?: string;
+  id: string;
   name: string;
-  count: number;
+  count?: number;
   current: boolean;
 };
 
-export function Tabs({
-  tabs,
-  onTabClick,
-}: {
+type TabProps = {
   tabs: Tab[];
-  onTabClick: (tabId?: string) => void;
-}) {
+  navName: keyof LocationGenerics["Search"];
+};
+
+export function NavTabs({ tabs, navName }: TabProps) {
   const options = tabs.map((tab) => ({
     value: tab.id,
     label: tab.name,
@@ -24,6 +24,17 @@ export function Tabs({
   const currentOption = options.find(
     (option) => option.value === tabs.find((tab) => tab.current)?.id
   );
+  const navigate = useNavigate<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
+  const onTabClick = (id?: string) => {
+    navigate({
+      to: ".",
+      search: {
+        ...search,
+        [navName]: id,
+      },
+    });
+  };
 
   return (
     <div className="mb-2">
@@ -103,6 +114,72 @@ export function Tabs({
             </div>
 
             <div className="hidden lg:block lg:w-60"></div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function ModalTabs({ tabs, navName }: TabProps) {
+  const options = tabs.map((tab) => ({
+    value: tab.id,
+    label: tab.name,
+  }));
+  const currentOption = options.find(
+    (option) => option.value === tabs.find((tab) => tab.current)?.id
+  );
+  const navigate = useNavigate<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
+  const onTabClick = (id?: string) => {
+    navigate({
+      to: ".",
+      search: {
+        ...search,
+        [navName]: id,
+      },
+    });
+  };
+
+  return (
+    <div className="mb-2">
+      <div className="sm:hidden">
+        <label htmlFor="tabs" className="sr-only">
+          Select a tab
+        </label>
+        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+        <Select
+          className="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          id="tabs"
+          name="tabs"
+          value={currentOption}
+          onChange={(e) => {
+            return e && onTabClick(e.value);
+          }}
+          placeholder="Select a Project"
+          options={options}
+        />
+      </div>
+      <div className="hidden sm:block">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <div className="flex flex-row">
+              {tabs.map((tab) => (
+                <a
+                  key={tab.id + tab.name}
+                  onClick={() => onTabClick(tab.id)}
+                  className={classNames(
+                    tab.current
+                      ? "border-indigo-500 text-indigo-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200",
+                    "whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm"
+                  )}
+                  aria-current={tab.current ? "page" : undefined}
+                >
+                  {tab.name}
+                </a>
+              ))}
+            </div>
           </nav>
         </div>
       </div>

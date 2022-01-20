@@ -1,4 +1,4 @@
-schema @site(type: "kanban/test6") {
+schema @site(type: "kanban/test7") {
   query: Query
   mutation: Mutation
 }
@@ -135,6 +135,7 @@ type Card {
   id: ID!
   title: String!
   _siteValidTime: String
+  _siteSubject: ID!
   project: Project @site(ref: "projectId")
   description: String
   files: [File]

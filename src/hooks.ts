@@ -1,5 +1,10 @@
 import { useSearch, useNavigate } from "react-location";
-import { useKanbanDataQuery } from "./generated/graphql";
+import { UseQueryOptions } from "react-query";
+import {
+  CardByIdsQuery,
+  useCardByIdsQuery,
+  useKanbanDataQuery,
+} from "./generated/graphql";
 import { notEmpty } from "./kanbanHelpers";
 import { LocationGenerics } from "./types";
 
@@ -104,10 +109,29 @@ export function useProjectOptions() {
 }
 
 export function useCurrentProject() {
-  const projectId = useSearch<LocationGenerics>().filters?.projectId;
+  const projectId = useSearch<LocationGenerics>().workflowProjectId;
   const projectQuery = useKanbanDataQuery(undefined, {
     select: (data) =>
       data?.allProjects?.filter(notEmpty).find((p) => p.id === projectId),
   });
   return projectQuery;
+}
+
+export function useCardById(
+  cardId?: string,
+  opts?: UseQueryOptions<CardByIdsQuery, Error, CardByIdsQuery>
+) {
+  const queryResult = useCardByIdsQuery(
+    { ids: [cardId || ""] },
+    {
+      ...opts,
+      select: (data) => ({
+        ...data,
+        cardsByIds: data?.cardsByIds?.filter(notEmpty),
+      }),
+      enabled: !!cardId,
+      staleTime: Infinity,
+    }
+  );
+  return { ...queryResult, card: queryResult.data?.cardsByIds?.[0] };
 }
