@@ -805,7 +805,6 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
       }
     }
   };
-  const isDesktop = useMobileDetect().isDesktop();
   return (
     <Modal
       isOpen={isOpen}
@@ -815,7 +814,7 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
       <ModalTabs
         tabs={[
           { id: "view", name: "View", default: !cardModalView },
-          { id: "cv", name: "CV", hidden: isDesktop || !pdfUrl },
+          { id: "cv", name: "CV", hidden: !pdfUrl },
           { id: "update", name: "Edit" },
           { id: "history", name: "History" },
         ]}
@@ -830,7 +829,7 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
       {cardModalView === "update" && <UpdateCardForm handleClose={onClose} />}
       {cardModalView === "history" && <CardHistory />}
       {cardModalView === "cv" && pdfUrl && (
-        <div className="max-w-xl block h-full min-h-full ">
+        <div className="block mx-auto max-w-xl h-full min-h-full ">
           {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
           <Viewer fileUrl={pdfUrl} />{" "}
         </div>
