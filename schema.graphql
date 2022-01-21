@@ -1,4 +1,4 @@
-schema @site(type: "kanban/test7") {
+schema @site(type: "kanban/test6") {
   query: Query
   mutation: Mutation
 }
@@ -7,7 +7,7 @@ type Query {
   allWorkflows: [Workflow]
   workflow(id: ID!): Workflow
   allCards: [Card]
-  cardHistory(id: ID!): [Card] @site(history: "desc")
+  cardHistory(id: ID!, limit: Int, offset: Int): [Card] @site(history: "desc")
   cardsByIds(ids: [ID]!): [Card]
   allWorkflowStates: [WorkflowState]
   workflowState(id: ID!): WorkflowState
@@ -43,8 +43,9 @@ type Mutation {
   createCard(Card: CardInput): Card
   updateCard(id: ID!, Card: CardInput): Card @site(mutation: "update")
   deleteCard(id: ID!): Card @site(mutation: "delete")
-  createProject(Project: ProjectInput): Project
-  updateProject(id: ID!, Project: ProjectInput): Project
+  rollbackCard(id: ID!, asOf: String!): Card @site(mutation: "rollback")
+  createProject(project: ProjectInput): Project
+  updateProject(id: ID!, project: ProjectInput): Project
     @site(mutation: "update")
   deleteProject(id: ID!): Project @site(mutation: "delete")
   createComment(Comment: CommentInput): Comment
@@ -84,6 +85,7 @@ input CardInput {
   projectId: ID
   workflowId: ID
   files: [FileInput]
+  cvPdf: FileInput
 }
 
 type Workflow {
@@ -134,18 +136,32 @@ type File {
 type Card {
   id: ID!
   title: String!
-  _siteValidTime: String
-  _siteSubject: ID!
+  _siteValidTime: String!
+  _siteSubject: ID
   project: Project @site(ref: "projectId")
   description: String
-  files: [File]
+  files: [File] @onObject
+  cvPdf: File @onObject
   workflow: Workflow @site(ref: "workflowId")
+  workflowState: WorkflowState
+    @site(
+      asOf: "{{object._siteValidTime}}"
+      q: {
+        edn: """
+        {:find [e]
+           :where [[e {{type}} "WorkflowState"]
+                   [e :cardIds id]
+                   [(= id "{{object-id}}")]]}
+        """
+      }
+    )
 }
 
 type Comment {
   id: ID!
   text: String!
-  userId: String
+  _siteSubject: String
+  _siteValidTime: String!
   parentId: String
   card: Card @site(ref: "cardId")
   children: [Comment] @site(ref: "parentId")

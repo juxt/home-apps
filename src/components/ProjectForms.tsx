@@ -19,37 +19,19 @@ import { useQueryClient } from "react-query";
 import { useCurrentProject, useProjectOptions } from "../hooks";
 import { Form } from "./Form";
 
-type AddProjectInput = Omit<
-  CreateProjectMutationVariables,
-  "projectStateIds"
-> & {
-  projectStateIds: Option[] | undefined;
-};
+type AddProjectInput = CreateProjectMutationVariables;
 
 type AddProjectModalProps = ModalStateProps;
 
-export function AddProjectModal({ isOpen, setIsOpen }: AddProjectModalProps) {
+export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
   const addProjectMutation = useCreateProjectMutation({
     ...defaultMutationProps,
   });
 
   const addProject = (input: AddProjectInput) => {
-    setIsOpen(false);
-    const { projectStateIds, ...projectInput } = input;
+    handleClose();
 
-    const newProjectStates =
-      projectStateIds?.map((c) => {
-        return {
-          name: c.label,
-          id: "col" + Math.random().toString(),
-        };
-      }) || [];
-    const data = {
-      ...projectInput,
-      projectStates: newProjectStates,
-      projectStateIds: newProjectStates?.map((c) => c.id),
-    };
-    toast.promise(addProjectMutation.mutateAsync(data), {
+    toast.promise(addProjectMutation.mutateAsync(input), {
       pending: "Creating project...",
       success: "Project created!",
       error: "Error creating project",
@@ -83,7 +65,7 @@ export function AddProjectModal({ isOpen, setIsOpen }: AddProjectModalProps) {
       ]}
       onSubmit={formHooks.handleSubmit(addProject, console.warn)}
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
+      handleClose={handleClose}
     />
   );
 }
@@ -94,7 +76,7 @@ type UpdateProjectModalProps = ModalStateProps;
 
 export function UpdateProjectModal({
   isOpen,
-  setIsOpen,
+  handleClose,
 }: UpdateProjectModalProps) {
   const { modalState } = useSearch<LocationGenerics>();
   const projectId = modalState?.projectId;
@@ -104,7 +86,7 @@ export function UpdateProjectModal({
   });
 
   const updateProject = (input: UpdateProjectInput) => {
-    setIsOpen(false);
+    handleClose();
     updateProjectMutation.mutate({ ...input });
   };
 
@@ -124,7 +106,7 @@ export function UpdateProjectModal({
 
   const title = "Update Project";
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
+    <Modal isOpen={isOpen} handleClose={handleClose}>
       <div>
         <Form
           title={title}
@@ -162,7 +144,7 @@ export function UpdateProjectModal({
         <button
           type="button"
           className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={() => handleClose()}
         >
           Cancel
         </button>

@@ -1,5 +1,5 @@
 mutation createProject($project: ProjectInput!, $projectId: ID!) {
-  updateProject(id: $projectId, Project: $project) {
+  createProject(project: $project) {
     id
   }
 }

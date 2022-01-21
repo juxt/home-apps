@@ -1,0 +1,12 @@
+query commentsForCard($id: ID!) {
+  commentsForCard(id: $id) {
+    id
+    _siteSubject
+    _siteValidTime
+    text
+    parentId
+    children {
+      text
+    }
+  }
+}

@@ -17,7 +17,7 @@ import { Popover } from "./Popover";
 import "./Tiptap.scss";
 
 export type TiptapProps = {
-  content?: string;
+  content?: string | null;
   onChange: (content: string) => void;
   editable?: boolean;
   placeholder?: string;
@@ -78,7 +78,7 @@ function Tiptap({
         )*/
   }
   const [editorHtmlContent, setEditorHtmlContent] = React.useState(
-    content.trim()
+    content?.trim() || "a"
   );
   const [turndownMarkdownContent, setTurndownMarkdownContent] =
     React.useState("");

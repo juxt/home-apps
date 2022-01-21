@@ -2,6 +2,7 @@ import { Dispatch, Fragment, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Form } from "./Form";
 import { ModalFormProps, ModalStateProps } from "../types";
+import classNames from "classnames";
 
 export function ModalContent({ children }: { children: React.ReactNode }) {
   return (
@@ -43,17 +44,19 @@ export function ModalBody({ children }: { children: React.ReactNode }) {
 
 export function Modal({
   isOpen,
-  setIsOpen,
+  handleClose,
+  fullWidth,
   children,
 }: ModalStateProps & {
   children: React.ReactNode;
+  fullWidth?: boolean;
 }) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
         as="div"
         className="fixed z-10 inset-0 overflow-y-auto"
-        onClose={() => setIsOpen(false)}
+        onClose={handleClose}
       >
         <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:py-0">
           <Transition.Child
@@ -84,7 +87,14 @@ export function Modal({
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="w-full inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div
+              className={classNames(
+                "relative w-full inline-block align-bottom",
+                "bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all",
+                "sm:my-8 sm:align-middle sm:w-full",
+                !fullWidth && "sm:max-w-4xl"
+              )}
+            >
               {children}
             </div>
           </Transition.Child>
@@ -95,10 +105,8 @@ export function Modal({
 }
 
 export function ModalForm<T>(props: ModalFormProps<T>) {
-  const { setIsOpen } = props;
-
   return (
-    <Modal isOpen={props.isOpen} setIsOpen={setIsOpen}>
+    <Modal {...props}>
       <Form {...props} onSubmit={props.onSubmit} />
       <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
         <button
@@ -111,7 +119,7 @@ export function ModalForm<T>(props: ModalFormProps<T>) {
         <button
           type="button"
           className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={props.handleClose}
         >
           Cancel
         </button>

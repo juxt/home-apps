@@ -51,11 +51,9 @@ function ImagePreview({ image, title }: { image: string; title: string }) {
 
 type TFile = NonNullable<
   NonNullable<NonNullable<CardByIdsQuery["cardsByIds"]>[0]>["files"]
->[0] & {
-  preview: string;
-};
+>[0];
 
-function FilePreview({
+export function FilePreview({
   file,
   handleDelete,
 }: {
@@ -96,9 +94,9 @@ function FilePreview({
       {file.type.startsWith("image") ? (
         <ImagePreview title={file.name} image={data} />
       ) : (
-        <div>
+        <div className="w-5/6">
           <p>Type: {file.type}</p>
-          <h1 className="truncate">{file.name}</h1>
+          <h1 className="truncate max-w-fit">{file.name}</h1>
         </div>
       )}
       <OptionsMenu options={options} />
@@ -133,13 +131,110 @@ export function RenderField<T>({
         <Controller
           render={(controlProps) => {
             const { onChange, value } = controlProps.field;
+
+            const handleDrop = async (
+              acceptedFiles: File[],
+              fileRejections: FileRejection[]
+            ) => {
+              const f = acceptedFiles[0];
+              fileRejections.map((rejection) => {
+                toast.error(
+                  `Couldn't upload file ${
+                    rejection.file.name
+                  }. ${rejection.errors.map((e) => e.message).join(", ")}`
+                );
+              });
+              const lzbase64 = await fileToString(f);
+              const newFile = {
+                name: f.name,
+                type: f.type,
+                lzbase64,
+              };
+
+              onChange(newFile);
+            };
+            const file = value as TFile;
+
+            return (
+              <Dropzone
+                onDrop={handleDrop}
+                accept={field.accept}
+                maxSize={5000000}
+              >
+                {({
+                  getRootProps,
+                  getInputProps,
+                  isDragAccept,
+                  isDragActive,
+                  isDragReject,
+                }) => {
+                  return (
+                    <section>
+                      {!file ? (
+                        <div {...getRootProps()}>
+                          <div
+                            className={classNames(
+                              "max-w-lg flex justify-center cursor-pointer px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md",
+                              isDragActive && "border-blue-500",
+                              isDragAccept && "border-green-500 cursor-copy",
+                              isDragReject && "border-red-500 cursor-no-drop"
+                            )}
+                          >
+                            <div className="space-y-1 text-center">
+                              <div className="flex text-sm text-gray-600">
+                                <label
+                                  htmlFor="file-upload"
+                                  className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                >
+                                  <input {...getInputProps()} />
+                                  <p>
+                                    Drag a file here, or click to select a file
+                                  </p>
+                                </label>
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                {field.accept
+                                  ?.toString()
+                                  ?.replaceAll(/image\/|application\//g, "")
+                                  .toLocaleUpperCase()}{" "}
+                                up to 5MB
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="pt-2 text-gray-800 text-sm">
+                          <div className="pt-2 mt-2">
+                            <FilePreview
+                              file={file}
+                              handleDelete={() => onChange(null)}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </section>
+                  );
+                }}
+              </Dropzone>
+            );
+          }}
+          name={field.path}
+          control={control}
+          rules={field.rules}
+        />
+      );
+    case "multifile":
+      return (
+        <Controller
+          render={(controlProps) => {
+            const { onChange, value } = controlProps.field;
             const files: TFile[] | undefined =
               Array.isArray(value) && value.filter(notEmpty).length > 0
                 ? value.filter(notEmpty)
                 : undefined;
+
             const handleDelete = (file: TFile) => {
               const newValue = files?.filter((f) => f !== file);
-              file?.preview && URL.revokeObjectURL(file.preview);
               onChange(newValue);
             };
 
@@ -156,11 +251,9 @@ export function RenderField<T>({
               });
               acceptedFiles.filter(notEmpty).map(async (f) => {
                 const lzbase64 = await fileToString(f);
-                const isImage = f.type.startsWith("image");
                 const newFile = {
                   name: f.name,
                   type: f.type,
-                  preview: isImage && (await base64FileToImage(f)),
                   lzbase64,
                 };
 
@@ -202,13 +295,16 @@ export function RenderField<T>({
                               >
                                 <input {...getInputProps()} />
                                 <p>
-                                  Drag 'n' drop some files here, or click to
-                                  select files
+                                  Drag some files here, or click to select files
                                 </p>
                               </label>
                             </div>
                             <p className="text-xs text-gray-500">
-                              PDF, PNG, JPG, GIF up to 5MB
+                              {field.accept
+                                ?.toString()
+                                ?.replaceAll(/image\/|application\//g, "")
+                                .toLocaleUpperCase()}{" "}
+                              up to 5MB
                             </p>
                           </div>
                         </div>

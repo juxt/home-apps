@@ -1,8 +1,12 @@
+import { useEffect, useState } from "react";
 import { useSearch, useNavigate } from "react-location";
 import { UseQueryOptions } from "react-query";
 import {
   CardByIdsQuery,
+  CardHistoryQuery,
   useCardByIdsQuery,
+  useCardHistoryQuery,
+  useCommentsForCardQuery,
   useKanbanDataQuery,
 } from "./generated/graphql";
 import { notEmpty } from "./kanbanHelpers";
@@ -134,4 +138,48 @@ export function useCardById(
     }
   );
   return { ...queryResult, card: queryResult.data?.cardsByIds?.[0] };
+}
+
+export function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+export function useCommentForCard(cardId: string) {
+  const query = useCommentsForCardQuery(
+    { id: cardId },
+    {
+      select: (data) =>
+        data?.commentsForCard?.filter(notEmpty).filter((c) => !c?.parentId),
+    }
+  );
+  return query;
+}
+
+export function useCardHistory(
+  cardId?: string,
+  opts?: UseQueryOptions<CardHistoryQuery, Error, CardHistoryQuery>
+) {
+  const queryResult = useCardHistoryQuery(
+    { id: cardId || "" },
+    {
+      ...opts,
+      select: (data) => ({
+        ...data,
+        ca: data?.cardHistory?.filter(notEmpty),
+      }),
+      enabled: !!cardId,
+      staleTime: 5000,
+    }
+  );
+  return { ...queryResult, history: queryResult.data?.cardHistory };
 }

@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ToastContainer } from "react-toastify";
 import { Outlet, ReactLocation, Router } from "react-location";
+import { Worker } from "@react-pdf-viewer/core";
+
 const location = new ReactLocation();
 const queryClient = new QueryClient();
 const rootElement = document.getElementById("root");
@@ -25,7 +27,9 @@ ReactDOM.render(
         },
       ]}
     >
-      <Outlet />
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.12.313/build/pdf.worker.min.js">
+        <Outlet />
+      </Worker>
     </Router>
     <ToastContainer
       position="bottom-center"

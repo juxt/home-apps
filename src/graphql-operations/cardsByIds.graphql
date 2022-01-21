@@ -3,6 +3,12 @@ query cardByIds($ids: [ID]!) {
     id
     description
     _siteValidTime
+    _siteSubject
+    cvPdf {
+      lzbase64
+      name
+      type
+    }
     files {
       lzbase64
       name
@@ -14,15 +20,9 @@ query cardByIds($ids: [ID]!) {
       name
     }
     title
-    workflow {
-      name
-      description
-      workflowStates {
-        type
-        name
-        description
-      }
+    workflowState {
       id
+      name
     }
   }
 }

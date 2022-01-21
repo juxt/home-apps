@@ -2,13 +2,14 @@ import { SearchIcon } from "@heroicons/react/solid";
 import classNames from "classnames";
 import { Link, useNavigate, useSearch } from "react-location";
 import Select from "react-select";
-import { LocationGenerics } from "../types";
+import { LocationGenerics, Option } from "../types";
 
 type Tab = {
   id: string;
   name: string;
   count?: number;
-  current: boolean;
+  default?: boolean;
+  hidden?: boolean;
 };
 
 type TabProps = {
@@ -21,11 +22,13 @@ export function NavTabs({ tabs, navName }: TabProps) {
     value: tab.id,
     label: tab.name,
   }));
-  const currentOption = options.find(
-    (option) => option.value === tabs.find((tab) => tab.current)?.id
-  );
+
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
+  const currentId = search[navName];
+  const currentOption: Option | undefined = options.find(
+    (option) => option.value === currentId
+  );
   const onTabClick = (id?: string) => {
     navigate({
       to: ".",
@@ -84,33 +87,36 @@ export function NavTabs({ tabs, navName }: TabProps) {
               </div>
             </div>
             <div className="flex flex-row">
-              {tabs.map((tab) => (
-                <a
-                  key={tab.id + tab.name}
-                  onClick={() => onTabClick(tab.id)}
-                  className={classNames(
-                    tab.current
-                      ? "border-indigo-500 text-indigo-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200",
-                    "whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm"
-                  )}
-                  aria-current={tab.current ? "page" : undefined}
-                >
-                  {tab.name}
-                  {typeof tab.count === "number" ? (
-                    <span
-                      className={classNames(
-                        tab.current
-                          ? "bg-indigo-100 text-indigo-600"
-                          : "bg-gray-100 text-gray-900",
-                        "hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block"
-                      )}
-                    >
-                      {tab.count}
-                    </span>
-                  ) : null}
-                </a>
-              ))}
+              {tabs.map((tab) => {
+                const isCurrent = tab.id === currentId;
+                return (
+                  <a
+                    key={tab.id + tab.name}
+                    onClick={() => onTabClick(tab.id)}
+                    className={classNames(
+                      isCurrent
+                        ? "border-indigo-500 text-indigo-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200",
+                      "whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm"
+                    )}
+                    aria-current={isCurrent ? "page" : undefined}
+                  >
+                    {tab.name}
+                    {typeof tab.count === "number" ? (
+                      <span
+                        className={classNames(
+                          isCurrent
+                            ? "bg-indigo-100 text-indigo-600"
+                            : "bg-gray-100 text-gray-900",
+                          "hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block"
+                        )}
+                      >
+                        {tab.count}
+                      </span>
+                    ) : null}
+                  </a>
+                );
+              })}
             </div>
 
             <div className="hidden lg:block lg:w-60"></div>
@@ -126,11 +132,13 @@ export function ModalTabs({ tabs, navName }: TabProps) {
     value: tab.id,
     label: tab.name,
   }));
-  const currentOption = options.find(
-    (option) => option.value === tabs.find((tab) => tab.current)?.id
-  );
+
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
+  const currentId = search[navName];
+  const currentOption: Option | undefined = options.find(
+    (option) => option.value === currentId
+  );
   const onTabClick = (id?: string) => {
     navigate({
       to: ".",
@@ -143,45 +151,29 @@ export function ModalTabs({ tabs, navName }: TabProps) {
 
   return (
     <div className="mb-2">
-      <div className="sm:hidden">
-        <label htmlFor="tabs" className="sr-only">
-          Select a tab
-        </label>
-        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-        <Select
-          className="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-          id="tabs"
-          name="tabs"
-          value={currentOption}
-          onChange={(e) => {
-            return e && onTabClick(e.value);
-          }}
-          placeholder="Select a Project"
-          options={options}
-        />
-      </div>
-      <div className="hidden sm:block">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-            <div className="flex flex-row">
-              {tabs.map((tab) => (
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8 justify-center" aria-label="Tabs">
+          {tabs
+            .filter((t) => !t.hidden)
+            .map((tab) => {
+              const isCurrent = tab.id === currentId || tab.default;
+              return (
                 <a
                   key={tab.id + tab.name}
                   onClick={() => onTabClick(tab.id)}
                   className={classNames(
-                    tab.current
+                    isCurrent
                       ? "border-indigo-500 text-indigo-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200",
                     "whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm"
                   )}
-                  aria-current={tab.current ? "page" : undefined}
+                  aria-current={isCurrent ? "page" : undefined}
                 >
                   {tab.name}
                 </a>
-              ))}
-            </div>
-          </nav>
-        </div>
+              );
+            })}
+        </nav>
       </div>
     </div>
   );

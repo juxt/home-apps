@@ -19,14 +19,17 @@ type AddWorkflowInput = Omit<
 
 type AddWorkflowModalProps = ModalStateProps;
 
-export function AddWorkflowModal({ isOpen, setIsOpen }: AddWorkflowModalProps) {
+export function AddWorkflowModal({
+  isOpen,
+  handleClose,
+}: AddWorkflowModalProps) {
   const queryClient = useQueryClient();
   const addWorkflowMutation = useCreateWorkflowMutation({
     ...defaultMutationProps(queryClient),
   });
 
   const addWorkflow = (input: AddWorkflowInput) => {
-    setIsOpen(false);
+    handleClose();
     const { workflowStateIds, ...workflowInput } = input;
 
     const newWorkflowStates =
@@ -82,7 +85,7 @@ export function AddWorkflowModal({ isOpen, setIsOpen }: AddWorkflowModalProps) {
       ]}
       onSubmit={formHooks.handleSubmit(addWorkflow, console.warn)}
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
+      handleClose={handleClose}
     />
   );
 }

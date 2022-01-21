@@ -35,6 +35,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useSearch } from "react-location";
 import classNames from "classnames";
 import _ from "lodash";
+import DOMPurify from "dompurify";
 
 type CardProps = {
   card: TCard;
@@ -98,7 +99,7 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                     <div
                       className="ProseMirror h-min max-h-32 w-full my-2"
                       dangerouslySetInnerHTML={{
-                        __html: detailedCard.description,
+                        __html: DOMPurify.sanitize(detailedCard.description),
                       }}
                     />
                   )}
@@ -312,7 +313,8 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
       startCol: TWorkflowState,
       endCol: TWorkflowState,
       source: DraggableLocation,
-      destination: DraggableLocation
+      destination: DraggableLocation,
+      draggableId: string
     ) => {
       if (startCol) {
         const cardsInSourceCol =
@@ -324,6 +326,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
         moveCardMutation.mutate({
           workflowStateId: startCol?.id,
           cardIds: _.uniq(cardsInSourceCol),
+          cardId: "",
         });
       }
 
@@ -336,6 +339,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             .map((c) => c.id) || [];
         moveCardMutation.mutate({
           workflowStateId: endCol?.id,
+          cardId: draggableId,
           cardIds: _.uniq(cardsInEndCol),
         });
       }
@@ -384,7 +388,8 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
                 startCol,
                 endCol,
                 source,
-                destination
+                destination,
+                draggableId
               );
             } else {
               // if there are filters, things are more tricky...
@@ -447,7 +452,8 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
                   unfilteredStartCol,
                   unfilteredEndCol,
                   unfilteredSource,
-                  unfilteredDestination
+                  unfilteredDestination,
+                  draggableId
                 );
               }
             }
@@ -516,7 +522,6 @@ export function App() {
       useCardByIdsQuery.fetcher({ ids: _.uniq(allCardIds) }),
       { staleTime: Infinity }
     );
-    console.log("prefetched cards", data);
     data?.cardsByIds?.forEach((c) => {
       if (!c) return;
       queryClient.setQueryData(useCardByIdsQuery.getKey({ ids: [c.id] }), {
@@ -561,16 +566,28 @@ export function App() {
       {kanbanQueryResult.isLoading && <div>Loading...</div>}
       <AddWorkflowStateModal
         isOpen={!!isModalOpen}
-        setIsOpen={setIsModalOpen}
+        handleClose={() => setIsModalOpen(false)}
       />
       <UpdateWorkflowStateModal
         isOpen={!!isWorkflowStateModalOpen}
-        setIsOpen={setIsWorkflowStateModalOpen}
+        handleClose={() => setIsWorkflowStateModalOpen(false)}
       />
-      <CardModal isOpen={isCardModalOpen} setIsOpen={setIsCardModalOpen} />
-      <AddCardModal isOpen={isAddCard} setIsOpen={setIsAddCard} />
-      <AddProjectModal isOpen={isAddProject} setIsOpen={setIsAddProject} />
-      <UpdateProjectModal isOpen={isEditProject} setIsOpen={setIsEditProject} />
+      <CardModal
+        isOpen={isCardModalOpen}
+        handleClose={() => setIsCardModalOpen(false)}
+      />
+      <AddCardModal
+        isOpen={isAddCard}
+        handleClose={() => setIsAddCard(false)}
+      />
+      <AddProjectModal
+        isOpen={isAddProject}
+        handleClose={() => setIsAddProject(false)}
+      />
+      <UpdateProjectModal
+        isOpen={isEditProject}
+        handleClose={() => setIsEditProject(false)}
+      />
       <NavTabs
         navName="workflowProjectId"
         tabs={[...projects, { id: "", name: "All" }]
@@ -578,7 +595,6 @@ export function App() {
           .map((project) => ({
             id: project.id,
             name: project.name,
-            current: search.workflowProjectId === project.id,
             count:
               workflow?.workflowStates.reduce(
                 (acc, ws) =>

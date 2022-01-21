@@ -47,6 +47,7 @@ type WithIdAndType<
     | "textarea"
     | "submit"
     | "file"
+    | "multifile"
     | "select"
     | "multiselect"
     | "tiptap"
@@ -68,6 +69,10 @@ type HiddenInputProps = InputProps & {
 type FileInputProps = InputProps &
   DropzoneProps & {
     type: "file";
+  };
+type MultiFileInputProps = InputProps &
+  DropzoneProps & {
+    type: "multifile";
   };
 type NumberInputProps = InputProps & {
   type: "number";
@@ -95,6 +100,9 @@ export type TextInputDefinition = TextInputProps & WithIdAndType<"text">;
 export type HiddenInputDefinition = HiddenInputProps & WithIdAndType<"hidden">;
 
 export type FileInputDefinition = FileInputProps & WithIdAndType<"file">;
+
+export type MultiFileInputDefinition = MultiFileInputProps &
+  WithIdAndType<"multifile">;
 
 export type NumberInputDefinition = NumberInputProps & WithIdAndType<"number">;
 
@@ -125,6 +133,7 @@ export type FormInputField<T> = {
   | NumberInputDefinition
   | CheckboxInputDefinition
   | FileInputDefinition
+  | MultiFileInputDefinition
   | TextAreaInputDefinition
   | SelectInputDefinition
   | MultiSelectDefinition
@@ -171,7 +180,7 @@ export type LocationGenerics = MakeGenerics<{
 
 export type ModalStateProps = {
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  handleClose: () => void;
 };
 
 export type ModalFormProps<T> = FormProps<T> & ModalStateProps;

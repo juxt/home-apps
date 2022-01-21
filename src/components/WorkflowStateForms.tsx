@@ -22,7 +22,7 @@ type AddWorkflowStateModalProps = ModalStateProps;
 
 export function AddWorkflowStateModal({
   isOpen,
-  setIsOpen,
+  handleClose,
 }: AddWorkflowStateModalProps) {
   const queryClient = useQueryClient();
   const addColMutation = useCreateWorkflowStateMutation({
@@ -34,7 +34,7 @@ export function AddWorkflowStateModal({
 
   const addWorkflowState = (col: AddWorkflowStateInput) => {
     if (workflowId) {
-      setIsOpen(false);
+      handleClose();
       const colId = `col-${Date.now()}`;
       addColMutation.mutate({
         ...col,
@@ -51,7 +51,7 @@ export function AddWorkflowStateModal({
       formHooks={formHooks}
       onSubmit={formHooks.handleSubmit(addWorkflowState, console.warn)}
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
+      handleClose={handleClose}
       fields={[
         {
           id: "name",
@@ -76,7 +76,7 @@ type UpdateWorkflowStateModalProps = ModalStateProps;
 
 export function UpdateWorkflowStateModal({
   isOpen,
-  setIsOpen,
+  handleClose,
 }: UpdateWorkflowStateModalProps) {
   const queryClient = useQueryClient();
   const updateColMutation = useUpdateWorkflowStateMutation({
@@ -88,7 +88,7 @@ export function UpdateWorkflowStateModal({
 
   const updateWorkflowState = (col: UpdateWorkflowStateInput) => {
     if (colId) {
-      setIsOpen(false);
+      handleClose();
       updateColMutation.mutate({
         ...col,
         colId,
@@ -111,7 +111,7 @@ export function UpdateWorkflowStateModal({
       formHooks={formHooks}
       onSubmit={formHooks.handleSubmit(updateWorkflowState, console.warn)}
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
+      handleClose={handleClose}
       fields={[
         {
           id: "name",
