@@ -555,9 +555,9 @@ function CardInfo({
                     <span>Description</span>
                     {CloseIcon(open)}
                   </Disclosure.Button> 
-                  <Disclosure.Panel className="px-4 pt-4 pb-2 h-full text-sm text-muted flex justify-center">
+                  <Disclosure.Panel className="px-4 pt-4 pb-2 h-full text-sm text-muted flex ">
                     <div
-                      className="ProseMirror prose text-left w-full bg-white max-w-max shadow-lg no-scrollbar"
+                      className="ProseMirror prose text-left bg-white shadow-lg w-full no-scrollbar"
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(card?.description || ""),
                       }}
