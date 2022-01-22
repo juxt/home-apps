@@ -69,6 +69,7 @@ import {
 import DOMPurify from "dompurify";
 import { Disclosure } from "@headlessui/react";
 import { update } from "lodash-es";
+import _ from "lodash";
 
 type AddCardInput = CreateCardMutationVariables & {
   project: Option;
@@ -399,49 +400,54 @@ function CommentSection({ cardId }: { cardId: string }) {
           <div className="flow-root h-full">
             <ul role="list" className="-mb-8">
               {comments &&
-                comments.map((item, itemIdx) => (
-                  <li key={item.id} className="text-left">
-                    <div className="relative pb-8">
-                      {itemIdx !== comments.length - 1 ? (
-                        <span
-                          className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                      <div className="relative flex items-start space-x-3">
-                        <div className="relative">
-                          <img
-                            className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                            src={gravatar("lda@juxt.pro")}
-                            alt=""
+                _.sortBy(comments, (c) => c._siteValidTime).map(
+                  (item, itemIdx) => (
+                    <li key={item.id} className="text-left">
+                      <div className="relative pb-8">
+                        {itemIdx !== comments.length - 1 ? (
+                          <span
+                            className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
+                            aria-hidden="true"
                           />
-
-                          <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-                            <ChatAltIcon
-                              className="h-5 w-5 text-gray-400"
-                              aria-hidden="true"
+                        ) : null}
+                        <div className="relative flex items-start space-x-3">
+                          <div className="relative">
+                            <img
+                              className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
+                              src={gravatar("lda@juxt.pro")}
+                              alt=""
                             />
-                          </span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div>
-                            <div className="text-sm">
-                              <a href="" className="font-medium text-gray-900">
-                                {item?._siteSubject || "alx"}
-                              </a>
-                            </div>
-                            <p className="mt-0.5 text-sm text-gray-500">
-                              Commented {item._siteValidTime}
-                            </p>
+
+                            <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
+                              <ChatAltIcon
+                                className="h-5 w-5 text-gray-400"
+                                aria-hidden="true"
+                              />
+                            </span>
                           </div>
-                          <div className="mt-2 text-sm text-gray-700">
-                            <p>{item.text}</p>
+                          <div className="min-w-0 flex-1">
+                            <div>
+                              <div className="text-sm">
+                                <a
+                                  href=""
+                                  className="font-medium text-gray-900"
+                                >
+                                  {item?._siteSubject || "alx"}
+                                </a>
+                              </div>
+                              <p className="mt-0.5 text-sm text-gray-500">
+                                Commented {item._siteValidTime}
+                              </p>
+                            </div>
+                            <div className="mt-2 text-sm text-gray-700">
+                              <p>{item.text}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  )
+                )}
             </ul>
           </div>
           <div className="mt-10 mb-20">
@@ -518,7 +524,7 @@ function CardInfo({
     "bg-primary-50 text-primary-800 dark:bg-primary-200 dark:bg-opacity-15 dark:text-primary-200"
   );
   return (
-    <div className="h-full rounded pb-4">
+    <div className="h-full rounded">
       {resetSplit && (
         <button
           className="lg:hidden absolute top-0 left-0 mr-4 mt-4 cursor-pointer"
