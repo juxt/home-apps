@@ -2,13 +2,22 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { LocationGenerics, ModalStateProps, Option, TCard } from "../types";
 import { useForm } from "react-hook-form";
 import Table from "./Table";
+import {
+  CellProps,
+  FilterProps,
+  FilterValue,
+  IdType,
+  Row,
+  TableInstance,
+} from "react-table";
+
 import { useThrottleFn } from "react-use";
 
 import SplitPane from "react-split-pane";
 
 import { Modal, ModalForm } from "./Modal";
 import classNames from "classnames";
-import { Viewer } from "@react-pdf-viewer/core";
+import { ScrollMode, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import {
   CardInput,
@@ -22,6 +31,9 @@ import {
   useRollbackCardMutation,
   useKanbanDataQuery,
   useCardHistoryQuery,
+  useCreateCommentMutation,
+  useCommentsForCardQuery,
+  CreateCommentMutationVariables,
 } from "../generated/graphql";
 import {
   base64toBlob,
@@ -32,7 +44,7 @@ import {
 import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
 import { useNavigate, useSearch } from "react-location";
-import { FilePreview, Form } from "./Form";
+import { FilePreview, Form, RenderField } from "./Form";
 import {
   useCardById,
   useCardHistory,
@@ -294,13 +306,13 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
         <button
           type="submit"
           form={title}
-          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+          className="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
         >
           Submit
         </button>
         <button
           type="button"
-          className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          className="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
           onClick={handleClose}
         >
           Cancel
@@ -342,119 +354,141 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
 
 function CommentSection({ cardId }: { cardId: string }) {
   const { data: comments } = useCommentForCard(cardId);
+  const queryClient = useQueryClient();
+  const addCommentMutation = useCreateCommentMutation({
+    onSettled: () => {
+      queryClient.refetchQueries(
+        useCommentsForCardQuery.getKey({ id: cardId })
+      );
+    },
+  });
+  const addComment = (input: CreateCommentMutationVariables) => {
+    toast.promise(
+      addCommentMutation.mutateAsync({
+        Comment: {
+          ...input.Comment,
+          cardId: cardId,
+        },
+      }),
+      {
+        pending: "Adding comment...",
+        success: "Comment added!",
+        error: "Error adding comment",
+      }
+    );
+  };
+  const formHooks = useForm<CreateCommentMutationVariables>();
+  const commentFormProps = {
+    formHooks,
+    cardId,
+    onSubmit: formHooks.handleSubmit(addComment, console.warn),
+  };
   const gravatar = (email: string) =>
     "https://avatars.githubusercontent.com/u/9809256?v=4";
 
   return (
-    <section aria-labelledby="activity-title" className="mt-8 xl:mt-10">
-      <div>
-        <div className="divide-y divide-gray-200">
-          <div className="pb-4">
-            <h2
-              id="activity-title"
-              className="text-lg font-medium text-gray-900"
-            >
-              Activity
-            </h2>
-          </div>
-          <div className="pt-6">
-            {/* Activity feed*/}
-            <div className="flow-root">
-              <ul role="list" className="-mb-8">
-                {comments &&
-                  comments.map((item, itemIdx) => (
-                    <li key={item.id}>
-                      <div className="relative pb-8">
-                        {itemIdx !== comments.length - 1 ? (
-                          <span
-                            className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
-                            aria-hidden="true"
+    <section aria-labelledby="activity-title" className="h-full">
+      <div className="divide-y divide-gray-200 h-full">
+        <div className="pb-4">
+          <h2 id="activity-title" className="text-lg font-medium text-gray-900">
+            Activity
+          </h2>
+        </div>
+        <div className="pt-6">
+          {/* Activity feed*/}
+          <div className="flow-root h-full">
+            <ul role="list" className="-mb-8">
+              {comments &&
+                comments.map((item, itemIdx) => (
+                  <li key={item.id}>
+                    <div className="relative pb-8">
+                      {itemIdx !== comments.length - 1 ? (
+                        <span
+                          className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
+                          aria-hidden="true"
+                        />
+                      ) : null}
+                      <div className="relative flex items-start space-x-3">
+                        <div className="relative">
+                          <img
+                            className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
+                            src={gravatar("lda@juxt.pro")}
+                            alt=""
                           />
-                        ) : null}
-                        <div className="relative flex items-start space-x-3">
-                          <>
-                            <div className="relative">
-                              <img
-                                className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                                src={gravatar("lda@juxt.pro")}
-                                alt=""
-                              />
 
-                              <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-                                <ChatAltIcon
-                                  className="h-5 w-5 text-gray-400"
-                                  aria-hidden="true"
-                                />
-                              </span>
+                          <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
+                            <ChatAltIcon
+                              className="h-5 w-5 text-gray-400"
+                              aria-hidden="true"
+                            />
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div>
+                            <div className="text-sm">
+                              <a href="" className="font-medium text-gray-900">
+                                {item?._siteSubject || "alx"}
+                              </a>
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <div>
-                                <div className="text-sm">
-                                  <a
-                                    href=""
-                                    className="font-medium text-gray-900"
-                                  >
-                                    {item?._siteSubject || "alx"}
-                                  </a>
-                                </div>
-                                <p className="mt-0.5 text-sm text-gray-500">
-                                  Commented {item._siteValidTime}
-                                </p>
-                              </div>
-                              <div className="mt-2 text-sm text-gray-700">
-                                <p>{item.text}</p>
-                              </div>
-                            </div>
-                          </>
+                            <p className="mt-0.5 text-sm text-gray-500">
+                              Commented {item._siteValidTime}
+                            </p>
+                          </div>
+                          <div className="mt-2 text-sm text-gray-700">
+                            <p>{item.text}</p>
+                          </div>
                         </div>
                       </div>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-            <div className="mt-6">
-              <div className="flex space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="relative">
-                    <img
-                      className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                      src={gravatar("alx@juxt.pro")}
-                      alt=""
-                    />
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="mt-10 mb-20">
+            <div className="flex space-x-3">
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <img
+                    className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
+                    src={gravatar("alx@juxt.pro")}
+                    alt=""
+                  />
 
-                    <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-                      <ChatAltIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    </span>
+                  <span className="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
+                    <ChatAltIcon
+                      className="h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  </span>
+                </div>
+              </div>
+              <div className="min-w-0 flex-1">
+                <form onSubmit={commentFormProps.onSubmit}>
+                  <div>
+                    <label htmlFor="comment" className="sr-only">
+                      Comment
+                    </label>
+                    <RenderField
+                      field={{
+                        id: "commentText",
+                        rules: {
+                          required: true,
+                        },
+                        path: "Comment.text",
+                        type: "textarea",
+                      }}
+                      props={commentFormProps}
+                    />
                   </div>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <form action="#">
-                    <div>
-                      <label htmlFor="comment" className="sr-only">
-                        Comment
-                      </label>
-                      <textarea
-                        id="comment"
-                        name="comment"
-                        rows={3}
-                        className="shadow-sm block w-full focus:ring-gray-900 focus:border-gray-900 sm:text-sm border border-gray-300 rounded-md"
-                        placeholder="Leave a comment"
-                        defaultValue={""}
-                      />
-                    </div>
-                    <div className="mt-6 flex items-center justify-end space-x-4">
-                      <button
-                        type="submit"
-                        className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-900 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                      >
-                        Comment
-                      </button>
-                    </div>
-                  </form>
-                </div>
+                  <div className="mt-6 flex items-center justify-end space-x-4">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gray-900 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                    >
+                      Comment
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -466,8 +500,10 @@ function CommentSection({ cardId }: { cardId: string }) {
 
 function CardInfo({
   card,
+  resetSplit,
 }: {
   card: NonNullable<NonNullable<CardByIdsQuery["cardsByIds"]>[0]>;
+  resetSplit?: () => void;
 }) {
   const CloseIcon = (open: boolean) => (
     <ChevronDownIcon
@@ -482,9 +518,17 @@ function CardInfo({
     "bg-primary-50 text-primary-800 dark:bg-primary-200 dark:bg-opacity-15 dark:text-primary-200"
   );
   return (
-    <div className="bg-gray-50 h-5/6 overflow-auto py-8 sm:pt-12 mt-1.5 mx-4 rounded">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+    <div className="h-full rounded pb-4">
+      {resetSplit && (
+        <button
+          className="lg:hidden absolute top-0 left-0 mr-4 mt-4 cursor-pointer"
+          onClick={resetSplit}
+        >
+          Reset Split
+        </button>
+      )}
+      <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+        <div className="w-full lg:overflow-y-auto ">
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             {card.title}
           </h2>
@@ -497,61 +541,61 @@ function CardInfo({
           {card?.workflowState && (
             <p className="text-gray-500">Status: {card.workflowState.name}</p>
           )}
-          <div className="w-full">
-            {card?.description && (
-              <Disclosure defaultOpen as="div" className="w-full">
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className={accordionButtonClass}>
-                      <span>Description</span>
-                      {CloseIcon(open)}
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted flex justify-center ">
-                      <div
-                        className="ProseMirror prose text-left h-full w-full bg-white max-w-max shadow-md no-scrollbar"
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(card?.description || ""),
-                        }}
-                      />
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
-            )}
-            {card?.files && card?.files.length > 0 && (
-              <Disclosure as="div" className="mt-2 w-full">
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className={accordionButtonClass}>
-                      <span>Other Files</span>
-                      {CloseIcon(open)}
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                      {card?.files && (
-                        <div className="mt-2">
-                          {card.files.filter(notEmpty).map((file, i) => (
-                            <div
-                              key={file.name + i}
-                              className="flex items-center"
-                            >
-                              <div className="flex-shrink-0">
-                                <FilePreview
-                                  handleDelete={() => {}}
-                                  file={file}
-                                />
-                              </div>
-                              <div className="ml-4"></div>
+          {card?.description && (
+            <Disclosure defaultOpen as="div" className="w-full ">
+              {({ open }) => (
+                <>
+                  <Disclosure.Button className={accordionButtonClass}>
+                    <span>Description</span>
+                    {CloseIcon(open)}
+                  </Disclosure.Button>
+                  <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted flex justify-center">
+                    <div
+                      className="ProseMirror prose text-left w-full bg-white max-w-max shadow-lg no-scrollbar"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(card?.description || ""),
+                      }}
+                    />
+                  </Disclosure.Panel>
+                </>
+              )}
+            </Disclosure>
+          )}
+          {card?.files && card?.files.length > 0 && (
+            <Disclosure as="div" className="mt-2 w-full">
+              {({ open }) => (
+                <>
+                  <Disclosure.Button className={accordionButtonClass}>
+                    <span>Other Files</span>
+                    {CloseIcon(open)}
+                  </Disclosure.Button>
+                  <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                    {card?.files && (
+                      <div className="mt-2">
+                        {card.files.filter(notEmpty).map((file, i) => (
+                          <div
+                            key={file.name + i}
+                            className="flex items-center"
+                          >
+                            <div className="flex-shrink-0">
+                              <FilePreview
+                                handleDelete={() => {}}
+                                file={file}
+                              />
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
-            )}
-            <CommentSection cardId={card.id} />
-          </div>
+                            <div className="ml-4"></div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Disclosure.Panel>
+                </>
+              )}
+            </Disclosure>
+          )}
+        </div>
+        <div className="w-full mx-4 lg:overflow-y-auto lg:h-full">
+          <CommentSection cardId={card.id} />
         </div>
       </div>
     </div>
@@ -579,30 +623,47 @@ function CardView({ handleClose }: { handleClose: () => void }) {
   const isMobile = useMobileDetect().isMobile();
 
   const [splitSize, setSplitSize] = useState(
-    parseInt(localStorage.getItem("splitPos") || "300", 10)
+    parseInt(localStorage.getItem("splitPos") || "500", 10)
   );
+  const [splitKey, setSplitKey] = useState(splitSize);
   const handleResize = (size?: number) => {
-    if (size && size < 900) {
+    if (size) {
       localStorage.setItem("splitPos", size.toString());
     }
   };
   useThrottleFn(handleResize, 500, [splitSize]);
+  const resetSplit = () => {
+    setSplitSize(400);
+    setSplitKey(splitSize);
+    localStorage.removeItem("splitPos");
+  };
 
   return (
     <div className="relative h-full">
-      <div className="flex flex-col md:flex-row justify-around items-center md:items-start h-screen">
+      <div className="flex h-full flex-col lg:flex-row justify-around items-center lg:items-start ">
         {isMobile ? (
-          <div className="w-full h-full">
+          <div className="w-full h-full overflow-y-scroll pb-10">
             {card && <CardInfo card={card} />}
           </div>
         ) : (
           <SplitPane
+            pane2Style={{
+              overflowY: "auto",
+            }}
+            paneStyle={{
+              height: "100%",
+              paddingBottom: "4em",
+            }}
+            key={splitKey}
             split="vertical"
             defaultSize={splitSize}
             onChange={setSplitSize}
           >
             {card ? (
-              <CardInfo card={card} />
+              <CardInfo
+                resetSplit={splitSize > 400 ? resetSplit : undefined}
+                card={card}
+              />
             ) : (
               <div className="flex flex-col justify-center items-center h-full">
                 <div className="text-center">
@@ -614,7 +675,7 @@ function CardView({ handleClose }: { handleClose: () => void }) {
             )}
             <div>
               {pdfUrl ? (
-                <div className="max-w-xl block h-full min-h-full ">
+                <div className="max-w-xl block overflow-y-auto">
                   {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
                   <Viewer key={splitSize} fileUrl={pdfUrl} />{" "}
                 </div>
@@ -633,6 +694,10 @@ function CardView({ handleClose }: { handleClose: () => void }) {
   );
 }
 
+type TCardHistoryCard = NonNullable<
+  NonNullable<CardHistoryQuery["cardHistory"]>[0]
+>;
+
 function CardHistory() {
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { history } = useCardHistory(cardId);
@@ -645,9 +710,7 @@ function CardHistory() {
       queryClient.refetchQueries(useCardHistoryQuery.getKey({ id }));
     },
   });
-  const handleRollback = async (
-    card: NonNullable<NonNullable<CardHistoryQuery["cardHistory"]>[0]>
-  ) => {
+  const handleRollback = async (card: TCardHistoryCard) => {
     toast.promise(
       rollbackMutation.mutateAsync({ id: card.id, asOf: card._siteValidTime }),
       {
@@ -657,46 +720,6 @@ function CardHistory() {
       }
     );
   };
-  const cols = useMemo(
-    () => [
-      {
-        Header: "Title",
-        accessor: "title",
-        Cell: (props: any) => (
-          <div className="text-sm truncate">{props.value || "Untitled"}</div>
-        ),
-      },
-      {
-        Header: "State",
-        accessor: "workflowState.name",
-      },
-      {
-        Header: "Project",
-        accessor: "project.name",
-      },
-      {
-        Header: "Edited By",
-        accessor: "_siteSubject",
-      },
-      {
-        Header: "Updated at",
-        accessor: "_siteValidTime",
-      },
-      {
-        Header: "Actions",
-        Cell: (props: any) => (
-          <button
-            className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            onClick={() => handleRollback(props.row.original)}
-          >
-            Rollback
-          </button>
-        ),
-      },
-    ],
-    []
-  );
-
   const data = useMemo(
     () =>
       history?.filter(notEmpty).map((card, i) => {
@@ -732,14 +755,70 @@ function CardHistory() {
           projectChanged,
           cvChanged,
           filesChanged,
+          titleChanged,
+          diff: [
+            titleChanged && "Title changed",
+            hasDescriptionChanged && "description changed",
+            stateChanged && "state changed",
+            projectChanged && "project changed",
+            cvChanged && "cv changed",
+            filesChanged && "files changed",
+          ]
+            .filter((s) => s)
+            .join(", "),
         };
       }),
     [history]
   );
+
+  const cols = useMemo(
+    () => [
+      {
+        Header: "Diff",
+        accessor: "diff",
+      },
+      {
+        Header: "Title",
+        accessor: "title",
+        Cell: (props: CellProps<TCardHistoryCard>) => (
+          <div className="text-sm truncate">{props.value || "Untitled"}</div>
+        ),
+      },
+      {
+        Header: "State",
+        accessor: "workflowState.name",
+      },
+      {
+        Header: "Project",
+        accessor: "project.name",
+      },
+      {
+        Header: "Edited By",
+        accessor: "_siteSubject",
+      },
+      {
+        Header: "Updated at",
+        accessor: "_siteValidTime",
+      },
+      {
+        Header: "Actions",
+        Cell: (props: CellProps<TCardHistoryCard>) => (
+          <button
+            className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={() => handleRollback(props.row.original)}
+          >
+            Rollback
+          </button>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
     <div className="relative h-full">
       {!history ? (
-        <div className="flex flex-col md:flex-row justify-around items-center md:items-start h-screen">
+        <div className="flex flex-col lg:flex-row justify-around items-center lg:items-start h-screen">
           <div className="flex flex-col justify-center items-center h-full">
             <div className="text-center">
               <h1 className="text-3xl font-extrabold text-gray-900">
@@ -749,8 +828,8 @@ function CardHistory() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row justify-around items-center md:items-start h-full">
-          <div className="flex flex-col h-full w-full px-4 relative">
+        <div className="flex flex-col lg:flex-row justify-around items-center lg:items-start h-full">
+          <div className="flex flex-col h-full px-4 relative overflow-x-auto">
             <div className="text-center">
               <h1 className="text-3xl font-extrabold text-gray-900">
                 Card History
@@ -769,7 +848,7 @@ type CardModalProps = ModalStateProps;
 export function CardModal({ isOpen, handleClose }: CardModalProps) {
   const { cardModalView } = useSearch<LocationGenerics>();
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
-  const { data } = useCardById(cardId);
+  const { data, error } = useCardById(cardId);
   const card = data?.cardsByIds?.[0];
   const pdfLzString = card?.cvPdf?.lzbase64;
   const pdfUrl = useMemo(() => {
@@ -810,30 +889,47 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
       isOpen={isOpen}
       handleClose={onClose}
       fullWidth={cardModalView !== "update"}
+      noScroll={cardModalView === "view"}
     >
-      <ModalTabs
-        tabs={[
-          { id: "view", name: "View", default: !cardModalView },
-          { id: "cv", name: "CV", hidden: !pdfUrl },
-          { id: "update", name: "Edit" },
-          { id: "history", name: "History" },
-        ]}
-        navName="cardModalView"
-      />
-      <div className="absolute top-3 right-3 w-5 h-5 cursor-pointer">
-        <XIcon onClick={onClose} />
-      </div>
-      {(!cardModalView || cardModalView === "view") && (
-        <CardView handleClose={onClose} />
-      )}
-      {cardModalView === "update" && <UpdateCardForm handleClose={onClose} />}
-      {cardModalView === "history" && <CardHistory />}
-      {cardModalView === "cv" && pdfUrl && (
-        <div className="block mx-auto max-w-xl h-full min-h-full ">
-          {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
-          <Viewer fileUrl={pdfUrl} />{" "}
+      <div className="sticky top-0 z-10 bg-white">
+        <ModalTabs
+          tabs={[
+            { id: "view", name: "View", default: !cardModalView },
+            { id: "cv", name: "CV", hidden: !pdfUrl },
+            { id: "update", name: "Edit" },
+            { id: "history", name: "History" },
+          ]}
+          navName="cardModalView"
+        />
+        <div className="absolute top-3 right-3 w-5 h-5 cursor-pointer">
+          <XIcon onClick={onClose} />
         </div>
-      )}
+      </div>
+      <div className="h-full">
+        {error && (
+          <div className="flex flex-col justify-center items-center h-full">
+            <div className="text-center">
+              <h1 className="text-3xl font-extrabold text-gray-900">
+                Error Loading Card
+              </h1>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-700">{error.message}</p>
+            </div>
+          </div>
+        )}
+        {(!cardModalView || cardModalView === "view") && (
+          <CardView handleClose={onClose} />
+        )}
+        {cardModalView === "update" && <UpdateCardForm handleClose={onClose} />}
+        {cardModalView === "history" && <CardHistory />}
+        {cardModalView === "cv" && pdfUrl && (
+          <div className="block mx-auto max-w-xl h-full min-h-full pb-10">
+            {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
+            <Viewer fileUrl={pdfUrl} />{" "}
+          </div>
+        )}
+      </div>
     </Modal>
   );
 }

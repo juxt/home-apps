@@ -46,10 +46,12 @@ export function Modal({
   isOpen,
   handleClose,
   fullWidth,
+  noScroll,
   children,
 }: ModalStateProps & {
   children: React.ReactNode;
   fullWidth?: boolean;
+  noScroll?: boolean;
 }) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -91,11 +93,12 @@ export function Modal({
               className={classNames(
                 "relative w-full inline-block align-bottom",
                 "bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all",
-                "sm:my-8 sm:align-middle sm:w-full",
+                " sm:align-middle sm:w-full h-screen-90 ",
+                !noScroll && "overflow-y-auto",
                 !fullWidth && "sm:max-w-4xl"
               )}
             >
-              {children}
+              <div className="h-full">{children}</div>
             </div>
           </Transition.Child>
         </div>

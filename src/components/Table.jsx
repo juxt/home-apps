@@ -179,7 +179,7 @@ function Table({ columns, data }) {
       {/* table */}
       <div
         className={classNames(
-          "mt-4 flex flex-col w-full",
+          "mt-4 flex flex-col w-full md:w-fit",
           !showPagination && "pb-4"
         )}
       >
