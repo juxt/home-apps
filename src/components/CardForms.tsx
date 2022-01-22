@@ -400,7 +400,7 @@ function CommentSection({ cardId }: { cardId: string }) {
             <ul role="list" className="-mb-8">
               {comments &&
                 comments.map((item, itemIdx) => (
-                  <li key={item.id}>
+                  <li key={item.id} className="text-left">
                     <div className="relative pb-8">
                       {itemIdx !== comments.length - 1 ? (
                         <span
