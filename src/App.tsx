@@ -36,6 +36,7 @@ import { useNavigate, useSearch } from "react-location";
 import classNames from "classnames";
 import _ from "lodash";
 import DOMPurify from "dompurify";
+import Table from "./components/Table";
 
 type CardProps = {
   card: TCard;
@@ -356,11 +357,47 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
     setIsAddCard(true);
   });
   const [isDragging, setIsDragging] = React.useState(false);
+  const search = useSearch<LocationGenerics>();
+  const isGrid = search.view === "table";
+  const gridData = React.useMemo(() => {
+    return [
+      ...cols
+        .filter(notEmpty)
+        .flatMap((c) => [
+          ...c.cards.map((card) => ({ ...card, state: c.name })),
+        ]),
+    ];
+  }, [cols]);
+  const gridColumns = React.useMemo(() => {
+    return [
+      {
+        id: "name",
+        Header: "Name",
+        accessor: "title",
+      },
+      {
+        id: "state",
+        Header: "State",
+        accessor: "state",
+      },
+      {
+        id: "project",
+        Header: "Project",
+        accessor: "project.name",
+      },
+      {
+        id: "lastUpdated",
+        Header: "Last Updated",
+        accessor: "_siteValidTime",
+      },
+    ];
+  }, []);
 
   return (
     <div className="px-4">
       <Heading workflow={workflow} handleAddCard={() => setIsAddCard(true)} />
-      {filteredState && (
+      {isGrid && <Table data={gridData} columns={gridColumns} />}
+      {!isGrid && filteredState && (
         <DragDropContext
           onDragStart={() => setIsDragging(true)}
           onDragEnd={({ destination, source, draggableId }) => {
