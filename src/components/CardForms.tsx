@@ -388,8 +388,8 @@ function CommentSection({ cardId }: { cardId: string }) {
     "https://avatars.githubusercontent.com/u/9809256?v=4";
 
   return (
-    <section aria-labelledby="activity-title" className="h-full">
-      <div className="divide-y divide-gray-200 h-full">
+    <section aria-labelledby="activity-title">
+      <div className="divide-y divide-gray-200 h-full pr-2">
         <div className="pb-4">
           <h2 id="activity-title" className="text-lg font-medium text-gray-900">
             Activity
@@ -554,8 +554,8 @@ function CardInfo({
                   <Disclosure.Button className={accordionButtonClass}>
                     <span>Description</span>
                     {CloseIcon(open)}
-                  </Disclosure.Button>
-                  <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted flex justify-center">
+                  </Disclosure.Button> 
+                  <Disclosure.Panel className="px-4 pt-4 pb-2 h-full text-sm text-muted flex justify-center">
                     <div
                       className="ProseMirror prose text-left w-full bg-white max-w-max shadow-lg no-scrollbar"
                       dangerouslySetInnerHTML={{
@@ -600,7 +600,7 @@ function CardInfo({
             </Disclosure>
           )}
         </div>
-        <div className="w-full mx-4 lg:overflow-y-auto lg:h-full">
+        <div className="w-full mx-4 h-auto sm:h-full lg:overflow-y-auto">
           <CommentSection cardId={card.id} />
         </div>
       </div>
