@@ -548,7 +548,7 @@ function CardInfo({
             <p className="text-gray-500">Status: {card.workflowState.name}</p>
           )}
           {card?.description && (
-            <Disclosure defaultOpen as="div" className="w-full ">
+            <Disclosure defaultOpen as="div" className="w-full">
               {({ open }) => (
                 <>
                   <Disclosure.Button className={accordionButtonClass}>
