@@ -256,7 +256,7 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
   const title = "Update Card";
   const projectOptions = useProjectOptions();
   return (
-    <div className="relative">
+    <div className="relative h-full overflow-y-auto">
       <Form
         title={title}
         formHooks={formHooks}
@@ -388,8 +388,8 @@ function CommentSection({ cardId }: { cardId: string }) {
     "https://avatars.githubusercontent.com/u/9809256?v=4";
 
   return (
-    <section aria-labelledby="activity-title">
-      <div className="divide-y divide-gray-200 h-full pr-2">
+    <section aria-labelledby="activity-title" className="sm:h-full">
+      <div className="divide-y divide-gray-200 pr-2">
         <div className="pb-4">
           <h2 id="activity-title" className="text-lg font-medium text-gray-900">
             Activity
@@ -450,7 +450,7 @@ function CommentSection({ cardId }: { cardId: string }) {
                 )}
             </ul>
           </div>
-          <div className="mt-10 mb-20">
+          <div className="mt-10">
             <div className="flex space-x-3">
               <div className="flex-shrink-0">
                 <div className="relative">
@@ -486,7 +486,7 @@ function CommentSection({ cardId }: { cardId: string }) {
                       props={commentFormProps}
                     />
                   </div>
-                  <div className="mt-6 flex items-center justify-end space-x-4">
+                  <div className="my-6 flex items-center justify-end space-x-4">
                     <button
                       type="submit"
                       className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-gray-900 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
@@ -527,14 +527,14 @@ function CardInfo({
     <div className="h-full rounded">
       {resetSplit && (
         <button
-          className="lg:hidden absolute top-0 left-0 mr-4 mt-4 cursor-pointer"
+          className="lg:hidden absolute top-0 z-20 bg-white left-0 mr-4 mt-4 cursor-pointer"
           onClick={resetSplit}
         >
           Reset Split
         </button>
       )}
       <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
-        <div className="w-full lg:overflow-y-auto ">
+        <div className="w-full lg:h-full lg:overflow-y-auto ">
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             {card.title}
           </h2>
@@ -554,7 +554,7 @@ function CardInfo({
                   <Disclosure.Button className={accordionButtonClass}>
                     <span>Description</span>
                     {CloseIcon(open)}
-                  </Disclosure.Button> 
+                  </Disclosure.Button>
                   <Disclosure.Panel className="px-4 pt-4 pb-2 h-full text-sm text-muted flex ">
                     <div
                       className="ProseMirror prose text-left bg-white shadow-lg w-full no-scrollbar"
@@ -600,7 +600,7 @@ function CardInfo({
             </Disclosure>
           )}
         </div>
-        <div className="w-full mx-4 h-auto sm:h-full lg:overflow-y-auto">
+        <div className="w-full mx-4 sm:h-full lg:overflow-y-auto">
           <CommentSection cardId={card.id} />
         </div>
       </div>
@@ -626,10 +626,11 @@ function CardView({ handleClose }: { handleClose: () => void }) {
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
     };
   }, [pdfUrl]);
-  const isMobile = useMobileDetect().isMobile();
+  const screen = useMobileDetect();
+  const isMobile = screen.isMobile();
 
   const [splitSize, setSplitSize] = useState(
-    parseInt(localStorage.getItem("splitPos") || "500", 10)
+    parseInt(localStorage.getItem("splitPos") || "900", 10)
   );
   const [splitKey, setSplitKey] = useState(splitSize);
   const handleResize = (size?: number) => {
@@ -648,7 +649,7 @@ function CardView({ handleClose }: { handleClose: () => void }) {
     <div className="relative h-full">
       <div className="flex h-full flex-col lg:flex-row justify-around items-center lg:items-start ">
         {isMobile ? (
-          <div className="w-full h-full overflow-y-scroll pb-10">
+          <div className="w-full h-full overflow-y-scroll">
             {card && <CardInfo card={card} />}
           </div>
         ) : (
@@ -658,7 +659,6 @@ function CardView({ handleClose }: { handleClose: () => void }) {
             }}
             paneStyle={{
               height: "100%",
-              paddingBottom: "4em",
             }}
             key={splitKey}
             split="vertical"
@@ -835,7 +835,7 @@ function CardHistory() {
         </div>
       ) : (
         <div className="flex flex-col lg:flex-row justify-around items-center lg:items-start h-full">
-          <div className="flex flex-col h-full px-4 relative overflow-x-auto">
+          <div className="flex flex-col h-full w-full overflow-x-auto lg:w-fit lg:overflow-x-hidden px-4 relative">
             <div className="text-center">
               <h1 className="text-3xl font-extrabold text-gray-900">
                 Card History
@@ -895,9 +895,9 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
       isOpen={isOpen}
       handleClose={onClose}
       fullWidth={cardModalView !== "update"}
-      noScroll={cardModalView === "view"}
+      noScroll={true}
     >
-      <div className="sticky top-0 z-10 bg-white">
+      <div className="fixed w-full top-0 z-10 bg-white">
         <ModalTabs
           tabs={[
             { id: "view", name: "View", default: !cardModalView },
@@ -911,7 +911,7 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
           <XIcon onClick={onClose} />
         </div>
       </div>
-      <div className="h-full">
+      <div className="h-full" style={{ paddingTop: "54px" }}>
         {error && (
           <div className="flex flex-col justify-center items-center h-full">
             <div className="text-center">
@@ -930,8 +930,7 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
         {cardModalView === "update" && <UpdateCardForm handleClose={onClose} />}
         {cardModalView === "history" && <CardHistory />}
         {cardModalView === "cv" && pdfUrl && (
-          <div className="block mx-auto max-w-xl h-full min-h-full pb-10">
-            {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
+          <div className="block mx-auto max-w-xl h-full min-h-full ">
             <Viewer fileUrl={pdfUrl} />{" "}
           </div>
         )}

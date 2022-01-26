@@ -150,31 +150,29 @@ export function ModalTabs({ tabs, navName }: TabProps) {
   };
 
   return (
-    <div className="mb-2">
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8 justify-center" aria-label="Tabs">
-          {tabs
-            .filter((t) => !t.hidden)
-            .map((tab) => {
-              const isCurrent = tab.id === currentId || tab.default;
-              return (
-                <a
-                  key={tab.id + tab.name}
-                  onClick={() => onTabClick(tab.id)}
-                  className={classNames(
-                    isCurrent
-                      ? "border-indigo-500 text-indigo-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200",
-                    "whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm"
-                  )}
-                  aria-current={isCurrent ? "page" : undefined}
-                >
-                  {tab.name}
-                </a>
-              );
-            })}
-        </nav>
-      </div>
+    <div className="border-b border-gray-200">
+      <nav className="-mb-px flex space-x-8 justify-center" aria-label="Tabs">
+        {tabs
+          .filter((t) => !t.hidden)
+          .map((tab) => {
+            const isCurrent = tab.id === currentId || tab.default;
+            return (
+              <a
+                key={tab.id + tab.name}
+                onClick={() => onTabClick(tab.id)}
+                className={classNames(
+                  isCurrent
+                    ? "border-indigo-500 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200",
+                  "whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm"
+                )}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                {tab.name}
+              </a>
+            );
+          })}
+      </nav>
     </div>
   );
 }

@@ -87,6 +87,11 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                 {...provided.dragHandleProps}
                 style={style}
                 className={cardStyles}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    setIsOpen(true);
+                  }
+                }}
                 onClick={() => workflow?.id && setIsOpen(true)}
                 ref={provided.innerRef}
               >
