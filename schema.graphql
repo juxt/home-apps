@@ -31,8 +31,8 @@ type Mutation {
   deleteWorkflow(id: ID!): Workflow @site(mutation: "delete")
   createWorkflowState(WorkflowState: WorkflowStateInput): WorkflowState
   createWorkflowStates(workflowStates: [WorkflowStateInput]): [WorkflowState]
-  moveCard(id: ID!, workflowStateId: ID!): Card
-    @site(resolver: "foo.bar.moveCard")
+  moveCard(cardId: ID!, workflowStateId: ID!, previousCard: ID): Card
+    @site(resolver: "kanban.resolvers/move-card")
   updateWorkflowState(
     id: ID!
     name: String

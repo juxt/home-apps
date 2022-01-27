@@ -19,6 +19,7 @@ import {
 } from "../kanbanHelpers";
 import { toast } from "react-toastify";
 import { CardByIdsQuery, CardFieldsFragment } from "../generated/graphql";
+import { DeleteActiveIcon, DeleteInactiveIcon } from "./Icons";
 
 const inputClass =
   "relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base";
@@ -33,16 +34,19 @@ function CustomSelect<
 
 function ImagePreview({ image, title }: { image: string; title: string }) {
   return (
-    <li className="block p-1 w-2/3 h-24 isolate">
-      <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 relative text-transparent hover:text-black shadow-sm">
+    <li className={classNames("block p-1 h-24 isolate", " w-full pb-5")}>
+      <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 relative  shadow-sm">
         <img
           alt="upload preview"
-          className="w-full h-full sticky object-cover rounded-md bg-fixed group-hover:opacity-30"
+          className={classNames(
+            "w-full h-full rounded-md bg-fixed",
+            "object-contain"
+          )}
           src={image}
         />
 
-        <section className="flex flex-col justify-between rounded-md text-xs break-words w-full h-full z-20 absolute top-0 py-2 px-3">
-          <h1 className="truncate hover:overflow-visible">{title}</h1>
+        <section className="flex flex-col justify-between rounded-md text-xs break-words w-full py-2 px-3">
+          <h1 className="truncate">{title}</h1>
         </section>
       </article>
     </li>
@@ -58,29 +62,26 @@ export function FilePreview({
   handleDelete,
 }: {
   file: NonNullable<TFile>;
-  handleDelete: () => void;
+  handleDelete?: () => void;
 }) {
   if (!file) return <div>No file</div>;
 
   const data = useMemo(() => uncompressBase64(file.lzbase64), [file.lzbase64]);
   const options = [
     {
-      label: (
-        <div className="flex items-center">
-          <TrashIcon className="w-3 h-3 mr-2" /> Delete
-        </div>
-      ),
+      label: "Delete",
       id: "delete",
+      Icon: DeleteInactiveIcon,
+      ActiveIcon: DeleteActiveIcon,
       props: {
         onClick: handleDelete,
       },
     },
     {
-      label: (
-        <div className="flex items-center">
-          <DownloadIcon className="w-3 h-3 mr-2" /> Download
-        </div>
-      ),
+      label: "Download",
+      ActiveIcon: DownloadIcon,
+      Icon: DownloadIcon,
+
       id: "download",
       props: {
         href: data,
@@ -99,7 +100,7 @@ export function FilePreview({
           <h1 className="truncate max-w-fit">{file.name}</h1>
         </div>
       )}
-      <OptionsMenu options={options} />
+      {handleDelete && <OptionsMenu options={options} />}
     </div>
   );
 }

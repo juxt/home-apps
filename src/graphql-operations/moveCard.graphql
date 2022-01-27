@@ -1,8 +1,9 @@
-mutation moveCard($workflowStateId: ID!, $cardIds: [ID!]!, $cardId: ID!) {
-  updateWorkflowState(id: $workflowStateId, cardIds: $cardIds) {
-    id
-  }
-  updateCard(id: $cardId) {
+mutation moveCard($workflowStateId: ID!, $cardId: ID!, $previousCard: ID) {
+  moveCard(
+    cardId: $cardId
+    workflowStateId: $workflowStateId
+    previousCard: $previousCard
+  ) {
     id
   }
 }

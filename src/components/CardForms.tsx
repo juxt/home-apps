@@ -1,15 +1,8 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { LocationGenerics, ModalStateProps, Option, TCard } from "../types";
+import { useEffect, useMemo, useState } from "react";
+import { LocationGenerics, ModalStateProps, Option } from "../types";
 import { useForm } from "react-hook-form";
 import Table from "./Table";
-import {
-  CellProps,
-  FilterProps,
-  FilterValue,
-  IdType,
-  Row,
-  TableInstance,
-} from "react-table";
+import { CellProps } from "react-table";
 
 import { useThrottleFn } from "react-use";
 
@@ -17,10 +10,9 @@ import SplitPane from "react-split-pane";
 
 import { Modal, ModalForm } from "./Modal";
 import classNames from "classnames";
-import { ScrollMode, Viewer } from "@react-pdf-viewer/core";
+import { Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import {
-  CardInput,
   CreateCardMutationVariables,
   UpdateCardMutationVariables,
   useCardByIdsQuery,
@@ -34,6 +26,7 @@ import {
   useCreateCommentMutation,
   useCommentsForCardQuery,
   CreateCommentMutationVariables,
+  useMoveCardMutation,
 } from "../generated/graphql";
 import {
   base64toBlob,
@@ -49,26 +42,16 @@ import {
   useCardById,
   useCardHistory,
   useCommentForCard,
-  useDebounce,
   useMobileDetect,
   useProjectOptions,
   useWorkflowStates,
 } from "../hooks";
 import { OptionsMenu } from "./Menus";
-import { ModalTabs, NavTabs } from "./Tabs";
-import {
-  ChatAltIcon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  PencilIcon,
-  TagIcon,
-  TrashIcon,
-  XIcon,
-} from "@heroicons/react/solid";
+import { ModalTabs } from "./Tabs";
+import { ChatAltIcon, ChevronDownIcon, XIcon } from "@heroicons/react/solid";
+import { ArchiveActiveIcon, ArchiveInactiveIcon } from "./Icons";
 import DOMPurify from "dompurify";
 import { Disclosure } from "@headlessui/react";
-import { update } from "lodash-es";
 import _ from "lodash";
 
 type AddCardInput = CreateCardMutationVariables & {
@@ -194,28 +177,47 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
 
 type UpdateCardInput = UpdateCardMutationVariables & {
   project: Option;
+  workflowState: Option;
 };
 
 export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
   const { modalState } = useSearch<LocationGenerics>();
-  const workflowId = modalState?.workflowId;
   const cardId = modalState?.cardId;
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateCardMutation({
     ...defaultMutationProps(queryClient),
   });
+  const moveCardMutation = useMoveCardMutation({
+    ...defaultMutationProps(queryClient),
+  });
 
-  const updateCard = (input: UpdateCardInput) => {
-    handleClose();
-    const card = { ...input.card, projectId: input.project?.value || null };
-    updateCardMutation.mutate({ card, cardId: input.cardId });
-  };
+  const cols = useWorkflowStates().data || [];
+  const stateOptions = cols.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
 
   const { card } = useCardById(cardId);
 
+  const updateCard = (input: UpdateCardInput) => {
+    handleClose();
+    const { workflowState, project, ...cardInput } = input;
+    const cardData = { ...cardInput, projectId: input.project?.value || null };
+    const cardId = input?.cardId;
+    const state = cols.find((c) => c.id === workflowState?.value);
+    updateCardMutation.mutate({ card: cardData, cardId });
+    if (state && state.id !== card?.workflowState?.id) {
+      moveCardMutation.mutate({
+        workflowStateId: state.id,
+        cardId,
+        previousCard: "end",
+      });
+    }
+  };
+
   const formHooks = useForm<UpdateCardInput>({
     defaultValues: {
-      card: { ...card, workflowId: workflowId },
+      card,
       cardId: card?.id,
     },
   });
@@ -239,9 +241,11 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
       const projectId = card?.project?.id;
       formHooks.setValue("card", { ...card, files: [] });
       card?.files && processCard();
-      formHooks.setValue("card.workflowId", workflowId);
       formHooks.setValue("card.cvPdf", card?.cvPdf);
-
+      formHooks.setValue("workflowState", {
+        label: card?.workflowState?.name || "Select a state",
+        value: card?.workflowState?.id || "",
+      });
       if (card.project?.name && projectId) {
         formHooks.setValue("project", {
           label: card.project?.name,
@@ -253,7 +257,9 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
     }
   }, [card]);
 
-  const title = "Update Card";
+  const title = card?.title
+    ? `${card.title}: ${card.workflowState?.name}`
+    : "Update Card";
   const projectOptions = useProjectOptions();
   return (
     <div className="relative h-full overflow-y-auto">
@@ -277,6 +283,16 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
             options: projectOptions,
             label: "Project",
             path: "project",
+          },
+          {
+            id: "CardState",
+            label: "Card State",
+            rules: {
+              required: true,
+            },
+            options: stateOptions,
+            path: "workflowState",
+            type: "select",
           },
           {
             label: "CV PDF",
@@ -323,8 +339,10 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
         <OptionsMenu
           options={[
             {
-              label: "Delete",
-              id: "delete",
+              label: "Archive",
+              id: "archive",
+              Icon: ArchiveInactiveIcon,
+              ActiveIcon: ArchiveActiveIcon,
               props: {
                 onClick: () => {
                   handleClose();
@@ -337,9 +355,9 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
                         },
                       }),
                       {
-                        pending: "Deleting card...",
-                        success: "Card deleted!",
-                        error: "Error deleting card",
+                        pending: "Archiving card...",
+                        success: "Card archived!",
+                        error: "Error archiving card",
                       }
                     );
                   }
@@ -577,19 +595,13 @@ function CardInfo({
                   </Disclosure.Button>
                   <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
                     {card?.files && (
-                      <div className="mt-2">
+                      <div className="mt-2 flex justify-between">
                         {card.files.filter(notEmpty).map((file, i) => (
                           <div
                             key={file.name + i}
                             className="flex items-center"
                           >
-                            <div className="flex-shrink-0">
-                              <FilePreview
-                                handleDelete={() => {}}
-                                file={file}
-                              />
-                            </div>
-                            <div className="ml-4"></div>
+                            <FilePreview file={file} />
                           </div>
                         ))}
                       </div>

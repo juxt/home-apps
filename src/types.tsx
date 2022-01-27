@@ -12,7 +12,6 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { MakeGenerics } from "react-location";
-import { ISelectProps } from "react-multi-select-component/dist/types/lib/interfaces";
 import {
   KanbanDataQuery,
   CardFieldsFragment,
@@ -20,6 +19,7 @@ import {
 } from "./generated/graphql";
 import { TiptapProps } from "./components/Tiptap";
 import { DropzoneProps } from "react-dropzone";
+import { ReactNode } from "react";
 
 declare module "react" {
   function forwardRef<T, P = {}>(
@@ -37,6 +37,34 @@ export type Option = {
   label: string;
   key?: string;
   disabled?: boolean;
+};
+export type ISelectProps = {
+  options: Option[];
+  value: Option[];
+  onChange?: (value: Option[]) => void;
+  valueRenderer?: (selected: Option[], options: Option[]) => ReactNode;
+  ItemRenderer?: (option: Option) => ReactNode;
+  ArrowRenderer?: ({ expanded }: { expanded: any }) => JSX.Element;
+  isLoading?: boolean;
+  disabled?: boolean;
+  disableSearch?: boolean;
+  shouldToggleOnHover?: boolean;
+  hasSelectAll?: boolean;
+  filterOptions?: (
+    options: Option[],
+    filter: string
+  ) => Promise<Option[]> | Option[];
+  overrideStrings?: { [key: string]: string };
+  labelledBy: string;
+  className?: string;
+  onMenuToggle?: () => void;
+  ClearIcon?: ReactNode;
+  debounceDuration?: number;
+  ClearSelectedIcon?: ReactNode;
+  defaultIsOpen?: boolean;
+  isOpen?: boolean;
+  isCreatable?: boolean;
+  onCreateOption?: (option: Option) => void;
 };
 
 type WithIdAndType<
