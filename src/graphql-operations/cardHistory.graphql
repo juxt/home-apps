@@ -1,21 +1,23 @@
 query cardHistory($id: ID!) {
   cardHistory(id: $id, limit: 100) {
-    id
-    title
-    description
-    files {
-      name
-    }
-    cvPdf {
-      name
-    }
-    _siteValidTime
-    _siteSubject
-    workflowState {
-      name
-    }
-    project {
-      name
+    ... on HiringCard {
+      id
+      title
+      description
+      files {
+        name
+      }
+      cvPdf {
+        name
+      }
+      _siteValidTime
+      _siteSubject
+      workflowState {
+        name
+      }
+      project {
+        name
+      }
     }
   }
 }

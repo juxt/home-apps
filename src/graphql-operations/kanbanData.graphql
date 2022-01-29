@@ -12,12 +12,16 @@ query kanbanData {
     name
     description
     cards {
-      id
+      ... on HiringCard {
+        id
+      }
     }
   }
   allCards {
-    id
-    _siteValidTime
+    ... on HiringCard {
+      id
+      _siteValidTime
+    }
   }
   allProjects {
     ...ProjectFields

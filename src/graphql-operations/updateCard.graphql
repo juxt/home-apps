@@ -1,5 +1,7 @@
 mutation updateCard($card: CardInput!, $cardId: ID!) {
   updateCard(id: $cardId, Card: $card) {
-    id
+    ... on HiringCard {
+      id
+    }
   }
 }

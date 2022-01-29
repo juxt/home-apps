@@ -4,6 +4,8 @@ mutation moveCard($workflowStateId: ID!, $cardId: ID!, $previousCard: ID) {
     workflowStateId: $workflowStateId
     previousCard: $previousCard
   ) {
-    id
+    ... on HiringCard {
+      id
+    }
   }
 }

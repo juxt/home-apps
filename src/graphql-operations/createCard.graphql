@@ -5,7 +5,9 @@ mutation createCard(
   $workflowStateId: ID!
 ) {
   updateCard(id: $cardId, Card: $card) {
-    id
+    ... on HiringCard {
+      id
+    }
   }
   updateWorkflowState(id: $workflowStateId, cardIds: $cardIds) {
     id

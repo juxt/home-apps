@@ -133,7 +133,7 @@ type File {
   lzbase64: String!
 }
 
-type Card {
+type HiringCard {
   id: ID!
   title: String!
   _siteValidTime: String!
@@ -156,6 +156,8 @@ type Card {
       }
     )
 }
+
+union Card = HiringCard
 
 type Comment {
   id: ID!

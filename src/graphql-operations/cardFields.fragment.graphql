@@ -1,9 +1,11 @@
 fragment CardFields on Card {
-  id
-  title
-  _siteValidTime
-  project {
+  ... on HiringCard {
     id
-    name
+    title
+    _siteValidTime
+    project {
+      id
+      name
+    }
   }
 }
