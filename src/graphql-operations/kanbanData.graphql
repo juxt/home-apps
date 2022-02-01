@@ -17,11 +17,9 @@ query kanbanData {
       }
     }
   }
-  allCards {
-    ... on HiringCard {
-      id
-      _siteValidTime
-    }
+  allHiringCards {
+    id
+    _siteValidTime
   }
   allProjects {
     ...ProjectFields

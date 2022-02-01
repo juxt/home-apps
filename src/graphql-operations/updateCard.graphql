@@ -1,7 +1,5 @@
-mutation updateCard($card: CardInput!, $cardId: ID!) {
-  updateCard(id: $cardId, Card: $card) {
-    ... on HiringCard {
-      id
-    }
+mutation updateHiringCard($card: HiringCardInput!, $cardId: ID!) {
+  updateHiringCard(id: $cardId, Card: $card) {
+    id
   }
 }

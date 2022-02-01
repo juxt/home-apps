@@ -27,7 +27,6 @@ export function useModalForm(
     if (shouldOpen) {
       navigate({
         replace: true,
-        to: ".",
         search: {
           ...search,
           modalState: { ...currentModalState, ...modalState },
@@ -35,7 +34,6 @@ export function useModalForm(
       });
     } else {
       navigate({
-        to: ".",
         replace: true,
         search: {
           ...search,
@@ -72,8 +70,14 @@ export function useMobileDetect() {
 }
 
 export function useWorkflowStates() {
+  const { modalState } = useSearch<LocationGenerics>();
+  const id = modalState?.workflowId || "";
   const workflowStateResult = useKanbanDataQuery(undefined, {
-    select: (data) => data?.allWorkflowStates?.filter(notEmpty),
+    enabled: id !== "",
+    select: (data) =>
+      data?.allWorkflows
+        ?.find((w) => w?.id === id)
+        ?.workflowStates.filter(notEmpty),
   });
   return workflowStateResult;
 }

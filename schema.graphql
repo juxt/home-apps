@@ -1,4 +1,4 @@
-schema @site(type: "kanban/test6") {
+schema @site(type: "kanban/test10") {
   query: Query
   mutation: Mutation
 }
@@ -6,7 +6,7 @@ schema @site(type: "kanban/test6") {
 type Query {
   allWorkflows: [Workflow]
   workflow(id: ID!): Workflow
-  allCards: [Card]
+  allHiringCards: [HiringCard]
   cardHistory(id: ID!, limit: Int, offset: Int): [Card] @site(history: "desc")
   cardsByIds(ids: [ID]!): [Card]
   allWorkflowStates: [WorkflowState]
@@ -40,10 +40,11 @@ type Mutation {
     cardIds: [ID]
   ): WorkflowState @site(mutation: "update")
   deleteWorkflowState(id: ID!): WorkflowState @site(mutation: "delete")
-  createCard(Card: CardInput): Card
-  updateCard(id: ID!, Card: CardInput): Card @site(mutation: "update")
-  deleteCard(id: ID!): Card @site(mutation: "delete")
-  rollbackCard(id: ID!, asOf: String!): Card @site(mutation: "rollback")
+  createHiringCard(Card: HiringCardInput): HiringCard
+  updateHiringCard(id: ID!, Card: HiringCardInput): HiringCard
+    @site(mutation: "update")
+  deleteHiringCard(id: ID!): HiringCard @site(mutation: "delete")
+  rollbackCard(id: ID!, asOf: String!): HiringCard @site(mutation: "rollback")
   createProject(project: ProjectInput): Project
   updateProject(id: ID!, project: ProjectInput): Project
     @site(mutation: "update")
@@ -67,7 +68,6 @@ input ProjectInput {
 }
 
 input WorkflowStateInput {
-  id: ID
   name: String
   description: String
   cardIds: [ID]
@@ -79,7 +79,7 @@ input FileInput {
   lzbase64: String!
 }
 
-input CardInput {
+input HiringCardInput {
   title: String
   description: String
   projectId: ID
@@ -145,7 +145,6 @@ type HiringCard {
   workflow: Workflow @site(ref: "workflowId")
   workflowState: WorkflowState
     @site(
-      asOf: "{{object._siteValidTime}}"
       q: {
         edn: """
         {:find [e]

@@ -1,13 +1,11 @@
-mutation createCard(
-  $card: CardInput!
+mutation createHiringCard(
+  $card: HiringCardInput!
   $cardId: ID!
   $cardIds: [ID!]!
   $workflowStateId: ID!
 ) {
-  updateCard(id: $cardId, Card: $card) {
-    ... on HiringCard {
-      id
-    }
+  updateHiringCard(id: $cardId, Card: $card) {
+    id
   }
   updateWorkflowState(id: $workflowStateId, cardIds: $cardIds) {
     id

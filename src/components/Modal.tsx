@@ -101,7 +101,9 @@ export function Modal({
                 !fullWidth && "sm:max-w-4xl"
               )}
             >
-              <div className="h-full">{children}</div>
+              <div className="h-full flex flex-col justify-between">
+                {children}
+              </div>
             </div>
           </Transition.Child>
         </div>

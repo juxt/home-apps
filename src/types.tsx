@@ -19,7 +19,7 @@ import {
 } from "./generated/graphql";
 import { TiptapProps } from "./components/Tiptap";
 import { DropzoneProps } from "react-dropzone";
-import { ReactNode } from "react";
+import { BaseSyntheticEvent, ReactNode } from "react";
 
 declare module "react" {
   function forwardRef<T, P = {}>(
@@ -175,7 +175,7 @@ export type FormProps<T> = {
   formHooks: UseFormReturn<T, object>;
   title?: string;
   description?: string;
-  onSubmit: () => void;
+  onSubmit: (e: BaseSyntheticEvent) => void;
 };
 
 export type WorkflowFormModalTypes =

@@ -303,7 +303,8 @@ function WorkflowStateContainer({
 
 function Workflow({ workflow }: { workflow: TWorkflow }) {
   if (!workflow?.id) return null;
-  const { workflowProjectId } = useSearch<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
+  const { workflowProjectId, devMode } = search;
   const data = React.useMemo(
     () => processWorkflow(workflow, workflowProjectId),
     [workflow, workflowProjectId]
@@ -312,6 +313,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
   const unfilteredWorkflow = useKanbanDataQuery()?.data?.allWorkflows?.find(
     (c) => c?.id === workflow.id
   );
+
   React.useEffect(() => {
     if (data) {
       setState(data);
@@ -322,7 +324,10 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
     filteredState?.workflowStates.filter(notEmpty).map((c) => {
       return {
         ...c,
-        cards: c.cards?.filter(notEmpty) || [],
+        cards:
+          c.cards
+            ?.filter((card) => devMode || card?.project)
+            .filter(notEmpty) || [],
       };
     }) || [];
   const queryClient = useQueryClient();
@@ -374,7 +379,6 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
     setIsAddCard(true);
   });
   const [isDragging, setIsDragging] = React.useState(false);
-  const search = useSearch<LocationGenerics>();
   const isGrid = search.view === "table";
   const gridData = React.useMemo(() => {
     return [
@@ -551,7 +555,6 @@ export function App() {
     refetchInterval: refetch,
   });
   const workflow = kanbanQueryResult.data?.allWorkflows?.[0];
-  const navigate = useNavigate<LocationGenerics>();
   const [isModalOpen, setIsModalOpen] = useModalForm({
     formModalType: "addWorkflowState",
   });
