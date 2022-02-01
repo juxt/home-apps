@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { BaseSyntheticEvent, useEffect, useMemo, useState } from "react";
 import { LocationGenerics, ModalStateProps, Option } from "../types";
 import { useForm } from "react-hook-form";
 import Table from "./Table";
@@ -13,12 +13,12 @@ import classNames from "classnames";
 import { Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import {
-  CreateCardMutationVariables,
-  UpdateCardMutationVariables,
+  CreateHiringCardMutationVariables,
+  UpdateHiringCardMutationVariables,
   useCardByIdsQuery,
   CardByIdsQuery,
-  useCreateCardMutation,
-  useUpdateCardMutation,
+  useCreateHiringCardMutation,
+  useUpdateHiringCardMutation,
   CardHistoryQuery,
   useRollbackCardMutation,
   useKanbanDataQuery,
@@ -27,6 +27,7 @@ import {
   useCommentsForCardQuery,
   CreateCommentMutationVariables,
   useMoveCardMutation,
+  useDeleteCommentMutation,
 } from "../generated/graphql";
 import {
   base64toBlob,
@@ -54,7 +55,7 @@ import DOMPurify from "dompurify";
 import { Disclosure } from "@headlessui/react";
 import _ from "lodash";
 
-type AddCardInput = CreateCardMutationVariables & {
+type AddCardInput = CreateHiringCardMutationVariables & {
   project: Option;
   workflowState: Option;
 };
@@ -63,7 +64,7 @@ type AddCardModalProps = ModalStateProps;
 
 export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
   const queryClient = useQueryClient();
-  const addCardMutation = useCreateCardMutation({
+  const addCardMutation = useCreateHiringCardMutation({
     ...defaultMutationProps(queryClient),
   });
   const { workflowProjectId } = useSearch<LocationGenerics>();
@@ -74,6 +75,12 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
   }));
 
   const formHooks = useForm<AddCardInput>();
+  useEffect(() => {
+    if (stateOptions.length > 0) {
+      formHooks.setValue("workflowState", stateOptions[0]);
+    }
+  }, [stateOptions, formHooks]);
+
   const addCard = (card: AddCardInput) => {
     if (!cols.length) {
       toast.error("No workflowStates to add card to");
@@ -175,7 +182,7 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
   );
 }
 
-type UpdateCardInput = UpdateCardMutationVariables & {
+type UpdateCardInput = UpdateHiringCardMutationVariables & {
   project: Option;
   workflowState: Option;
 };
@@ -184,7 +191,7 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
   const { modalState } = useSearch<LocationGenerics>();
   const cardId = modalState?.cardId;
   const queryClient = useQueryClient();
-  const updateCardMutation = useUpdateCardMutation({
+  const updateCardMutation = useUpdateHiringCardMutation({
     ...defaultMutationProps(queryClient),
   });
   const moveCardMutation = useMoveCardMutation({
@@ -200,12 +207,14 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
   const { card } = useCardById(cardId);
 
   const updateCard = (input: UpdateCardInput) => {
+    console.log("updateCard", input);
+
     handleClose();
     const { workflowState, project, ...cardInput } = input;
     const cardData = { ...cardInput, projectId: input.project?.value || null };
     const cardId = input?.cardId;
     const state = cols.find((c) => c.id === workflowState?.value);
-    updateCardMutation.mutate({ card: cardData, cardId });
+    updateCardMutation.mutate({ card: cardData.card, cardId });
     if (state && state.id !== card?.workflowState?.id) {
       moveCardMutation.mutate({
         workflowStateId: state.id,
@@ -238,6 +247,8 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
 
   useEffect(() => {
     if (card) {
+      console.log(card);
+
       const projectId = card?.project?.id;
       formHooks.setValue("card", { ...card, files: [] });
       card?.files && processCard();
@@ -374,13 +385,15 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
 function CommentSection({ cardId }: { cardId: string }) {
   const { data: comments } = useCommentForCard(cardId);
   const queryClient = useQueryClient();
-  const addCommentMutation = useCreateCommentMutation({
+  const commentMutationProps = {
     onSettled: () => {
       queryClient.refetchQueries(
         useCommentsForCardQuery.getKey({ id: cardId })
       );
     },
-  });
+  };
+  const addCommentMutation = useCreateCommentMutation(commentMutationProps);
+  const deleteCommentMutation = useDeleteCommentMutation(commentMutationProps);
   const addComment = (input: CreateCommentMutationVariables) => {
     toast.promise(
       addCommentMutation.mutateAsync({
@@ -393,6 +406,9 @@ function CommentSection({ cardId }: { cardId: string }) {
         pending: "Adding comment...",
         success: "Comment added!",
         error: "Error adding comment",
+      },
+      {
+        autoClose: 500,
       }
     );
   };
@@ -400,7 +416,10 @@ function CommentSection({ cardId }: { cardId: string }) {
   const commentFormProps = {
     formHooks,
     cardId,
-    onSubmit: formHooks.handleSubmit(addComment, console.warn),
+    onSubmit: (e: BaseSyntheticEvent) => {
+      formHooks.handleSubmit(addComment, console.warn)(e);
+      formHooks.reset();
+    },
   };
   const gravatar = (email: string) =>
     "https://avatars.githubusercontent.com/u/9809256?v=4";
@@ -445,13 +464,40 @@ function CommentSection({ cardId }: { cardId: string }) {
                           </div>
                           <div className="min-w-0 flex-1">
                             <div>
-                              <div className="text-sm">
+                              <div className="text-sm flex flex-row justify-between">
                                 <a
                                   href=""
                                   className="font-medium text-gray-900"
                                 >
                                   {item?._siteSubject || "alx"}
                                 </a>
+                                <OptionsMenu
+                                  options={[
+                                    {
+                                      label: "Archive",
+                                      id: "archive",
+                                      Icon: ArchiveInactiveIcon,
+                                      ActiveIcon: ArchiveActiveIcon,
+                                      props: {
+                                        onClick: () => {
+                                          toast.promise(
+                                            deleteCommentMutation.mutateAsync({
+                                              commentId: item.id,
+                                            }),
+                                            {
+                                              pending: "Archiving comment...",
+                                              success: "Comment archived!",
+                                              error: "Error archiving comment",
+                                            },
+                                            {
+                                              autoClose: 1000,
+                                            }
+                                          );
+                                        },
+                                      },
+                                    },
+                                  ]}
+                                />
                               </div>
                               <p className="mt-0.5 text-sm text-gray-500">
                                 Commented {item._siteValidTime}
@@ -620,9 +666,10 @@ function CardInfo({
   );
 }
 
-function CardView({ handleClose }: { handleClose: () => void }) {
+function CardView() {
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
-  const { data } = useCardById(cardId);
+  const { data, isLoading } = useCardById(cardId);
+
   const card = data?.cardsByIds?.[0];
   const pdfLzString = card?.cvPdf?.lzbase64;
   const pdfUrl = useMemo(() => {
@@ -677,12 +724,7 @@ function CardView({ handleClose }: { handleClose: () => void }) {
             defaultSize={splitSize}
             onChange={setSplitSize}
           >
-            {card ? (
-              <CardInfo
-                resetSplit={splitSize > 400 ? resetSplit : undefined}
-                card={card}
-              />
-            ) : (
+            {isLoading && (
               <div className="flex flex-col justify-center items-center h-full">
                 <div className="text-center">
                   <h1 className="text-3xl font-extrabold text-gray-900">
@@ -691,6 +733,20 @@ function CardView({ handleClose }: { handleClose: () => void }) {
                 </div>
               </div>
             )}
+            {card && (
+              <CardInfo
+                resetSplit={splitSize > 400 ? resetSplit : undefined}
+                card={card}
+              />
+            )}
+            {!card && (
+              <div className="flex flex-col justify-center items-center h-full">
+                <h1 className="text-3xl font-extrabold text-gray-900">
+                  No Card Found
+                </h1>
+              </div>
+            )}
+
             <div>
               {pdfUrl ? (
                 <div className="max-w-xl block overflow-y-auto">
@@ -864,7 +920,7 @@ function CardHistory() {
 type CardModalProps = ModalStateProps;
 
 export function CardModal({ isOpen, handleClose }: CardModalProps) {
-  const { cardModalView } = useSearch<LocationGenerics>();
+  const { cardModalView, ...search } = useSearch<LocationGenerics>();
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { data, error } = useCardById(cardId);
   const card = data?.cardsByIds?.[0];
@@ -895,6 +951,8 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
         setTimeout(() => {
           navigate({
             search: {
+              ...search,
+              modalState: undefined,
               cardModalView: undefined,
             },
           });
@@ -936,9 +994,7 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
             </div>
           </div>
         )}
-        {(!cardModalView || cardModalView === "view") && (
-          <CardView handleClose={onClose} />
-        )}
+        {(!cardModalView || cardModalView === "view") && <CardView />}
         {cardModalView === "update" && <UpdateCardForm handleClose={onClose} />}
         {cardModalView === "history" && <CardHistory />}
         {cardModalView === "cv" && pdfUrl && (
