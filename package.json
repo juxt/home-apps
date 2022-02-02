@@ -17,6 +17,8 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@headlessui/react": "^1.4.3",
     "@heroicons/react": "^1.0.5",
+    "@mantine/core": "^3.6.5",
+    "@mantine/hooks": "^3.6.5",
     "@react-pdf-viewer/core": "3.1.0",
     "@tailwindcss/forms": "^0.4.0",
     "@tippyjs/react": "^4.2.6",

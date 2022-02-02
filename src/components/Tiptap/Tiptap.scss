@@ -1,8 +1,8 @@
 .ProseMirror {
   @apply prose prose-sm sm:prose focus:outline-none;
-  @apply h-56 w-full rounded leading-none text-gray-700 bg-gray-50 border border-gray-300 p-3 text-base;
+  @apply h-56 w-full max-w-none rounded leading-none text-gray-700 bg-gray-50 border border-gray-300 p-3 text-base;
 
-  &.ProseMirror-editable {
+  &[contenteditable="true"] {
     @apply transition-colors ease-in-out placeholder-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30;
   }
 

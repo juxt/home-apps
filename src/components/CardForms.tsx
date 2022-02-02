@@ -1,4 +1,10 @@
-import { BaseSyntheticEvent, useEffect, useMemo, useState } from "react";
+import {
+  BaseSyntheticEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { LocationGenerics, ModalStateProps, Option } from "../types";
 import { useForm } from "react-hook-form";
 import Table from "./Table";
@@ -7,6 +13,8 @@ import { CellProps } from "react-table";
 import { useThrottleFn } from "react-use";
 
 import SplitPane from "react-split-pane";
+
+import { Slider } from "@mantine/core";
 
 import { Modal, ModalForm } from "./Modal";
 import classNames from "classnames";
@@ -50,10 +58,17 @@ import {
 import { OptionsMenu } from "./Menus";
 import { ModalTabs } from "./Tabs";
 import { ChatAltIcon, ChevronDownIcon, XIcon } from "@heroicons/react/solid";
-import { ArchiveActiveIcon, ArchiveInactiveIcon } from "./Icons";
+import {
+  ArchiveActiveIcon,
+  ArchiveInactiveIcon,
+  DeleteActiveIcon,
+  DeleteInactiveIcon,
+} from "./Icons";
 import DOMPurify from "dompurify";
 import { Disclosure } from "@headlessui/react";
 import _ from "lodash";
+import { Button } from "./Buttons";
+import { Tiptap } from "./Tiptap";
 
 type AddCardInput = CreateHiringCardMutationVariables & {
   project: Option;
@@ -413,14 +428,29 @@ function CommentSection({ cardId }: { cardId: string }) {
     );
   };
   const formHooks = useForm<CreateCommentMutationVariables>();
+  const submitComment = (e?: BaseSyntheticEvent) => {
+    formHooks.handleSubmit(addComment, console.warn)(e);
+    formHooks.reset();
+  };
   const commentFormProps = {
     formHooks,
     cardId,
-    onSubmit: (e: BaseSyntheticEvent) => {
-      formHooks.handleSubmit(addComment, console.warn)(e);
-      formHooks.reset();
-    },
+    onSubmit: submitComment,
   };
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (
+        (event.code === "Enter" || event.code === "NumpadEnter") &&
+        (event.ctrlKey || event.metaKey)
+      ) {
+        submitComment();
+      }
+    };
+    document.addEventListener("keydown", listener);
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, []);
   const gravatar = (email: string) =>
     "https://avatars.githubusercontent.com/u/9809256?v=4";
 
@@ -474,10 +504,10 @@ function CommentSection({ cardId }: { cardId: string }) {
                                 <OptionsMenu
                                   options={[
                                     {
-                                      label: "Archive",
-                                      id: "archive",
-                                      Icon: ArchiveInactiveIcon,
-                                      ActiveIcon: ArchiveActiveIcon,
+                                      label: "Delete",
+                                      id: "delete",
+                                      Icon: DeleteInactiveIcon,
+                                      ActiveIcon: DeleteActiveIcon,
                                       props: {
                                         onClick: () => {
                                           toast.promise(
@@ -485,9 +515,9 @@ function CommentSection({ cardId }: { cardId: string }) {
                                               commentId: item.id,
                                             }),
                                             {
-                                              pending: "Archiving comment...",
-                                              success: "Comment archived!",
-                                              error: "Error archiving comment",
+                                              pending: "Deleting comment...",
+                                              success: "Comment deleted!",
+                                              error: "Error deleting comment",
                                             },
                                             {
                                               autoClose: 1000,
@@ -545,6 +575,7 @@ function CommentSection({ cardId }: { cardId: string }) {
                           required: true,
                         },
                         path: "Comment.text",
+                        placeholder: "Type a comment... (ctrl+enter to send)",
                         type: "textarea",
                       }}
                       props={commentFormProps}
@@ -568,6 +599,227 @@ function CommentSection({ cardId }: { cardId: string }) {
   );
 }
 
+function InterviewModal({
+  handleClose,
+  show,
+}: {
+  show: boolean;
+  handleClose: () => void;
+}) {
+  const [questionNumber, setQuestionNumber] = useState(1);
+
+  const questions = [
+    {
+      id: "q-1",
+      question:
+        "Tell me about a time where your communication with others helped you build rapport or create better relationships and outcomes?",
+      lookingFor: [
+        "How did they learn about the other person?",
+        "Were their exchanges based on respect, or simply getting an outcome?",
+        " Did they continue the effort? Did they only do so to get a result, or do they show a pattern of always working at relationships?",
+      ],
+      weak: [
+        "Only interested in other person for potential outcome",
+        "Does not consistently build relationships",
+        "Only calls when they want something",
+        "Cannot demonstrate clear business benefit",
+      ],
+      strong: [
+        "Creates strategy for building relationships",
+        "Articulates benefit of wide ranging relationships",
+        "Gives before getting",
+        "Maintains relationships without near term business gain",
+      ],
+    },
+    {
+      id: "q-2",
+      question:
+        "Tell me about an effective relationship you have created and kept over a long period. How did you achieve that?",
+      lookingFor: [
+        'What do they describe as "long"?',
+        "What actions did they take to keep the relationship active?",
+        "Was there reciprocity – a willingness to share as well as benefit?",
+        "What different forms of communication do they use?",
+        "How do they communicate in ways that are helpful to the other person?",
+      ],
+      weak: [
+        "Long is less than 1-2 years",
+        "Relies on other person to make contact",
+        "Does not offer to give before getting",
+        "Communicates in a limited way",
+        "Has only internal relationships",
+      ],
+      strong: [
+        "Has a strategy for maintaining relationship",
+        "Gives without prospect of getting",
+        "Communicates in multiple ways",
+        "Has relationships in different companies/industries",
+        "Demonstrates different communication styles",
+      ],
+    },
+  ];
+  const [scores, setScores] = useState<Record<string, number | undefined>>(
+    Object.fromEntries(questions.map(({ id }) => [id, undefined]))
+  );
+
+  const question = questions[questionNumber - 1];
+  const sliderMarks = [
+    { value: 0, label: "💩" },
+    { value: 25, label: "😕" },
+    { value: 50, label: "🤷‍♀️" },
+    { value: 75, label: "👌" },
+    { value: 100, label: "😎" },
+  ];
+  const ref = useRef<HTMLDivElement>(null);
+  const scrollToTop = () => {
+    ref.current?.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+  const handleNext = () => {
+    setQuestionNumber((prev) => prev + 1);
+    scrollToTop();
+  };
+
+  const handlePrev = () => {
+    setQuestionNumber((prev) => prev - 1);
+    scrollToTop();
+  };
+  useEffect(() => {
+    setTimeout(() => ref.current?.scrollTo({ top: 0 }), 50);
+  }, [show]);
+
+  return (
+    <Modal className="h-screen-80" isOpen={show} handleClose={handleClose}>
+      <div ref={ref} className="relative py-16 bg-white overflow-auto">
+        <div className="relative px-4 sm:px-6 lg:px-8">
+          <div className="text-lg max-w-prose mx-auto">
+            <h1>
+              <span className="block text-base text-center text-indigo-600 font-semibold tracking-wide uppercase">
+                Interview 1
+              </span>
+              <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                Question {questionNumber}
+              </span>
+            </h1>
+            <div className="bg-indigo-700 rounded-lg">
+              <div className="text-center mt-4 py-4 px-4 sm:py-8 sm:px-6 lg:px-8">
+                <p className="text-xl leading-6 text-indigo-50">
+                  {question.question}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
+            <h2>Behaviours to look for:</h2>
+            <ul role="list">
+              {question.lookingFor.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+            <div className="flex space-x-4">
+              <div>
+                <h2>Weak</h2>
+                <ul role="list">
+                  {question.weak.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h2>Strong</h2>
+                <ul role="list">
+                  {question.strong.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="w-full">
+                <h2>Score:</h2>
+                <Slider
+                  key={`slider-${questionNumber}`}
+                  value={scores[question.id] || 0}
+                  onChange={(value) => {
+                    setScores({
+                      ...scores,
+                      [question.id]: value,
+                    });
+                  }}
+                  labelTransition="skew-down"
+                  labelTransitionDuration={150}
+                  labelTransitionTimingFunction="ease"
+                  label={(val) =>
+                    sliderMarks.find((mark) => mark.value === val)?.label
+                  }
+                  defaultValue={50}
+                  step={25}
+                  marks={[
+                    { value: 0, label: "Weak" },
+                    { value: 100, label: "Strong" },
+                  ]}
+                />
+                <h2>What was said:</h2>
+                <div className="flex justify-center">
+                  <Tiptap
+                    key={`tiptap-${questionNumber}`}
+                    onChange={() => null}
+                    withTaskListExtension={true}
+                    withLinkExtension={true}
+                    withTypographyExtension={true}
+                    withPlaceholderExtension={true}
+                    withMentionSuggestion={true}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav
+        className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+        aria-label="Pagination"
+      >
+        <div className="hidden sm:block">
+          <p className="text-sm text-gray-700">
+            Question <span className="font-medium">{questionNumber}</span> of{" "}
+            <span className="font-medium">{questions.length}</span>
+          </p>
+        </div>
+        <div className="flex-1 flex justify-between sm:justify-end">
+          <Button
+            onClick={() => {
+              ref.current?.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+              handlePrev();
+            }}
+            disabled={questionNumber === 1}
+            className="mr-2"
+          >
+            Previous
+          </Button>
+          {questionNumber === questions.length ? (
+            <Button primary onClick={handleNext}>
+              Submit
+            </Button>
+          ) : (
+            <Button
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              onClick={handleNext}
+            >
+              Next
+            </Button>
+          )}
+        </div>
+      </nav>
+    </Modal>
+  );
+}
+
 function CardInfo({
   card,
   resetSplit,
@@ -575,6 +827,7 @@ function CardInfo({
   card: NonNullable<NonNullable<CardByIdsQuery["cardsByIds"]>[0]>;
   resetSplit?: () => void;
 }) {
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
   const CloseIcon = (open: boolean) => (
     <ChevronDownIcon
       className={classNames(
@@ -584,85 +837,114 @@ function CardInfo({
     />
   );
   const accordionButtonClass = classNames(
-    "flex items-center justify-between w-full px-4 py-2 rounded-base cursor-base focus:outline-none",
-    "bg-primary-50 text-primary-800 dark:bg-primary-200 dark:bg-opacity-15 dark:text-primary-200"
+    "flex items-center justify-between w-full px-4 py-2 my-2 rounded-base cursor-base focus:outline-none",
+    "bg-orange-50 rounded-lg text-primary-800 dark:bg-primary-200 dark:bg-opacity-15 dark:text-primary-200"
   );
   return (
-    <div className="h-full rounded">
-      {resetSplit && (
-        <button
-          className="lg:hidden absolute top-0 z-20 bg-white left-0 mr-4 mt-4 cursor-pointer"
-          onClick={resetSplit}
-        >
-          Reset Split
-        </button>
-      )}
-      <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
-        <div className="w-full lg:h-full lg:overflow-y-auto ">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            {card.title}
-          </h2>
-          <p>{card.id}</p>
-          {card?.project?.name && <p>Project: {card.project.name}</p>}
-          <p className="text-gray-500">Last Updated {card._siteValidTime}</p>
-          {card?._siteSubject && (
-            <p className="text-gray-500">By: {card._siteSubject}</p>
-          )}
-          {card?.workflowState && (
-            <p className="text-gray-500">Status: {card.workflowState.name}</p>
-          )}
-          {card?.description && (
-            <Disclosure defaultOpen as="div" className="w-full">
-              {({ open }) => (
-                <>
-                  <Disclosure.Button className={accordionButtonClass}>
-                    <span>Description</span>
-                    {CloseIcon(open)}
-                  </Disclosure.Button>
-                  <Disclosure.Panel className="px-4 pt-4 pb-2 h-full text-sm text-muted flex ">
-                    <div
-                      className="ProseMirror prose text-left bg-white shadow-lg w-full no-scrollbar"
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(card?.description || ""),
-                      }}
-                    />
-                  </Disclosure.Panel>
-                </>
-              )}
-            </Disclosure>
-          )}
-          {card?.files && card?.files.length > 0 && (
-            <Disclosure as="div" className="mt-2 w-full">
-              {({ open }) => (
-                <>
-                  <Disclosure.Button className={accordionButtonClass}>
-                    <span>Other Files</span>
-                    {CloseIcon(open)}
-                  </Disclosure.Button>
-                  <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                    {card?.files && (
-                      <div className="mt-2 flex justify-between">
-                        {card.files.filter(notEmpty).map((file, i) => (
-                          <div
-                            key={file.name + i}
-                            className="flex items-center"
-                          >
-                            <FilePreview file={file} />
-                          </div>
-                        ))}
+    <>
+      <InterviewModal
+        show={showQuestionModal}
+        handleClose={() => setShowQuestionModal(false)}
+      />
+      <div className="h-full rounded">
+        {resetSplit && (
+          <button
+            className="lg:hidden absolute top-0 z-20 bg-white left-0 mr-4 mt-4 cursor-pointer"
+            onClick={resetSplit}
+          >
+            Reset Split
+          </button>
+        )}
+        <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+          <div className="w-full lg:h-full lg:overflow-y-auto m-4">
+            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              {card.title}
+            </h2>
+            <p>{card.id}</p>
+            {card?.project?.name && <p>Project: {card.project.name}</p>}
+            <p className="text-gray-500">Last Updated {card._siteValidTime}</p>
+            {card?._siteSubject && (
+              <p className="text-gray-500">By: {card._siteSubject}</p>
+            )}
+            {card?.workflowState && (
+              <p className="text-gray-500">Status: {card.workflowState.name}</p>
+            )}
+            {true && (
+              <Disclosure defaultOpen as="div" className="mt-2 w-full">
+                {({ open }) => (
+                  <>
+                    <Disclosure.Button className={accordionButtonClass}>
+                      <span>Interview 1</span>
+                      {CloseIcon(open)}
+                    </Disclosure.Button>
+                    <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                      <div className="mt-2 flex justify-between items-center">
+                        Status: Booked for 03/02/22 at 4pm
+                        <Button
+                          onClick={() => setShowQuestionModal(true)}
+                          className="bg-blue-50 hover:bg-blue-200"
+                        >
+                          Start
+                        </Button>
                       </div>
-                    )}
-                  </Disclosure.Panel>
-                </>
-              )}
-            </Disclosure>
-          )}
-        </div>
-        <div className="w-full mx-4 sm:h-full lg:overflow-y-auto">
-          <CommentSection cardId={card.id} />
+                    </Disclosure.Panel>
+                  </>
+                )}
+              </Disclosure>
+            )}
+            {card?.description && (
+              <Disclosure as="div" className="w-full">
+                {({ open }) => (
+                  <>
+                    <Disclosure.Button className={accordionButtonClass}>
+                      <span>Description</span>
+                      {CloseIcon(open)}
+                    </Disclosure.Button>
+                    <Disclosure.Panel className="px-4 pt-4 pb-2 h-full text-sm text-muted flex ">
+                      <div
+                        className="ProseMirror prose text-left bg-white shadow-lg w-full no-scrollbar"
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(card?.description || ""),
+                        }}
+                      />
+                    </Disclosure.Panel>
+                  </>
+                )}
+              </Disclosure>
+            )}
+            {card?.files && card?.files.length > 0 && (
+              <Disclosure as="div" className="mt-2 w-full">
+                {({ open }) => (
+                  <>
+                    <Disclosure.Button className={accordionButtonClass}>
+                      <span>Other Files</span>
+                      {CloseIcon(open)}
+                    </Disclosure.Button>
+                    <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                      {card?.files && (
+                        <div className="mt-2 flex justify-between">
+                          {card.files.filter(notEmpty).map((file, i) => (
+                            <div
+                              key={file.name + i}
+                              className="flex items-center"
+                            >
+                              <FilePreview file={file} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </Disclosure.Panel>
+                  </>
+                )}
+              </Disclosure>
+            )}
+          </div>
+          <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
+            <CommentSection cardId={card.id} />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -113,9 +113,9 @@ function Tiptap({
   }
 
   return (
-    <>
+    <div className="w-full">
       <EditorContent editor={editor} />
-    </>
+    </div>
   );
 }
 

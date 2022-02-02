@@ -47,10 +47,12 @@ export function Modal({
   handleClose,
   fullWidth,
   noScroll,
+  className,
   children,
 }: ModalStateProps & {
   children: React.ReactNode;
   fullWidth?: boolean;
+  className?: string;
   noScroll?: boolean;
 }) {
   return (
@@ -98,7 +100,8 @@ export function Modal({
                 "bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all",
                 " sm:align-middle sm:w-full h-screen-90 ",
                 !noScroll && "overflow-y-auto",
-                !fullWidth && "sm:max-w-4xl"
+                !fullWidth && "sm:max-w-4xl",
+                className
               )}
             >
               <div className="h-full flex flex-col justify-between">

@@ -30,7 +30,7 @@ function GlobalFilter({
   }, 200);
 
   return (
-    <label className="flex gap-x-2 items-baseline">
+    <label className="flex gap-x-2 items-baseline mt-4">
       <span className="text-gray-700">Search: </span>
       <input
         type="text"
@@ -129,10 +129,7 @@ function Table({ columns, data }) {
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    page, // Instead of using 'rows', we'll use page,
-    // which has only the rows for the active page
-
-    // The rest of these things are super handy, too ;)
+    page,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -141,7 +138,6 @@ function Table({ columns, data }) {
     nextPage,
     previousPage,
     setPageSize,
-
     state,
     preGlobalFilteredRows,
     setGlobalFilter,
@@ -150,10 +146,10 @@ function Table({ columns, data }) {
       columns,
       data,
     },
-    useFilters, // useFilters!
+    useFilters,
     useGlobalFilter,
     useSortBy,
-    usePagination // new
+    usePagination
   );
   const showPagination = canNextPage || canPreviousPage;
 
