@@ -375,7 +375,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
     workflowId: workflow.id,
   });
 
-  useHotkeys("n", () => {
+  useHotkeys("c", () => {
     setIsAddCard(true);
   });
   const [isDragging, setIsDragging] = React.useState(false);

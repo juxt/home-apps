@@ -141,7 +141,7 @@ export function Heading({
               onClick={handleAddCard}
             >
               <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-              Add Card{!isMobile && " (n)"}
+              Add Card{!isMobile && " (c)"}
             </button>
           </span>
 
