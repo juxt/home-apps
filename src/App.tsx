@@ -392,6 +392,10 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
   const gridColumns = React.useMemo(() => {
     return [
       {
+        Header: "id",
+        accessor: "id",
+      },
+      {
         id: "name",
         Header: "Name",
         accessor: "title",
@@ -413,11 +417,38 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
       },
     ];
   }, []);
+  const navigate = useNavigate<LocationGenerics>();
+
+  const openCardForm = ({ values }: { values: typeof gridColumns[0] }) => {
+    const cardId = values.id;
+    if (cardId) {
+      navigate({
+        replace: true,
+        search: {
+          ...search,
+          modalState: {
+            cardId,
+            formModalType: "editCard",
+            workflowId: workflow?.id,
+            workflowStateId: workflow?.workflowStates.find((state) =>
+              state?.cards?.find((c) => c?.id === cardId)
+            )?.id,
+          },
+        },
+      });
+    }
+  };
 
   return (
     <div className="px-4 h-full-minus-nav">
       <Heading workflow={workflow} handleAddCard={() => setIsAddCard(true)} />
-      {isGrid && <Table data={gridData} columns={gridColumns} />}
+      {isGrid && (
+        <Table
+          onRowClick={openCardForm}
+          data={gridData}
+          columns={gridColumns}
+        />
+      )}
       {!isGrid && filteredState && (
         <DragDropContext
           onDragStart={() => setIsDragging(true)}

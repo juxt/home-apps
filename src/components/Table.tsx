@@ -5,6 +5,7 @@ import {
   useAsyncDebounce,
   useSortBy,
   usePagination,
+  Row,
 } from "react-table";
 import {
   ChevronDoubleLeftIcon,
@@ -22,6 +23,10 @@ function GlobalFilter({
   preGlobalFilteredRows,
   globalFilter,
   setGlobalFilter,
+}: {
+  preGlobalFilteredRows: any;
+  globalFilter: string;
+  setGlobalFilter: (value: string) => void;
 }) {
   const count = preGlobalFilteredRows.length;
   const [value, setValue] = useState(globalFilter);
@@ -50,6 +55,14 @@ function GlobalFilter({
 // a unique option from a list
 export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },
+}: {
+  column: {
+    filterValue: any;
+    setFilter: (value: any) => void;
+    preFilteredRows: Row<object>[];
+    id: string;
+    render: any;
+  };
 }) {
   // Calculate the options for filtering
   // using the preFilteredRows
@@ -58,6 +71,7 @@ export function SelectColumnFilter({
     preFilteredRows.forEach((row) => {
       options.add(row.values[id]);
     });
+    //@ts-ignore
     return [...options.values()];
   }, [id, preFilteredRows]);
 
@@ -85,7 +99,7 @@ export function SelectColumnFilter({
   );
 }
 
-export function StatusPill({ value }) {
+export function StatusPill({ value }: { value: string }) {
   const status = value ? value.toLowerCase() : "unknown";
 
   return (
@@ -102,7 +116,15 @@ export function StatusPill({ value }) {
   );
 }
 
-export function AvatarCell({ value, column, row }) {
+export function AvatarCell({
+  value,
+  column,
+  row,
+}: {
+  value: string;
+  column: any;
+  row: Row<any>;
+}) {
   return (
     <div className="flex items-center">
       <div className="flex-shrink-0 h-10 w-10">
@@ -122,7 +144,15 @@ export function AvatarCell({ value, column, row }) {
   );
 }
 
-function Table({ columns, data }) {
+function Table({
+  onRowClick,
+  columns,
+  data,
+}: {
+  onRowClick?: (row: any) => void;
+  columns: any;
+  data: any;
+}) {
   // Use the state and functions returned from useTable to build your UI
   const {
     getTableProps,
@@ -225,7 +255,11 @@ function Table({ columns, data }) {
                     prepareRow(row);
                     return (
                       <tr
-                        className="shadow-lg sm:shadow-none mb-6 sm:mb-0 flex flex-row flex-wrap sm:table-row sm:hover:bg-gray-100"
+                        className={classNames(
+                          "shadow-lg sm:shadow-none mb-6 sm:mb-0 flex flex-row flex-wrap sm:table-row sm:hover:bg-gray-100",
+                          onRowClick && "cursor-pointer"
+                        )}
+                        onClick={() => onRowClick && onRowClick(row)}
                         {...row.getRowProps()}
                       >
                         {row.cells.map((cell) => {
@@ -238,13 +272,17 @@ function Table({ columns, data }) {
                               <span className="group text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:hidden absolute top-0 inset-x-0 p-1 bg-gray-50 pl-2">
                                 {cell.column.Header}
                               </span>
-                              {cell.column.Cell.name === "defaultRenderer" ? (
-                                <div className="text-sm text-gray-500">
-                                  {cell.render("Cell")}
-                                </div>
-                              ) : (
-                                cell.render("Cell")
-                              )}
+                              {
+                                //@ts-ignore
+                                cell?.column?.Cell?.name ===
+                                "defaultRenderer" ? (
+                                  <div className="text-sm text-gray-500">
+                                    {cell.render("Cell")}
+                                  </div>
+                                ) : (
+                                  cell.render("Cell")
+                                )
+                              }
                             </td>
                           );
                         })}

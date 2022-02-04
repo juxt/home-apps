@@ -179,11 +179,11 @@ export function useCardHistory(
       ...opts,
       select: (data) => ({
         ...data,
-        ca: data?.cardHistory?.filter(notEmpty),
+        ca: data?.cardHistory?.filter((card) => card?._siteValidTime),
       }),
       enabled: !!cardId,
       staleTime: 5000,
     }
   );
-  return { ...queryResult, history: queryResult.data?.cardHistory };
+  return { ...queryResult, history: queryResult.data?.ca };
 }
