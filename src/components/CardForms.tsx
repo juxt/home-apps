@@ -166,6 +166,14 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
           path: "project",
         },
         {
+          label: "CV PDF",
+          id: "CVPDF",
+          type: "file",
+          accept: "application/pdf",
+          multiple: false,
+          path: "card.cvPdf",
+        },
+        {
           id: "CardName",
           placeholder: "Card Name",
           label: "Name",
@@ -880,10 +888,7 @@ function CardInfo({
                     <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
                       <div className="mt-2 flex justify-between items-center">
                         Status: Booked for 03/02/22 at 4pm
-                        <Button
-                          onClick={() => setShowQuestionModal(true)}
-                          className="bg-blue-50 hover:bg-blue-200"
-                        >
+                        <Button onClick={() => setShowQuestionModal(true)}>
                           Start
                         </Button>
                       </div>
@@ -1081,9 +1086,6 @@ function CardHistory() {
       history?.filter(notEmpty).map((card, i) => {
         const hasDescriptionChanged =
           history[i + 1] && history[i + 1]?.description !== card?.description;
-        const stateChanged =
-          history[i + 1] &&
-          history[i + 1]?.workflowState?.name !== card?.workflowState?.name;
         const projectChanged =
           history[i + 1] &&
           history[i + 1]?.project?.name !== card?.project?.name;
@@ -1098,7 +1100,6 @@ function CardHistory() {
         const nothingChanged =
           !titleChanged &&
           !hasDescriptionChanged &&
-          !stateChanged &&
           !projectChanged &&
           !cvChanged &&
           !filesChanged;
@@ -1107,7 +1108,6 @@ function CardHistory() {
           ...card,
           nothingChanged,
           hasDescriptionChanged,
-          stateChanged,
           projectChanged,
           cvChanged,
           filesChanged,
@@ -1115,7 +1115,6 @@ function CardHistory() {
           diff: [
             titleChanged && "Title changed",
             hasDescriptionChanged && "description changed",
-            stateChanged && "state changed",
             projectChanged && "project changed",
             cvChanged && "cv changed",
             filesChanged && "files changed",
