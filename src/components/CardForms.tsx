@@ -5,12 +5,15 @@ import {
   useRef,
   useState,
 } from "react";
+import * as yup from "yup";
 import { LocationGenerics, ModalStateProps, Option } from "../types";
 import { useForm } from "react-hook-form";
 import Table from "./Table";
 import { CellProps } from "react-table";
 
 import { useThrottleFn } from "react-use";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { CommentInputSchema } from "../generated/validation";
 
 import SplitPane from "react-split-pane";
 
@@ -46,7 +49,7 @@ import {
 import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
 import { useNavigate, useSearch } from "react-location";
-import { FilePreview, Form, RenderField } from "./Form";
+import { ErrorMessage, FilePreview, Form, RenderField } from "./Form";
 import {
   useCardById,
   useCardHistory,
@@ -90,11 +93,12 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
   }));
 
   const formHooks = useForm<AddCardInput>();
+
   useEffect(() => {
     if (stateOptions.length > 0) {
       formHooks.setValue("workflowState", stateOptions[0]);
     }
-  }, [stateOptions, formHooks]);
+  }, [stateOptions]);
 
   const addCard = (card: AddCardInput) => {
     if (!cols.length) {
@@ -102,8 +106,7 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
       return;
     }
     handleClose();
-    console.log("render");
-
+    formHooks.resetField("card");
     const newId = `card-${Date.now()}`;
     const { project, workflowState, ...cardInput } = card;
     toast.promise(
@@ -131,18 +134,19 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
   };
 
   const projectOptions = useProjectOptions();
+  const label = projectOptions.find(
+    (p) => p.value === workflowProjectId
+  )?.label;
   useEffect(() => {
     if (workflowProjectId) {
-      if (workflowProjectId) {
+      if (workflowProjectId && label) {
         formHooks.setValue("project", {
-          label:
-            projectOptions.find((p) => p.value === workflowProjectId)?.label ??
-            "",
+          label,
           value: workflowProjectId,
         });
       }
     }
-  }, [workflowProjectId]);
+  }, [workflowProjectId, label]);
   return (
     <ModalForm<AddCardInput>
       title="Add Card"
@@ -230,14 +234,17 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
   const { card } = useCardById(cardId);
 
   const updateCard = (input: UpdateCardInput) => {
-    console.log("updateCard", input);
-
     handleClose();
-    const { workflowState, project, ...cardInput } = input;
-    const cardData = { ...cardInput, projectId: input.project?.value || null };
-    const cardId = input?.cardId;
+    const { workflowState, project, cardId, ...cardInput } = input;
+    const cardData = {
+      card: { ...cardInput.card, projectId: project?.value },
+      cardId,
+    };
+
     const state = cols.find((c) => c.id === workflowState?.value);
-    updateCardMutation.mutate({ card: cardData.card, cardId });
+    if (!_.isEqual(cardData.card, card)) {
+      updateCardMutation.mutate({ card: cardData.card, cardId });
+    }
     if (state && state.id !== card?.workflowState?.id) {
       moveCardMutation.mutate({
         workflowStateId: state.id,
@@ -270,23 +277,19 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
 
   useEffect(() => {
     if (card) {
-      console.log(card);
-
-      const projectId = card?.project?.id;
-      formHooks.setValue("card", { ...card, files: [] });
-      card?.files && processCard();
-      formHooks.setValue("card.cvPdf", card?.cvPdf);
       formHooks.setValue("workflowState", {
         label: card?.workflowState?.name || "Select a state",
         value: card?.workflowState?.id || "",
       });
+      const projectId = card?.project?.id;
+      formHooks.setValue("card", { ...card });
+      card?.files && processCard();
+      formHooks.setValue("card.cvPdf", card?.cvPdf);
       if (card.project?.name && projectId) {
         formHooks.setValue("project", {
           label: card.project?.name,
           value: projectId,
         });
-      } else {
-        formHooks.setValue("project", { label: "", value: "" });
       }
     }
   }, [card]);
@@ -314,6 +317,12 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
           {
             id: "CardProject",
             type: "select",
+            rules: {
+              required: {
+                value: true,
+                message: "Please select a project",
+              },
+            },
             options: projectOptions,
             label: "Project",
             path: "project",
@@ -385,6 +394,7 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
                       updateCardMutation.mutateAsync({
                         cardId: card.id,
                         card: {
+                          ...card,
                           projectId: null,
                         },
                       }),
@@ -435,7 +445,16 @@ function CommentSection({ cardId }: { cardId: string }) {
       }
     );
   };
-  const formHooks = useForm<CreateCommentMutationVariables>();
+  const schema = yup.object({ Comment: CommentInputSchema() });
+  const formHooks = useForm<CreateCommentMutationVariables>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      Comment: {
+        cardId,
+      },
+    },
+  });
+
   const submitComment = (e?: BaseSyntheticEvent) => {
     formHooks.handleSubmit(addComment, console.warn)(e);
     formHooks.reset();
@@ -445,6 +464,7 @@ function CommentSection({ cardId }: { cardId: string }) {
     cardId,
     onSubmit: submitComment,
   };
+  const error = formHooks.formState.errors.Comment?.text;
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
       if (
@@ -579,15 +599,13 @@ function CommentSection({ cardId }: { cardId: string }) {
                     <RenderField
                       field={{
                         id: "commentText",
-                        rules: {
-                          required: true,
-                        },
                         path: "Comment.text",
-                        placeholder: "Type a comment... (ctrl+enter to send)",
+                        placeholder: "Type a comment (ctrl+enter to send)",
                         type: "textarea",
                       }}
                       props={commentFormProps}
                     />
+                    <ErrorMessage error={error} />
                   </div>
                   <div className="my-6 flex items-center justify-end space-x-4">
                     <button
@@ -1138,10 +1156,6 @@ function CardHistory() {
         Cell: (props: CellProps<TCardHistoryCard>) => (
           <div className="text-sm truncate">{props.value || "Untitled"}</div>
         ),
-      },
-      {
-        Header: "State",
-        accessor: "workflowState.name",
       },
       {
         Header: "Project",

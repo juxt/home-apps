@@ -25,5 +25,26 @@ module.exports = {
         },
       },
     },
+    "src/generated/validation.ts": {
+      plugins: ["typescript-validation-schema"],
+      config: {
+        schema: "yup",
+        notAllowEmptyString: true,
+        importFrom: "./graphql",
+        enumAsTypes: true,
+        directives: {
+          required: {
+            msg: "required",
+          },
+          constraint: {
+            minLength: "min",
+            startsWith: ["matches", "/^$1/"],
+            format: {
+              email: "email",
+            },
+          },
+        },
+      },
+    },
   },
 };

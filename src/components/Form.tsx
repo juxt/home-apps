@@ -2,7 +2,13 @@ import { Dialog } from "@headlessui/react";
 import Dropzone, { FileRejection } from "react-dropzone";
 import { MenuOption, OptionsMenu } from "./Menus";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Controller, FieldValues } from "react-hook-form";
+import {
+  Controller,
+  DeepMap,
+  DeepPartial,
+  FieldError,
+  FieldValues,
+} from "react-hook-form";
 import { MultiSelect } from "react-multi-select-component";
 import Select, { GroupBase, Props as SelectProps } from "react-select";
 import { DownloadIcon, TrashIcon } from "@heroicons/react/solid";
@@ -20,6 +26,7 @@ import {
 import { toast } from "react-toastify";
 import { CardByIdsQuery, CardFieldsFragment } from "../generated/graphql";
 import { DeleteActiveIcon, DeleteInactiveIcon } from "./Icons";
+import _ from "lodash";
 
 const inputClass =
   "relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base";
@@ -103,6 +110,11 @@ export function FilePreview({
       {handleDelete && <OptionsMenu options={options} />}
     </div>
   );
+}
+
+export function ErrorMessage({ error }: { error: FieldError | undefined }) {
+  if (!error) return null;
+  return <p className="text-red-600">{error.message}</p>;
 }
 
 export function RenderField<T>({
@@ -488,6 +500,7 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
                 ?.filter((field) => field.type !== "hidden")
                 .map((field) => {
                   const label = field?.label || field.path;
+                  const error = _.get(errors, field.path);
                   return (
                     <div
                       key={field.id}
@@ -502,9 +515,9 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
                       <div className="mt-1 sm:mt-0 sm:col-span-2">
                         <RenderField field={field} props={props} />
                       </div>
-                      {errors && (
+                      {error && (
                         <p className="text-red-500">
-                          {errors[field.path]?.type}
+                          {error.message || "This field is required"}
                         </p>
                       )}
                     </div>
