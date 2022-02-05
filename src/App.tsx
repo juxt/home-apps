@@ -275,7 +275,7 @@ function WorkflowStateContainer({
   const [source, target] = useSingleton();
   return (
     <div
-      className="flex sm:flex-row flex-col max-w-full h-full"
+      className="flex sm:flex-row flex-col max-w-full"
       {...provided.droppableProps}
       ref={provided.innerRef}
     >

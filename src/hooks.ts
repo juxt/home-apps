@@ -138,7 +138,7 @@ export function useCardById(
         cardsByIds: data?.cardsByIds?.filter(notEmpty),
       }),
       enabled: !!cardId,
-      staleTime: Infinity,
+      staleTime: 5000,
     }
   );
   return { ...queryResult, card: queryResult.data?.cardsByIds?.[0] };
