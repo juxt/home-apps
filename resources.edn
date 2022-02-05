@@ -4,6 +4,7 @@
  :juxt.http.alpha/acceptable-on-put "application/graphql"
  :juxt.http.alpha/acceptable-on-post "application/json"
  :juxt.pass.alpha/classification "PUBLIC"
+ :juxt.http.alpha/max-content-length 5000000000
 
  :juxt.site.alpha/access-control-allow-origins
  {#regex "http://localhost:\\p{Digit}+"

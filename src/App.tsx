@@ -638,31 +638,6 @@ export function App() {
     }
   }, [JSON.stringify(allCardIds)]);
 
-  useEffect(() => {
-    if (workflow) {
-      workflow.workflowStates.forEach((ws) => {
-        ws?.cards?.forEach((c) => {
-          if (!c) return;
-          const currentCard = queryClient.getQueryData<CardByIdsQuery>(
-            useCardByIdsQuery.getKey({ ids: [c.id] })
-          );
-          const currentTime = currentCard?.cardsByIds?.[0]?._siteValidTime;
-          if (!currentTime) {
-            return;
-          }
-          if (currentCard && currentTime === c._siteValidTime) {
-            return;
-          }
-
-          queryClient.fetchQuery(
-            useCardByIdsQuery.getKey({ ids: [c.id] }),
-            useCardByIdsQuery.fetcher({ ids: [c.id] })
-          );
-        });
-      });
-    }
-  }, [workflow]);
-
   return (
     <>
       {kanbanQueryResult.isLoading && <div>Loading...</div>}

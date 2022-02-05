@@ -106,7 +106,6 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
       return;
     }
     handleClose();
-    formHooks.resetField("card");
     const newId = `card-${Date.now()}`;
     const { project, workflowState, ...cardInput } = card;
     toast.promise(
@@ -131,6 +130,8 @@ export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
         error: "Error creating card",
       }
     );
+
+    formHooks.resetField("card");
   };
 
   const projectOptions = useProjectOptions();
@@ -219,7 +220,12 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
   const cardId = modalState?.cardId;
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateHiringCardMutation({
-    ...defaultMutationProps(queryClient),
+    onSuccess: (data) => {
+      const id = data.updateHiringCard?.id;
+      if (id) {
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
+      }
+    },
   });
   const moveCardMutation = useMoveCardMutation({
     ...defaultMutationProps(queryClient),
@@ -242,8 +248,11 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
     };
 
     const state = cols.find((c) => c.id === workflowState?.value);
-    if (!_.isEqual(cardData.card, card)) {
-      updateCardMutation.mutate({ card: cardData.card, cardId });
+    if (card && !_.isEqual(cardData.card, card)) {
+      updateCardMutation.mutate({
+        card: cardData.card,
+        cardId,
+      });
     }
     if (state && state.id !== card?.workflowState?.id) {
       moveCardMutation.mutate({

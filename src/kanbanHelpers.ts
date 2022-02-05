@@ -9,6 +9,7 @@ import {
   useKanbanDataQuery,
 } from "./generated/graphql";
 import { TWorkflow, TCard } from "./types";
+import _ from "lodash";
 
 export type ObjectKeys<T> = T extends object
   ? (keyof T)[]
