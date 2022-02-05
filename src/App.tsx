@@ -476,7 +476,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
                   )?.cards?.[destination.index - 1]?.id;
             if (!startCol || !endCol) return;
 
-            if (!workflowProjectId) {
+            if (!workflowProjectId && newFilteredState) {
               // if there are no filters, just use the local state in the mutation
               updateServerCards(
                 newFilteredState,
@@ -537,21 +537,27 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
                 index: newCardIdx,
               };
 
-              const newState = moveCard(
-                unfilteredWorkflow,
-                unfilteredSource,
-                unfilteredDestination
-              );
-              if (unfilteredStartCol && unfilteredEndCol) {
-                updateServerCards(
-                  newState,
-                  unfilteredStartCol,
-                  unfilteredEndCol,
+              if (
+                unfilteredStartCol &&
+                unfilteredEndCol &&
+                unfilteredWorkflow
+              ) {
+                const newState = moveCard(
+                  unfilteredWorkflow,
                   unfilteredSource,
-                  unfilteredDestination,
-                  draggableId,
-                  prevCardId
+                  unfilteredDestination
                 );
+                if (newState) {
+                  updateServerCards(
+                    newState,
+                    unfilteredStartCol,
+                    unfilteredEndCol,
+                    unfilteredSource,
+                    unfilteredDestination,
+                    draggableId,
+                    prevCardId
+                  );
+                }
               }
             }
 
