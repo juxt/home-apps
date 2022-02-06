@@ -145,7 +145,7 @@ export type SelectInputDefinition = SelectProps & WithIdAndType<"select">;
 
 export type MultiSelectDefinition = {
   options: Option[];
-} & Omit<Omit<ISelectProps, "labelledBy">, "value"> &
+} & Omit<ISelectProps, "labelledBy" | "value"> &
   WithIdAndType<"multiselect">;
 
 export type SubmitButtonProps = SubmitProps & WithIdAndType<"submit">;

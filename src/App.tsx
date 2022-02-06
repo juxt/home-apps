@@ -587,7 +587,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
 
 export function App() {
   const search = useSearch<LocationGenerics>();
-  const refetch = search.modalState?.formModalType ? false : false;
+  const refetch = search.modalState?.formModalType ? false : 3000;
   const kanbanQueryResult = useKanbanDataQuery(undefined, {
     refetchInterval: refetch,
   });

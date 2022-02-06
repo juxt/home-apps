@@ -14,8 +14,8 @@ import { LocationGenerics, ModalStateProps } from "../types";
 import { ModalForm } from "./Modal";
 
 type AddWorkflowStateInput = Omit<
-  Omit<Omit<CreateWorkflowStateMutationVariables, "colId">, "workflowStateIds">,
-  "workflowId"
+  CreateWorkflowStateMutationVariables,
+  "colId" | "workflowStateIds" | "workflowId"
 >;
 
 type AddWorkflowStateModalProps = ModalStateProps;
@@ -68,8 +68,8 @@ export function AddWorkflowStateModal({
 }
 
 type UpdateWorkflowStateInput = Omit<
-  Omit<Omit<UpdateWorkflowStateMutationVariables, "colId">, "workflowStateIds">,
-  "workflowId"
+  UpdateWorkflowStateMutationVariables,
+  "colId" | "workflowStateIds" | "workflowId"
 >;
 
 type UpdateWorkflowStateModalProps = ModalStateProps;
