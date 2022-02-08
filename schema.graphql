@@ -75,7 +75,7 @@ input WorkflowStateInput {
 input FileInput {
   name: String!
   type: String!
-  lzbase64: String!
+  base64: String!
 }
 
 input HiringCardInput {
@@ -83,6 +83,8 @@ input HiringCardInput {
   description: String
   projectId: ID
   workflowId: ID
+  languages: [String]
+  agent: String
   files: [FileInput]
   cvPdf: FileInput
 }
@@ -130,7 +132,7 @@ type Project {
 type File {
   name: String!
   type: String!
-  lzbase64: String!
+  base64: String!
 }
 
 type HiringCard {
@@ -140,6 +142,8 @@ type HiringCard {
   _siteSubject: ID
   project: Project @site(ref: "projectId")
   description: String
+  languages: [String]
+  agent: String
   files: [File] @onObject
   cvPdf: File @onObject
   workflow: Workflow @site(ref: "workflowId")

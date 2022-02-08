@@ -5,6 +5,8 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   DocumentIcon,
+  EyeIcon,
+  EyeOffIcon,
   FolderAddIcon,
   PencilIcon,
   PlusIcon,
@@ -28,6 +30,26 @@ export function Heading({
   const isMobile = useMobileDetect().isMobile();
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
+
+  const showDetails = search.showDetails;
+  const showDetailsText = showDetails ? "Hide details" : "Show details";
+  const ShowDetailsIcon = showDetails ? (
+    <EyeOffIcon
+      className="-ml-1 mr-2 h-5 w-5 text-gray-500"
+      aria-hidden="true"
+    />
+  ) : (
+    <EyeIcon className="-ml-1 mr-2 h-5 w-5 text-gray-500" aria-hidden="true" />
+  );
+  const handleToggleDetails = () => {
+    navigate({
+      search: {
+        ...search,
+        showDetails: !showDetails,
+      },
+    });
+  };
+
   const isCardView = !search?.view || search.view === "card";
   const ChangeViewIcon = isCardView ? (
     <ViewBoardsIcon
@@ -126,6 +148,17 @@ export function Heading({
           <span className="hidden sm:block ml-3">
             <button
               type="button"
+              onClick={handleToggleDetails}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              {ShowDetailsIcon}
+              {showDetailsText}
+            </button>
+          </span>
+
+          <span className="hidden sm:block ml-3">
+            <button
+              type="button"
               onClick={handleChangeView}
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
@@ -202,6 +235,21 @@ export function Heading({
                     )}
                   </Menu.Item>
                 )}
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      onClick={handleToggleDetails}
+                      className={classNames(
+                        active ? "bg-gray-100" : "",
+                        "flex px-4 py-2 text-sm text-gray-700"
+                      )}
+                    >
+                      {ShowDetailsIcon}
+                      {showDetailsText}
+                    </a>
+                  )}
+                </Menu.Item>
+
                 <Menu.Item>
                   {({ active }) => (
                     <a

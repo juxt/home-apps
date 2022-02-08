@@ -16,13 +16,7 @@ import { DownloadIcon, TrashIcon } from "@heroicons/react/solid";
 import { FormInputField, FormProps, Option } from "../types";
 import { Tiptap } from "./Tiptap";
 import classNames from "classnames";
-import {
-  notEmpty,
-  fileToString,
-  base64FileToImage,
-  downloadFile,
-  uncompressBase64,
-} from "../kanbanHelpers";
+import { notEmpty, fileToString } from "../kanbanHelpers";
 import { toast } from "react-toastify";
 import { CardByIdsQuery, CardFieldsFragment } from "../generated/graphql";
 import { DeleteActiveIcon, DeleteInactiveIcon } from "./Icons";
@@ -73,7 +67,6 @@ export function FilePreview({
 }) {
   if (!file) return <div>No file</div>;
 
-  const data = useMemo(() => uncompressBase64(file.lzbase64), [file.lzbase64]);
   const options = [
     {
       label: "Delete",
@@ -91,7 +84,7 @@ export function FilePreview({
 
       id: "download",
       props: {
-        href: data,
+        href: file.base64,
         download: file.name,
       },
     },
@@ -100,7 +93,7 @@ export function FilePreview({
   return (
     <div className="flex flex-row justify-between">
       {file.type.startsWith("image") ? (
-        <ImagePreview title={file.name} image={data} />
+        <ImagePreview title={file.name} image={file.base64} />
       ) : (
         <div className="w-5/6">
           <p>Type: {file.type}</p>
@@ -157,11 +150,11 @@ export function RenderField<T>({
                   }. ${rejection.errors.map((e) => e.message).join(", ")}`
                 );
               });
-              const lzbase64 = await fileToString(f);
+              const base64 = await fileToString(f);
               const newFile = {
                 name: f.name,
                 type: f.type,
-                lzbase64,
+                base64,
               };
 
               onChange(newFile);
@@ -263,11 +256,11 @@ export function RenderField<T>({
                 );
               });
               acceptedFiles.filter(notEmpty).map(async (f) => {
-                const lzbase64 = await fileToString(f);
+                const base64 = await fileToString(f);
                 const newFile = {
                   name: f.name,
                   type: f.type,
-                  lzbase64,
+                  base64,
                 };
 
                 const newValue = [...(files || []), newFile];

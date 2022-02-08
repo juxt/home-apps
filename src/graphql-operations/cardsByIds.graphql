@@ -6,12 +6,12 @@ query cardByIds($ids: [ID]!) {
       _siteValidTime
       _siteSubject
       cvPdf {
-        lzbase64
+        base64
         name
         type
       }
       files {
-        lzbase64
+        base64
         name
         type
       }

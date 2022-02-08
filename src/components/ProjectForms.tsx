@@ -1,4 +1,4 @@
-import { LocationGenerics, ModalStateProps, Option } from "../types";
+import { LocationGenerics, ModalStateProps } from "../types";
 import { useForm } from "react-hook-form";
 import { Modal, ModalForm } from "./Modal";
 import {
@@ -8,15 +8,11 @@ import {
   useUpdateProjectMutation,
 } from "../generated/graphql";
 import { toast } from "react-toastify";
-import {
-  defaultMutationProps,
-  notEmpty,
-  uncompressBase64,
-} from "../kanbanHelpers";
+import { defaultMutationProps } from "../kanbanHelpers";
 import { useEffect } from "react";
 import { useSearch } from "react-location";
 import { useQueryClient } from "react-query";
-import { useCurrentProject, useProjectOptions } from "../hooks";
+import { useCurrentProject } from "../hooks";
 import { Form } from "./Form";
 
 type AddProjectInput = CreateProjectMutationVariables;

@@ -24,12 +24,7 @@ import {
   useUpdateCardPositionMutation,
 } from "./generated/graphql";
 import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from "./types";
-import {
-  defaultMutationProps,
-  moveCard,
-  notEmpty,
-  uncompressBase64,
-} from "./kanbanHelpers";
+import { defaultMutationProps, moveCard, notEmpty } from "./kanbanHelpers";
 import { useQueryClient } from "react-query";
 import React, { useEffect } from "react";
 import { useNavigate, useSearch } from "react-location";
@@ -65,10 +60,16 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
     }
   );
   const search = useSearch<LocationGenerics>();
-
-  const imageString = detailedCard?.files?.filter((file) =>
-    file?.type.startsWith("image")
-  )?.[0]?.lzbase64;
+  const showDetails = search?.showDetails;
+  const details = showDetails && {
+    imageSrc:
+      detailedCard?.files?.filter((file) => file?.type.startsWith("image"))?.[0]
+        ?.base64 ?? "",
+    descriptionHtml:
+      detailedCard?.description &&
+      detailedCard?.description !== "<p></p>" &&
+      DOMPurify.sanitize(detailedCard?.description),
+  };
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided, snapshot) => {
@@ -97,23 +98,22 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                 onClick={() => workflow?.id && setIsOpen(true)}
                 ref={provided.innerRef}
               >
-                {search?.devMode && <pre>{card.id}</pre>}
+                {search?.devMode && <pre className="truncate">{card.id}</pre>}
                 <p className="uppercase text-gray-800 font-extralight text-sm">
                   {card.project?.name}
                 </p>
                 <p className="prose lg:prose-xl">{card.title}</p>
-                {detailedCard?.description &&
-                  detailedCard.description !== "<p></p>" && (
-                    <div
-                      className="ProseMirror h-min max-h-32 w-full my-2 overflow-y-hidden"
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(detailedCard.description),
-                      }}
-                    />
-                  )}
-                {imageString && (
+                {details && details.descriptionHtml && (
+                  <div
+                    className="ProseMirror h-min max-h-32 w-full my-2 overflow-y-auto"
+                    dangerouslySetInnerHTML={{
+                      __html: details.descriptionHtml,
+                    }}
+                  />
+                )}
+                {details && details.imageSrc && (
                   <img
-                    src={uncompressBase64(imageString)}
+                    src={details.imageSrc}
                     width={100}
                     height={100}
                     className="rounded"

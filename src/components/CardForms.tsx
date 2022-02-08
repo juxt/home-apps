@@ -40,12 +40,7 @@ import {
   useMoveCardMutation,
   useDeleteCommentMutation,
 } from "../generated/graphql";
-import {
-  base64toBlob,
-  defaultMutationProps,
-  notEmpty,
-  uncompressBase64,
-} from "../kanbanHelpers";
+import { base64toBlob, defaultMutationProps, notEmpty } from "../kanbanHelpers";
 import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
 import { useNavigate, useSearch } from "react-location";
@@ -72,6 +67,22 @@ import { Disclosure } from "@headlessui/react";
 import _ from "lodash";
 import { Button } from "./Buttons";
 import { Tiptap } from "./Tiptap";
+
+function PdfViewer({ pdfString }: { pdfString?: string }) {
+  const pdfUrl = useMemo(() => {
+    const pdfBlob = pdfString && base64toBlob(pdfString);
+    if (pdfBlob) {
+      return URL.createObjectURL(pdfBlob);
+    }
+  }, [pdfString]);
+  // clean up object url on unmount
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    };
+  }, [pdfUrl]);
+  return pdfUrl ? <Viewer fileUrl={pdfUrl} /> : <p>No Pdf</p>;
+}
 
 type AddCardInput = CreateHiringCardMutationVariables & {
   project: Option;
@@ -273,8 +284,7 @@ export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
   const processCard = async () => {
     if (!card) return;
     const processFiles = card.files?.filter(notEmpty).map(async (f) => {
-      const previewUrl =
-        f.name.startsWith("image") && uncompressBase64(f.lzbase64);
+      const previewUrl = f.name.startsWith("image") && f.base64;
       return {
         ...f,
         preview: previewUrl,
@@ -863,6 +873,16 @@ function CardInfo({
   resetSplit?: () => void;
 }) {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [splitSize, setSplitSize] = useState(
+    parseInt(localStorage.getItem("hsplitPos") || "700", 10)
+  );
+  const handleResize = (size?: number) => {
+    if (size) {
+      localStorage.setItem("hsplitPos", size.toString());
+    }
+  };
+  useThrottleFn(handleResize, 500, [splitSize]);
+
   const CloseIcon = (open: boolean) => (
     <ChevronDownIcon
       className={classNames(
@@ -890,8 +910,15 @@ function CardInfo({
             Reset Split
           </button>
         )}
-        <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
-          <div className="w-full lg:h-full lg:overflow-y-auto m-4">
+        <SplitPane
+          onChange={setSplitSize}
+          style={{
+            overflowY: "auto",
+          }}
+          split="horizontal"
+          defaultSize={splitSize}
+        >
+          <div className="text-center mx-4 flex flex-col w-full items-center justify-center isolate">
             <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
               {card.title}
             </h2>
@@ -904,77 +931,69 @@ function CardInfo({
             {card?.workflowState && (
               <p className="text-gray-500">Status: {card.workflowState.name}</p>
             )}
-            {true && (
-              <Disclosure defaultOpen as="div" className="mt-2 w-full">
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className={accordionButtonClass}>
-                      <span>Interview 1</span>
-                      {CloseIcon(open)}
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                      <div className="mt-2 flex justify-between items-center">
-                        Status: Booked for 03/02/22 at 4pm
-                        <Button onClick={() => setShowQuestionModal(true)}>
-                          Start
-                        </Button>
-                      </div>
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
-            )}
             {card?.description && (
-              <Disclosure as="div" className="w-full">
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className={accordionButtonClass}>
-                      <span>Description</span>
-                      {CloseIcon(open)}
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-4 pt-4 pb-2 h-full text-sm text-muted flex ">
-                      <div
-                        className="ProseMirror prose text-left bg-white shadow-lg w-full no-scrollbar"
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(card?.description || ""),
-                        }}
-                      />
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
+              <div
+                className="ProseMirror prose text-left bg-white shadow-lg w-full no-scrollbar h-full mb-4"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(card?.description || ""),
+                }}
+              />
             )}
-            {card?.files && card?.files.length > 0 && (
-              <Disclosure as="div" className="mt-2 w-full">
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className={accordionButtonClass}>
-                      <span>Other Files</span>
-                      {CloseIcon(open)}
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                      {card?.files && (
-                        <div className="mt-2 flex justify-between">
-                          {card.files.filter(notEmpty).map((file, i) => (
-                            <div
-                              key={file.name + i}
-                              className="flex items-center"
-                            >
-                              <FilePreview file={file} />
-                            </div>
-                          ))}
+          </div>
+          <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+            <div className="w-full lg:h-full lg:overflow-y-auto m-4">
+              {true && (
+                <Disclosure defaultOpen as="div" className="mt-2 w-full">
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className={accordionButtonClass}>
+                        <span>Interview 1</span>
+                        {CloseIcon(open)}
+                      </Disclosure.Button>
+                      <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                        <div className="mt-2 flex justify-between items-center">
+                          Status: Booked for 03/02/22 at 4pm
+                          <Button onClick={() => setShowQuestionModal(true)}>
+                            Start
+                          </Button>
                         </div>
-                      )}
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
-            )}
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+              )}
+              {card?.files && card?.files.length > 0 && (
+                <Disclosure as="div" className="mt-2 w-full">
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className={accordionButtonClass}>
+                        <span>Other Files</span>
+                        {CloseIcon(open)}
+                      </Disclosure.Button>
+                      <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                        {card?.files && (
+                          <div className="mt-2 flex justify-between">
+                            {card.files.filter(notEmpty).map((file, i) => (
+                              <div
+                                key={file.name + i}
+                                className="flex items-center"
+                              >
+                                <FilePreview file={file} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+              )}
+            </div>
+            <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
+              <CommentSection cardId={card.id} />
+            </div>
           </div>
-          <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
-            <CommentSection cardId={card.id} />
-          </div>
-        </div>
+        </SplitPane>
       </div>
     </>
   );
@@ -985,38 +1004,26 @@ function CardView() {
   const { data, isLoading } = useCardById(cardId);
 
   const card = data?.cardsByIds?.[0];
-  const pdfLzString = card?.cvPdf?.lzbase64;
-  const pdfUrl = useMemo(() => {
-    const pdfBase64 = pdfLzString && uncompressBase64(pdfLzString);
-    const pdfBlob = pdfBase64 && base64toBlob(pdfBase64);
-    if (pdfBlob) {
-      return URL.createObjectURL(pdfBlob);
-    }
-  }, [pdfLzString]);
-  // clean up object url on unmount
-  useEffect(() => {
-    return () => {
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-    };
-  }, [pdfUrl]);
   const screen = useMobileDetect();
   const isMobile = screen.isMobile();
 
   const [splitSize, setSplitSize] = useState(
-    parseInt(localStorage.getItem("splitPos") || "900", 10)
+    parseInt(localStorage.getItem("vsplitPos") || "900", 10)
   );
   const [splitKey, setSplitKey] = useState(splitSize);
   const handleResize = (size?: number) => {
     if (size) {
-      localStorage.setItem("splitPos", size.toString());
+      localStorage.setItem("vsplitPos", size.toString());
     }
   };
   useThrottleFn(handleResize, 500, [splitSize]);
   const resetSplit = () => {
     setSplitSize(400);
     setSplitKey(splitSize);
-    localStorage.removeItem("splitPos");
+    localStorage.removeItem("vsplitPos");
   };
+
+  const pdfData = card?.cvPdf?.base64;
 
   return (
     <div className="relative h-full">
@@ -1060,12 +1067,11 @@ function CardView() {
                 </h1>
               </div>
             )}
-
             <div>
-              {pdfUrl ? (
-                <div className="max-w-xl block overflow-y-auto">
+              {pdfData ? (
+                <div className="max-w-3xl block overflow-y-auto">
                   {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
-                  <Viewer key={splitSize} fileUrl={pdfUrl} />{" "}
+                  <PdfViewer key={splitSize} pdfString={pdfData} />
                 </div>
               ) : (
                 <div className="text-center">
@@ -1227,23 +1233,11 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
   const { cardModalView, ...search } = useSearch<LocationGenerics>();
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { data, error } = useCardById(cardId);
-  const card = data?.cardsByIds?.[0];
-  const pdfLzString = card?.cvPdf?.lzbase64;
-  const pdfUrl = useMemo(() => {
-    const pdfBase64 = pdfLzString && uncompressBase64(pdfLzString);
-    const pdfBlob = pdfBase64 && base64toBlob(pdfBase64);
-    if (pdfBlob) {
-      return URL.createObjectURL(pdfBlob);
-    }
-  }, [pdfLzString]);
-  // clean up object url on unmount
-  useEffect(() => {
-    return () => {
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-    };
-  }, [pdfUrl]);
   const navigate = useNavigate<LocationGenerics>();
   const hasUnsaved = false; // TODO
+  const card = data?.cardsByIds?.[0];
+  const pdfLzString = card?.cvPdf?.base64;
+
   const onClose = () => {
     const confirmation =
       hasUnsaved &&
@@ -1275,7 +1269,7 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
         <ModalTabs
           tabs={[
             { id: "view", name: "View", default: !cardModalView },
-            { id: "cv", name: "CV", hidden: !pdfUrl },
+            { id: "cv", name: "CV", hidden: !pdfLzString },
             { id: "update", name: "Edit" },
             { id: "history", name: "History" },
           ]}
@@ -1301,9 +1295,9 @@ export function CardModal({ isOpen, handleClose }: CardModalProps) {
         {(!cardModalView || cardModalView === "view") && <CardView />}
         {cardModalView === "update" && <UpdateCardForm handleClose={onClose} />}
         {cardModalView === "history" && <CardHistory />}
-        {cardModalView === "cv" && pdfUrl && (
+        {cardModalView === "cv" && (
           <div className="block mx-auto max-w-xl h-full min-h-full ">
-            <Viewer fileUrl={pdfUrl} />{" "}
+            <PdfViewer pdfString={pdfLzString} />
           </div>
         )}
       </div>

@@ -1,6 +1,5 @@
 import { DraggableLocation } from "react-beautiful-dnd";
 import { QueryClient } from "react-query";
-import LZUTF8 from "lzutf8";
 import Resizer from "react-image-file-resizer";
 import { toast } from "react-toastify";
 import {
@@ -322,20 +321,6 @@ const defaultMutationProps = (queryClient: QueryClient) => ({
   },
 });
 
-function uncompressBase64(base64: string): string {
-  return LZUTF8.decompress(base64, {
-    inputEncoding: "Base64",
-    outputEncoding: "String",
-  });
-}
-
-function compressBase64(base64: string): string {
-  return LZUTF8.compress(base64, {
-    outputEncoding: "Base64",
-    inputEncoding: "String",
-  });
-}
-
 function compressImage(file: File): Promise<string> {
   return new Promise((resolve) => {
     Resizer.imageFileResizer(
@@ -346,7 +331,7 @@ function compressImage(file: File): Promise<string> {
       60,
       0,
       (uri) => {
-        resolve(compressBase64(uri.toString()));
+        resolve(uri.toString());
       },
       "base64"
     );
@@ -379,7 +364,7 @@ function fileToString(file: File): Promise<string> {
       let reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
-        resolve(compressBase64(reader.result?.toString() ?? ""));
+        resolve(reader.result?.toString() ?? "");
       };
 
       reader.onerror = () => {
@@ -392,11 +377,7 @@ function fileToString(file: File): Promise<string> {
 
 const base64toBlob = (data: string) => {
   // Cut the prefix `data:application/pdf;base64` from the raw base 64
-  const base64WithoutPrefix = data.substr(
-    "data:application/pdf;base64,".length
-  );
-
-  const bytes = atob(base64WithoutPrefix);
+  const bytes = atob(data);
   let length = bytes.length;
   let out = new Uint8Array(length);
 
@@ -422,7 +403,6 @@ export {
   fileToString,
   base64toBlob,
   downloadFile,
-  uncompressBase64,
   base64FileToImage,
   hasDuplicateCards,
   removeDuplicateCards,

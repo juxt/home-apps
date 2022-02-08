@@ -202,6 +202,7 @@ export type LocationGenerics = MakeGenerics<{
     workflowProjectId?: string;
     cardModalView?: string;
     view?: "card" | "table";
+    showDetails?: boolean;
     devMode?: boolean;
   };
 }>;
