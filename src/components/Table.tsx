@@ -16,7 +16,9 @@ import {
 import { Button, PageButton } from "./Buttons";
 import { SortIcon, SortUpIcon, SortDownIcon } from "./Icons";
 import classNames from "classnames";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearch } from "react-location";
+import { LocationGenerics } from "../types";
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -35,7 +37,7 @@ function GlobalFilter({
   }, 200);
 
   return (
-    <label className="flex gap-x-2 items-baseline mt-4">
+    <label className="flex gap-x-2 items-baseline">
       <span className="text-gray-700">Search: </span>
       <input
         type="text"
@@ -75,6 +77,18 @@ export function SelectColumnFilter({
     return [...options.values()];
   }, [id, preFilteredRows]);
   // Render a multi-select box
+
+  const navigate = useNavigate<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
+
+  const filters = search.filters;
+
+  useEffect(() => {
+    if (filters?.[id]) {
+      setFilter(filters[id]);
+    }
+  }, [filters, id]);
+
   return (
     <label className="flex gap-x-2 items-baseline">
       <span className="text-gray-700">{render("Header")}: </span>
@@ -84,6 +98,15 @@ export function SelectColumnFilter({
         id={id}
         value={filterValue}
         onChange={(e) => {
+          navigate({
+            search: {
+              ...search,
+              filters: {
+                ...search.filters,
+                [id]: e.target.value,
+              },
+            },
+          });
           setFilter(e.target.value || undefined);
         }}
       >
@@ -143,7 +166,6 @@ export function AvatarCell({
   );
 }
 
-
 function Table({
   onRowClick,
   columns,
@@ -173,8 +195,9 @@ function Table({
     setGlobalFilter,
   } = useTable(
     {
-      columns, 
+      columns,
       data,
+      autoResetFilters: false,
     },
     useFilters,
     useGlobalFilter,
@@ -183,16 +206,22 @@ function Table({
   );
   const showPagination = canNextPage || canPreviousPage;
 
-
   // Render the UI for your table
   return (
     <>
-      <div className="sm:flex sm:gap-x-2">
+      <div className="sm:flex sm:gap-x-2 items-center  mt-4">
         <GlobalFilter
           preGlobalFilteredRows={preGlobalFilteredRows}
           globalFilter={state.globalFilter}
           setGlobalFilter={setGlobalFilter}
         />
+        {headerGroups.map((headerGroup) =>
+          headerGroup.headers.map((column) =>
+            column.Filter ? (
+              <div key={column.id}>{column.render("Filter")}</div>
+            ) : null
+          )
+        )}
       </div>
       {/* table */}
       <div
@@ -233,10 +262,6 @@ function Table({
                               )}
                             </span>
                           </div>
-                          <div className="mt-2 sm:mt-0" key={column.id}>      
-                                {column.Filter && column.render("Filter")}
-                          </div>
-                      
                         </th>
                       ))}
                     </tr>
