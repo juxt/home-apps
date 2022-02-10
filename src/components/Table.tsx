@@ -74,7 +74,6 @@ export function SelectColumnFilter({
     //@ts-ignore
     return [...options.values()];
   }, [id, preFilteredRows]);
-
   // Render a multi-select box
   return (
     <label className="flex gap-x-2 items-baseline">
@@ -144,6 +143,7 @@ export function AvatarCell({
   );
 }
 
+
 function Table({
   onRowClick,
   columns,
@@ -173,7 +173,7 @@ function Table({
     setGlobalFilter,
   } = useTable(
     {
-      columns,
+      columns, 
       data,
     },
     useFilters,
@@ -182,6 +182,7 @@ function Table({
     usePagination
   );
   const showPagination = canNextPage || canPreviousPage;
+
 
   // Render the UI for your table
   return (
@@ -192,15 +193,6 @@ function Table({
           globalFilter={state.globalFilter}
           setGlobalFilter={setGlobalFilter}
         />
-        {headerGroups.map((headerGroup) =>
-          headerGroup.headers.map((column) =>
-            column.Filter ? (
-              <div className="mt-2 sm:mt-0" key={column.id}>
-                {column.render("Filter")}
-              </div>
-            ) : null
-          )
-        )}
       </div>
       {/* table */}
       <div
@@ -241,6 +233,10 @@ function Table({
                               )}
                             </span>
                           </div>
+                          <div className="mt-2 sm:mt-0" key={column.id}>      
+                                {column.Filter && column.render("Filter")}
+                          </div>
+                      
                         </th>
                       ))}
                     </tr>

@@ -34,12 +34,16 @@ import DOMPurify from "dompurify";
 import Table from "./components/Table";
 import Tippy, { useSingleton } from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
+import {SelectColumnFilter} from "./components/Table"
+
+
 
 type CardProps = {
   card: TCard;
   workflow: TWorkflow;
   index: number;
 };
+  
 
 const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
   const [, setIsOpen] = useModalForm({
@@ -232,6 +236,7 @@ const WorkflowState = React.memo(
   }
 );
 
+
 function filteredCards(
   cards: TCard[] | undefined,
   projectId: string | undefined
@@ -403,12 +408,14 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
       {
         id: "state",
         Header: "State",
-        accessor: "state",
+        accessor: "state", 
+        Filter: SelectColumnFilter
       },
       {
         id: "project",
         Header: "Project",
-        accessor: "project.name",
+        accessor: "project.name",   
+         Filter: SelectColumnFilter
       },
       {
         id: "lastUpdated",
