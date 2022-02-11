@@ -96,7 +96,6 @@ export function SelectColumnFilter({
         className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
         name={id}
         id={id}
-        // value={filterValue}
         value={filterValue || ""}
         onChange={(e) => {
           navigate({
@@ -207,7 +206,8 @@ function Table({
     usePagination
   );
   const showPagination = canNextPage || canPreviousPage;
-
+  const navigate = useNavigate<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
   // Render the UI for your table
   return (
     <>
@@ -228,7 +228,15 @@ function Table({
         <button
           type="button"
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          onClick={() => setAllFilters([])}
+          onClick={() => {
+            navigate({
+              search: {
+                ...search,
+                filters: undefined,
+              },
+            });
+            return setAllFilters([]);
+          }}
         >
           Reset
         </button>
@@ -236,7 +244,7 @@ function Table({
       {/* table */}
       <div
         className={classNames(
-          "mt-4 flex flex-col w-full md:w-fit",
+          "mt-4 flexw-full  flex-col md:w-fit",
           !showPagination && "pb-4"
         )}
       >
