@@ -1,4 +1,7 @@
-import { MouseEventHandler } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable no-shadow */
+import {MouseEventHandler} from 'react';
 import {
   TableInstance,
   UseColumnOrderInstanceProps,
@@ -42,9 +45,9 @@ import {
   UseSortByInstanceProps,
   UseSortByOptions,
   UseSortByState,
-} from "react-table";
+} from 'react-table';
 
-declare module "react-table" {
+declare module 'react-table' {
   export interface UseFlexLayoutInstanceProps<D extends object> {
     totalColumnsMinWidth: number;
   }
@@ -110,7 +113,7 @@ declare module "react-table" {
       UseFlexLayoutColumnProps<D>,
       UseSortByColumnProps<D> {}
 
-  export interface Cell<D extends object = {}> extends UseGroupByCellProps<D> {}
+  export type Cell<D extends object = {}> = UseGroupByCellProps<D>;
 
   export interface Row<D extends object = {}>
     extends UseExpandedRowProps<D>,
@@ -119,7 +122,7 @@ declare module "react-table" {
 
   export interface TableCommonProps {
     title?: string;
-    "aria-label"?: string;
+    'aria-label'?: string;
   }
 
   export interface TableSortByToggleProps {

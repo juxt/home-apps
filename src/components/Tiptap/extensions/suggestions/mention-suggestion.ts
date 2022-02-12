@@ -1,57 +1,50 @@
-import { mergeAttributes, Node } from "@tiptap/core";
-import { ReactRenderer } from "@tiptap/react";
-import Suggestion, { SuggestionOptions } from "@tiptap/suggestion";
-import tippy, { Instance, Props } from "tippy.js";
+import {mergeAttributes, Node} from '@tiptap/core';
+import {ReactRenderer} from '@tiptap/react';
+import Suggestion, {SuggestionOptions} from '@tiptap/suggestion';
+import tippy, {Instance, Props} from 'tippy.js';
 
-import { MENTION_SUGGESTIONS } from "../../data";
-import { SuggestionDropdownRef } from "./SuggestionDropdown";
-import { MentionDropdown } from "./MentionDropdown";
+import {MENTION_SUGGESTIONS} from '../../data';
+import {SuggestionDropdownRef} from './SuggestionDropdown';
+import {MentionDropdown} from './MentionDropdown';
 
 type MentionOptions = {
-  suggestion: Omit<SuggestionOptions, "editor">;
+  suggestion: Omit<SuggestionOptions, 'editor'>;
 };
 
 const MentionSuggestion = Node.create<MentionOptions>({
-  name: "mentionSuggestion",
-  group: "inline",
+  name: 'mentionSuggestion',
+  group: 'inline',
   inline: true,
   selectable: false,
   atom: true,
   addOptions() {
     return {
       suggestion: {
-        char: "@",
+        char: '@',
         allowSpaces: true,
-        command: ({ editor, range, props }) => {
-          const nodeAfter = editor.view.state.selection.$to.nodeAfter;
-          const overrideSpace = nodeAfter?.text?.startsWith(" ");
-
-          if (overrideSpace) {
-            range.to += 1;
-          }
-
+        command: ({editor, range, props}) => {
           editor
             .chain()
             .focus()
             .insertContentAt(range, [
               {
-                type: "mentionSuggestion",
+                type: 'mentionSuggestion',
                 attrs: props,
               },
               {
-                type: "text",
-                text: " ",
+                type: 'text',
+                text: ' ',
               },
             ])
             .run();
         },
-        allow: ({ editor, range }) => {
+        allow: ({editor, range}) => {
           return editor
             .can()
-            .insertContentAt(range, { type: "mentionSuggestion" });
+            .insertContentAt(range, {type: 'mentionSuggestion'});
         },
-        items: ({ query }) => {
-          return MENTION_SUGGESTIONS.filter(({ name }) =>
+        items: ({query}) => {
+          return MENTION_SUGGESTIONS.filter(({name}) =>
             name.toLowerCase().includes(query.toLowerCase())
           );
         },
@@ -66,14 +59,14 @@ const MentionSuggestion = Node.create<MentionOptions>({
                 editor: props.editor,
               });
 
-              popup = tippy("body", {
+              popup = tippy('body', {
                 getReferenceClientRect: props.clientRect,
                 appendTo: () => document.body,
                 content: reactRenderer.element,
                 showOnCreate: true,
                 interactive: true,
-                trigger: "manual",
-                placement: "bottom-start",
+                trigger: 'manual',
+                placement: 'bottom-start',
               });
             },
             onUpdate(props) {
@@ -84,7 +77,7 @@ const MentionSuggestion = Node.create<MentionOptions>({
               });
             },
             onKeyDown(props) {
-              if (props.event.key === "Escape") {
+              if (props.event.key === 'Escape') {
                 popup[0].hide();
                 return true;
               }
@@ -105,34 +98,34 @@ const MentionSuggestion = Node.create<MentionOptions>({
       id: {
         default: null,
         renderHTML: (attributes) => ({
-          "data-user-id": attributes.id,
+          'data-user-id': attributes.id,
         }),
       },
       name: {
         default: null,
         parseHTML: (element) =>
-          element.getAttribute("aria-label")?.split(/\s(.+)/)[1],
+          element.getAttribute('aria-label')?.split(/\s(.+)/)[1],
         renderHTML: (attributes) => ({
-          "aria-label": `Name: ${attributes.name}`,
+          'aria-label': `Name: ${attributes.name}`,
         }),
       },
     };
   },
   parseHTML() {
-    return [{ tag: "span[data-mention]" }];
+    return [{tag: 'span[data-mention]'}];
   },
-  renderHTML({ node, HTMLAttributes }) {
+  renderHTML({node, HTMLAttributes}) {
     return [
-      "span",
-      mergeAttributes({ "data-mention": "" }, HTMLAttributes),
-      ["span", { class: "char" }, this.options.suggestion.char],
-      ["span", { class: "name" }, node.attrs.name],
+      'span',
+      mergeAttributes({'data-mention': ''}, HTMLAttributes),
+      ['span', {class: 'char'}, this.options.suggestion.char],
+      ['span', {class: 'name'}, node.attrs.name],
     ];
   },
-  renderText({ node }) {
+  renderText({node}) {
     return `${this.options.suggestion.char}${node.attrs.name}`;
   },
-  /*addKeyboardShortcuts() {
+  /* addKeyboardShortcuts() {
         return {
             Backspace: () =>
                 this.editor.commands.command(({ tr, state }) => {
@@ -160,7 +153,7 @@ const MentionSuggestion = Node.create<MentionOptions>({
                     return isMention
                 }),
         }
-    },*/
+    }, */
   addProseMirrorPlugins() {
     return [
       Suggestion({
@@ -171,4 +164,4 @@ const MentionSuggestion = Node.create<MentionOptions>({
   },
 });
 
-export { MentionSuggestion };
+export {MentionSuggestion};

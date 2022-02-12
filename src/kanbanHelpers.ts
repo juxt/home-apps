@@ -1,34 +1,21 @@
-import { DraggableLocation } from "react-beautiful-dnd";
-import { QueryClient } from "react-query";
-import Resizer from "react-image-file-resizer";
-import { toast } from "react-toastify";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {DraggableLocation} from 'react-beautiful-dnd';
+import {QueryClient} from 'react-query';
+import Resizer from 'react-image-file-resizer';
+import {toast} from 'react-toastify';
 import {
   WorkflowStateFieldsFragment as TWorkflowState,
-  useCardHistoryQuery,
   useKanbanDataQuery,
-} from "./generated/graphql";
-import { TWorkflow, TCard } from "./types";
-import _ from "lodash";
-
-export type ObjectKeys<T> = T extends object
-  ? (keyof T)[]
-  : T extends number
-  ? []
-  : T extends Array<any> | string
-  ? string[]
-  : never;
-
-export interface ObjectConstructor {
-  keys<T>(o: T): ObjectKeys<T>;
-}
+} from './generated/graphql';
+import {TWorkflow, TCard} from './types';
 
 export function mapKeys<T, K extends keyof T>(
   obj: T,
   mapper: (key: K) => K
-): { [P in K]: T[P] } {
+): {[P in K]: T[P]} {
   return Object.keys(obj).reduce((acc, key) => {
-    return { ...acc, [mapper(key as K)]: obj[key as K] };
-  }, {} as { [P in K]: T[P] });
+    return {...acc, [mapper(key as K)]: obj[key as K]};
+  }, {} as {[P in K]: T[P]});
 }
 
 export function isDefined<T>(argument: T | undefined): argument is T {
@@ -47,9 +34,9 @@ export function distinctBy<T>(array: Array<T>, propertyName: keyof T) {
   );
 }
 
-export function indexById<T extends { id: string }>(
+export function indexById<T extends {id: string}>(
   array: Array<T>
-): { [id: string]: T } {
+): {[id: string]: T} {
   const initialValue = {};
   return array.reduce((obj, item) => {
     return {
@@ -94,18 +81,8 @@ function removeFromArrayAtPosition(array: any[], position: any) {
   );
 }
 
-function identity(value: any) {
-  return value;
-}
-
-function when(value: any, predicate = identity) {
-  return function callback(callback: (arg0: any) => any) {
-    if (predicate(value)) return callback(value);
-  };
-}
-
 function replaceElementOfArray(array: any[]) {
-  return function (options: {
+  return function replaceEl(options: {
     when: (arg0: any) => any;
     for: (arg0: any) => any;
   }) {
@@ -113,12 +90,6 @@ function replaceElementOfArray(array: any[]) {
       options.when(element) ? options.for(element) : element
     );
   };
-}
-
-function pickPropOut(object: { [x: string]: any }, prop: string) {
-  return Object.keys(object).reduce((obj, key) => {
-    return key === prop ? obj : { ...obj, [key]: object[key] };
-  }, {});
 }
 
 function reorderCardsOnWorkflowState(
@@ -133,9 +104,9 @@ function reorderCardsOnWorkflowState(
 }
 
 function moveWorkflowState(
-  workflow: { workflowStates: any },
-  { fromPosition }: any,
-  { toPosition }: any
+  workflow: {workflowStates: any},
+  {fromPosition}: any,
+  {toPosition}: any
 ) {
   return {
     ...workflow,
@@ -154,12 +125,13 @@ function hasDuplicateCards(col: TWorkflowState) {
       return cards.findIndex((c) => c.id === card.id) !== index;
     });
   }
+  return null;
 }
 
 function removeDuplicateCards(state: TWorkflow, cardList: string[]) {
   return cardList.filter((cardId) => {
-    const col = state?.workflowStates.find((col) =>
-      col?.cards?.find((c) => c?.id === cardId)
+    const col = state?.workflowStates.find((stateCol) =>
+      stateCol?.cards?.find((c) => c?.id === cardId)
     );
     return col?.cards?.find((c) => c?.id === cardId) === undefined;
   });
@@ -167,10 +139,10 @@ function removeDuplicateCards(state: TWorkflow, cardList: string[]) {
 
 function moveCard(
   workflow: TWorkflow,
-  { index: fromPosition, droppableId: fromWorkflowStateId }: DraggableLocation,
-  { index: toPosition, droppableId: toWorkflowStateId }: DraggableLocation
+  {index: fromPosition, droppableId: fromWorkflowStateId}: DraggableLocation,
+  {index: toPosition, droppableId: toWorkflowStateId}: DraggableLocation
 ) {
-  if (!workflow) return;
+  if (!workflow) return null;
   const cols = workflow.workflowStates.filter(notEmpty).map((col) => {
     return {
       ...col,
@@ -205,36 +177,34 @@ function moveCard(
         ? reorderedCardsOnWorkflowState
         : workflowState
     );
-  } else {
-    const reorderedCardsOnSourceWorkflowState = reorderCardsOnWorkflowState(
-      sourceWorkflowState,
-      (cards: TCard[]) => {
-        return removeFromArrayAtPosition(cards, fromPosition);
-      }
-    );
-    const reorderedCardsOnDestinationWorkflowState =
-      reorderCardsOnWorkflowState(
-        destinationWorkflowState,
-        (cards: TCard[]) => {
-          return addInArrayAtPosition(
-            cards,
-            sourceWorkflowState.cards[fromPosition],
-            toPosition
-          );
-        }
-      );
-    return reorderWorkflowStatesOnWorkflow((workflowState: TWorkflowState) => {
-      if (workflowState.id === sourceWorkflowState.id)
-        return reorderedCardsOnSourceWorkflowState;
-      if (workflowState.id === destinationWorkflowState.id)
-        return reorderedCardsOnDestinationWorkflowState;
-      return workflowState;
-    });
   }
+  const reorderedCardsOnSourceWorkflowState = reorderCardsOnWorkflowState(
+    sourceWorkflowState,
+    (cards: TCard[]) => {
+      return removeFromArrayAtPosition(cards, fromPosition);
+    }
+  );
+  const reorderedCardsOnDestinationWorkflowState = reorderCardsOnWorkflowState(
+    destinationWorkflowState,
+    (cards: TCard[]) => {
+      return addInArrayAtPosition(
+        cards,
+        sourceWorkflowState.cards[fromPosition],
+        toPosition
+      );
+    }
+  );
+  return reorderWorkflowStatesOnWorkflow((workflowState: TWorkflowState) => {
+    if (workflowState.id === sourceWorkflowState.id)
+      return reorderedCardsOnSourceWorkflowState;
+    if (workflowState.id === destinationWorkflowState.id)
+      return reorderedCardsOnDestinationWorkflowState;
+    return workflowState;
+  });
 }
 
 function addWorkflowState(
-  workflow: { workflowStates: string | any[] },
+  workflow: {workflowStates: string | any[]},
   workflowState: any
 ) {
   return {
@@ -248,67 +218,67 @@ function addWorkflowState(
 }
 
 function removeWorkflowState(
-  workflow: { workflowStates: any[] },
-  workflowState: { id: any }
+  workflow: {workflowStates: any[]},
+  workflowState: {id: any}
 ) {
   return {
     ...workflow,
     workflowStates: workflow.workflowStates.filter(
-      ({ id }) => id !== workflowState.id
+      ({id}) => id !== workflowState.id
     ),
   };
 }
 
 function changeWorkflowState(
-  workflow: { workflowStates: any },
-  workflowState: { id: any },
+  workflow: {workflowStates: any},
+  workflowState: {id: any},
   newWorkflowState: any
 ) {
   const changedWorkflowStates = replaceElementOfArray(workflow.workflowStates)({
-    when: ({ id }) => id === workflowState.id,
-    for: (value: any) => ({ ...value, ...newWorkflowState }),
+    when: ({id}) => id === workflowState.id,
+    for: (value: any) => ({...value, ...newWorkflowState}),
   });
-  return { ...workflow, workflowStates: changedWorkflowStates };
+  return {...workflow, workflowStates: changedWorkflowStates};
 }
 
 function addCard(
-  workflow: { workflowStates: any[] },
-  inWorkflowState: { id: any },
+  workflow: {workflowStates: any[]},
+  inWorkflowState: {id: any},
   card: any,
-  opts = { on: "top" }
+  opts = {on: 'top'}
 ) {
-  const on = opts.on;
+  const {on} = opts;
   const workflowStateToAdd = workflow.workflowStates.find(
-    ({ id }) => id === inWorkflowState.id
+    ({id}) => id === inWorkflowState.id
   );
   const cards = addInArrayAtPosition(
     workflowStateToAdd.cards,
     card,
-    on === "top" ? 0 : workflowStateToAdd.cards.length
+    on === 'top' ? 0 : workflowStateToAdd.cards.length
   );
   const workflowStates = replaceElementOfArray(workflow.workflowStates)({
-    when: ({ id }) => inWorkflowState.id === id,
-    for: (value: any) => ({ ...value, cards }),
+    when: ({id}) => inWorkflowState.id === id,
+    for: (value: any) => ({...value, cards}),
   });
-  return { ...workflow, workflowStates };
+  return {...workflow, workflowStates};
 }
 
 function changeCard(
-  workflow: { workflowStates: any[] },
+  workflow: {workflowStates: any[]},
   cardId: any,
   newCard: any
 ) {
   const changedCards = (cards: any) =>
     replaceElementOfArray(cards)({
-      when: ({ id }) => id === cardId,
-      for: (card: any) => ({ ...card, ...newCard }),
+      when: ({id}) => id === cardId,
+      for: (card: any) => ({...card, ...newCard}),
     });
 
   return {
     ...workflow,
     workflowStates: workflow.workflowStates
       .filter(notEmpty)
-      .map((workflowState: { cards: any[] }) => ({
+      .map((workflowState: {cards: any[]}) => ({
         ...workflowState,
         cards: changedCards(workflowState.cards),
       })),
@@ -327,69 +297,69 @@ function compressImage(file: File): Promise<string> {
       file,
       200,
       200,
-      "JPEG",
+      'JPEG',
       60,
       0,
       (uri) => {
         resolve(uri.toString());
       },
-      "base64"
+      'base64'
     );
   });
 }
 
 function base64FileToImage(file: File) {
   return new Promise((resolve, reject) => {
-    if (!file.type.startsWith("image/")) {
-      reject(new Error("File is not an image"));
+    if (!file.type.startsWith('image/')) {
+      reject(new Error('File is not an image'));
     }
-    let reader = new FileReader();
+    const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
       resolve(reader.result);
     };
 
     reader.onerror = () => {
-      toast.error("Error reading file");
+      toast.error('Error reading file');
       reject(reader.error);
     };
   });
 }
 
 function fileToString(file: File): Promise<string> {
-  if (file.type.startsWith("image/")) {
+  if (file.type.startsWith('image/')) {
     return compressImage(file);
-  } else {
-    return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        resolve(reader.result?.toString() ?? "");
-      };
-
-      reader.onerror = () => {
-        toast.error("Error reading file");
-        reject(reader.error);
-      };
-    });
   }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      resolve(reader.result?.toString() ?? '');
+    };
+
+    reader.onerror = () => {
+      toast.error('Error reading file');
+      reject(reader.error);
+    };
+  });
 }
 
 const base64toBlob = (data: string) => {
   // Cut the prefix `data:application/pdf;base64` from the raw base 64
   const bytes = atob(data);
-  let length = bytes.length;
-  let out = new Uint8Array(length);
+  let {length} = bytes;
+  const out = new Uint8Array(length);
 
+  // eslint-disable-next-line no-plusplus
   while (length--) {
     out[length] = bytes.charCodeAt(length);
   }
 
-  return new Blob([out], { type: "application/pdf" });
+  return new Blob([out], {type: 'application/pdf'});
 };
 
 function downloadFile(blob: Blob, filename: string) {
-  const link = document.createElement("a");
+  const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();

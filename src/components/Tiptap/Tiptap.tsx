@@ -1,20 +1,17 @@
-import React from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Typography from "@tiptap/extension-typography";
-import Highlight from "@tiptap/extension-highlight";
-import Link from "@tiptap/extension-link";
-import TaskList from "@tiptap/extension-task-list";
-import TaskItem from "@tiptap/extension-task-item";
-import Placeholder from "@tiptap/extension-placeholder";
+import React from 'react';
+import {useEditor, EditorContent} from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Typography from '@tiptap/extension-typography';
+import Highlight from '@tiptap/extension-highlight';
+import Link from '@tiptap/extension-link';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import Placeholder from '@tiptap/extension-placeholder';
 
-import type { Extensions } from "@tiptap/react";
-import { MentionSuggestion } from "./extensions";
-import { markdownToHtml, htmlToMarkdown } from "./helpers/";
+import type {Extensions} from '@tiptap/react';
+import {MentionSuggestion} from './extensions';
 
-import { Popover } from "./Popover";
-
-import "./Tiptap.scss";
+import './Tiptap.scss';
 
 export type TiptapProps = {
   content?: string | null;
@@ -29,10 +26,10 @@ export type TiptapProps = {
 };
 
 function Tiptap({
-  content = "",
+  content = '',
   onChange,
   editable = true,
-  placeholder = "Write something...",
+  placeholder = 'Write something...',
   withTypographyExtension = false,
   withLinkExtension = false,
   withTaskListExtension = false,
@@ -69,54 +66,34 @@ function Tiptap({
   if (withMentionSuggestion) {
     extensions.push(MentionSuggestion);
 
-    /*extensions.push(
+    /* extensions.push(
             MentionSuggestion.configure({
                 suggestion: {
                     char: '+',
                 },
             }),
-        )*/
+        ) */
   }
-  const [editorHtmlContent, setEditorHtmlContent] = React.useState(
-    content?.trim() || "a"
-  );
-  const [turndownMarkdownContent, setTurndownMarkdownContent] =
-    React.useState("");
-  const [markedHtmlContent, setMarkedHtmlContent] = React.useState("");
-
-  const editor = useEditor({
+  const [, setEditorHtmlContent] = React.useState(content?.trim() || 'a');
+  const tiptapEditor = useEditor({
     content,
     extensions,
     editable,
-    onUpdate: ({ editor }) => {
+    onUpdate: ({editor}) => {
       setEditorHtmlContent(editor.getHTML());
+      onChange(editor.getHTML());
     },
   });
 
-  React.useEffect(
-    function convertHtmlToMarkdown() {
-      setTurndownMarkdownContent(htmlToMarkdown(editorHtmlContent));
-      onChange(editorHtmlContent);
-    },
-    [editorHtmlContent]
-  );
-
-  React.useEffect(
-    function convertMarkdownToHtml() {
-      setMarkedHtmlContent(markdownToHtml(turndownMarkdownContent));
-    },
-    [turndownMarkdownContent]
-  );
-
-  if (!editor) {
+  if (!tiptapEditor) {
     return null;
   }
 
   return (
     <div className="w-full">
-      <EditorContent editor={editor} />
+      <EditorContent editor={tiptapEditor} />
     </div>
   );
 }
 
-export { Tiptap };
+export {Tiptap};

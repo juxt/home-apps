@@ -1,21 +1,21 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { useSearch } from "react-location";
-import { useQueryClient } from "react-query";
+import {useEffect} from 'react';
+import {useForm} from 'react-hook-form';
+import {useSearch} from 'react-location';
+import {useQueryClient} from 'react-query';
 import {
   CreateWorkflowStateMutationVariables,
   UpdateWorkflowStateMutationVariables,
   useCreateWorkflowStateMutation,
   useUpdateWorkflowStateMutation,
-} from "../generated/graphql";
-import { useWorkflowState, useWorkflowStates } from "../hooks";
-import { defaultMutationProps } from "../kanbanHelpers";
-import { LocationGenerics, ModalStateProps } from "../types";
-import { ModalForm } from "./Modal";
+} from '../generated/graphql';
+import {useWorkflowState, useWorkflowStates} from '../hooks';
+import {defaultMutationProps} from '../kanbanHelpers';
+import {LocationGenerics, ModalStateProps} from '../types';
+import {ModalForm} from './Modal';
 
 type AddWorkflowStateInput = Omit<
   CreateWorkflowStateMutationVariables,
-  "colId" | "workflowStateIds" | "workflowId"
+  'colId' | 'workflowStateIds' | 'workflowId'
 >;
 
 type AddWorkflowStateModalProps = ModalStateProps;
@@ -28,7 +28,7 @@ export function AddWorkflowStateModal({
   const addColMutation = useCreateWorkflowStateMutation({
     ...defaultMutationProps(queryClient),
   });
-  const { modalState } = useSearch<LocationGenerics>();
+  const {modalState} = useSearch<LocationGenerics>();
   const workflowId = modalState?.workflowId;
   const cols = useWorkflowStates().data || [];
 
@@ -54,13 +54,13 @@ export function AddWorkflowStateModal({
       handleClose={handleClose}
       fields={[
         {
-          id: "name",
-          path: "workflowStateName",
+          id: 'name',
+          path: 'workflowStateName',
           rules: {
             required: true,
           },
-          label: "WorkflowState Name",
-          type: "text",
+          label: 'WorkflowState Name',
+          type: 'text',
         },
       ]}
     />
@@ -69,7 +69,7 @@ export function AddWorkflowStateModal({
 
 type UpdateWorkflowStateInput = Omit<
   UpdateWorkflowStateMutationVariables,
-  "colId" | "workflowStateIds" | "workflowId"
+  'colId' | 'workflowStateIds' | 'workflowId'
 >;
 
 type UpdateWorkflowStateModalProps = ModalStateProps;
@@ -82,7 +82,7 @@ export function UpdateWorkflowStateModal({
   const updateColMutation = useUpdateWorkflowStateMutation({
     ...defaultMutationProps(queryClient),
   });
-  const { modalState } = useSearch<LocationGenerics>();
+  const {modalState} = useSearch<LocationGenerics>();
   const colId = modalState?.workflowStateId;
   const workflowState = useWorkflowState(colId)?.data;
 
@@ -98,9 +98,9 @@ export function UpdateWorkflowStateModal({
   const formHooks = useForm<UpdateWorkflowStateInput>();
   useEffect(() => {
     if (workflowState) {
-      formHooks.setValue("name", workflowState.name);
+      formHooks.setValue('name', workflowState.name);
       if (workflowState?.description) {
-        formHooks.setValue("description", workflowState.description);
+        formHooks.setValue('description', workflowState.description);
       }
     }
   }, [workflowState]);
@@ -114,19 +114,19 @@ export function UpdateWorkflowStateModal({
       handleClose={handleClose}
       fields={[
         {
-          id: "name",
-          path: "name",
+          id: 'name',
+          path: 'name',
           rules: {
             required: true,
           },
-          label: "Column Name",
-          type: "text",
+          label: 'Column Name',
+          type: 'text',
         },
         {
-          id: "description",
-          path: "description",
-          label: "Description",
-          type: "text",
+          id: 'description',
+          path: 'description',
+          label: 'Description',
+          type: 'text',
         },
       ]}
     />

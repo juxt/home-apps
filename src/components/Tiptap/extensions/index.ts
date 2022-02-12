@@ -1,1 +1,1 @@
-export { MentionSuggestion } from "./suggestions/mention-suggestion";
+export {MentionSuggestion} from './suggestions/mention-suggestion';

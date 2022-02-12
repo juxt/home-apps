@@ -1,25 +1,25 @@
-import { LocationGenerics, ModalStateProps } from "../types";
-import { useForm } from "react-hook-form";
-import { Modal, ModalForm } from "./Modal";
+import {LocationGenerics, ModalStateProps} from '../types';
+import {useForm} from 'react-hook-form';
+import {Modal, ModalForm} from './Modal';
 import {
   CreateProjectMutationVariables,
   UpdateProjectMutationVariables,
   useCreateProjectMutation,
   useUpdateProjectMutation,
-} from "../generated/graphql";
-import { toast } from "react-toastify";
-import { defaultMutationProps } from "../kanbanHelpers";
-import { useEffect } from "react";
-import { useSearch } from "react-location";
-import { useQueryClient } from "react-query";
-import { useCurrentProject } from "../hooks";
-import { Form } from "./Form";
+} from '../generated/graphql';
+import {toast} from 'react-toastify';
+import {defaultMutationProps} from '../kanbanHelpers';
+import {useEffect} from 'react';
+import {useSearch} from 'react-location';
+import {useQueryClient} from 'react-query';
+import {useCurrentProject} from '../hooks';
+import {Form} from './Form';
 
 type AddProjectInput = CreateProjectMutationVariables;
 
 type AddProjectModalProps = ModalStateProps;
 
-export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
+export function AddProjectModal({isOpen, handleClose}: AddProjectModalProps) {
   const addProjectMutation = useCreateProjectMutation({
     ...defaultMutationProps,
   });
@@ -28,9 +28,9 @@ export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
     handleClose();
 
     toast.promise(addProjectMutation.mutateAsync(input), {
-      pending: "Creating project...",
-      success: "Project created!",
-      error: "Error creating project",
+      pending: 'Creating project...',
+      success: 'Project created!',
+      error: 'Error creating project',
     });
   };
 
@@ -42,21 +42,21 @@ export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
       formHooks={formHooks}
       fields={[
         {
-          id: "ProjectName",
-          placeholder: "Project Name",
-          label: "Project Name",
-          type: "text",
+          id: 'ProjectName',
+          placeholder: 'Project Name',
+          label: 'Project Name',
+          type: 'text',
           rules: {
             required: true,
           },
-          path: "project.name",
+          path: 'project.name',
         },
         {
-          id: "ProjectDescription",
-          label: "Project Description",
-          placeholder: "Project Description",
-          type: "text",
-          path: "project.description",
+          id: 'ProjectDescription',
+          label: 'Project Description',
+          placeholder: 'Project Description',
+          type: 'text',
+          path: 'project.description',
         },
       ]}
       onSubmit={formHooks.handleSubmit(addProject, console.warn)}
@@ -74,7 +74,7 @@ export function UpdateProjectModal({
   isOpen,
   handleClose,
 }: UpdateProjectModalProps) {
-  const { modalState } = useSearch<LocationGenerics>();
+  const {modalState} = useSearch<LocationGenerics>();
   const projectId = modalState?.projectId;
   const queryClient = useQueryClient();
   const updateProjectMutation = useUpdateProjectMutation({
@@ -83,7 +83,7 @@ export function UpdateProjectModal({
 
   const updateProject = (input: UpdateProjectInput) => {
     handleClose();
-    updateProjectMutation.mutate({ ...input });
+    updateProjectMutation.mutate({...input});
   };
 
   const project = useCurrentProject().data;
@@ -96,11 +96,11 @@ export function UpdateProjectModal({
 
   useEffect(() => {
     if (project) {
-      formHooks.setValue("project", { ...project });
+      formHooks.setValue('project', {...project});
     }
   }, [project]);
 
-  const title = "Update Project";
+  const title = 'Update Project';
   return (
     <Modal isOpen={isOpen} handleClose={handleClose}>
       <div>
@@ -109,21 +109,21 @@ export function UpdateProjectModal({
           formHooks={formHooks}
           fields={[
             {
-              id: "ProjectName",
-              placeholder: "Project Name",
-              type: "text",
+              id: 'ProjectName',
+              placeholder: 'Project Name',
+              type: 'text',
               rules: {
                 required: true,
               },
-              path: "project.name",
-              label: "Name",
+              path: 'project.name',
+              label: 'Name',
             },
             {
-              id: "ProjectDescription",
-              label: "Project Description",
-              placeholder: "Project Description",
-              type: "text",
-              path: "project.description",
+              id: 'ProjectDescription',
+              label: 'Project Description',
+              placeholder: 'Project Description',
+              type: 'text',
+              path: 'project.description',
             },
           ]}
           onSubmit={formHooks.handleSubmit(updateProject, console.warn)}
@@ -133,15 +133,13 @@ export function UpdateProjectModal({
         <button
           type="submit"
           form={title}
-          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-        >
+          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
           Submit
         </button>
         <button
           type="button"
           className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-          onClick={() => handleClose()}
-        >
+          onClick={() => handleClose()}>
           Cancel
         </button>
       </div>

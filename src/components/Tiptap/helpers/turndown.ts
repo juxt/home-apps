@@ -1,24 +1,25 @@
-import TurndownService from "turndown";
+/* eslint-disable no-param-reassign */
+import TurndownService from 'turndown';
 
 /**
  * Initialize Turndown with sensible defaults.
  */
 const turndownService = new TurndownService({
-  headingStyle: "atx",
-  hr: "---",
-  bulletListMarker: "*",
-  codeBlockStyle: "fenced",
-  fence: "```",
-  emDelimiter: "_",
-  strongDelimiter: "**",
-  linkStyle: "inlined",
+  headingStyle: 'atx',
+  hr: '---',
+  bulletListMarker: '*',
+  codeBlockStyle: 'fenced',
+  fence: '```',
+  emDelimiter: '_',
+  strongDelimiter: '**',
+  linkStyle: 'inlined',
 });
 
 /**
  * Custom rule for strikethrough.
  */
-turndownService.addRule("strikethrough", {
-  filter: ["s"],
+turndownService.addRule('strikethrough', {
+  filter: ['s'],
   replacement: (content) => {
     return `~~${content}~~`;
   },
@@ -27,10 +28,10 @@ turndownService.addRule("strikethrough", {
 /**
  * Custom rule for paragraphs which removes the `<p></p>` tag inside `<li>` elements.
  */
-turndownService.addRule("paragraph", {
-  filter: ["p"],
+turndownService.addRule('paragraph', {
+  filter: ['p'],
   replacement: (content, node) => {
-    if (node.parentElement?.nodeName === "LI") {
+    if (node.parentElement?.nodeName === 'LI') {
       return content;
     }
 
@@ -42,27 +43,27 @@ turndownService.addRule("paragraph", {
  * Custom rule for standard list items (i.e., not task list items) based on the original rule:
  * https://github.com/mixmark-io/turndown/blob/master/src/commonmark-rules.js
  */
-turndownService.addRule("listItem", {
+turndownService.addRule('listItem', {
   filter: (node: Element) => {
-    return node.nodeName === "LI" && !node.hasAttribute("data-type");
+    return node.nodeName === 'LI' && !node.hasAttribute('data-type');
   },
-  replacement: function (content, node, options) {
+  replacement(content, node, options) {
     let listItemPrefix = `${options.bulletListMarker} `;
     const parentNode = node.parentNode as HTMLElement | null;
 
     content = content
-      .replace(/^\s*\n+/, "")
-      .replace(/\s*\n+$/, "\n")
-      .replace(/\s*\n/gm, "\n  ");
+      .replace(/^\s*\n+/, '')
+      .replace(/\s*\n+$/, '\n')
+      .replace(/\s*\n/gm, '\n  ');
 
-    if (parentNode?.nodeName === "OL") {
-      const start = parentNode?.getAttribute("start");
+    if (parentNode?.nodeName === 'OL') {
+      const start = parentNode?.getAttribute('start');
       const index = Array.prototype.indexOf.call(parentNode.children, node);
       listItemPrefix = `${start ? Number(start) + index : index + 1}. `;
     }
 
     return `${listItemPrefix}${content}${
-      node.nextSibling && !/\n$/.test(content) ? "\n" : ""
+      node.nextSibling && !/\n$/.test(content) ? '\n' : ''
     }`;
   },
 });
@@ -71,30 +72,30 @@ turndownService.addRule("listItem", {
  * Custom rule for task list items (i.e., `* [ ] Task`) based on the original list item rule:
  * https://github.com/mixmark-io/turndown/blob/master/src/commonmark-rules.js#L61
  */
-turndownService.addRule("taskListItem", {
+turndownService.addRule('taskListItem', {
   filter: (node: Element) => {
     return (
-      node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem"
+      node.nodeName === 'LI' && node.getAttribute('data-type') === 'taskItem'
     );
   },
-  replacement: function (content, node, options) {
+  replacement(content, node, options) {
     let listItemPrefix = `${options.bulletListMarker} `;
     const parentNode = node.parentNode as HTMLElement | null;
 
     content = content
-      .replace(/^\s*\n+/, "")
-      .replace(/\s*\n+$/, "\n")
-      .replace(/\s*\n/gm, "\n  ");
+      .replace(/^\s*\n+/, '')
+      .replace(/\s*\n+$/, '\n')
+      .replace(/\s*\n/gm, '\n  ');
 
-    if (parentNode?.nodeName === "UL") {
-      const checked = (node as HTMLLIElement).getAttribute("data-checked");
+    if (parentNode?.nodeName === 'UL') {
+      const checked = (node as HTMLLIElement).getAttribute('data-checked');
       listItemPrefix = `${listItemPrefix}${
-        checked === "true" ? "[x]" : "[ ]"
+        checked === 'true' ? '[x]' : '[ ]'
       } `;
     }
 
     return `${listItemPrefix}${content}${
-      node.nextSibling && !/\n$/.test(content) ? "\n" : ""
+      node.nextSibling && !/\n$/.test(content) ? '\n' : ''
     }`;
   },
 });
@@ -102,13 +103,13 @@ turndownService.addRule("taskListItem", {
 /**
  * Custom rule for user mentions (i.e., `@Ricardo A`).
  */
-turndownService.addRule("mention", {
+turndownService.addRule('mention', {
   filter: (node: Element) => {
-    return node.nodeName === "SPAN" && node.hasAttribute("data-mention");
+    return node.nodeName === 'SPAN' && node.hasAttribute('data-mention');
   },
-  replacement: (content, node, options) => {
+  replacement: (content, node) => {
     return `(${content.substring(1)})[user-mention://${
-      (node as Element).getAttribute("data-user-id") || 0
+      (node as Element).getAttribute('data-user-id') || 0
     }]`;
   },
 });
@@ -117,4 +118,4 @@ function htmlToMarkdown(html: string) {
   return turndownService.turndown(html);
 }
 
-export { htmlToMarkdown };
+export {htmlToMarkdown};

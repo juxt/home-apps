@@ -1,60 +1,56 @@
-import NaturalDragAnimation from "./components/lib/react-dnd-animation";
-import { useHotkeys } from "react-hotkeys-hook";
-import { useMobileDetect, useModalForm } from "./hooks";
-import { NavTabs } from "./components/Tabs";
-import { Heading } from "./components/Headings";
+import NaturalDragAnimation from './components/lib/react-dnd-animation';
+import {useHotkeys} from 'react-hotkeys-hook';
+import {useModalForm} from './hooks';
+import {NavTabs} from './components/Tabs';
+import {Heading} from './components/Headings';
 import {
   AddWorkflowStateModal,
   UpdateWorkflowStateModal,
-} from "./components/WorkflowStateForms";
-import { AddProjectModal, UpdateProjectModal } from "./components/ProjectForms";
-import { AddCardModal, CardModal } from "./components/CardForms";
+} from './components/WorkflowStateForms';
+import {AddProjectModal, UpdateProjectModal} from './components/ProjectForms';
+import {AddCardModal, CardModal} from './components/CardForms';
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DraggableLocation,
   DroppableProvided,
-} from "react-beautiful-dnd";
+} from 'react-beautiful-dnd';
 import {
   useKanbanDataQuery,
   useMoveCardMutation,
   useCardByIdsQuery,
-  CardByIdsQuery,
   useUpdateCardPositionMutation,
-} from "./generated/graphql";
-import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from "./types";
-import { defaultMutationProps, moveCard, notEmpty } from "./kanbanHelpers";
-import { useQueryClient } from "react-query";
-import React, { useEffect } from "react";
-import { useNavigate, useSearch } from "react-location";
-import classNames from "classnames";
-import _ from "lodash";
-import DOMPurify from "dompurify";
-import Table from "./components/Table";
-import Tippy, { useSingleton } from "@tippyjs/react";
-import "tippy.js/dist/tippy.css";
-import {SelectColumnFilter} from "./components/Table"
-
-
+} from './generated/graphql';
+import {LocationGenerics, TWorkflow, TCard, TWorkflowState} from './types';
+import {defaultMutationProps, moveCard, notEmpty} from './kanbanHelpers';
+import {useQueryClient} from 'react-query';
+import React, {useEffect} from 'react';
+import {useNavigate, useSearch} from 'react-location';
+import classNames from 'classnames';
+import _ from 'lodash-es';
+import DOMPurify from 'dompurify';
+import Table, {SelectColumnFilter} from './components/Table';
+import Tippy, {useSingleton, TippyProps} from '@tippyjs/react';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'tippy.js/dist/tippy.css';
 
 type CardProps = {
   card: TCard;
   workflow: TWorkflow;
   index: number;
 };
-  
 
-const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
+const DraggableCard = React.memo(({card, index, workflow}: CardProps) => {
   const [, setIsOpen] = useModalForm({
-    formModalType: "editCard",
+    formModalType: 'editCard',
     cardId: card.id,
     workflowId: workflow?.id,
     workflowStateId: workflow?.workflowStates.find((state) =>
       state?.cards?.find((c) => c?.id === card.id)
     )?.id,
   });
-  const { data: detailedCard } = useCardByIdsQuery(
+  const {data: detailedCard} = useCardByIdsQuery(
     {
       ids: [card.id],
     },
@@ -67,11 +63,11 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
   const showDetails = search?.showDetails;
   const details = showDetails && {
     imageSrc:
-      detailedCard?.files?.filter((file) => file?.type.startsWith("image"))?.[0]
-        ?.base64 ?? "",
+      detailedCard?.files?.filter((file) => file?.type.startsWith('image'))?.[0]
+        ?.base64 ?? '',
     descriptionHtml:
       detailedCard?.description &&
-      detailedCard?.description !== "<p></p>" &&
+      detailedCard?.description !== '<p></p>' &&
       DOMPurify.sanitize(detailedCard?.description),
   };
   return (
@@ -79,29 +75,28 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
       {(provided, snapshot) => {
         const isDragging = snapshot.isDragging && !snapshot.isDropAnimating;
         const cardStyles = classNames(
-          "bg-white w-full sm:w-52 lg:w-64 rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400",
-          isDragging && "bg-blue-50 border-blue-400 shadow-lg",
-          !card?.project && "border-red-500 bg-red-50"
+          'text-left bg-white w-full sm:w-52 lg:w-64 rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400',
+          isDragging && 'bg-blue-50 border-blue-400 shadow-lg',
+          !card?.project && 'border-red-500 bg-red-50'
         );
         return (
           <NaturalDragAnimation
             style={provided.draggableProps.style}
-            snapshot={snapshot}
-          >
+            snapshot={snapshot}>
             {(style: object) => (
+              // eslint-disable-next-line jsx-a11y/no-static-element-interactions
               <div
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
                 style={style}
                 className={cardStyles}
                 onKeyPress={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === 'Enter') {
                     setIsOpen(true);
                   }
                 }}
                 onClick={() => workflow?.id && setIsOpen(true)}
-                ref={provided.innerRef}
-              >
+                ref={provided.innerRef}>
                 {search?.devMode && <pre className="truncate">{card.id}</pre>}
                 <p className="uppercase text-gray-800 font-extralight text-sm">
                   {card.project?.name}
@@ -110,6 +105,7 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                 {details && details.descriptionHtml && (
                   <div
                     className="ProseMirror h-min max-h-32 w-full my-2 overflow-y-auto"
+                    // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
                       __html: details.descriptionHtml,
                     }}
@@ -121,7 +117,7 @@ const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
                     width={100}
                     height={100}
                     className="rounded"
-                    alt="Card Image"
+                    alt="Card"
                   />
                 )}
               </div>
@@ -138,20 +134,14 @@ type WorkflowStateProps = {
   isDragging: boolean;
   cards: TCard[];
   workflow: NonNullable<TWorkflow>;
-  tooltipTarget: any;
+  tooltipTarget: TippyProps['singleton'];
 };
 
 const WorkflowState = React.memo(
-  ({
-    workflowState,
-    cards,
-    workflow,
-    isDragging,
-    tooltipTarget,
-  }: WorkflowStateProps) => {
+  ({workflowState, cards, workflow, tooltipTarget}: WorkflowStateProps) => {
     const isFirst = workflow.workflowStates?.[0]?.id === workflowState.id;
     const [, setIsOpen] = useModalForm({
-      formModalType: "editWorkflowState",
+      formModalType: 'editWorkflowState',
       workflowStateId: workflowState.id,
     });
     return (
@@ -160,26 +150,25 @@ const WorkflowState = React.memo(
           {(provided, snapshot) => (
             <div
               style={{
-                borderColor: snapshot.isDraggingOver ? "gray" : "transparent",
+                borderColor: snapshot.isDraggingOver ? 'gray' : 'transparent',
               }}
               className={classNames(
-                "transition sm:mx-1 border-4",
-                isFirst && "sm:ml-0",
+                'transition sm:mx-1 border-4',
+                isFirst && 'sm:ml-0',
                 snapshot.isDraggingOver &&
-                  "bg-blue-50 shadow-sm  border-dashed ",
-                " mt-4 flex flex-col ",
-                cards.length === 0 && "relative h-36"
-              )}
-            >
-              <div
+                  'bg-blue-50 shadow-sm  border-dashed ',
+                ' flex flex-col ',
+                cards.length === 0 && 'relative h-36'
+              )}>
+              <button
+                type="button"
                 onClick={() => workflow?.id && setIsOpen(true)}
                 className={classNames(
-                  "prose xl:prose-xl cursor-pointer isolate",
+                  'prose cursor-pointer isolate',
                   cards.length === 0 &&
                     !snapshot.isDraggingOver &&
-                    "sm:transition sm:rotate-90 sm:relative sm:top-2 sm:left-10 sm:origin-top-left sm:whitespace-nowrap"
-                )}
-              >
+                    'sm:transition sm:rotate-90 sm:relative sm:top-2 sm:left-10 sm:origin-top-left sm:whitespace-nowrap'
+                )}>
                 {cards.length === 0 && !snapshot.isDraggingOver ? (
                   <>
                     <h3 className="text-white">col</h3>
@@ -194,30 +183,27 @@ const WorkflowState = React.memo(
                         <p>Column ID {workflowState.id}</p>
                         <p>{workflowState?.description}</p>
                         <p>
-                          {cards.length} card{cards.length === 1 ? "" : "s"}
+                          {cards.length} card{cards.length === 1 ? '' : 's'}
                         </p>
                         <p>Click to edit</p>
                       </div>
-                    }
-                  >
+                    }>
                     <div
-                      style={{ marginBlock: "8px" }}
-                      className="flex items-center justify-between my-2"
-                    >
-                      <h3 style={{ marginBlock: 0 }}>{workflowState.name}</h3>
+                      style={{marginBlock: '8px'}}
+                      className="flex items-center justify-between my-2">
+                      <h3 style={{marginBlock: 0}}>{workflowState.name}</h3>
                       <span className="px-2 bg-blue-50  text-gray-500 font-extralight rounded-md ">
                         {cards.length}
                       </span>
                     </div>
                   </Tippy>
                 )}
-              </div>
+              </button>
 
               <div
                 className="h-full juxt-kanban-cols-container overflow-scroll no-scrollbar"
                 ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
+                {...provided.droppableProps}>
                 {cards.map((t, i) => (
                   <DraggableCard
                     key={t.id}
@@ -236,7 +222,6 @@ const WorkflowState = React.memo(
   }
 );
 
-
 function filteredCards(
   cards: TCard[] | undefined,
   projectId: string | undefined
@@ -248,7 +233,7 @@ function filteredCards(
   return (
     cards?.filter(
       (card) =>
-        (projectId === "" && card?.project) ||
+        (projectId === '' && card?.project) ||
         (card?.project?.name && card.project?.id === projectId)
     ) ?? []
   );
@@ -282,8 +267,7 @@ function WorkflowStateContainer({
     <div
       className="flex sm:flex-row flex-col max-w-full"
       {...provided.droppableProps}
-      ref={provided.innerRef}
-    >
+      ref={provided.innerRef}>
       <Tippy
         singleton={source}
         delay={[500, 100]}
@@ -306,10 +290,10 @@ function WorkflowStateContainer({
   );
 }
 
-function Workflow({ workflow }: { workflow: TWorkflow }) {
+function Workflow({workflow}: {workflow: TWorkflow}) {
   if (!workflow?.id) return null;
   const search = useSearch<LocationGenerics>();
-  const { workflowProjectId, devMode } = search;
+  const {workflowProjectId, devMode} = search;
   const data = React.useMemo(
     () => processWorkflow(workflow, workflowProjectId),
     [workflow, workflowProjectId]
@@ -322,7 +306,6 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
   React.useEffect(() => {
     if (data) {
       setState(data);
-      console.log("workflow update from server");
     }
   }, [data]);
   const cols =
@@ -368,7 +351,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
         moveCardMutation.mutate({
           workflowStateId: endCol?.id,
           cardId: draggableId,
-          previousCard: prevCardId || "start",
+          previousCard: prevCardId || 'start',
         });
       }
     },
@@ -376,57 +359,49 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
   );
 
   const [, setIsAddCard] = useModalForm({
-    formModalType: "addCard",
+    formModalType: 'addCard',
     workflowId: workflow.id,
   });
 
-  useHotkeys("c", () => {
+  useHotkeys('c', () => {
     setIsAddCard(true);
   });
   const [isDragging, setIsDragging] = React.useState(false);
-  const isGrid = search.view === "table";
+  const isGrid = search.view === 'table';
   const gridData = React.useMemo(() => {
     return [
       ...cols
         .filter(notEmpty)
-        .flatMap((c) => [
-          ...c.cards.map((card) => ({ ...card, state: c.name })),
-        ]),
+        .flatMap((c) => [...c.cards.map((card) => ({...card, state: c.name}))]),
     ];
   }, [cols]);
   const gridColumns = React.useMemo(() => {
     return [
       {
-        Header: "id",
-        accessor: "id",
+        Header: 'id',
+        accessor: 'id',
       },
       {
-        id: "name",
-        Header: "Name",
-        accessor: "title",
+        id: 'name',
+        Header: 'Name',
+        accessor: 'title',
       },
       {
-        id: "state",
-        Header: "State",
-        accessor: "state", 
-        Filter: SelectColumnFilter
+        id: 'state',
+        Header: 'State',
+        accessor: 'state',
+        Filter: SelectColumnFilter,
       },
       {
-        id: "project",
-        Header: "Project",
-        accessor: "project.name",   
-         Filter: SelectColumnFilter
-      },
-      {
-        id: "lastUpdated",
-        Header: "Last Updated",
-        accessor: "_siteValidTime",
+        id: 'lastUpdated',
+        Header: 'Last Updated',
+        accessor: '_siteValidTime',
       },
     ];
   }, []);
   const navigate = useNavigate<LocationGenerics>();
 
-  const openCardForm = ({ values }: { values: typeof gridColumns[0] }) => {
+  const openCardForm = ({values}: {values: typeof gridColumns[0]}) => {
     const cardId = values.id;
     if (cardId) {
       navigate({
@@ -435,7 +410,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
           ...search,
           modalState: {
             cardId,
-            formModalType: "editCard",
+            formModalType: 'editCard',
             workflowId: workflow?.id,
             workflowStateId: workflow?.workflowStates.find((state) =>
               state?.cards?.find((c) => c?.id === cardId)
@@ -459,7 +434,7 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
       {!isGrid && filteredState && (
         <DragDropContext
           onDragStart={() => setIsDragging(true)}
-          onDragEnd={({ destination, source, draggableId }) => {
+          onDragEnd={({destination, source, draggableId}) => {
             setIsDragging(false);
             if (
               !destination ||
@@ -518,19 +493,18 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
                 (c) => c?.id === draggableId
               );
               const endCards = newEndCol?.cards?.filter(notEmpty) || [];
-              const prevCardId =
+              const prevUnfilteredCardId =
                 destination.index === 0
                   ? undefined
                   : !!unfilteredCardIdx && endCards[unfilteredCardIdx - 1]?.id;
               const prevCardIdx = unfilteredEndCol?.cards?.findIndex(
-                (c) => c?.id === prevCardId
+                (c) => c?.id === prevUnfilteredCardId
               );
               const unfilteredSource = {
                 ...source,
                 index: unfilteredSourceIdx,
               };
-              if (typeof prevCardIdx !== "number") {
-                console.log("no prev card idx");
+              if (typeof prevCardIdx !== 'number') {
                 return;
               }
               const isSameColMoveDown =
@@ -569,16 +543,14 @@ function Workflow({ workflow }: { workflow: TWorkflow }) {
             }
 
             setState(newFilteredState);
-          }}
-        >
+          }}>
           <Droppable
             droppableId="workflowStates"
             direction="horizontal"
-            type="workflowState"
-          >
+            type="workflowState">
             {(provided) => (
               <WorkflowStateContainer
-                key={provided.droppableProps["data-rbd-droppable-context-id"]}
+                key={provided.droppableProps['data-rbd-droppable-context-id']}
                 isDragging={isDragging}
                 workflow={workflow}
                 provided={provided}
@@ -600,23 +572,23 @@ export function App() {
   });
   const workflow = kanbanQueryResult.data?.allWorkflows?.[0];
   const [isModalOpen, setIsModalOpen] = useModalForm({
-    formModalType: "addWorkflowState",
+    formModalType: 'addWorkflowState',
   });
   const [isCardModalOpen, setIsCardModalOpen] = useModalForm({
-    formModalType: "editCard",
+    formModalType: 'editCard',
   });
   const [isWorkflowStateModalOpen, setIsWorkflowStateModalOpen] = useModalForm({
-    formModalType: "editWorkflowState",
+    formModalType: 'editWorkflowState',
   });
 
   const [isAddCard, setIsAddCard] = useModalForm({
-    formModalType: "addCard",
+    formModalType: 'addCard',
   });
   const [isAddProject, setIsAddProject] = useModalForm({
-    formModalType: "addProject",
+    formModalType: 'addProject',
   });
   const [isEditProject, setIsEditProject] = useModalForm({
-    formModalType: "editProject",
+    formModalType: 'editProject',
   });
   const projects = kanbanQueryResult.data?.allProjects || [];
   const allCardIds =
@@ -627,13 +599,13 @@ export function App() {
   const queryClient = useQueryClient();
   const prefetchCards = async () => {
     const data = await queryClient.fetchQuery(
-      useCardByIdsQuery.getKey({ ids: _.uniq(allCardIds) }),
-      useCardByIdsQuery.fetcher({ ids: _.uniq(allCardIds) }),
-      { staleTime: Infinity }
+      useCardByIdsQuery.getKey({ids: _.uniq(allCardIds)}),
+      useCardByIdsQuery.fetcher({ids: _.uniq(allCardIds)}),
+      {staleTime: Infinity}
     );
     data?.cardsByIds?.forEach((c) => {
       if (!c) return;
-      queryClient.setQueryData(useCardByIdsQuery.getKey({ ids: [c.id] }), {
+      queryClient.setQueryData(useCardByIdsQuery.getKey({ids: [c.id]}), {
         cardsByIds: [c],
       });
     });
@@ -674,7 +646,7 @@ export function App() {
       />
       <NavTabs
         navName="workflowProjectId"
-        tabs={[...projects, { id: "", name: "All" }]
+        tabs={[...projects, {id: '', name: 'All'}]
           .filter(notEmpty)
           .map((project) => ({
             id: project.id,
@@ -684,11 +656,10 @@ export function App() {
                 (acc, ws) =>
                   acc +
                   (ws?.cards?.filter((c) => {
-                    if (project.id === "") {
+                    if (project.id === '') {
                       return c?.project?.id;
-                    } else {
-                      return project?.id && c?.project?.id === project.id;
                     }
+                    return project?.id && c?.project?.id === project.id;
                   })?.length || 0),
                 0
               ) || 0,

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useSearch, useNavigate } from "react-location";
-import { UseQueryOptions } from "react-query";
+import {useEffect, useState} from 'react';
+import {useSearch, useNavigate} from 'react-location';
+import {UseQueryOptions} from 'react-query';
 import {
   CardByIdsQuery,
   CardHistoryQuery,
@@ -8,16 +8,16 @@ import {
   useCardHistoryQuery,
   useCommentsForCardQuery,
   useKanbanDataQuery,
-} from "./generated/graphql";
-import { notEmpty } from "./kanbanHelpers";
-import { LocationGenerics } from "./types";
+} from './generated/graphql';
+import {notEmpty} from './kanbanHelpers';
+import {LocationGenerics} from './types';
 
-type ModalState = LocationGenerics["Search"]["modalState"];
+type ModalState = LocationGenerics['Search']['modalState'];
 
 export function useModalForm(
   modalState: ModalState
 ): [boolean, (shouldOpen: boolean) => void] {
-  const { modalState: currentModalState, ...search } =
+  const {modalState: currentModalState, ...search} =
     useSearch<LocationGenerics>();
   const navigate = useNavigate();
   const isModalOpen =
@@ -29,7 +29,7 @@ export function useModalForm(
         replace: true,
         search: {
           ...search,
-          modalState: { ...currentModalState, ...modalState },
+          modalState: {...currentModalState, ...modalState},
         },
       });
     } else {
@@ -65,15 +65,15 @@ function getMobileDetect(userAgent: string) {
 
 export function useMobileDetect() {
   const userAgent =
-    typeof navigator === "undefined" ? "SSR" : navigator.userAgent;
+    typeof navigator === 'undefined' ? 'SSR' : navigator.userAgent;
   return getMobileDetect(userAgent);
 }
 
 export function useWorkflowStates() {
-  const { modalState } = useSearch<LocationGenerics>();
-  const id = modalState?.workflowId || "";
+  const {modalState} = useSearch<LocationGenerics>();
+  const id = modalState?.workflowId || '';
   const workflowStateResult = useKanbanDataQuery(undefined, {
-    enabled: id !== "",
+    enabled: id !== '',
     select: (data) =>
       data?.allWorkflows
         ?.find((w) => w?.id === id)
@@ -130,7 +130,7 @@ export function useCardById(
   opts?: UseQueryOptions<CardByIdsQuery, Error, CardByIdsQuery>
 ) {
   const queryResult = useCardByIdsQuery(
-    { ids: [cardId || ""] },
+    {ids: [cardId || '']},
     {
       ...opts,
       select: (data) => ({
@@ -141,7 +141,7 @@ export function useCardById(
       staleTime: 5000,
     }
   );
-  return { ...queryResult, card: queryResult.data?.cardsByIds?.[0] };
+  return {...queryResult, card: queryResult.data?.cardsByIds?.[0]};
 }
 
 export function useDebounce<T>(value: T, delay?: number): T {
@@ -160,7 +160,7 @@ export function useDebounce<T>(value: T, delay?: number): T {
 
 export function useCommentForCard(cardId: string) {
   const query = useCommentsForCardQuery(
-    { id: cardId },
+    {id: cardId},
     {
       select: (data) =>
         data?.commentsForCard?.filter(notEmpty).filter((c) => !c?.parentId),
@@ -174,7 +174,7 @@ export function useCardHistory(
   opts?: UseQueryOptions<CardHistoryQuery, Error, CardHistoryQuery>
 ) {
   const queryResult = useCardHistoryQuery(
-    { id: cardId || "" },
+    {id: cardId || ''},
     {
       ...opts,
       select: (data) => ({
@@ -185,5 +185,5 @@ export function useCardHistory(
       staleTime: 5000,
     }
   );
-  return { ...queryResult, history: queryResult.data?.ca };
+  return {...queryResult, history: queryResult.data?.ca};
 }

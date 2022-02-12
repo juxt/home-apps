@@ -1,5 +1,5 @@
-import DOMPurify from "dompurify";
-import { marked } from "marked";
+import DOMPurify from 'dompurify';
+import {marked} from 'marked';
 
 /**
  * Initialize Marked with sensible defaults.
@@ -24,7 +24,7 @@ marked.use({
 
       if (match) {
         return {
-          type: "del",
+          type: 'del',
           raw: match[0],
           text: match[2],
           tokens: this.lexer.inlineTokens(match[2], []),
@@ -46,10 +46,10 @@ marked.use({
         return `<ul data-type="taskList">\n${body}</ul>`;
       }
 
-      const listTag = ordered ? "ol" : "ul";
+      const listTag = ordered ? 'ol' : 'ul';
 
       return `<${listTag}${
-        ordered && start !== 1 ? ` start="${start}"` : ""
+        ordered && start !== 1 ? ` start="${start}"` : ''
       }>\n${body}</${listTag}>\n`;
     },
     listitem(text) {
@@ -57,14 +57,14 @@ marked.use({
 
       if (taskItem) {
         return `<li data-checked="${
-          taskItem[0] !== "[ ] "
+          taskItem[0] !== '[ ] '
         }" data-type="taskItem"><p>${taskItem[1]}</p></li>`;
       }
 
-      if (text.includes("<ul>") || text.includes("<ol>")) {
+      if (text.includes('<ul>') || text.includes('<ol>')) {
         return `<li><p>${text.replace(
           /^(?:(.+)(<(?:ul|ol)>))/,
-          "$1</p>$2"
+          '$1</p>$2'
         )}</li>`;
       }
 
@@ -81,4 +81,4 @@ function markdownToHtml(markdown: string) {
   });
 }
 
-export { markdownToHtml };
+export {markdownToHtml};
