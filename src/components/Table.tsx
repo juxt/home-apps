@@ -2,7 +2,6 @@ import {
   useTable,
   useFilters,
   useGlobalFilter,
-  useAsyncDebounce,
   useSortBy,
   usePagination,
   Row,
@@ -19,6 +18,7 @@ import classNames from 'classnames';
 import {useEffect, useMemo, useState} from 'react';
 import {useNavigate, useSearch} from 'react-location';
 import {LocationGenerics} from '../types';
+import {Maybe} from '../generated/graphql';
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -32,9 +32,7 @@ function GlobalFilter({
 }) {
   const count = preGlobalFilteredRows.length;
   const [value, setValue] = useState(globalFilter);
-  const onChange = useAsyncDebounce((val) => {
-    setGlobalFilter(val || undefined);
-  }, 200);
+  const onChange = (val: Maybe<string>) => setGlobalFilter(val || '');
 
   return (
     <label
@@ -116,7 +114,7 @@ export function SelectColumnFilter({
         <option value="">All</option>
         {options.map((option) => (
           <option key={option} value={option}>
-            {option}
+            {option as string}
           </option>
         ))}
       </select>
@@ -245,13 +243,15 @@ function Table({
       {/* table */}
       <div
         className={classNames(
-          'mt-4 flexw-full  flex-col md:w-fit',
+          'mt-4 flexw-full  flex-col md:w-full',
           !showPagination && 'pb-4'
         )}>
         <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
           <div className="py-2 align-middle inline-block sm:px-6 lg:px-8 w-full">
             <div className="relative sm:shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-              <table {...getTableProps()} className="divide-y divide-gray-200">
+              <table
+                {...getTableProps()}
+                className="divide-y divide-gray-200 w-full">
                 <thead className="bg-gray-50 sm:visible invisible absolute sm:relative">
                   {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
@@ -263,7 +263,12 @@ function Table({
                           className="group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           {...column.getHeaderProps(
                             column.getSortByToggleProps()
-                          )}>
+                          )}
+                          style={{
+                            width: column.width,
+                            minWidth: column.minWidth,
+                            maxWidth: column.maxWidth,
+                          }}>
                           <div className="flex items-center justify-between">
                             {column.render('Header')}
                             {/* Add a sort direction indicator */}
@@ -302,8 +307,13 @@ function Table({
                           const item = cell?.column?.Cell as {name?: string};
                           return (
                             <td
-                              className="sm:flex-1 w-1/2 sm:w-full pt-8 sm:pt-0 relative sm:flex-nowrap px-6 py-4 text-left"
+                              className="sm:flex-1 truncate w-1/2 sm:w-max pt-8 sm:pt-0 relative sm:flex-nowrap px-6 py-4 text-left"
                               {...cell.getCellProps()}
+                              style={{
+                                width: cell.column.width,
+                                minWidth: cell.column.minWidth,
+                                maxWidth: cell.column.maxWidth,
+                              }}
                               role="cell">
                               <span className="group text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:hidden absolute top-0 inset-x-0 p-1 bg-gray-50 pl-2">
                                 {cell.column.Header}

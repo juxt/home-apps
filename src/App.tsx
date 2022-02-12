@@ -34,6 +34,7 @@ import Table, {SelectColumnFilter} from './components/Table';
 import Tippy, {useSingleton, TippyProps} from '@tippyjs/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'tippy.js/dist/tippy.css';
+import {Column} from 'react-table';
 
 type CardProps = {
   card: TCard;
@@ -375,11 +376,14 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
         .flatMap((c) => [...c.cards.map((card) => ({...card, state: c.name}))]),
     ];
   }, [cols]);
-  const gridColumns = React.useMemo(() => {
+  const gridColumns: Array<Column> = React.useMemo(() => {
     return [
       {
         Header: 'id',
         accessor: 'id',
+        width: 20,
+        minWidth: 20,
+        maxWidth: 150,
       },
       {
         id: 'name',

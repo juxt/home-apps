@@ -113,8 +113,6 @@ declare module 'react-table' {
       UseFlexLayoutColumnProps<D>,
       UseSortByColumnProps<D> {}
 
-  export type Cell<D extends object = {}> = UseGroupByCellProps<D>;
-
   export interface Row<D extends object = {}>
     extends UseExpandedRowProps<D>,
       UseGroupByRowProps<D>,
