@@ -1,11 +1,11 @@
-import {mergeAttributes, Node} from '@tiptap/core';
-import {ReactRenderer} from '@tiptap/react';
-import Suggestion, {SuggestionOptions} from '@tiptap/suggestion';
-import tippy, {Instance, Props} from 'tippy.js';
+import { mergeAttributes, Node } from '@tiptap/core';
+import { ReactRenderer } from '@tiptap/react';
+import Suggestion, { SuggestionOptions } from '@tiptap/suggestion';
+import tippy, { Instance, Props } from 'tippy.js';
 
-import {MENTION_SUGGESTIONS} from '../../data';
-import {SuggestionDropdownRef} from './SuggestionDropdown';
-import {MentionDropdown} from './MentionDropdown';
+import { MENTION_SUGGESTIONS } from '../../data';
+import { SuggestionDropdownRef } from './SuggestionDropdown';
+import { MentionDropdown } from './MentionDropdown';
 
 type MentionOptions = {
   suggestion: Omit<SuggestionOptions, 'editor'>;
@@ -22,7 +22,7 @@ const MentionSuggestion = Node.create<MentionOptions>({
       suggestion: {
         char: '@',
         allowSpaces: true,
-        command: ({editor, range, props}) => {
+        command: ({ editor, range, props }) => {
           editor
             .chain()
             .focus()
@@ -38,16 +38,10 @@ const MentionSuggestion = Node.create<MentionOptions>({
             ])
             .run();
         },
-        allow: ({editor, range}) => {
-          return editor
-            .can()
-            .insertContentAt(range, {type: 'mentionSuggestion'});
-        },
-        items: ({query}) => {
-          return MENTION_SUGGESTIONS.filter(({name}) =>
-            name.toLowerCase().includes(query.toLowerCase())
-          );
-        },
+        allow: ({ editor, range }) => editor
+          .can()
+          .insertContentAt(range, { type: 'mentionSuggestion' }),
+        items: ({ query }) => MENTION_SUGGESTIONS.filter(({ name }) => name.toLowerCase().includes(query.toLowerCase())),
         render: () => {
           let reactRenderer: ReactRenderer<SuggestionDropdownRef>;
           let popup: Instance<Props>[];
@@ -103,8 +97,7 @@ const MentionSuggestion = Node.create<MentionOptions>({
       },
       name: {
         default: null,
-        parseHTML: (element) =>
-          element.getAttribute('aria-label')?.split(/\s(.+)/)[1],
+        parseHTML: (element) => element.getAttribute('aria-label')?.split(/\s(.+)/)[1],
         renderHTML: (attributes) => ({
           'aria-label': `Name: ${attributes.name}`,
         }),
@@ -112,17 +105,17 @@ const MentionSuggestion = Node.create<MentionOptions>({
     };
   },
   parseHTML() {
-    return [{tag: 'span[data-mention]'}];
+    return [{ tag: 'span[data-mention]' }];
   },
-  renderHTML({node, HTMLAttributes}) {
+  renderHTML({ node, HTMLAttributes }) {
     return [
       'span',
-      mergeAttributes({'data-mention': ''}, HTMLAttributes),
-      ['span', {class: 'char'}, this.options.suggestion.char],
-      ['span', {class: 'name'}, node.attrs.name],
+      mergeAttributes({ 'data-mention': '' }, HTMLAttributes),
+      ['span', { class: 'char' }, this.options.suggestion.char],
+      ['span', { class: 'name' }, node.attrs.name],
     ];
   },
-  renderText({node}) {
+  renderText({ node }) {
     return `${this.options.suggestion.char}${node.attrs.name}`;
   },
   /* addKeyboardShortcuts() {
@@ -164,4 +157,4 @@ const MentionSuggestion = Node.create<MentionOptions>({
   },
 });
 
-export {MentionSuggestion};
+export { MentionSuggestion };

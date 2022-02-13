@@ -7,6 +7,7 @@ import {
   useKanbanDataQuery,
 } from './generated/graphql';
 import { TWorkflow, TCard } from './types';
+import { notEmpty } from '@juxt-home/utils';
 
 export function immutableMove<T>(arr: Array<T>, from: number, to: number) {
   return arr.reduce((prev, current, idx, self) => {
@@ -39,7 +40,7 @@ function removeFromArrayAtPosition(array: any[], position: any) {
   return array.reduce(
     (acc: any, value: any, idx: any) =>
       idx === position ? acc : [...acc, value],
-    []
+    [],
   );
 }
 
@@ -49,14 +50,14 @@ function replaceElementOfArray(array: any[]) {
     for: (arg0: any) => any;
   }) {
     return array.map((element: any) =>
-      options.when(element) ? options.for(element) : element
+      options.when(element) ? options.for(element) : element,
     );
   };
 }
 
 function reorderCardsOnWorkflowState(
   workflowState: TWorkflowState,
-  reorderCards: (cards: TCard[]) => TCard[]
+  reorderCards: (cards: TCard[]) => TCard[],
 ): TWorkflowState {
   if (!workflowState?.cards) return workflowState;
   return {
@@ -68,14 +69,14 @@ function reorderCardsOnWorkflowState(
 function moveWorkflowState(
   workflow: { workflowStates: any },
   { fromPosition }: any,
-  { toPosition }: any
+  { toPosition }: any,
 ) {
   return {
     ...workflow,
     workflowStates: immutableMove(
       workflow.workflowStates,
       fromPosition,
-      toPosition
+      toPosition,
     ),
   };
 }
@@ -93,7 +94,7 @@ function hasDuplicateCards(col: TWorkflowState) {
 function removeDuplicateCards(state: TWorkflow, cardList: string[]) {
   return cardList.filter((cardId) => {
     const col = state?.workflowStates.find((stateCol) =>
-      stateCol?.cards?.find((c) => c?.id === cardId)
+      stateCol?.cards?.find((c) => c?.id === cardId),
     );
     return col?.cards?.find((c) => c?.id === cardId) === undefined;
   });
@@ -102,7 +103,7 @@ function removeDuplicateCards(state: TWorkflow, cardList: string[]) {
 function moveCard(
   workflow: TWorkflow,
   { index: fromPosition, droppableId: fromWorkflowStateId }: DraggableLocation,
-  { index: toPosition, droppableId: toWorkflowStateId }: DraggableLocation
+  { index: toPosition, droppableId: toWorkflowStateId }: DraggableLocation,
 ) {
   if (!workflow) return null;
   const cols = workflow.workflowStates.filter(notEmpty).map((col) => {
@@ -112,16 +113,16 @@ function moveCard(
     };
   });
   const sourceWorkflowState = cols.find(
-    (workflowState) => workflowState.id === fromWorkflowStateId
+    (workflowState) => workflowState.id === fromWorkflowStateId,
   );
   const destinationWorkflowState = cols.find(
-    (workflowState) => workflowState.id === toWorkflowStateId
+    (workflowState) => workflowState.id === toWorkflowStateId,
   );
 
   if (!sourceWorkflowState || !destinationWorkflowState) return workflow;
 
   const reorderWorkflowStatesOnWorkflow = (
-    reorderWorkflowStatesMapper: (col: TWorkflowState) => TWorkflowState
+    reorderWorkflowStatesMapper: (col: TWorkflowState) => TWorkflowState,
   ) => ({
     ...workflow,
     workflowStates: cols.map(reorderWorkflowStatesMapper),
@@ -132,19 +133,19 @@ function moveCard(
       sourceWorkflowState,
       (cards: TCard[]) => {
         return immutableMove(cards, fromPosition, toPosition);
-      }
+      },
     );
     return reorderWorkflowStatesOnWorkflow((workflowState: TWorkflowState) =>
       workflowState.id === sourceWorkflowState.id
         ? reorderedCardsOnWorkflowState
-        : workflowState
+        : workflowState,
     );
   }
   const reorderedCardsOnSourceWorkflowState = reorderCardsOnWorkflowState(
     sourceWorkflowState,
     (cards: TCard[]) => {
       return removeFromArrayAtPosition(cards, fromPosition);
-    }
+    },
   );
   const reorderedCardsOnDestinationWorkflowState = reorderCardsOnWorkflowState(
     destinationWorkflowState,
@@ -152,9 +153,9 @@ function moveCard(
       return addInArrayAtPosition(
         cards,
         sourceWorkflowState.cards[fromPosition],
-        toPosition
+        toPosition,
       );
-    }
+    },
   );
   return reorderWorkflowStatesOnWorkflow((workflowState: TWorkflowState) => {
     if (workflowState.id === sourceWorkflowState.id)
@@ -167,26 +168,26 @@ function moveCard(
 
 function addWorkflowState(
   workflow: { workflowStates: string | any[] },
-  workflowState: any
+  workflowState: any,
 ) {
   return {
     ...workflow,
     workflowStates: addInArrayAtPosition(
       workflow.workflowStates,
       workflowState,
-      workflow.workflowStates.length
+      workflow.workflowStates.length,
     ),
   };
 }
 
 function removeWorkflowState(
   workflow: { workflowStates: any[] },
-  workflowState: { id: any }
+  workflowState: { id: any },
 ) {
   return {
     ...workflow,
     workflowStates: workflow.workflowStates.filter(
-      ({ id }) => id !== workflowState.id
+      ({ id }) => id !== workflowState.id,
     ),
   };
 }
@@ -194,7 +195,7 @@ function removeWorkflowState(
 function changeWorkflowState(
   workflow: { workflowStates: any },
   workflowState: { id: any },
-  newWorkflowState: any
+  newWorkflowState: any,
 ) {
   const changedWorkflowStates = replaceElementOfArray(workflow.workflowStates)({
     when: ({ id }) => id === workflowState.id,
@@ -207,16 +208,16 @@ function addCard(
   workflow: { workflowStates: any[] },
   inWorkflowState: { id: any },
   card: any,
-  opts = { on: 'top' }
+  opts = { on: 'top' },
 ) {
   const { on } = opts;
   const workflowStateToAdd = workflow.workflowStates.find(
-    ({ id }) => id === inWorkflowState.id
+    ({ id }) => id === inWorkflowState.id,
   );
   const cards = addInArrayAtPosition(
     workflowStateToAdd.cards,
     card,
-    on === 'top' ? 0 : workflowStateToAdd.cards.length
+    on === 'top' ? 0 : workflowStateToAdd.cards.length,
   );
   const workflowStates = replaceElementOfArray(workflow.workflowStates)({
     when: ({ id }) => inWorkflowState.id === id,
@@ -228,7 +229,7 @@ function addCard(
 function changeCard(
   workflow: { workflowStates: any[] },
   cardId: any,
-  newCard: any
+  newCard: any,
 ) {
   const changedCards = (cards: any) =>
     replaceElementOfArray(cards)({
@@ -255,10 +256,6 @@ const defaultMutationProps = (queryClient: QueryClient) => ({
 
 export {
   defaultMutationProps,
-  fileToString,
-  base64toBlob,
-  downloadFile,
-  base64FileToImage,
   hasDuplicateCards,
   removeDuplicateCards,
   moveWorkflowState,

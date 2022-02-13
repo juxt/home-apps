@@ -2,5 +2,64 @@
   "root": "apps/juxt-home",
   "sourceRoot": "apps/juxt-home/src",
   "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nxext/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/juxt-home",
+        "baseHref": "/",
+        "configFile": "@nxext/vite/plugins/vite",
+        "frameworkConfigFile": "@nxext/react/plugins/vite"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/juxt-home/src/environments/environment.ts",
+              "with": "apps/juxt-home/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nxext/vite:dev",
+      "options": {
+        "outputPath": "dist/apps/juxt-home",
+        "baseHref": "/",
+        "configFile": "@nxext/vite/plugins/vite",
+        "frameworkConfigFile": "@nxext/react/plugins/vite"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "juxt-home:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/juxt-home/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/juxt-home"],
+      "options": {
+        "jestConfig": "apps/juxt-home/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
   "tags": []
 }

@@ -1,25 +1,25 @@
-import {LocationGenerics, ModalStateProps} from '../types';
-import {useForm} from 'react-hook-form';
-import {Modal, ModalForm} from './Modal';
+import { LocationGenerics, ModalStateProps } from '../types';
+import { useForm } from 'react-hook-form';
+import { Modal, ModalForm } from './Modal';
 import {
   CreateProjectMutationVariables,
   UpdateProjectMutationVariables,
   useCreateProjectMutation,
   useUpdateProjectMutation,
 } from '../generated/graphql';
-import {toast} from 'react-toastify';
-import {defaultMutationProps} from '../kanbanHelpers';
-import {useEffect} from 'react';
-import {useSearch} from 'react-location';
-import {useQueryClient} from 'react-query';
-import {useCurrentProject} from '../hooks';
-import {Form} from './Form';
+import { toast } from 'react-toastify';
+import { defaultMutationProps } from '@juxt-home/kanban-helpers';
+import { useEffect } from 'react';
+import { useSearch } from 'react-location';
+import { useQueryClient } from 'react-query';
+import { useCurrentProject } from '../hooks';
+import { Form } from './Form';
 
 type AddProjectInput = CreateProjectMutationVariables;
 
 type AddProjectModalProps = ModalStateProps;
 
-export function AddProjectModal({isOpen, handleClose}: AddProjectModalProps) {
+export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
   const addProjectMutation = useCreateProjectMutation({
     ...defaultMutationProps,
   });
@@ -74,7 +74,7 @@ export function UpdateProjectModal({
   isOpen,
   handleClose,
 }: UpdateProjectModalProps) {
-  const {modalState} = useSearch<LocationGenerics>();
+  const { modalState } = useSearch<LocationGenerics>();
   const projectId = modalState?.projectId;
   const queryClient = useQueryClient();
   const updateProjectMutation = useUpdateProjectMutation({
@@ -83,7 +83,7 @@ export function UpdateProjectModal({
 
   const updateProject = (input: UpdateProjectInput) => {
     handleClose();
-    updateProjectMutation.mutate({...input});
+    updateProjectMutation.mutate({ ...input });
   };
 
   const project = useCurrentProject().data;
@@ -96,7 +96,7 @@ export function UpdateProjectModal({
 
   useEffect(() => {
     if (project) {
-      formHooks.setValue('project', {...project});
+      formHooks.setValue('project', { ...project });
     }
   }, [project]);
 

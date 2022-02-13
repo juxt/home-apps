@@ -7,7 +7,7 @@ export function utils(): string {
 
 export function mapKeys<T, K extends keyof T>(
   obj: T,
-  mapper: (key: K) => K
+  mapper: (key: K) => K,
 ): { [P in K]: T[P] } {
   return Object.keys(obj).reduce((acc, key) => {
     return { ...acc, [mapper(key as K)]: obj[key as K] };
@@ -17,8 +17,9 @@ export function mapKeys<T, K extends keyof T>(
 export function isDefined<T>(argument: T | undefined): argument is T {
   return argument !== undefined;
 }
+
 export function notEmpty<TValue>(
-  value: TValue | null | undefined
+  value: TValue | null | undefined,
 ): value is TValue {
   if (value === null || value === undefined) return false;
   return true;
@@ -26,12 +27,12 @@ export function notEmpty<TValue>(
 
 export function distinctBy<T>(array: Array<T>, propertyName: keyof T) {
   return array.filter(
-    (e, i) => array.findIndex((a) => a[propertyName] === e[propertyName]) === i
+    (e, i) => array.findIndex((a) => a[propertyName] === e[propertyName]) === i,
   );
 }
 
 export function indexById<T extends { id: string }>(
-  array: Array<T>
+  array: Array<T>,
 ): { [id: string]: T } {
   const initialValue = {};
   return array.reduce((obj, item) => {
@@ -54,7 +55,7 @@ export function compressImage(file: File): Promise<string> {
       (uri) => {
         resolve(uri.toString());
       },
-      'base64'
+      'base64',
     );
   });
 }

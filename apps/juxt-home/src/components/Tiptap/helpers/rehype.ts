@@ -1,4 +1,4 @@
-import {rehype} from 'rehype';
+import { rehype } from 'rehype';
 import rehypeFormat from 'rehype-format';
 
 function formatHtml(input: string) {
@@ -8,4 +8,4 @@ function formatHtml(input: string) {
     .replace(/^\s+|\s+$/g, '');
 }
 
-export {formatHtml};
+export { formatHtml };

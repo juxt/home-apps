@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
-import {SuggestionKeyDownProps} from '@tiptap/suggestion';
-import {OverlayScrollbarsComponent} from 'overlayscrollbars-react';
+import { SuggestionKeyDownProps } from '@tiptap/suggestion';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
 import 'overlayscrollbars/css/OverlayScrollbars.css';
 
@@ -38,7 +38,7 @@ function SuggestionDropdown<TItem>({
   }
 
   React.useEffect(
-    function scrollSelectedItemIntoView() {
+    () => {
       overlayScrollbarsRef.current?.osInstance().scroll({
         el: selectedItemRef.current,
         scroll: {
@@ -47,11 +47,11 @@ function SuggestionDropdown<TItem>({
         },
       });
     },
-    [selectedIndex]
+    [selectedIndex],
   );
 
   React.useImperativeHandle(forwardedRef, () => ({
-    onKeyDown: ({event}) => {
+    onKeyDown: ({ event }) => {
       if (event.key === 'ArrowUp') {
         setSelectedIndex((selectedIndex + items.length - 1) % items.length);
         return true;
@@ -78,15 +78,17 @@ function SuggestionDropdown<TItem>({
   return (
     <OverlayScrollbarsComponent
       className="SuggestionDropdown"
-      ref={overlayScrollbarsRef}>
+      ref={overlayScrollbarsRef}
+    >
       <ul>
         {items.map((item, index) => (
           <button
             type="button"
-            className={classNames({selected: index === selectedIndex})}
+            className={classNames({ selected: index === selectedIndex })}
             // eslint-disable-next-line react/no-array-index-key
             key={index}
-            onClick={() => selectItem(index)}>
+            onClick={() => selectItem(index)}
+          >
             <li ref={index === selectedIndex ? selectedItemRef : null}>
               {renderItem(item)}
             </li>
@@ -97,6 +99,6 @@ function SuggestionDropdown<TItem>({
   );
 }
 
-export {SuggestionDropdown};
+export { SuggestionDropdown };
 
-export type {SuggestionDropdownRef};
+export type { SuggestionDropdownRef };

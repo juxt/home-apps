@@ -1074,6 +1074,11 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@cush/relative@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@cush/relative/-/relative-1.0.0.tgz#8cd1769bf9bde3bb27dac356b1bc94af40f6cc16"
+  integrity sha512-RpfLEtTlyIxeNPGKcokS+p3BZII/Q3bYxryFRglh5H3A3T8q9fsLYm72VYAMEOOIBLEa8o93kFLiBDUWKrwXZA==
+
 "@cypress/request@^2.88.10":
   version "2.88.10"
   resolved "https://registry.yarnpkg.com/@cypress/request/-/request-2.88.10.tgz#b66d76b07f860d3a4b8d7a0604d020c662752cce"
@@ -1944,7 +1949,7 @@
     tslib "^2.3.0"
     webpack-node-externals "^3.0.0"
 
-"@nrwl/devkit@13.8.1":
+"@nrwl/devkit@13.8.1", "@nrwl/devkit@^13.4.0", "@nrwl/devkit@^13.7.0":
   version "13.8.1"
   resolved "https://registry.yarnpkg.com/@nrwl/devkit/-/devkit-13.8.1.tgz#03184e057b04b2a451dd7856e0e8008b8def1685"
   integrity sha512-zznDaYf6yTBbr8xOb8l4Dn7L0QhCS7BMUoCq/PMCBLwRnRBDpbd801tD06qIVvhh3XkwEJVS2v7EEF3TOypIyw==
@@ -2035,7 +2040,7 @@
     strip-json-comments "^3.1.1"
     tar "6.1.11"
 
-"@nrwl/react@13.8.1":
+"@nrwl/react@13.8.1", "@nrwl/react@^13.7.0":
   version "13.8.1"
   resolved "https://registry.yarnpkg.com/@nrwl/react/-/react-13.8.1.tgz#ca8e5e40a783da8c1c8d02d5a3b3fcdffd15d7fd"
   integrity sha512-xK4NzQiLkj4o7Hl7LscHdF5JiTz95XmUHaN5YhKzTm4h3kqXYw/L3GJnFKEKnd5ItYgRo1lVt5LVuTjghmNVLA==
@@ -2214,6 +2219,26 @@
     tslib "^2.3.0"
     yargs "15.4.1"
     yargs-parser "20.0.0"
+
+"@nxext/react@^13.0.5":
+  version "13.0.5"
+  resolved "https://registry.yarnpkg.com/@nxext/react/-/react-13.0.5.tgz#03c2ed0e9ea69ebb0593e6406e46134358fe1a8c"
+  integrity sha512-5bbCY0SCJKwWSicDf82h7qrbYE9tn0eL+rdcY4ro1hXBI17JKw/Dfq/+jrsediDWIljeRaB6MAX/OHrYzCt0jw==
+  dependencies:
+    "@nrwl/devkit" "^13.7.0"
+    "@nrwl/react" "^13.7.0"
+    "@nxext/vite" "^13.2.0"
+    react "17.0.2"
+
+"@nxext/vite@^13.2.0":
+  version "13.2.1"
+  resolved "https://registry.yarnpkg.com/@nxext/vite/-/vite-13.2.1.tgz#fa2be7f5ae2c6b5573657508d014949d0c7afc03"
+  integrity sha512-BQsy06MrltQunQY1LQnby15z9EwS7FCOi/p5YqiXHrWEc5S0B/LVvHK2tXLFFf15x9KXLHacf98b8L+CX/iX3w==
+  dependencies:
+    "@nrwl/devkit" "^13.4.0"
+    rxjs "^6.5.4"
+    rxjs-for-await "1.0.0"
+    vite-tsconfig-paths "3.3.17"
 
 "@parcel/watcher@2.0.4":
   version "2.0.4"
@@ -6430,6 +6455,13 @@ eslint-config-airbnb-base@^15.0.0:
     object.entries "^1.1.5"
     semver "^6.3.0"
 
+eslint-config-airbnb-typescript@^16.1.0:
+  version "16.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-airbnb-typescript/-/eslint-config-airbnb-typescript-16.1.0.tgz#f75a6b4f3bb679eef34c3c930359c2ca9bc3f09c"
+  integrity sha512-W5Cq20KpEx5ZLC54bnVrC37zq2+WD956Kp/Ma3nYFRjT1v9KM63v+DPkrrmmrVqrlDKaD0ivm/qeYmyHV6qKlw==
+  dependencies:
+    eslint-config-airbnb-base "^15.0.0"
+
 eslint-config-airbnb@^19.0.4:
   version "19.0.4"
   resolved "https://registry.yarnpkg.com/eslint-config-airbnb/-/eslint-config-airbnb-19.0.4.tgz#84d4c3490ad70a0ffa571138ebcdea6ab085fdc3"
@@ -7327,6 +7359,11 @@ glob-parent@^6.0.1, glob-parent@^6.0.2:
   dependencies:
     is-glob "^4.0.3"
 
+glob-regex@^0.3.0:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/glob-regex/-/glob-regex-0.3.2.tgz#27348f2f60648ec32a4a53137090b9fb934f3425"
+  integrity sha512-m5blUd3/OqDTWwzBBtWBPrGlAzatRywHameHeekAZyZrskYouOGdNB8T/q6JucucvJXtOuyHIn0/Yia7iDasDw==
+
 glob-to-regexp@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/glob-to-regexp/-/glob-to-regexp-0.4.1.tgz#c75297087c851b9a578bd217dd59a92f59fe546e"
@@ -7400,6 +7437,11 @@ globby@^11.0.1, globby@^11.0.3, globby@^11.0.4:
     ignore "^5.2.0"
     merge2 "^1.4.1"
     slash "^3.0.0"
+
+globrex@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/globrex/-/globrex-0.1.2.tgz#dd5d9ec826232730cd6793a5e33a9302985e6098"
+  integrity sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==
 
 got@^9.6.0:
   version "9.6.0"
@@ -11392,6 +11434,16 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
+recrawl-sync@^2.0.3:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/recrawl-sync/-/recrawl-sync-2.2.1.tgz#cb02c8084c22b3cea103abf46bb88734076ed6bb"
+  integrity sha512-A2yLDgeXNaduJJMlqyUdIN7fewopnNm/mVeeGytS1d2HLXKpS5EthQ0j8tWeX+as9UXiiwQRwfoslKC+/gjqxg==
+  dependencies:
+    "@cush/relative" "^1.0.0"
+    glob-regex "^0.3.0"
+    slash "^3.0.0"
+    tslib "^1.9.3"
+
 redent@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/redent/-/redent-3.0.0.tgz#e557b7998316bb53c9f1f56fa626352c6963059f"
@@ -11812,6 +11864,11 @@ rxjs-for-await@0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/rxjs-for-await/-/rxjs-for-await-0.0.2.tgz#26598a1d6167147cc192172970e7eed4e620384b"
   integrity sha512-IJ8R/ZCFMHOcDIqoABs82jal00VrZx8Xkgfe7TOKoaRPAW5nH/VFlG23bXpeGdrmtqI9UobFPgUKgCuFc7Lncw==
+
+rxjs-for-await@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/rxjs-for-await/-/rxjs-for-await-1.0.0.tgz#89f4b2f2a95f93ab36f1e9fb8b5d0637bc9f8ca8"
+  integrity sha512-MJhvf1vtQaljd5wlzsasvOjcohVogzkHkUI0gFE9nGhZ15/fT2vR1CjkLEh37oRqWwpv11vHo5D+sLM+Aw9Y8g==
 
 rxjs@6.5.5:
   version "6.5.5"
@@ -12998,7 +13055,7 @@ tsconfig-paths@^3.12.0, tsconfig-paths@^3.9.0:
     minimist "^1.2.0"
     strip-bom "^3.0.0"
 
-tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
+tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
@@ -13369,6 +13426,16 @@ vite-plugin-svgr@^1.0.1:
   integrity sha512-7jHIC2Bi83KRwBB/b5FLcQdqWfzOSDVy7BtE9g4GXoY1axTZRKeqyWMEK3LCySQ70+BSYFtoSwHJaNLeqxjYlg==
   dependencies:
     "@svgr/core" "^6.2.0"
+
+vite-tsconfig-paths@3.3.17:
+  version "3.3.17"
+  resolved "https://registry.yarnpkg.com/vite-tsconfig-paths/-/vite-tsconfig-paths-3.3.17.tgz#b1421c4a01e6b446b78cc1dd12d45f302bc3a27b"
+  integrity sha512-wx+rfC53moVLxMBj2EApJZgY6HtvWUFVZ4dBxNGYBxSSqU6UaHdKlcOxrfGDxyTGtYEr9beWCryHn18C4EtZkg==
+  dependencies:
+    debug "^4.1.1"
+    globrex "^0.1.2"
+    recrawl-sync "^2.0.3"
+    tsconfig-paths "^3.9.0"
 
 vite@^2.8.1:
   version "2.8.1"

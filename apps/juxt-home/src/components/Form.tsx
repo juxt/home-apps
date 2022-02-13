@@ -1,19 +1,19 @@
-import {Dialog} from '@headlessui/react';
-import Dropzone, {FileRejection} from 'react-dropzone';
-import {OptionsMenu} from './Menus';
-import {useEffect, useState} from 'react';
-import {Controller, FieldError, FieldValues} from 'react-hook-form';
-import {MultiSelect} from 'react-multi-select-component';
-import Select, {GroupBase, Props as SelectProps} from 'react-select';
-import {DownloadIcon} from '@heroicons/react/solid';
+import { Dialog } from '@headlessui/react';
+import Dropzone, { FileRejection } from 'react-dropzone';
+import { OptionsMenu } from './Menus';
+import { useEffect, useState } from 'react';
+import { Controller, FieldError, FieldValues } from 'react-hook-form';
+import { MultiSelect } from 'react-multi-select-component';
+import Select, { GroupBase, Props as SelectProps } from 'react-select';
+import { DownloadIcon } from '@heroicons/react/solid';
 
-import {FormInputField, FormProps, Option} from '../types';
-import {Tiptap} from './Tiptap';
+import { FormInputField, FormProps, Option } from '../types';
+import { Tiptap } from './Tiptap';
 import classNames from 'classnames';
-import {notEmpty, fileToString} from '../kanbanHelpers';
-import {toast} from 'react-toastify';
-import {CardByIdsQuery} from '../generated/graphql';
-import {DeleteActiveIcon, DeleteInactiveIcon} from './Icons';
+import { notEmpty, fileToString } from '@juxt-home/utils';
+import { toast } from 'react-toastify';
+import { CardByIdsQuery } from '../generated/graphql';
+import { DeleteActiveIcon, DeleteInactiveIcon } from './Icons';
 import _ from 'lodash-es';
 
 const inputClass =
@@ -22,12 +22,12 @@ const inputClass =
 function CustomSelect<
   SelectOption,
   IsMulti extends boolean = false,
-  Group extends GroupBase<SelectOption> = GroupBase<SelectOption>
+  Group extends GroupBase<SelectOption> = GroupBase<SelectOption>,
 >(props: SelectProps<SelectOption, IsMulti, Group>) {
   return <Select {...props} />;
 }
 
-function ImagePreview({image, title}: {image: string; title: string}) {
+function ImagePreview({ image, title }: { image: string; title: string }) {
   return (
     <li className={classNames('block p-1 h-24 isolate', ' w-full pb-5')}>
       <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 relative  shadow-sm">
@@ -35,7 +35,7 @@ function ImagePreview({image, title}: {image: string; title: string}) {
           alt="upload preview"
           className={classNames(
             'w-full h-full rounded-md bg-fixed',
-            'object-contain'
+            'object-contain',
           )}
           src={image}
         />
@@ -90,7 +90,10 @@ export function FilePreview({
         <ImagePreview title={file.name} image={file.base64} />
       ) : (
         <div className="w-5/6">
-          <p>Type: {file.type}</p>
+          <p>
+            Type:
+            {file.type}
+          </p>
           <h1 className="truncate max-w-fit">{file.name}</h1>
         </div>
       )}
@@ -99,7 +102,7 @@ export function FilePreview({
   );
 }
 
-export function ErrorMessage({error}: {error: FieldError | undefined}) {
+export function ErrorMessage({ error }: { error: FieldError | undefined }) {
   if (!error) return null;
   return <p className="text-red-600">{error.message}</p>;
 }
@@ -111,7 +114,7 @@ export function RenderField<T>({
   field: FormInputField<T>;
   props: FormProps<T>;
 }) {
-  const {control, register} = props.formHooks;
+  const { control, register } = props.formHooks;
   const registerProps = register(field.path, field.rules);
   const defaultProps = {
     ...registerProps,
@@ -130,18 +133,18 @@ export function RenderField<T>({
       return (
         <Controller
           render={(controlProps) => {
-            const {onChange, value} = controlProps.field;
+            const { onChange, value } = controlProps.field;
 
             const handleDrop = async (
               acceptedFiles: File[],
-              fileRejections: FileRejection[]
+              fileRejections: FileRejection[],
             ) => {
               const f = acceptedFiles[0];
               fileRejections.forEach((rejection) => {
                 toast.error(
                   `Couldn't upload file ${
                     rejection.file.name
-                  }. ${rejection.errors.map((e) => e.message).join(', ')}`
+                  }. ${rejection.errors.map((e) => e.message).join(', ')}`,
                 );
               });
               const base64 = await fileToString(f);
@@ -166,52 +169,50 @@ export function RenderField<T>({
                   isDragAccept,
                   isDragActive,
                   isDragReject,
-                }) => {
-                  return (
-                    <section>
-                      {!file ? (
-                        <div {...getRootProps()}>
-                          <div
-                            className={classNames(
-                              'max-w-lg flex justify-center cursor-pointer px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md',
-                              isDragActive && 'border-blue-500',
-                              isDragAccept && 'border-green-500 cursor-copy',
-                              isDragReject && 'border-red-500 cursor-no-drop'
-                            )}>
-                            <div className="space-y-1 text-center">
-                              <div className="flex text-sm text-gray-600">
-                                <label
-                                  htmlFor="file-upload"
-                                  className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                  <input {...getInputProps()} />
-                                  <p>
-                                    Drag a file here, or click to select a file
-                                  </p>
-                                </label>
-                              </div>
-                              <p className="text-xs text-gray-500">
-                                {field.accept
-                                  ?.toString()
-                                  ?.replaceAll(/image\/|application\//g, '')
-                                  .toLocaleUpperCase()}{' '}
-                                up to 5MB
-                              </p>
+                }) => (
+                  <section>
+                    {!file ? (
+                      <div {...getRootProps()}>
+                        <div
+                          className={classNames(
+                            'max-w-lg flex justify-center cursor-pointer px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md',
+                            isDragActive && 'border-blue-500',
+                            isDragAccept && 'border-green-500 cursor-copy',
+                            isDragReject && 'border-red-500 cursor-no-drop',
+                          )}>
+                          <div className="space-y-1 text-center">
+                            <div className="flex text-sm text-gray-600">
+                              <label
+                                htmlFor="file-upload"
+                                className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                <input {...getInputProps()} />
+                                <p>
+                                  Drag a file here, or click to select a file
+                                </p>
+                              </label>
                             </div>
+                            <p className="text-xs text-gray-500">
+                              {field.accept
+                                ?.toString()
+                                ?.replaceAll(/image\/|application\//g, '')
+                                .toLocaleUpperCase()}{' '}
+                              up to 5MB
+                            </p>
                           </div>
                         </div>
-                      ) : (
-                        <div className="pt-2 text-gray-800 text-sm">
-                          <div className="pt-2 mt-2">
-                            <FilePreview
-                              file={file}
-                              handleDelete={() => onChange(null)}
-                            />
-                          </div>
+                      </div>
+                    ) : (
+                      <div className="pt-2 text-gray-800 text-sm">
+                        <div className="pt-2 mt-2">
+                          <FilePreview
+                            file={file}
+                            handleDelete={() => onChange(null)}
+                          />
                         </div>
-                      )}
-                    </section>
-                  );
-                }}
+                      </div>
+                    )}
+                  </section>
+                )}
               </Dropzone>
             );
           }}
@@ -224,7 +225,7 @@ export function RenderField<T>({
       return (
         <Controller
           render={(controlProps) => {
-            const {onChange, value} = controlProps.field;
+            const { onChange, value } = controlProps.field;
             const files: TFile[] | undefined =
               Array.isArray(value) && value.filter(notEmpty).length > 0
                 ? value.filter(notEmpty)
@@ -237,13 +238,13 @@ export function RenderField<T>({
 
             const handleDrop = async (
               acceptedFiles: File[],
-              fileRejections: FileRejection[]
+              fileRejections: FileRejection[],
             ) => {
               fileRejections.forEach((rejection) => {
                 toast.error(
                   `Couldn't upload file ${
                     rejection.file.name
-                  }. ${rejection.errors.map((e) => e.message).join(', ')}`
+                  }. ${rejection.errors.map((e) => e.message).join(', ')}`,
                 );
               });
               acceptedFiles.filter(notEmpty).map(async (f) => {
@@ -271,54 +272,52 @@ export function RenderField<T>({
                   isDragAccept,
                   isDragActive,
                   isDragReject,
-                }) => {
-                  return (
-                    <section>
-                      <div {...getRootProps()}>
-                        <div
-                          className={classNames(
-                            'max-w-lg flex justify-center cursor-pointer px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md',
-                            isDragActive && 'border-blue-500',
-                            isDragAccept && 'border-green-500 cursor-copy',
-                            isDragReject && 'border-red-500 cursor-no-drop'
-                          )}>
-                          <div className="space-y-1 text-center">
-                            <div className="flex text-sm text-gray-600">
-                              <label
-                                htmlFor="file-upload"
-                                className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                <input {...getInputProps()} />
-                                <p>
-                                  Drag some files here, or click to select files
-                                </p>
-                              </label>
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              {field.accept
-                                ?.toString()
-                                ?.replaceAll(/image\/|application\//g, '')
-                                .toLocaleUpperCase()}{' '}
-                              up to 5MB
-                            </p>
+                }) => (
+                  <section>
+                    <div {...getRootProps()}>
+                      <div
+                        className={classNames(
+                          'max-w-lg flex justify-center cursor-pointer px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md',
+                          isDragActive && 'border-blue-500',
+                          isDragAccept && 'border-green-500 cursor-copy',
+                          isDragReject && 'border-red-500 cursor-no-drop',
+                        )}>
+                        <div className="space-y-1 text-center">
+                          <div className="flex text-sm text-gray-600">
+                            <label
+                              htmlFor="file-upload"
+                              className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                              <input {...getInputProps()} />
+                              <p>
+                                Drag some files here, or click to select files
+                              </p>
+                            </label>
                           </div>
+                          <p className="text-xs text-gray-500">
+                            {field.accept
+                              ?.toString()
+                              ?.replaceAll(/image\/|application\//g, '')
+                              .toLocaleUpperCase()}{' '}
+                            up to 5MB
+                          </p>
                         </div>
                       </div>
-                      {files && (
-                        <div className="pt-2 text-gray-800 text-sm">
-                          {files.length} files selected
-                          {files.filter(notEmpty).map((file) => (
-                            <div key={file.name} className="pt-2 mt-2">
-                              <FilePreview
-                                file={file}
-                                handleDelete={() => handleDelete(file)}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </section>
-                  );
-                }}
+                    </div>
+                    {files && (
+                      <div className="pt-2 text-gray-800 text-sm">
+                        {files.length} files selected
+                        {files.filter(notEmpty).map((file) => (
+                          <div key={file.name} className="pt-2 mt-2">
+                            <FilePreview
+                              file={file}
+                              handleDelete={() => handleDelete(file)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                )}
               </Dropzone>
             );
           }}
@@ -333,7 +332,7 @@ export function RenderField<T>({
           name={field.path}
           control={control}
           render={(controlProps) => {
-            const {value, onChange, name} = controlProps.field;
+            const { value, onChange, name } = controlProps.field;
 
             return (
               <CustomSelect<Option>
@@ -355,14 +354,14 @@ export function RenderField<T>({
           name={field.path}
           control={control}
           render={(controlProps) => {
-            const {value, onChange, name} = controlProps.field;
+            const { value, onChange, name } = controlProps.field;
             return (
               <MultiSelect
                 onChange={onChange}
                 value={(value as Option[]) || []}
-                valueRenderer={(selected) => {
-                  return selected.map((option) => option.label).join(', ');
-                }}
+                valueRenderer={(selected) =>
+                  selected.map((option) => option.label).join(', ')
+                }
                 options={field.options}
                 labelledBy={name}
               />
@@ -378,7 +377,7 @@ export function RenderField<T>({
           name={field.path}
           control={control}
           render={(controlProps) => {
-            const {value, onChange} = controlProps.field;
+            const { value, onChange } = controlProps.field;
             const [showDescription, setShowDescription] = useState(!!value);
             useEffect(() => {
               if (showDescription !== !!value) {
@@ -428,7 +427,7 @@ export function Label(text: string) {
   );
 }
 
-export function Error({text}: {text: string}) {
+export function Error({ text }: { text: string }) {
   return (
     <div className="mt-2 sm:mt-0 sm:col-span-2">
       <p className="text-red-600 text-sm sm:text-xs">{text}</p>
@@ -437,9 +436,9 @@ export function Error({text}: {text: string}) {
 }
 
 export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
-  const {fields, formHooks, title, id, description, onSubmit} = props;
+  const { fields, formHooks, title, id, description, onSubmit } = props;
   const {
-    formState: {errors},
+    formState: { errors },
   } = formHooks;
   return (
     <form id={id || title} onSubmit={onSubmit}>

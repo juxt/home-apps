@@ -1,4 +1,4 @@
-import {shuffle} from 'lodash-es';
+import { shuffle } from 'lodash-es';
 
 type Mention = {
   name: string;
@@ -472,6 +472,6 @@ const MENTION_SUGGESTIONS: Mention[] = shuffle([
   },
 ]);
 
-export {MENTION_SUGGESTIONS};
+export { MENTION_SUGGESTIONS };
 
-export type {Mention};
+export type { Mention };

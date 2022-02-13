@@ -1,6 +1,6 @@
-import {useEffect, useState} from 'react';
-import {useSearch, useNavigate} from 'react-location';
-import {UseQueryOptions} from 'react-query';
+import { useEffect, useState } from 'react';
+import { useSearch, useNavigate } from 'react-location';
+import { UseQueryOptions } from 'react-query';
 import {
   CardByIdsQuery,
   CardHistoryQuery,
@@ -9,15 +9,15 @@ import {
   useCommentsForCardQuery,
   useKanbanDataQuery,
 } from './generated/graphql';
-import {notEmpty} from './kanbanHelpers';
-import {LocationGenerics} from './types';
+import { notEmpty } from '@juxt-home/utils';
+import { LocationGenerics } from './types';
 
 type ModalState = LocationGenerics['Search']['modalState'];
 
 export function useModalForm(
-  modalState: ModalState
+  modalState: ModalState,
 ): [boolean, (shouldOpen: boolean) => void] {
-  const {modalState: currentModalState, ...search} =
+  const { modalState: currentModalState, ...search } =
     useSearch<LocationGenerics>();
   const navigate = useNavigate();
   const isModalOpen =
@@ -29,7 +29,7 @@ export function useModalForm(
         replace: true,
         search: {
           ...search,
-          modalState: {...currentModalState, ...modalState},
+          modalState: { ...currentModalState, ...modalState },
         },
       });
     } else {
@@ -70,7 +70,7 @@ export function useMobileDetect() {
 }
 
 export function useWorkflowStates() {
-  const {modalState} = useSearch<LocationGenerics>();
+  const { modalState } = useSearch<LocationGenerics>();
   const id = modalState?.workflowId || '';
   const workflowStateResult = useKanbanDataQuery(undefined, {
     enabled: id !== '',
@@ -85,12 +85,10 @@ export function useWorkflowStates() {
 export function useStatesOptions() {
   const workflowStateResult = useWorkflowStates();
   const cols =
-    workflowStateResult?.data?.map((c) => {
-      return {
-        value: c.id,
-        label: c.name,
-      };
-    }) || [];
+    workflowStateResult?.data?.map((c) => ({
+      value: c.id,
+      label: c.name,
+    })) || [];
   return cols;
 }
 
@@ -107,12 +105,10 @@ export function useProjectOptions() {
     select: (data) => data?.allProjects?.filter(notEmpty),
   });
   return (
-    kanbanDataQuery?.data?.map((p) => {
-      return {
-        label: p.name,
-        value: p.id,
-      };
-    }) ?? []
+    kanbanDataQuery?.data?.map((p) => ({
+      label: p.name,
+      value: p.id,
+    })) ?? []
   );
 }
 
@@ -127,10 +123,10 @@ export function useCurrentProject() {
 
 export function useCardById(
   cardId?: string,
-  opts?: UseQueryOptions<CardByIdsQuery, Error, CardByIdsQuery>
+  opts?: UseQueryOptions<CardByIdsQuery, Error, CardByIdsQuery>,
 ) {
   const queryResult = useCardByIdsQuery(
-    {ids: [cardId || '']},
+    { ids: [cardId || ''] },
     {
       ...opts,
       select: (data) => ({
@@ -139,9 +135,9 @@ export function useCardById(
       }),
       enabled: !!cardId,
       staleTime: 5000,
-    }
+    },
   );
-  return {...queryResult, card: queryResult.data?.cardsByIds?.[0]};
+  return { ...queryResult, card: queryResult.data?.cardsByIds?.[0] };
 }
 
 export function useDebounce<T>(value: T, delay?: number): T {
@@ -160,21 +156,21 @@ export function useDebounce<T>(value: T, delay?: number): T {
 
 export function useCommentForCard(cardId: string) {
   const query = useCommentsForCardQuery(
-    {id: cardId},
+    { id: cardId },
     {
       select: (data) =>
         data?.commentsForCard?.filter(notEmpty).filter((c) => !c?.parentId),
-    }
+    },
   );
   return query;
 }
 
 export function useCardHistory(
   cardId?: string,
-  opts?: UseQueryOptions<CardHistoryQuery, Error, CardHistoryQuery>
+  opts?: UseQueryOptions<CardHistoryQuery, Error, CardHistoryQuery>,
 ) {
   const queryResult = useCardHistoryQuery(
-    {id: cardId || ''},
+    { id: cardId || '' },
     {
       ...opts,
       select: (data) => ({
@@ -183,7 +179,7 @@ export function useCardHistory(
       }),
       enabled: !!cardId,
       staleTime: 5000,
-    }
+    },
   );
-  return {...queryResult, history: queryResult.data?.ca};
+  return { ...queryResult, history: queryResult.data?.ca };
 }

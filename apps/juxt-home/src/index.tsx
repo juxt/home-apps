@@ -1,12 +1,12 @@
 import * as ReactDOM from 'react-dom';
-import {ReactQueryDevtools} from 'react-query/devtools';
-import {App} from './App';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import { App } from './App';
 import './styles.css';
 import 'react-toastify/dist/ReactToastify.css';
-import {QueryClient, QueryClientProvider} from 'react-query';
-import {ToastContainer} from 'react-toastify';
-import {Outlet, ReactLocation, Router} from 'react-location';
-import {Worker} from '@react-pdf-viewer/core';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ToastContainer } from 'react-toastify';
+import { Outlet, ReactLocation, Router } from 'react-location';
+import { Worker } from '@react-pdf-viewer/core';
 
 const location = new ReactLocation();
 const queryClient = new QueryClient();
@@ -24,7 +24,8 @@ ReactDOM.render(
           path: '/site/_apps/kanban',
           element: <App />,
         },
-      ]}>
+      ]}
+    >
       <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.12.313/build/pdf.worker.min.js">
         <Outlet />
       </Worker>
@@ -42,5 +43,5 @@ ReactDOM.render(
     />
     <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>,
-  rootElement
+  rootElement,
 );

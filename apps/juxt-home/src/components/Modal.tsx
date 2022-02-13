@@ -1,11 +1,11 @@
 /* eslint-disable react/destructuring-assignment */
-import {Fragment} from 'react';
-import {Dialog, Transition} from '@headlessui/react';
-import {Form} from './Form';
-import {ModalFormProps, ModalStateProps} from '../types';
+import { Fragment } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Form } from './Form';
+import { ModalFormProps, ModalStateProps } from '../types';
 import classNames from 'classnames';
 
-export function ModalContent({children}: {children: React.ReactNode}) {
+export function ModalContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">{children}</div>
   );
@@ -23,7 +23,8 @@ export function ModalHeader({
       <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
         <Dialog.Title
           as="h3"
-          className="text-lg leading-6 font-medium text-gray-900">
+          className="text-lg leading-6 font-medium text-gray-900"
+        >
           {title}
         </Dialog.Title>
         {description && (
@@ -36,7 +37,7 @@ export function ModalHeader({
   );
 }
 
-export function ModalBody({children}: {children: React.ReactNode}) {
+export function ModalBody({ children }: { children: React.ReactNode }) {
   return <div className="m-2 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">{children}</div>;
 }
 
@@ -59,9 +60,10 @@ export function Modal({
         as="div"
         className={classNames(
           'fixed z-10 inset-0',
-          !noScroll && 'overflow-y-auto'
+          !noScroll && 'overflow-y-auto',
         )}
-        onClose={handleClose}>
+        onClose={handleClose}
+      >
         <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:py-0">
           <Transition.Child
             as={Fragment}
@@ -70,14 +72,16 @@ export function Modal({
             enterTo="opacity-100"
             leave="ease-in duration-200"
             leaveFrom="opacity-100"
-            leaveTo="opacity-0">
+            leaveTo="opacity-0"
+          >
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
           <span
             className="hidden sm:inline-block sm:align-middle sm:h-screen"
-            aria-hidden="true">
+            aria-hidden="true"
+          >
             &#8203;
           </span>
           <Transition.Child
@@ -87,7 +91,8 @@ export function Modal({
             enterTo="opacity-100 translate-y-0 sm:scale-100"
             leave="ease-in duration-200"
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          >
             <div
               className={classNames(
                 'relative w-full inline-block align-bottom',
@@ -95,8 +100,9 @@ export function Modal({
                 ' sm:align-middle sm:w-full h-screen-90 ',
                 !noScroll && 'overflow-y-auto',
                 !fullWidth && 'sm:max-w-4xl',
-                className
-              )}>
+                className,
+              )}
+            >
               <div className="h-full flex flex-col justify-between">
                 {children}
               </div>
@@ -116,13 +122,15 @@ export function ModalForm<T>(props: ModalFormProps<T>) {
         <button
           type="submit"
           form={props?.id || props.title}
-          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+        >
           Submit
         </button>
         <button
           type="button"
           className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-          onClick={props.handleClose}>
+          onClick={props.handleClose}
+        >
           Cancel
         </button>
       </div>

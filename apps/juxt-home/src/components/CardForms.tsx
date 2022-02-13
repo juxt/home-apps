@@ -1,21 +1,27 @@
-import {BaseSyntheticEvent, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  BaseSyntheticEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as yup from 'yup';
-import {LocationGenerics, ModalStateProps, Option} from '../types';
-import {useForm} from 'react-hook-form';
+import { LocationGenerics, ModalStateProps, Option } from '../types';
+import { useForm } from 'react-hook-form';
 import Table from './Table';
-import {CellProps} from 'react-table';
+import { CellProps } from 'react-table';
 
-import {useThrottleFn} from 'react-use';
-import {yupResolver} from '@hookform/resolvers/yup';
-import {CommentInputSchema} from '../generated/validation';
+import { useThrottleFn } from 'react-use';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { CommentInputSchema } from '../generated/validation';
 
 import SplitPane from 'react-split-pane';
 
-import {Slider} from '@mantine/core';
+import { Slider } from '@mantine/core';
 
-import {Modal, ModalForm} from './Modal';
+import { Modal, ModalForm } from './Modal';
 import classNames from 'classnames';
-import {Viewer} from '@react-pdf-viewer/core';
+import { Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import {
   CreateHiringCardMutationVariables,
@@ -34,11 +40,12 @@ import {
   useMoveCardMutation,
   useDeleteCommentMutation,
 } from '../generated/graphql';
-import {base64toBlob, defaultMutationProps, notEmpty} from '../kanbanHelpers';
-import {useQueryClient} from 'react-query';
-import {toast} from 'react-toastify';
-import {useNavigate, useSearch} from 'react-location';
-import {ErrorMessage, FilePreview, Form, RenderField} from './Form';
+import { defaultMutationProps } from '@juxt-home/kanban-helpers';
+import { notEmpty, base64toBlob } from '@juxt-home/utils';
+import { useQueryClient } from 'react-query';
+import { toast } from 'react-toastify';
+import { useNavigate, useSearch } from 'react-location';
+import { ErrorMessage, FilePreview, Form, RenderField } from './Form';
 import {
   useCardById,
   useCardHistory,
@@ -47,9 +54,9 @@ import {
   useProjectOptions,
   useWorkflowStates,
 } from '../hooks';
-import {OptionsMenu} from './Menus';
-import {ModalTabs} from './Tabs';
-import {ChatAltIcon, ChevronDownIcon, XIcon} from '@heroicons/react/solid';
+import { OptionsMenu } from './Menus';
+import { ModalTabs } from './Tabs';
+import { ChatAltIcon, ChevronDownIcon, XIcon } from '@heroicons/react/solid';
 import {
   ArchiveActiveIcon,
   ArchiveInactiveIcon,
@@ -57,12 +64,12 @@ import {
   DeleteInactiveIcon,
 } from './Icons';
 import DOMPurify from 'dompurify';
-import {Disclosure} from '@headlessui/react';
+import { Disclosure } from '@headlessui/react';
 import _ from 'lodash-es';
-import {Button} from './Buttons';
-import {Tiptap} from './Tiptap';
+import { Button } from './Buttons';
+import { Tiptap } from './Tiptap';
 
-function PdfViewer({pdfString}: {pdfString?: string}) {
+function PdfViewer({ pdfString }: { pdfString?: string }) {
   const pdfUrl = useMemo(() => {
     const pdfBlob = pdfString && base64toBlob(pdfString);
     if (pdfBlob) {
@@ -71,11 +78,12 @@ function PdfViewer({pdfString}: {pdfString?: string}) {
     return null;
   }, [pdfString]);
   // clean up object url on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-    };
-  }, [pdfUrl]);
+    },
+    [pdfUrl],
+  );
   return pdfUrl ? <Viewer fileUrl={pdfUrl} /> : <p>No Pdf</p>;
 }
 
@@ -86,14 +94,14 @@ type AddCardInput = CreateHiringCardMutationVariables & {
 
 type AddCardModalProps = ModalStateProps;
 
-export function AddCardModal({isOpen, handleClose}: AddCardModalProps) {
+export function AddCardModal({ isOpen, handleClose }: AddCardModalProps) {
   const queryClient = useQueryClient();
   const addCardMutation = useCreateHiringCardMutation({
     ...defaultMutationProps(queryClient),
   });
-  const {workflowProjectId} = useSearch<LocationGenerics>();
+  const { workflowProjectId } = useSearch<LocationGenerics>();
   const cols = useWorkflowStates().data || [];
-  const stateOptions = cols.map((c) => ({
+  const stateOptions = cols.filter(notEmpty).map((c) => ({
     label: c.name,
     value: c.id,
   }));
@@ -113,7 +121,7 @@ export function AddCardModal({isOpen, handleClose}: AddCardModalProps) {
     }
     handleClose();
     const newId = `card-${Date.now()}`;
-    const {project, workflowState, ...cardInput} = card;
+    const { project, workflowState, ...cardInput } = card;
     toast.promise(
       addCardMutation.mutateAsync({
         cardId: newId,
@@ -134,7 +142,7 @@ export function AddCardModal({isOpen, handleClose}: AddCardModalProps) {
         pending: 'Creating card...',
         success: 'Card created!',
         error: 'Error creating card',
-      }
+      },
     );
 
     formHooks.resetField('card');
@@ -142,7 +150,7 @@ export function AddCardModal({isOpen, handleClose}: AddCardModalProps) {
 
   const projectOptions = useProjectOptions();
   const label = projectOptions.find(
-    (p) => p.value === workflowProjectId
+    (p) => p.value === workflowProjectId,
   )?.label;
   useEffect(() => {
     if (workflowProjectId) {
@@ -221,15 +229,15 @@ type UpdateCardInput = UpdateHiringCardMutationVariables & {
   workflowState: Option;
 };
 
-export function UpdateCardForm({handleClose}: {handleClose: () => void}) {
-  const {modalState} = useSearch<LocationGenerics>();
+export function UpdateCardForm({ handleClose }: { handleClose: () => void }) {
+  const { modalState } = useSearch<LocationGenerics>();
   const cardId = modalState?.cardId;
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateHiringCardMutation({
     onSuccess: (data) => {
       const id = data.updateHiringCard?.id;
       if (id) {
-        queryClient.refetchQueries(useCardByIdsQuery.getKey({ids: [id]}));
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       }
     },
   });
@@ -243,13 +251,13 @@ export function UpdateCardForm({handleClose}: {handleClose: () => void}) {
     value: c.id,
   }));
 
-  const {card} = useCardById(cardId);
+  const { card } = useCardById(cardId);
 
   const updateCard = (input: UpdateCardInput) => {
     handleClose();
-    const {workflowState, project, ...cardInput} = input;
+    const { workflowState, project, ...cardInput } = input;
     const cardData = {
-      card: {...cardInput.card, projectId: project?.value},
+      card: { ...cardInput.card, projectId: project?.value },
       cardId: input.cardId,
     };
 
@@ -296,7 +304,7 @@ export function UpdateCardForm({handleClose}: {handleClose: () => void}) {
         value: card?.workflowState?.id || '',
       });
       const projectId = card?.project?.id;
-      formHooks.setValue('card', {...card});
+      formHooks.setValue('card', { ...card });
       if (card?.files) processCard();
       formHooks.setValue('card.cvPdf', card?.cvPdf);
       if (card.project?.name && projectId) {
@@ -414,7 +422,7 @@ export function UpdateCardForm({handleClose}: {handleClose: () => void}) {
                         pending: 'Archiving card...',
                         success: 'Card archived!',
                         error: 'Error archiving card',
-                      }
+                      },
                     );
                   }
                 },
@@ -427,12 +435,14 @@ export function UpdateCardForm({handleClose}: {handleClose: () => void}) {
   );
 }
 
-function CommentSection({cardId}: {cardId: string}) {
-  const {data: comments} = useCommentForCard(cardId);
+function CommentSection({ cardId }: { cardId: string }) {
+  const { data: comments } = useCommentForCard(cardId);
   const queryClient = useQueryClient();
   const commentMutationProps = {
     onSettled: () => {
-      queryClient.refetchQueries(useCommentsForCardQuery.getKey({id: cardId}));
+      queryClient.refetchQueries(
+        useCommentsForCardQuery.getKey({ id: cardId }),
+      );
     },
   };
   const addCommentMutation = useCreateCommentMutation(commentMutationProps);
@@ -452,10 +462,10 @@ function CommentSection({cardId}: {cardId: string}) {
       },
       {
         autoClose: 500,
-      }
+      },
     );
   };
-  const schema = yup.object({Comment: CommentInputSchema()});
+  const schema = yup.object({ Comment: CommentInputSchema() });
   const formHooks = useForm<CreateCommentMutationVariables>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -489,8 +499,7 @@ function CommentSection({cardId}: {cardId: string}) {
       document.removeEventListener('keydown', listener);
     };
   }, []);
-  const gravatar = (email: string) =>
-    'https://avatars.githubusercontent.com/u/9809256?v=4';
+  const gravatar = () => 'https://avatars.githubusercontent.com/u/9809256?v=4';
 
   return (
     <section aria-labelledby="activity-title" className="sm:h-full">
@@ -519,7 +528,7 @@ function CommentSection({cardId}: {cardId: string}) {
                           <div className="relative">
                             <img
                               className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                              src={gravatar('lda@juxt.pro')}
+                              src={gravatar()}
                               alt=""
                             />
 
@@ -558,7 +567,7 @@ function CommentSection({cardId}: {cardId: string}) {
                                             },
                                             {
                                               autoClose: 1000,
-                                            }
+                                            },
                                           );
                                         },
                                       },
@@ -577,7 +586,7 @@ function CommentSection({cardId}: {cardId: string}) {
                         </div>
                       </div>
                     </li>
-                  )
+                  ),
                 )}
             </ul>
           </div>
@@ -587,7 +596,7 @@ function CommentSection({cardId}: {cardId: string}) {
                 <div className="relative">
                   <img
                     className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                    src={gravatar('alx@juxt.pro')}
+                    src={gravatar()}
                     alt=""
                   />
 
@@ -693,16 +702,16 @@ function InterviewModal({
     },
   ];
   const [scores, setScores] = useState<Record<string, number | undefined>>(
-    Object.fromEntries(questions.map(({id}) => [id, undefined]))
+    Object.fromEntries(questions.map(({ id }) => [id, undefined])),
   );
 
   const question = questions[questionNumber - 1];
   const sliderMarks = [
-    {value: 0, label: '💩'},
-    {value: 25, label: '😕'},
-    {value: 50, label: '🤷‍♀️'},
-    {value: 75, label: '👌'},
-    {value: 100, label: '😎'},
+    { value: 0, label: '💩' },
+    { value: 25, label: '😕' },
+    { value: 50, label: '🤷‍♀️' },
+    { value: 75, label: '👌' },
+    { value: 100, label: '😎' },
   ];
   const ref = useRef<HTMLDivElement>(null);
   const scrollToTop = () => {
@@ -721,7 +730,7 @@ function InterviewModal({
     scrollToTop();
   };
   useEffect(() => {
-    setTimeout(() => ref.current?.scrollTo({top: 0}), 50);
+    setTimeout(() => ref.current?.scrollTo({ top: 0 }), 50);
   }, [show]);
 
   return (
@@ -791,8 +800,8 @@ function InterviewModal({
                   defaultValue={50}
                   step={25}
                   marks={[
-                    {value: 0, label: 'Weak'},
-                    {value: 100, label: 'Strong'},
+                    { value: 0, label: 'Weak' },
+                    { value: 100, label: 'Strong' },
                   ]}
                 />
                 <h2>What was said:</h2>
@@ -856,7 +865,7 @@ function CloseIcon(open: boolean) {
     <ChevronDownIcon
       className={classNames(
         'w-4 h-4',
-        open ? 'transform rotate-180 text-primary-500' : ''
+        open ? 'transform rotate-180 text-primary-500' : '',
       )}
     />
   );
@@ -871,7 +880,7 @@ function CardInfo({
 }) {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [splitSize, setSplitSize] = useState(
-    parseInt(localStorage.getItem('hsplitPos') || '700', 10)
+    parseInt(localStorage.getItem('hsplitPos') || '700', 10),
   );
   const handleResize = (size?: number) => {
     if (size) {
@@ -882,7 +891,7 @@ function CardInfo({
 
   const accordionButtonClass = classNames(
     'flex items-center justify-between w-full px-4 py-2 my-2 rounded-base cursor-base focus:outline-none',
-    'bg-orange-50 rounded-lg text-primary-800 dark:bg-primary-200 dark:bg-opacity-15 dark:text-primary-200'
+    'bg-orange-50 rounded-lg text-primary-800 dark:bg-primary-200 dark:bg-opacity-15 dark:text-primary-200',
   );
   return (
     <>
@@ -911,13 +920,27 @@ function CardInfo({
               {card.title}
             </h2>
             <p>{card.id}</p>
-            {card?.project?.name && <p>Project: {card.project.name}</p>}
-            <p className="text-gray-500">Last Updated {card._siteValidTime}</p>
+            {card?.project?.name && (
+              <p>
+                Project:
+                {card.project.name}
+              </p>
+            )}
+            <p className="text-gray-500">
+              Last Updated
+              {card._siteValidTime}
+            </p>
             {card?._siteSubject && (
-              <p className="text-gray-500">By: {card._siteSubject}</p>
+              <p className="text-gray-500">
+                By:
+                {card._siteSubject}
+              </p>
             )}
             {card?.workflowState && (
-              <p className="text-gray-500">Status: {card.workflowState.name}</p>
+              <p className="text-gray-500">
+                Status:
+                {card.workflowState.name}
+              </p>
             )}
             {card?.description && (
               <div
@@ -933,7 +956,7 @@ function CardInfo({
             <div className="w-full lg:h-full lg:overflow-y-auto m-4">
               {true && (
                 <Disclosure defaultOpen as="div" className="mt-2 w-full">
-                  {({open}) => (
+                  {({ open }) => (
                     <>
                       <Disclosure.Button className={accordionButtonClass}>
                         <span>Interview 1</span>
@@ -953,7 +976,7 @@ function CardInfo({
               )}
               {card?.files && card?.files.length > 0 && (
                 <Disclosure as="div" className="mt-2 w-full">
-                  {({open}) => (
+                  {({ open }) => (
                     <>
                       <Disclosure.Button className={accordionButtonClass}>
                         <span>Other Files</span>
@@ -989,14 +1012,14 @@ function CardInfo({
 
 function CardView() {
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
-  const {data, isLoading} = useCardById(cardId);
+  const { data, isLoading } = useCardById(cardId);
 
   const card = data?.cardsByIds?.[0];
   const screen = useMobileDetect();
   const isMobile = screen.isMobile();
 
   const [splitSize, setSplitSize] = useState(
-    parseInt(localStorage.getItem('vsplitPos') || '900', 10)
+    parseInt(localStorage.getItem('vsplitPos') || '900', 10),
   );
   const [splitKey, setSplitKey] = useState(splitSize);
   const handleResize = (size?: number) => {
@@ -1079,34 +1102,34 @@ type TCardHistoryCard = NonNullable<
   NonNullable<CardHistoryQuery['cardHistory']>[0]
 >;
 
-function TitleComponent({value}: CellProps<TCardHistoryCard>) {
+function TitleComponent({ value }: CellProps<TCardHistoryCard>) {
   return <div className="text-sm truncate">{value || 'Untitled'}</div>;
 }
 
 function CardHistory() {
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
-  const {history} = useCardHistory(cardId);
+  const { history } = useCardHistory(cardId);
   const queryClient = useQueryClient();
   const rollbackMutation = useRollbackCardMutation({
     onSettled: (data) => {
       const id = data?.rollbackCard?.id || '';
-      queryClient.refetchQueries(useCardByIdsQuery.getKey({ids: [id]}));
+      queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       queryClient.refetchQueries(useKanbanDataQuery.getKey());
-      queryClient.refetchQueries(useCardHistoryQuery.getKey({id}));
+      queryClient.refetchQueries(useCardHistoryQuery.getKey({ id }));
     },
   });
   const handleRollback = async (card: TCardHistoryCard) => {
     toast.promise(
-      rollbackMutation.mutateAsync({id: card.id, asOf: card._siteValidTime}),
+      rollbackMutation.mutateAsync({ id: card.id, asOf: card._siteValidTime }),
       {
         success: 'Card rolled back successfully',
         error: 'Card rollback failed',
         pending: 'Rolling back card...',
-      }
+      },
     );
   };
   // eslint-disable-next-line react/no-unstable-nested-components
-  function RollbackButton({row}: CellProps<TCardHistoryCard>) {
+  function RollbackButton({ row }: CellProps<TCardHistoryCard>) {
     return (
       <button
         type="button"
@@ -1158,7 +1181,7 @@ function CardHistory() {
             .join(', '),
         };
       }),
-    [history]
+    [history],
   );
 
   const cols = useMemo(
@@ -1189,7 +1212,7 @@ function CardHistory() {
         Cell: RollbackButton,
       },
     ],
-    []
+    [],
   );
 
   return (
@@ -1222,10 +1245,10 @@ function CardHistory() {
 
 type CardModalProps = ModalStateProps;
 
-export function CardModal({isOpen, handleClose}: CardModalProps) {
-  const {cardModalView, ...search} = useSearch<LocationGenerics>();
+export function CardModal({ isOpen, handleClose }: CardModalProps) {
+  const { cardModalView, ...search } = useSearch<LocationGenerics>();
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
-  const {data, error} = useCardById(cardId);
+  const { data, error } = useCardById(cardId);
   const navigate = useNavigate<LocationGenerics>();
   const hasUnsaved = false; // TODO
   const card = data?.cardsByIds?.[0];
@@ -1261,10 +1284,10 @@ export function CardModal({isOpen, handleClose}: CardModalProps) {
       <div className="fixed w-full top-0 z-10 bg-white">
         <ModalTabs
           tabs={[
-            {id: 'view', name: 'View', default: !cardModalView},
-            {id: 'cv', name: 'CV', hidden: !pdfLzString},
-            {id: 'update', name: 'Edit'},
-            {id: 'history', name: 'History'},
+            { id: 'view', name: 'View', default: !cardModalView },
+            { id: 'cv', name: 'CV', hidden: !pdfLzString },
+            { id: 'update', name: 'Edit' },
+            { id: 'history', name: 'History' },
           ]}
           navName="cardModalView"
         />
@@ -1272,7 +1295,7 @@ export function CardModal({isOpen, handleClose}: CardModalProps) {
           <XIcon onClick={onClose} />
         </div>
       </div>
-      <div className="h-full" style={{paddingTop: '54px'}}>
+      <div className="h-full" style={{ paddingTop: '54px' }}>
         {error && (
           <div className="flex flex-col justify-center items-center h-full">
             <div className="text-center">

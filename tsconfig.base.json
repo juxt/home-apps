@@ -15,9 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@temp-workspace/kanban-helpers": ["libs/kanban-helpers/src/index.ts"],
-      "@temp-workspace/site": ["libs/site/src/index.ts"],
-      "@temp-workspace/utils": ["libs/utils/src/index.ts"]
+      "@juxt-home/kanban-helpers": ["libs/kanban-helpers/src/index.ts"],
+      "@juxt-home/site": ["libs/site/src/index.ts"],
+      "@juxt-home/utils": ["libs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

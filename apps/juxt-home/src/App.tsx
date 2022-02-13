@@ -1,14 +1,16 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import NaturalDragAnimation from './components/lib/react-dnd-animation';
-import {useHotkeys} from 'react-hotkeys-hook';
-import {useModalForm} from './hooks';
-import {NavTabs} from './components/Tabs';
-import {Heading} from './components/Headings';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useModalForm } from './hooks';
+import { NavTabs } from './components/Tabs';
+import { Heading } from './components/Headings';
 import {
   AddWorkflowStateModal,
   UpdateWorkflowStateModal,
 } from './components/WorkflowStateForms';
-import {AddProjectModal, UpdateProjectModal} from './components/ProjectForms';
-import {AddCardModal, CardModal} from './components/CardForms';
+import { AddProjectModal, UpdateProjectModal } from './components/ProjectForms';
+import { AddCardModal, CardModal } from './components/CardForms';
 import {
   DragDropContext,
   Droppable,
@@ -22,19 +24,19 @@ import {
   useCardByIdsQuery,
   useUpdateCardPositionMutation,
 } from './generated/graphql';
-import {LocationGenerics, TWorkflow, TCard, TWorkflowState} from './types';
-import {defaultMutationProps, moveCard, notEmpty} from './kanbanHelpers';
-import {useQueryClient} from 'react-query';
-import React, {useEffect} from 'react';
-import {useNavigate, useSearch} from 'react-location';
+import { LocationGenerics, TWorkflow, TCard, TWorkflowState } from './types';
+import { defaultMutationProps, moveCard } from '@juxt-home/kanban-helpers';
+import { notEmpty } from '@juxt-home/utils';
+import { useQueryClient } from 'react-query';
+import React, { useEffect } from 'react';
+import { useNavigate, useSearch } from 'react-location';
 import classNames from 'classnames';
 import _ from 'lodash-es';
 import DOMPurify from 'dompurify';
-import Table, {SelectColumnFilter} from './components/Table';
-import Tippy, {useSingleton, TippyProps} from '@tippyjs/react';
-// eslint-disable-next-line import/no-extraneous-dependencies
+import Table, { SelectColumnFilter } from './components/Table';
+import Tippy, { useSingleton, TippyProps } from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
-import {Column} from 'react-table';
+import { Column } from 'react-table';
 
 type CardProps = {
   card: TCard;
@@ -42,23 +44,23 @@ type CardProps = {
   index: number;
 };
 
-const DraggableCard = React.memo(({card, index, workflow}: CardProps) => {
+const DraggableCard = React.memo(({ card, index, workflow }: CardProps) => {
   const [, setIsOpen] = useModalForm({
     formModalType: 'editCard',
     cardId: card.id,
     workflowId: workflow?.id,
     workflowStateId: workflow?.workflowStates.find((state) =>
-      state?.cards?.find((c) => c?.id === card.id)
+      state?.cards?.find((c) => c?.id === card.id),
     )?.id,
   });
-  const {data: detailedCard} = useCardByIdsQuery(
+  const { data: detailedCard } = useCardByIdsQuery(
     {
       ids: [card.id],
     },
     {
       enabled: false,
       select: (data) => data?.cardsByIds?.filter(notEmpty)[0],
-    }
+    },
   );
   const search = useSearch<LocationGenerics>();
   const showDetails = search?.showDetails;
@@ -78,7 +80,7 @@ const DraggableCard = React.memo(({card, index, workflow}: CardProps) => {
         const cardStyles = classNames(
           'text-left bg-white w-full sm:w-52 lg:w-64 rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400',
           isDragging && 'bg-blue-50 border-blue-400 shadow-lg',
-          !card?.project && 'border-red-500 bg-red-50'
+          !card?.project && 'border-red-500 bg-red-50',
         );
         return (
           <NaturalDragAnimation
@@ -139,7 +141,7 @@ type WorkflowStateProps = {
 };
 
 const WorkflowState = React.memo(
-  ({workflowState, cards, workflow, tooltipTarget}: WorkflowStateProps) => {
+  ({ workflowState, cards, workflow, tooltipTarget }: WorkflowStateProps) => {
     const isFirst = workflow.workflowStates?.[0]?.id === workflowState.id;
     const [, setIsOpen] = useModalForm({
       formModalType: 'editWorkflowState',
@@ -159,7 +161,7 @@ const WorkflowState = React.memo(
                 snapshot.isDraggingOver &&
                   'bg-blue-50 shadow-sm  border-dashed ',
                 ' flex flex-col ',
-                cards.length === 0 && 'relative h-36'
+                cards.length === 0 && 'relative h-36',
               )}>
               <button
                 type="button"
@@ -168,7 +170,7 @@ const WorkflowState = React.memo(
                   'prose cursor-pointer isolate',
                   cards.length === 0 &&
                     !snapshot.isDraggingOver &&
-                    'sm:transition sm:rotate-90 sm:relative sm:top-2 sm:left-10 sm:origin-top-left sm:whitespace-nowrap'
+                    'sm:transition sm:rotate-90 sm:relative sm:top-2 sm:left-10 sm:origin-top-left sm:whitespace-nowrap',
                 )}>
                 {cards.length === 0 && !snapshot.isDraggingOver ? (
                   <>
@@ -181,18 +183,22 @@ const WorkflowState = React.memo(
                     delay={[100, 500]}
                     content={
                       <div className="text-sm">
-                        <p>Column ID {workflowState.id}</p>
+                        <p>
+                          Column ID
+                          {workflowState.id}
+                        </p>
                         <p>{workflowState?.description}</p>
                         <p>
-                          {cards.length} card{cards.length === 1 ? '' : 's'}
+                          {cards.length} card
+                          {cards.length === 1 ? '' : 's'}
                         </p>
                         <p>Click to edit</p>
                       </div>
                     }>
                     <div
-                      style={{marginBlock: '8px'}}
+                      style={{ marginBlock: '8px' }}
                       className="flex items-center justify-between my-2">
-                      <h3 style={{marginBlock: 0}}>{workflowState.name}</h3>
+                      <h3 style={{ marginBlock: 0 }}>{workflowState.name}</h3>
                       <span className="px-2 bg-blue-50  text-gray-500 font-extralight rounded-md ">
                         {cards.length}
                       </span>
@@ -220,12 +226,12 @@ const WorkflowState = React.memo(
         </Droppable>
       </>
     );
-  }
+  },
 );
 
 function filteredCards(
   cards: TCard[] | undefined,
-  projectId: string | undefined
+  projectId: string | undefined,
 ) {
   if (!projectId) {
     return cards;
@@ -235,7 +241,7 @@ function filteredCards(
     cards?.filter(
       (card) =>
         (projectId === '' && card?.project) ||
-        (card?.project?.name && card.project?.id === projectId)
+        (card?.project?.name && card.project?.id === projectId),
     ) ?? []
   );
 }
@@ -274,34 +280,32 @@ function WorkflowStateContainer({
         delay={[500, 100]}
         moveTransition="transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)"
       />
-      {cols.map((col) => {
-        return (
-          <WorkflowState
-            key={col.id}
-            tooltipTarget={target}
-            isDragging={isDragging}
-            workflowState={col}
-            cards={col?.cards?.filter(notEmpty) || []}
-            workflow={workflow}
-          />
-        );
-      })}
+      {cols.map((col) => (
+        <WorkflowState
+          key={col.id}
+          tooltipTarget={target}
+          isDragging={isDragging}
+          workflowState={col}
+          cards={col?.cards?.filter(notEmpty) || []}
+          workflow={workflow}
+        />
+      ))}
       {provided.placeholder}
     </div>
   );
 }
 
-function Workflow({workflow}: {workflow: TWorkflow}) {
+function Workflow({ workflow }: { workflow: TWorkflow }) {
   if (!workflow?.id) return null;
   const search = useSearch<LocationGenerics>();
-  const {workflowProjectId, devMode} = search;
+  const { workflowProjectId, devMode } = search;
   const data = React.useMemo(
     () => processWorkflow(workflow, workflowProjectId),
-    [workflow, workflowProjectId]
+    [workflow, workflowProjectId],
   );
   const [filteredState, setState] = React.useState<TWorkflow>();
   const unfilteredWorkflow = useKanbanDataQuery()?.data?.allWorkflows?.find(
-    (c) => c?.id === workflow.id
+    (c) => c?.id === workflow.id,
   );
 
   React.useEffect(() => {
@@ -310,15 +314,12 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
     }
   }, [data]);
   const cols =
-    filteredState?.workflowStates.filter(notEmpty).map((c) => {
-      return {
-        ...c,
-        cards:
-          c.cards
-            ?.filter((card) => devMode || card?.project)
-            .filter(notEmpty) || [],
-      };
-    }) || [];
+    filteredState?.workflowStates.filter(notEmpty).map((c) => ({
+      ...c,
+      cards:
+        c.cards?.filter((card) => devMode || card?.project).filter(notEmpty) ||
+        [],
+    })) || [];
   const queryClient = useQueryClient();
   const updateCardPosMutation = useUpdateCardPositionMutation({
     ...defaultMutationProps(queryClient),
@@ -335,7 +336,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
       source: DraggableLocation,
       destination: DraggableLocation,
       draggableId: string,
-      prevCardId?: string | false
+      prevCardId?: string | false,
     ) => {
       if (startCol === endCol) {
         const cardsInSourceCol =
@@ -356,7 +357,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
         });
       }
     },
-    [moveCardMutation]
+    [moveCardMutation],
   );
 
   const [, setIsAddCard] = useModalForm({
@@ -369,15 +370,18 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
   });
   const [isDragging, setIsDragging] = React.useState(false);
   const isGrid = search.view === 'table';
-  const gridData = React.useMemo(() => {
-    return [
+  const gridData = React.useMemo(
+    () => [
       ...cols
         .filter(notEmpty)
-        .flatMap((c) => [...c.cards.map((card) => ({...card, state: c.name}))]),
-    ];
-  }, [cols]);
-  const gridColumns: Array<Column> = React.useMemo(() => {
-    return [
+        .flatMap((c) => [
+          ...c.cards.map((card) => ({ ...card, state: c.name })),
+        ]),
+    ],
+    [cols],
+  );
+  const gridColumns: Array<Column> = React.useMemo(
+    () => [
       {
         Header: 'id',
         accessor: 'id',
@@ -401,11 +405,12 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
         Header: 'Last Updated',
         accessor: '_siteValidTime',
       },
-    ];
-  }, []);
+    ],
+    [],
+  );
   const navigate = useNavigate<LocationGenerics>();
 
-  const openCardForm = ({values}: {values: typeof gridColumns[0]}) => {
+  const openCardForm = ({ values }: { values: typeof gridColumns[0] }) => {
     const cardId = values.id;
     if (cardId) {
       navigate({
@@ -417,7 +422,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
             formModalType: 'editCard',
             workflowId: workflow?.id,
             workflowStateId: workflow?.workflowStates.find((state) =>
-              state?.cards?.find((c) => c?.id === cardId)
+              state?.cards?.find((c) => c?.id === cardId),
             )?.id,
           },
         },
@@ -438,7 +443,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
       {!isGrid && filteredState && (
         <DragDropContext
           onDragStart={() => setIsDragging(true)}
-          onDragEnd={({destination, source, draggableId}) => {
+          onDragEnd={({ destination, source, draggableId }) => {
             setIsDragging(false);
             if (
               !destination ||
@@ -450,7 +455,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
             const newFilteredState = moveCard(
               filteredState,
               source,
-              destination
+              destination,
             );
             const startCol = cols.find((c) => c.id === source.droppableId);
             const endCol = cols.find((c) => c.id === destination.droppableId);
@@ -458,7 +463,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
               destination.index === 0
                 ? false
                 : newFilteredState?.workflowStates.find(
-                    (state) => state?.id === destination.droppableId
+                    (state) => state?.id === destination.droppableId,
                   )?.cards?.[destination.index - 1]?.id;
             if (!startCol || !endCol) return;
 
@@ -471,7 +476,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
                 source,
                 destination,
                 draggableId,
-                prevCardId
+                prevCardId,
               );
             } else {
               // if there are filters, things are more tricky...
@@ -481,20 +486,20 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
 
               const unfilteredStartCol =
                 unfilteredWorkflow?.workflowStates.find(
-                  (c) => c?.id === source.droppableId
+                  (c) => c?.id === source.droppableId,
                 );
               const unfilteredEndCol = unfilteredWorkflow?.workflowStates.find(
-                (c) => c?.id === destination.droppableId
+                (c) => c?.id === destination.droppableId,
               );
               const unfilteredSourceIdx =
                 unfilteredStartCol?.cards?.findIndex(
-                  (c) => c?.id === draggableId
+                  (c) => c?.id === draggableId,
                 ) || source.index;
               const newEndCol = newFilteredState?.workflowStates.find(
-                (c) => c?.id === destination.droppableId
+                (c) => c?.id === destination.droppableId,
               );
               const unfilteredCardIdx = newEndCol?.cards?.findIndex(
-                (c) => c?.id === draggableId
+                (c) => c?.id === draggableId,
               );
               const endCards = newEndCol?.cards?.filter(notEmpty) || [];
               const prevUnfilteredCardId =
@@ -502,7 +507,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
                   ? undefined
                   : !!unfilteredCardIdx && endCards[unfilteredCardIdx - 1]?.id;
               const prevCardIdx = unfilteredEndCol?.cards?.findIndex(
-                (c) => c?.id === prevUnfilteredCardId
+                (c) => c?.id === prevUnfilteredCardId,
               );
               const unfilteredSource = {
                 ...source,
@@ -530,7 +535,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
                 const newState = moveCard(
                   unfilteredWorkflow,
                   unfilteredSource,
-                  unfilteredDestination
+                  unfilteredDestination,
                 );
                 if (newState) {
                   updateServerCards(
@@ -540,7 +545,7 @@ function Workflow({workflow}: {workflow: TWorkflow}) {
                     unfilteredSource,
                     unfilteredDestination,
                     draggableId,
-                    prevCardId
+                    prevCardId,
                   );
                 }
               }
@@ -603,13 +608,13 @@ export function App() {
   const queryClient = useQueryClient();
   const prefetchCards = async () => {
     const data = await queryClient.fetchQuery(
-      useCardByIdsQuery.getKey({ids: _.uniq(allCardIds)}),
-      useCardByIdsQuery.fetcher({ids: _.uniq(allCardIds)}),
-      {staleTime: Infinity}
+      useCardByIdsQuery.getKey({ ids: _.uniq(allCardIds) }),
+      useCardByIdsQuery.fetcher({ ids: _.uniq(allCardIds) }),
+      { staleTime: Infinity },
     );
     data?.cardsByIds?.forEach((c) => {
       if (!c) return;
-      queryClient.setQueryData(useCardByIdsQuery.getKey({ids: [c.id]}), {
+      queryClient.setQueryData(useCardByIdsQuery.getKey({ ids: [c.id] }), {
         cardsByIds: [c],
       });
     });
@@ -650,7 +655,7 @@ export function App() {
       />
       <NavTabs
         navName="workflowProjectId"
-        tabs={[...projects, {id: '', name: 'All'}]
+        tabs={[...projects, { id: '', name: 'All' }]
           .filter(notEmpty)
           .map((project) => ({
             id: project.id,
@@ -665,7 +670,7 @@ export function App() {
                     }
                     return project?.id && c?.project?.id === project.id;
                   })?.length || 0),
-                0
+                0,
               ) || 0,
           }))}
       />

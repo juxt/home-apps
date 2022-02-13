@@ -20,9 +20,7 @@ const turndownService = new TurndownService({
  */
 turndownService.addRule('strikethrough', {
   filter: ['s'],
-  replacement: (content) => {
-    return `~~${content}~~`;
-  },
+  replacement: (content) => `~~${content}~~`,
 });
 
 /**
@@ -44,9 +42,7 @@ turndownService.addRule('paragraph', {
  * https://github.com/mixmark-io/turndown/blob/master/src/commonmark-rules.js
  */
 turndownService.addRule('listItem', {
-  filter: (node: Element) => {
-    return node.nodeName === 'LI' && !node.hasAttribute('data-type');
-  },
+  filter: (node: Element) => node.nodeName === 'LI' && !node.hasAttribute('data-type'),
   replacement(content, node, options) {
     let listItemPrefix = `${options.bulletListMarker} `;
     const parentNode = node.parentNode as HTMLElement | null;
@@ -73,11 +69,9 @@ turndownService.addRule('listItem', {
  * https://github.com/mixmark-io/turndown/blob/master/src/commonmark-rules.js#L61
  */
 turndownService.addRule('taskListItem', {
-  filter: (node: Element) => {
-    return (
-      node.nodeName === 'LI' && node.getAttribute('data-type') === 'taskItem'
-    );
-  },
+  filter: (node: Element) => (
+    node.nodeName === 'LI' && node.getAttribute('data-type') === 'taskItem'
+  ),
   replacement(content, node, options) {
     let listItemPrefix = `${options.bulletListMarker} `;
     const parentNode = node.parentNode as HTMLElement | null;
@@ -104,18 +98,14 @@ turndownService.addRule('taskListItem', {
  * Custom rule for user mentions (i.e., `@Ricardo A`).
  */
 turndownService.addRule('mention', {
-  filter: (node: Element) => {
-    return node.nodeName === 'SPAN' && node.hasAttribute('data-mention');
-  },
-  replacement: (content, node) => {
-    return `(${content.substring(1)})[user-mention://${
-      (node as Element).getAttribute('data-user-id') || 0
-    }]`;
-  },
+  filter: (node: Element) => node.nodeName === 'SPAN' && node.hasAttribute('data-mention'),
+  replacement: (content, node) => `(${content.substring(1)})[user-mention://${
+    (node as Element).getAttribute('data-user-id') || 0
+  }]`,
 });
 
 function htmlToMarkdown(html: string) {
   return turndownService.turndown(html);
 }
 
-export {htmlToMarkdown};
+export { htmlToMarkdown };

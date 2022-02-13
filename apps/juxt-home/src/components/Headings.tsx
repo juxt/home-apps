@@ -1,6 +1,6 @@
 /* This example requires Tailwind CSS v2.0+ */
-import {Fragment} from 'react';
-import {LocationGenerics, TWorkflow} from '../types';
+import { Fragment } from 'react';
+import { LocationGenerics, TWorkflow } from '../types';
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -12,10 +12,10 @@ import {
   TableIcon,
   ViewBoardsIcon,
 } from '@heroicons/react/solid';
-import {Menu, Transition} from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
-import {useCurrentProject, useMobileDetect, useModalForm} from '../hooks';
-import {useNavigate, useSearch} from 'react-location';
+import { useCurrentProject, useMobileDetect, useModalForm } from '../hooks';
+import { useNavigate, useSearch } from 'react-location';
 
 export function Heading({
   workflow,
@@ -29,7 +29,7 @@ export function Heading({
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
 
-  const {showDetails} = search;
+  const { showDetails } = search;
   const showDetailsText = showDetails ? 'Hide details' : 'Show details';
   const ShowDetailsIcon = showDetails ? (
     <EyeOffIcon
@@ -63,7 +63,7 @@ export function Heading({
   const changeViewText = isCardView ? 'Table View' : 'Card View';
   const handleChangeView = () => {
     navigate({
-      search: {...search, view: isCardView ? 'table' : 'card'},
+      search: { ...search, view: isCardView ? 'table' : 'card' },
     });
   };
 
@@ -120,7 +120,8 @@ export function Heading({
             <button
               type="button"
               onClick={() => setAddProject(true)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
               <FolderAddIcon
                 className="-ml-1 mr-2 h-5 w-5 text-gray-500"
                 aria-hidden="true"
@@ -134,7 +135,8 @@ export function Heading({
               <button
                 type="button"
                 onClick={() => setProjectFormOpen(true)}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
                 <PencilIcon
                   className="-ml-1 mr-2 h-5 w-5 text-gray-500"
                   aria-hidden="true"
@@ -148,7 +150,8 @@ export function Heading({
               <button
                 type="button"
                 onClick={handleToggleDetails}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
                 {ShowDetailsIcon}
                 {showDetailsText}
               </button>
@@ -158,7 +161,8 @@ export function Heading({
             <button
               type="button"
               onClick={handleChangeView}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
               {ChangeViewIcon}
               {changeViewText}
             </button>
@@ -168,9 +172,11 @@ export function Heading({
             <button
               type="button"
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              onClick={handleAddCard}>
+              onClick={handleAddCard}
+            >
               <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-              Add Card{!isMobile && ' (c)'}
+              Add Card
+              {!isMobile && ' (c)'}
             </button>
           </span>
 
@@ -191,17 +197,19 @@ export function Heading({
               enterTo="transform opacity-100 scale-100"
               leave="transition ease-in duration-75"
               leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95">
+              leaveTo="transform opacity-0 scale-95"
+            >
               <Menu.Items className="origin-top-right z-20 absolute cursor-pointer right-0 mt-2 -mr-1 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <Menu.Item>
-                  {({active}) => (
+                  {({ active }) => (
                     <button
                       type="button"
                       onClick={() => setAddProject(true)}
                       className={classNames(
                         active ? 'bg-gray-100' : '',
-                        'flex px-4 py-2 text-sm text-gray-700'
-                      )}>
+                        'flex px-4 py-2 text-sm text-gray-700',
+                      )}
+                    >
                       <FolderAddIcon
                         className="-ml-1 mr-2 h-5 w-5 text-gray-500"
                         aria-hidden="true"
@@ -213,14 +221,15 @@ export function Heading({
 
                 {hasProject && (
                   <Menu.Item>
-                    {({active}) => (
+                    {({ active }) => (
                       <button
                         type="button"
                         onClick={() => setProjectFormOpen(true)}
                         className={classNames(
                           active ? 'bg-gray-100' : '',
-                          'flex px-4 py-2 text-sm text-gray-700'
-                        )}>
+                          'flex px-4 py-2 text-sm text-gray-700',
+                        )}
+                      >
                         <PencilIcon
                           className="-ml-1 mr-2 h-5 w-5 text-gray-500"
                           aria-hidden="true"
@@ -232,14 +241,15 @@ export function Heading({
                 )}
                 {isCardView && (
                   <Menu.Item>
-                    {({active}) => (
+                    {({ active }) => (
                       <button
                         type="button"
                         onClick={handleToggleDetails}
                         className={classNames(
                           active ? 'bg-gray-100' : '',
-                          'flex px-4 py-2 text-sm text-gray-700'
-                        )}>
+                          'flex px-4 py-2 text-sm text-gray-700',
+                        )}
+                      >
                         {ShowDetailsIcon}
                         {showDetailsText}
                       </button>
@@ -248,14 +258,15 @@ export function Heading({
                 )}
 
                 <Menu.Item>
-                  {({active}) => (
+                  {({ active }) => (
                     <button
                       type="button"
                       onClick={handleChangeView}
                       className={classNames(
                         active ? 'bg-gray-100' : '',
-                        'flex px-4 py-2 text-sm text-gray-700'
-                      )}>
+                        'flex px-4 py-2 text-sm text-gray-700',
+                      )}
+                    >
                       {ChangeViewIcon}
                       {changeViewText}
                     </button>

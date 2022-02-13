@@ -1,5 +1,5 @@
 import DOMPurify from 'dompurify';
-import {marked} from 'marked';
+import { marked } from 'marked';
 
 /**
  * Initialize Marked with sensible defaults.
@@ -64,7 +64,7 @@ marked.use({
       if (text.includes('<ul>') || text.includes('<ol>')) {
         return `<li><p>${text.replace(
           /^(?:(.+)(<(?:ul|ol)>))/,
-          '$1</p>$2'
+          '$1</p>$2',
         )}</li>`;
       }
 
@@ -81,4 +81,4 @@ function markdownToHtml(markdown: string) {
   });
 }
 
-export {markdownToHtml};
+export { markdownToHtml };

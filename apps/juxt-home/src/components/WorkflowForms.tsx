@@ -1,14 +1,15 @@
-import {ModalStateProps, Option} from '../types';
-import {useForm} from 'react-hook-form';
-import {ModalForm} from './Modal';
+import { ModalStateProps, Option } from '../types';
+import { useForm } from 'react-hook-form';
+import { ModalForm } from './Modal';
 import {
   CreateWorkflowMutationVariables,
   useCreateWorkflowMutation,
 } from '../generated/graphql';
-import {defaultMutationProps, distinctBy} from '../kanbanHelpers';
-import {useQueryClient} from 'react-query';
-import {toast} from 'react-toastify';
-import {useStatesOptions} from '../hooks';
+import { defaultMutationProps } from '@juxt-home/kanban-helpers';
+import { distinctBy } from '@juxt-home/utils';
+import { useQueryClient } from 'react-query';
+import { toast } from 'react-toastify';
+import { useStatesOptions } from '../hooks';
 
 type AddWorkflowInput = Omit<
   CreateWorkflowMutationVariables,
@@ -19,7 +20,10 @@ type AddWorkflowInput = Omit<
 
 type AddWorkflowModalProps = ModalStateProps;
 
-export function AddWorkflowModal({isOpen, handleClose}: AddWorkflowModalProps) {
+export function AddWorkflowModal({
+  isOpen,
+  handleClose,
+}: AddWorkflowModalProps) {
   const queryClient = useQueryClient();
   const addWorkflowMutation = useCreateWorkflowMutation({
     ...defaultMutationProps(queryClient),
@@ -27,15 +31,13 @@ export function AddWorkflowModal({isOpen, handleClose}: AddWorkflowModalProps) {
 
   const addWorkflow = (input: AddWorkflowInput) => {
     handleClose();
-    const {workflowStateIds, ...workflowInput} = input;
+    const { workflowStateIds, ...workflowInput } = input;
 
     const newWorkflowStates =
-      workflowStateIds?.map((c) => {
-        return {
-          name: c.label,
-          id: `col${Math.random().toString()}`,
-        };
-      }) || [];
+      workflowStateIds?.map((c) => ({
+        name: c.label,
+        id: `col${Math.random().toString()}`,
+      })) || [];
     const data = {
       ...workflowInput,
       workflowStates: newWorkflowStates,

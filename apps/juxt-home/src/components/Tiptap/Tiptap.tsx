@@ -1,5 +1,5 @@
 import React from 'react';
-import {useEditor, EditorContent} from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Typography from '@tiptap/extension-typography';
 import Highlight from '@tiptap/extension-highlight';
@@ -8,8 +8,8 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
 
-import type {Extensions} from '@tiptap/react';
-import {MentionSuggestion} from './extensions';
+import type { Extensions } from '@tiptap/react';
+import { MentionSuggestion } from './extensions';
 
 import './Tiptap.scss';
 
@@ -47,7 +47,7 @@ function Tiptap({
       Link.configure({
         linkOnPaste: false,
         openOnClick: false,
-      })
+      }),
     );
   }
 
@@ -59,7 +59,7 @@ function Tiptap({
     extensions.push(
       Placeholder.configure({
         placeholder,
-      })
+      }),
     );
   }
 
@@ -79,7 +79,7 @@ function Tiptap({
     content,
     extensions,
     editable,
-    onUpdate: ({editor}) => {
+    onUpdate: ({ editor }) => {
       setEditorHtmlContent(editor.getHTML());
       onChange(editor.getHTML());
     },
@@ -96,4 +96,4 @@ function Tiptap({
   );
 }
 
-export {Tiptap};
+export { Tiptap };

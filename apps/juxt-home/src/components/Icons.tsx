@@ -1,6 +1,6 @@
 type IconProps = React.HTMLAttributes<HTMLOrSVGElement>;
 
-export function SortIcon({className}: IconProps) {
+export function SortIcon({ className }: IconProps) {
   return (
     <svg
       className={className}
@@ -10,13 +10,14 @@ export function SortIcon({className}: IconProps) {
       viewBox="0 0 320 512"
       height="1em"
       width="1em"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z" />
     </svg>
   );
 }
 
-export function SortUpIcon({className}: IconProps) {
+export function SortUpIcon({ className }: IconProps) {
   return (
     <svg
       className={className}
@@ -26,13 +27,14 @@ export function SortUpIcon({className}: IconProps) {
       viewBox="0 0 320 512"
       height="1em"
       width="1em"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path d="M279 224H41c-21.4 0-32.1-25.9-17-41L143 64c9.4-9.4 24.6-9.4 33.9 0l119 119c15.2 15.1 4.5 41-16.9 41z" />
     </svg>
   );
 }
 
-export function SortDownIcon({className}: IconProps) {
+export function SortDownIcon({ className }: IconProps) {
   return (
     <svg
       className={className}
@@ -42,7 +44,8 @@ export function SortDownIcon({className}: IconProps) {
       viewBox="0 0 320 512"
       height="1em"
       width="1em"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41z" />
     </svg>
   );
@@ -54,7 +57,8 @@ export function MoveInactiveIcon(props: IconProps) {
       {...props}
       viewBox="0 0 20 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path d="M10 4H16V10" stroke="#A78BFA" strokeWidth="2" />
       <path d="M16 4L8 12" stroke="#A78BFA" strokeWidth="2" />
       <path d="M8 6H4V16H14V12" stroke="#A78BFA" strokeWidth="2" />
@@ -68,7 +72,8 @@ export function MoveActiveIcon(props: IconProps) {
       {...props}
       viewBox="0 0 20 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path d="M10 4H16V10" stroke="#C4B5FD" strokeWidth="2" />
       <path d="M16 4L8 12" stroke="#C4B5FD" strokeWidth="2" />
       <path d="M8 6H4V16H14V12" stroke="#C4B5FD" strokeWidth="2" />
@@ -82,7 +87,8 @@ export function DeleteInactiveIcon(props: IconProps) {
       {...props}
       viewBox="0 0 20 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <rect
         x="5"
         y="6"
@@ -104,7 +110,8 @@ export function DeleteActiveIcon(props: IconProps) {
       {...props}
       viewBox="0 0 20 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <rect
         x="5"
         y="6"
@@ -126,7 +133,8 @@ export function ArchiveInactiveIcon(props: IconProps) {
       {...props}
       viewBox="0 0 20 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <rect
         x="5"
         y="8"
@@ -156,7 +164,8 @@ export function ArchiveActiveIcon(props: IconProps) {
       {...props}
       viewBox="0 0 20 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <rect
         x="5"
         y="8"

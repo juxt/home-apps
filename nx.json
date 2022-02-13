@@ -1,5 +1,5 @@
 {
-  "npmScope": "temp-workspace",
+  "npmScope": "juxt-home",
   "affected": {
     "defaultBase": "main"
   },
@@ -34,7 +34,8 @@
     "@nrwl/react": {
       "application": {
         "style": "css",
-        "linter": "eslint"
+        "linter": "eslint",
+        "babel": true
       },
       "component": {
         "style": "css"

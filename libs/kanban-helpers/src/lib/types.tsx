@@ -1,13 +1,12 @@
-import { FieldPath, RegisterOptions, UseFormReturn } from 'react-hook-form';
-import { MakeGenerics } from 'react-location';
+import {FieldPath, RegisterOptions, UseFormReturn} from 'react-hook-form';
+import {MakeGenerics} from 'react-location';
 import {
   KanbanDataQuery,
   CardFieldsFragment,
   WorkflowStateFieldsFragment,
 } from './generated/graphql';
-import { TiptapProps } from './components/Tiptap';
-import { DropzoneProps } from 'react-dropzone';
-import { BaseSyntheticEvent, ReactNode } from 'react';
+import {DropzoneProps} from 'react-dropzone';
+import {BaseSyntheticEvent, ReactNode} from 'react';
 
 export type TWorkflows = NonNullable<KanbanDataQuery['allWorkflows']>;
 export type TWorkflow = TWorkflows[0];
@@ -35,7 +34,7 @@ export type ISelectProps = {
     options: Option[],
     filter: string
   ) => Promise<Option[]> | Option[];
-  overrideStrings?: { [key: string]: string };
+  overrideStrings?: {[key: string]: string};
   labelledBy: string;
   className?: string;
   onMenuToggle?: () => void;
@@ -50,17 +49,17 @@ export type ISelectProps = {
 
 type WithIdAndType<
   T extends
-  | 'text'
-  | 'number'
-  | 'checkbox'
-  | 'textarea'
-  | 'submit'
-  | 'file'
-  | 'multifile'
-  | 'select'
-  | 'multiselect'
-  | 'tiptap'
-  | 'hidden',
+    | 'text'
+    | 'number'
+    | 'checkbox'
+    | 'textarea'
+    | 'submit'
+    | 'file'
+    | 'multifile'
+    | 'select'
+    | 'multiselect'
+    | 'tiptap'
+    | 'hidden'
 > = {
   id: string;
   type: T;
@@ -76,13 +75,13 @@ type HiddenInputProps = InputProps & {
   value: string;
 };
 type FileInputProps = InputProps &
-DropzoneProps & {
-  type: 'file';
-};
+  DropzoneProps & {
+    type: 'file';
+  };
 type MultiFileInputProps = InputProps &
-DropzoneProps & {
-  type: 'multifile';
-};
+  DropzoneProps & {
+    type: 'multifile';
+  };
 type NumberInputProps = InputProps & {
   type: 'number';
   value?: number;
@@ -111,23 +110,19 @@ export type HiddenInputDefinition = HiddenInputProps & WithIdAndType<'hidden'>;
 export type FileInputDefinition = FileInputProps & WithIdAndType<'file'>;
 
 export type MultiFileInputDefinition = MultiFileInputProps &
-WithIdAndType<'multifile'>;
+  WithIdAndType<'multifile'>;
 
 export type NumberInputDefinition = NumberInputProps & WithIdAndType<'number'>;
 
 export type CheckboxInputDefinition = CheckboxProps & WithIdAndType<'checkbox'>;
 
 export type TextAreaInputDefinition = TextAreaProps & WithIdAndType<'textarea'>;
-
-export type TiptapDefinition = Omit<TiptapProps, 'onChange'> &
-WithIdAndType<'tiptap'>;
-
 export type SelectInputDefinition = SelectProps & WithIdAndType<'select'>;
 
 export type MultiSelectDefinition = {
   options: Option[];
 } & Omit<ISelectProps, 'labelledBy' | 'value'> &
-WithIdAndType<'multiselect'>;
+  WithIdAndType<'multiselect'>;
 
 export type SubmitButtonProps = SubmitProps & WithIdAndType<'submit'>;
 
@@ -146,7 +141,6 @@ export type FormInputField<T> = {
   | TextAreaInputDefinition
   | SelectInputDefinition
   | MultiSelectDefinition
-  | TiptapDefinition
 );
 
 export type FormProps<T> = {

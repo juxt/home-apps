@@ -12,13 +12,13 @@ import {
   ChevronRightIcon,
   ChevronDoubleRightIcon,
 } from '@heroicons/react/solid';
-import {Button, PageButton} from './Buttons';
-import {SortIcon, SortUpIcon, SortDownIcon} from './Icons';
+import { Button, PageButton } from './Buttons';
+import { SortIcon, SortUpIcon, SortDownIcon } from './Icons';
 import classNames from 'classnames';
-import {useEffect, useMemo, useState} from 'react';
-import {useNavigate, useSearch} from 'react-location';
-import {LocationGenerics} from '../types';
-import {Maybe} from '../generated/graphql';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearch } from 'react-location';
+import { LocationGenerics } from '../types';
+import { Maybe } from '../generated/graphql';
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -37,7 +37,8 @@ function GlobalFilter({
   return (
     <label
       htmlFor="table-global-search"
-      className="flex gap-x-2 items-baseline">
+      className="flex gap-x-2 items-baseline"
+    >
       <span className="text-gray-700">Search: </span>
       <input
         id="table-global-search"
@@ -57,7 +58,9 @@ function GlobalFilter({
 // This is a custom filter UI for selecting
 // a unique option from a list
 export function SelectColumnFilter({
-  column: {filterValue, setFilter, preFilteredRows, id, render},
+  column: {
+    filterValue, setFilter, preFilteredRows, id, render,
+  },
 }: {
   column: {
     filterValue: any;
@@ -83,7 +86,7 @@ export function SelectColumnFilter({
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
 
-  const {filters} = search;
+  const { filters } = search;
 
   useEffect(() => {
     if (filters?.[id]) {
@@ -93,7 +96,11 @@ export function SelectColumnFilter({
 
   return (
     <label htmlFor={id} className="flex gap-x-2 items-baseline">
-      <span className="text-gray-700">{render('Header')}: </span>
+      <span className="text-gray-700">
+        {render('Header')}
+        :
+        {' '}
+      </span>
       <select
         className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
         name={id}
@@ -110,7 +117,8 @@ export function SelectColumnFilter({
             },
           });
           setFilter(e.target.value || undefined);
-        }}>
+        }}
+      >
         <option value="">All</option>
         {options.map((option) => (
           <option key={option} value={option}>
@@ -122,7 +130,7 @@ export function SelectColumnFilter({
   );
 }
 
-export function StatusPill({value}: {value: string}) {
+export function StatusPill({ value }: { value: string }) {
   const status = value ? value.toLowerCase() : 'unknown';
 
   return (
@@ -131,8 +139,9 @@ export function StatusPill({value}: {value: string}) {
         'px-3 py-1 uppercase leading-wide font-bold text-xs rounded-full shadow-sm',
         status.startsWith('active') ? 'bg-green-100 text-green-800' : null,
         status.startsWith('inactive') ? 'bg-yellow-100 text-yellow-800' : null,
-        status.startsWith('offline') ? 'bg-red-100 text-red-800' : null
-      )}>
+        status.startsWith('offline') ? 'bg-red-100 text-red-800' : null,
+      )}
+    >
       {status}
     </span>
   );
@@ -203,7 +212,7 @@ function Table({
     useFilters,
     useGlobalFilter,
     useSortBy,
-    usePagination
+    usePagination,
   );
   const showPagination = canNextPage || canPreviousPage;
   const navigate = useNavigate<LocationGenerics>();
@@ -217,13 +226,9 @@ function Table({
           globalFilter={state.globalFilter}
           setGlobalFilter={setGlobalFilter}
         />
-        {headerGroups.map((headerGroup) =>
-          headerGroup.headers.map((column) =>
-            column.Filter ? (
-              <div key={column.id}>{column.render('Filter')}</div>
-            ) : null
-          )
-        )}
+        {headerGroups.map((headerGroup) => headerGroup.headers.map((column) => (column.Filter ? (
+          <div key={column.id}>{column.render('Filter')}</div>
+        ) : null)))}
 
         <button
           type="button"
@@ -236,7 +241,8 @@ function Table({
               },
             });
             return setAllFilters([]);
-          }}>
+          }}
+        >
           Reset
         </button>
       </div>
@@ -244,14 +250,16 @@ function Table({
       <div
         className={classNames(
           'mt-4 flexw-full  flex-col md:w-full',
-          !showPagination && 'pb-4'
-        )}>
+          !showPagination && 'pb-4',
+        )}
+      >
         <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
           <div className="py-2 align-middle inline-block sm:px-6 lg:px-8 w-full">
             <div className="relative sm:shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
               <table
                 {...getTableProps()}
-                className="divide-y divide-gray-200 w-full">
+                className="divide-y divide-gray-200 w-full"
+              >
                 <thead className="bg-gray-50 sm:visible invisible absolute sm:relative">
                   {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
@@ -262,13 +270,14 @@ function Table({
                           scope="col"
                           className="group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           {...column.getHeaderProps(
-                            column.getSortByToggleProps()
+                            column.getSortByToggleProps(),
                           )}
                           style={{
                             width: column.width,
                             minWidth: column.minWidth,
                             maxWidth: column.maxWidth,
-                          }}>
+                          }}
+                        >
                           <div className="flex items-center justify-between">
                             {column.render('Header')}
                             {/* Add a sort direction indicator */}
@@ -291,7 +300,8 @@ function Table({
                 </thead>
                 <tbody
                   {...getTableBodyProps()}
-                  className="bg-white divide-y divide-gray-200">
+                  className="bg-white divide-y divide-gray-200"
+                >
                   {page.map((row) => {
                     // new
                     prepareRow(row);
@@ -299,12 +309,13 @@ function Table({
                       <tr
                         className={classNames(
                           'shadow-lg sm:shadow-none mb-6 sm:mb-0 flex flex-row flex-wrap sm:table-row sm:hover:bg-gray-100',
-                          onRowClick && 'cursor-pointer'
+                          onRowClick && 'cursor-pointer',
                         )}
                         onClick={() => onRowClick && onRowClick(row)}
-                        {...row.getRowProps()}>
+                        {...row.getRowProps()}
+                      >
                         {row.cells.map((cell) => {
-                          const item = cell?.column?.Cell as {name?: string};
+                          const item = cell?.column?.Cell as { name?: string };
                           return (
                             <td
                               className="sm:flex-1 truncate w-1/2 sm:w-max pt-8 sm:pt-0 relative sm:flex-nowrap px-6 py-4 text-left"
@@ -314,7 +325,8 @@ function Table({
                                 minWidth: cell.column.minWidth,
                                 maxWidth: cell.column.maxWidth,
                               }}
-                              role="cell">
+                              role="cell"
+                            >
                               <span className="group text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:hidden absolute top-0 inset-x-0 p-1 bg-gray-50 pl-2">
                                 {cell.column.Header}
                               </span>
@@ -351,8 +363,13 @@ function Table({
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div className="flex gap-x-2 items-baseline">
               <span className="text-sm text-gray-700">
-                Page <span className="font-medium">{state.pageIndex + 1}</span>{' '}
-                of <span className="font-medium">{pageOptions.length}</span>
+                Page
+                {' '}
+                <span className="font-medium">{state.pageIndex + 1}</span>
+                {' '}
+                of
+                {' '}
+                <span className="font-medium">{pageOptions.length}</span>
               </span>
               <label htmlFor="itemsPerPage">
                 <span className="sr-only">Items Per Page</span>
@@ -362,10 +379,13 @@ function Table({
                   value={state.pageSize}
                   onChange={(e) => {
                     setPageSize(Number(e.target.value));
-                  }}>
+                  }}
+                >
                   {[5, 10, 20].map((pageSize) => (
                     <option key={pageSize} value={pageSize}>
-                      Show {pageSize}
+                      Show
+                      {' '}
+                      {pageSize}
                     </option>
                   ))}
                 </select>
@@ -374,11 +394,13 @@ function Table({
             <div>
               <nav
                 className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                aria-label="Pagination">
+                aria-label="Pagination"
+              >
                 <PageButton
                   className="rounded-l-md"
                   onClick={() => gotoPage(0)}
-                  disabled={!canPreviousPage}>
+                  disabled={!canPreviousPage}
+                >
                   <span className="sr-only">First</span>
                   <ChevronDoubleLeftIcon
                     className="h-5 w-5 text-gray-400"
@@ -387,7 +409,8 @@ function Table({
                 </PageButton>
                 <PageButton
                   onClick={() => previousPage()}
-                  disabled={!canPreviousPage}>
+                  disabled={!canPreviousPage}
+                >
                   <span className="sr-only">Previous</span>
                   <ChevronLeftIcon
                     className="h-5 w-5 text-gray-400"
@@ -404,7 +427,8 @@ function Table({
                 <PageButton
                   className="rounded-r-md"
                   onClick={() => gotoPage(pageCount - 1)}
-                  disabled={!canNextPage}>
+                  disabled={!canNextPage}
+                >
                   <span className="sr-only">Last</span>
                   <ChevronDoubleRightIcon
                     className="h-5 w-5 text-gray-400"

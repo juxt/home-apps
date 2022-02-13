@@ -1,4 +1,4 @@
-import {Editor} from '@tiptap/react';
+import { Editor } from '@tiptap/react';
 
 function setLink(editor: Editor) {
   const previousUrl = editor.getAttributes('link').href;
@@ -11,13 +11,15 @@ function setLink(editor: Editor) {
 
   // empty
   if (url === '') {
-    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    editor.chain().focus().extendMarkRange('link').unsetLink()
+      .run();
 
     return;
   }
 
   // update link
-  editor.chain().focus().extendMarkRange('link').setLink({href: url}).run();
+  editor.chain().focus().extendMarkRange('link').setLink({ href: url })
+    .run();
 }
 
-export {setLink};
+export { setLink };
