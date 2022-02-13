@@ -1,0 +1,6 @@
+{
+  "root": "apps/juxt-home",
+  "sourceRoot": "apps/juxt-home/src",
+  "projectType": "application",
+  "tags": []
+}

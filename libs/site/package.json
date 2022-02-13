@@ -1,0 +1,21 @@
+{
+  "name": "site",
+  "version": "1.0.0",
+  "description": "Hooks and types for site backend",
+  "main": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "prod-generate": "cross-env GRAPHQL_API_URL=https://alexd.uk/site/kanbantest/graphql graphql-codegen --watch",
+    "dev-generate": "cross-env GRAPHQL_API_URL=http://localhost:5509/kanbantest/graphql graphql-codegen --watch",
+    "generate": "graphql-codegen",
+    "_lint": "eslint --config ./.eslintrc.js --ext js --ext jsx --ext tsx --ext ts",
+    "lint": "npm run _lint -- ./src/",
+    "lint:fix": "npm run _lint -- --fix ./src/",
+    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,scss,md,json}' --config ./.prettierrc",
+    "dev": "concurrently \"yarn:dev-*\" \"yarn:start\"",
+    "prod": "concurrently \"yarn:prod-*\" \"yarn:start\"",
+    "build": "cross-env GRAPHQL_API_URL=https://alexd.uk/site/kanbantest/graphql graphql-codegen",
+    "server": "vite preview",
+    "serve": "yarn prod"
+  }
+}

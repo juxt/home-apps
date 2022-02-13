@@ -4,12 +4,11 @@ module.exports = {
     es2021: true,
   },
   extends: [
-    'plugin:react/recommended',
-    'airbnb',
-    'plugin:prettier/recommended',
-    'plugin:react/jsx-runtime',
     'plugin:import/typescript',
     'plugin:@typescript-eslint/recommended',
+    'airbnb',
+    'plugin:@nrwl/nx/react',
+    '../../.eslintrc.json',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -20,7 +19,13 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['react', '@typescript-eslint'],
-  ignorePatterns: ['node_modules/', 'dist/', 'build/', 'src/generated/*.ts'],
+  ignorePatterns: [
+    '!**/*',
+    'node_modules/',
+    'dist/',
+    'build/',
+    'src/generated/*.ts',
+  ],
   rules: {
     'react/jsx-props-no-spreading': 'off',
     'import/order': 'off',

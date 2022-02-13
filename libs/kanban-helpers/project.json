@@ -1,0 +1,23 @@
+{
+  "root": "libs/kanban-helpers",
+  "sourceRoot": "libs/kanban-helpers/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/kanban-helpers/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/kanban-helpers"],
+      "options": {
+        "jestConfig": "libs/kanban-helpers/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

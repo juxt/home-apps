@@ -4,11 +4,14 @@ import svgrPlugin from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // This changes the out put dir from dist to build
-  // comment this out if that isn't relevant for your project
-  base: '/site/_apps/kanban',
+  base: '/site/_apps/kanban/',
   build: {
     outDir: 'build',
+  },
+  server: {
+	  fs: {
+		  allow: ['../..'],
+	  }
   },
   plugins: [
     react(),
