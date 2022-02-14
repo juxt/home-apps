@@ -1,0 +1,65 @@
+{
+  "root": "apps/hiring-kanban",
+  "sourceRoot": "apps/hiring-kanban/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "swc",
+        "outputPath": "dist/apps/hiring-kanban",
+        "index": "apps/hiring-kanban/src/index.html",
+        "baseHref": "/",
+        "main": "apps/hiring-kanban/src/index.tsx",
+        "polyfills": "apps/hiring-kanban/src/polyfills.ts",
+        "tsConfig": "apps/hiring-kanban/tsconfig.app.json",
+        "assets": [
+          "apps/hiring-kanban/src/favicon.ico",
+          "apps/hiring-kanban/src/assets"
+        ],
+        "styles": ["apps/hiring-kanban/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/hiring-kanban/src/environments/environment.ts",
+              "with": "apps/hiring-kanban/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "hiring-kanban:build",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "hiring-kanban:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/hiring-kanban/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,65 @@
+{
+  "root": "apps/probation-kanban",
+  "sourceRoot": "apps/probation-kanban/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "swc",
+        "outputPath": "dist/apps/probation-kanban",
+        "index": "apps/probation-kanban/src/index.html",
+        "baseHref": "/",
+        "main": "apps/probation-kanban/src/main.tsx",
+        "polyfills": "apps/probation-kanban/src/polyfills.ts",
+        "tsConfig": "apps/probation-kanban/tsconfig.app.json",
+        "assets": [
+          "apps/probation-kanban/src/favicon.ico",
+          "apps/probation-kanban/src/assets"
+        ],
+        "styles": ["apps/probation-kanban/src/styles.scss"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/probation-kanban/src/environments/environment.ts",
+              "with": "apps/probation-kanban/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "probation-kanban:build",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "probation-kanban:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/probation-kanban/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

@@ -11,12 +11,16 @@
     "target": "es2015",
     "module": "esnext",
     "lib": ["es2017", "dom"],
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@juxt-home/kanban-helpers": ["libs/kanban-helpers/src/index.ts"],
       "@juxt-home/site": ["libs/site/src/index.ts"],
+      "@juxt-home/ui-common": ["libs/ui-common/src/index.ts"],
+      "@juxt-home/ui-kanban": ["libs/ui-kanban/src/index.ts"],
       "@juxt-home/utils": ["libs/utils/src/index.ts"]
     }
   },

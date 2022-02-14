@@ -2,6 +2,13 @@
   "recommendations": [
     "esbenp.prettier-vscode",
     "firsttris.vscode-jest-runner",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "mikestead.dotenv",
+    "streetsidesoftware.code-spell-checker",
+    "formulahendry.auto-rename-tag",
+    "graphql.vscode-graphql",
+    "csstools.postcss",
+    "bradlc.vscode-tailwindcss",
+    "nrwl.angular-console"
   ]
 }

@@ -1,0 +1,28 @@
+{
+  "root": "apps/hiring-kanban-e2e",
+  "sourceRoot": "apps/hiring-kanban-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/hiring-kanban-e2e/cypress.json",
+        "devServerTarget": "hiring-kanban:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "hiring-kanban:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/hiring-kanban-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["hiring-kanban"]
+}
