@@ -6,6 +6,7 @@
     "allowJs": true,
     "skipLibCheck": false,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",

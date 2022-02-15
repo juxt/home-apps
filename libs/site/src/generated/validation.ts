@@ -20,6 +20,7 @@ export function FileInputSchema(): yup.SchemaOf<FileInput> {
 export function HiringCardInputSchema(): yup.SchemaOf<HiringCardInput> {
   return yup.object({
     agent: yup.string(),
+    createdAt: yup.string(),
     cvPdf: yup.lazy(() => FileInputSchema()) as never,
     description: yup.string(),
     files: yup.array().of(yup.lazy(() => FileInputSchema()) as never).optional(),

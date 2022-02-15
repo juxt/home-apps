@@ -30,7 +30,7 @@ import { ChatAltIcon, ChevronDownIcon, XIcon } from '@heroicons/react/solid';
 
 import DOMPurify from 'dompurify';
 import { Disclosure } from '@headlessui/react';
-import _ from 'lodash-es';
+import * as _ from 'lodash-es';
 import {
   CreateHiringCardMutationVariables,
   useCreateHiringCardMutation,
@@ -893,7 +893,7 @@ function CardInfo({
   card,
   resetSplit,
 }: {
-  card: NonNullable<NonNullable<CardByIdsQuery['cardsByIds']>[0]>;
+  card?: NonNullable<NonNullable<CardByIdsQuery['cardsByIds']>[0]>;
   resetSplit?: () => void;
 }) {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
@@ -913,117 +913,129 @@ function CardInfo({
   );
   return (
     <>
-      <InterviewModal
-        show={showQuestionModal}
-        handleClose={() => setShowQuestionModal(false)}
-      />
-      <div className="h-full rounded">
-        {resetSplit && (
-          <button
-            type="button"
-            className="lg:hidden absolute top-0 z-20 bg-white left-0 mr-4 mt-4 cursor-pointer"
-            onClick={resetSplit}>
-            Reset Split
-          </button>
-        )}
-        <SplitPane
-          onChange={setSplitSize}
-          style={{
-            overflowY: 'auto',
-          }}
-          split="horizontal"
-          defaultSize={splitSize}>
-          <div className="text-center mx-4 flex flex-col w-full items-center justify-center isolate">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-              {card.title}
-            </h2>
-            <p>{card.id}</p>
-            {card?.project?.name && (
-              <p>
-                Project:
-                {card.project.name}
-              </p>
+      {!card && (
+        <div className="flex flex-col justify-center items-center h-full">
+          <h1 className="text-3xl font-extrabold text-gray-900">
+            No Card Found
+          </h1>
+        </div>
+      )}
+      {card && (
+        <>
+          <InterviewModal
+            show={showQuestionModal}
+            handleClose={() => setShowQuestionModal(false)}
+          />
+          <div className="h-full rounded">
+            {resetSplit && (
+              <button
+                type="button"
+                className="lg:hidden absolute top-0 z-20 bg-white left-0 mr-4 mt-4 cursor-pointer"
+                onClick={resetSplit}>
+                Reset Split
+              </button>
             )}
-            <p className="text-gray-500">
-              Last Updated
-              {card._siteValidTime}
-            </p>
-            {card?._siteSubject && (
-              <p className="text-gray-500">
-                By:
-                {card._siteSubject}
-              </p>
-            )}
-            {card?.workflowState && (
-              <p className="text-gray-500">
-                Status:
-                {card.workflowState.name}
-              </p>
-            )}
-            {card?.description && (
-              <div
-                className="ProseMirror prose text-left bg-white shadow-lg w-full no-scrollbar h-full mb-4"
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(card?.description || ''),
-                }}
-              />
-            )}
-          </div>
-          <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
-            <div className="w-full lg:h-full lg:overflow-y-auto m-4">
-              {true && (
-                <Disclosure defaultOpen as="div" className="mt-2 w-full">
-                  {({ open }) => (
-                    <>
-                      <Disclosure.Button className={accordionButtonClass}>
-                        <span>Interview 1</span>
-                        {CloseIcon(open)}
-                      </Disclosure.Button>
-                      <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                        <div className="mt-2 flex justify-between items-center">
-                          Status: Booked for 03/02/22 at 4pm
-                          <Button onClick={() => setShowQuestionModal(true)}>
-                            Start
-                          </Button>
-                        </div>
-                      </Disclosure.Panel>
-                    </>
+            <SplitPane
+              onChange={setSplitSize}
+              style={{
+                overflowY: 'auto',
+              }}
+              split="horizontal"
+              defaultSize={splitSize}>
+              <div className="text-center mx-4 flex flex-col w-full items-center justify-center isolate">
+                <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                  {card.title}
+                </h2>
+                <p>{card.id}</p>
+                {card?.project?.name && (
+                  <p>
+                    Project:
+                    {card.project.name}
+                  </p>
+                )}
+                <p className="text-gray-500">
+                  Last Updated
+                  {card._siteValidTime}
+                </p>
+                {card?._siteSubject && (
+                  <p className="text-gray-500">
+                    By:
+                    {card._siteSubject}
+                  </p>
+                )}
+                {card?.workflowState && (
+                  <p className="text-gray-500">
+                    Status:
+                    {card.workflowState.name}
+                  </p>
+                )}
+                {card?.description && (
+                  <div
+                    className="ProseMirror p-2 prose text-left bg-white shadow-lg w-full no-scrollbar h-full mb-4"
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(card?.description || ''),
+                    }}
+                  />
+                )}
+              </div>
+              <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+                <div className="w-full lg:h-full lg:overflow-y-auto m-4">
+                  {true && (
+                    <Disclosure defaultOpen as="div" className="mt-2 w-full">
+                      {({ open }) => (
+                        <>
+                          <Disclosure.Button className={accordionButtonClass}>
+                            <span>Interview 1</span>
+                            {CloseIcon(open)}
+                          </Disclosure.Button>
+                          <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                            <div className="mt-2 flex justify-between items-center">
+                              Status: Booked for 03/02/22 at 4pm
+                              <Button
+                                onClick={() => setShowQuestionModal(true)}>
+                                Start
+                              </Button>
+                            </div>
+                          </Disclosure.Panel>
+                        </>
+                      )}
+                    </Disclosure>
                   )}
-                </Disclosure>
-              )}
-              {card?.files && card?.files.length > 0 && (
-                <Disclosure as="div" className="mt-2 w-full">
-                  {({ open }) => (
-                    <>
-                      <Disclosure.Button className={accordionButtonClass}>
-                        <span>Other Files</span>
-                        {CloseIcon(open)}
-                      </Disclosure.Button>
-                      <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                        {card?.files && (
-                          <div className="mt-2 flex justify-between">
-                            {card.files.filter(notEmpty).map((file) => (
-                              <div
-                                key={file.name}
-                                className="flex items-center">
-                                <FilePreview file={file} />
+                  {card?.files && card?.files.length > 0 && (
+                    <Disclosure as="div" className="mt-2 w-full">
+                      {({ open }) => (
+                        <>
+                          <Disclosure.Button className={accordionButtonClass}>
+                            <span>Other Files</span>
+                            {CloseIcon(open)}
+                          </Disclosure.Button>
+                          <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                            {card?.files && (
+                              <div className="mt-2 flex justify-between">
+                                {card.files.filter(notEmpty).map((file) => (
+                                  <div
+                                    key={file.name}
+                                    className="flex items-center">
+                                    <FilePreview file={file} />
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </Disclosure.Panel>
-                    </>
+                            )}
+                          </Disclosure.Panel>
+                        </>
+                      )}
+                    </Disclosure>
                   )}
-                </Disclosure>
-              )}
-            </div>
-            <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
-              <CommentSection cardId={card.id} />
-            </div>
+                </div>
+                <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
+                  <CommentSection cardId={card.id} />
+                </div>
+              </div>
+            </SplitPane>
           </div>
-        </SplitPane>
-      </div>
+        </>
+      )}
     </>
   );
 }
@@ -1057,7 +1069,7 @@ function CardView() {
   return (
     <div className="relative h-full">
       <div className="flex h-full flex-col lg:flex-row justify-around items-center lg:items-start ">
-        {isMobile ? (
+        {isMobile || !pdfData ? (
           <div className="w-full h-full overflow-y-scroll">
             {card && <CardInfo card={card} />}
           </div>
@@ -1082,32 +1094,13 @@ function CardView() {
                 </div>
               </div>
             )}
-            {card && (
-              <CardInfo
-                resetSplit={splitSize > 400 ? resetSplit : undefined}
-                card={card}
-              />
-            )}
-            {!card && (
-              <div className="flex flex-col justify-center items-center h-full">
-                <h1 className="text-3xl font-extrabold text-gray-900">
-                  No Card Found
-                </h1>
-              </div>
-            )}
-            <div>
-              {pdfData ? (
-                <div className="max-w-3xl block overflow-y-auto">
-                  {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
-                  <PdfViewer key={splitSize} pdfString={pdfData} />
-                </div>
-              ) : (
-                <div className="text-center">
-                  <h1 className="text-3xl font-extrabold text-gray-900">
-                    No CV found
-                  </h1>
-                </div>
-              )}
+            <CardInfo
+              resetSplit={splitSize > 400 ? resetSplit : undefined}
+              card={card}
+            />
+            <div className="max-w-3xl block overflow-y-auto">
+              {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
+              <PdfViewer key={splitSize} pdfString={pdfData} />
             </div>
           </SplitPane>
         )}
@@ -1271,6 +1264,7 @@ export function HiringCardModal({ isOpen, handleClose }: CardModalProps) {
   const hasUnsaved = false; // TODO
   const card = data?.cardsByIds?.[0];
   const pdfLzString = card?.cvPdf?.base64;
+  const isMobile = useMobileDetect().isMobile();
 
   const onClose = () => {
     const confirmation =
@@ -1303,7 +1297,7 @@ export function HiringCardModal({ isOpen, handleClose }: CardModalProps) {
         <ModalTabs
           tabs={[
             { id: 'view', name: 'View', default: !cardModalView },
-            { id: 'cv', name: 'CV', hidden: !pdfLzString },
+            { id: 'cv', name: 'CV', hidden: !isMobile || !pdfLzString },
             { id: 'update', name: 'Edit' },
             { id: 'history', name: 'History' },
           ]}

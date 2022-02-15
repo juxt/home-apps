@@ -3,11 +3,11 @@ import { notEmpty } from '@juxt-home/utils';
 import { useQueryClient } from 'react-query';
 import { useEffect } from 'react';
 import { useSearch } from 'react-location';
-import _ from 'lodash-es';
+import * as _ from 'lodash-es';
 import {
   LocationGenerics,
-  useKanbanDataQuery,
   useCardByIdsQuery,
+  useKanbanDataQuery,
   useModalForm,
 } from '@juxt-home/site';
 import {

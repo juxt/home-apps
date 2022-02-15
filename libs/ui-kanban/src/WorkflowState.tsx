@@ -132,7 +132,7 @@ const WorkflowState = memo(
               borderColor: snapshot.isDraggingOver ? 'gray' : 'transparent',
             }}
             className={classNames(
-              'transition sm:mx-1 border-4',
+              'transition sm:mx-1 border-4 h-full',
               isFirst && 'sm:ml-0',
               snapshot.isDraggingOver && 'bg-blue-50 shadow-sm  border-dashed ',
               ' flex flex-col ',
@@ -217,7 +217,7 @@ export function WorkflowStateContainer({
   const [source, target] = useSingleton();
   return (
     <div
-      className="flex sm:flex-row flex-col max-w-full"
+      className="flex sm:flex-row flex-col max-w-full h-fit"
       {...provided.droppableProps}
       ref={provided.innerRef}>
       <Tippy

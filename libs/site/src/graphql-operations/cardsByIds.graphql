@@ -3,6 +3,7 @@ query cardByIds($ids: [ID]!) {
     ... on HiringCard {
       id
       description
+      createdAt
       _siteValidTime
       _siteSubject
       cvPdf {

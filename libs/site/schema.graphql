@@ -1,4 +1,4 @@
-schema @site(type: "kanban/test6") {
+schema @site(type: "kanban/secret") {
   query: Query
   mutation: Mutation
 }
@@ -82,6 +82,7 @@ input HiringCardInput {
   title: String!
   description: String
   projectId: ID
+  createdAt: String
   workflowId: ID
   languages: [String]
   agent: String
@@ -143,6 +144,7 @@ type HiringCard {
   project: Project @site(ref: "projectId")
   description: String
   languages: [String]
+  createdAt: String
   agent: String
   files: [File] @onObject
   cvPdf: File @onObject

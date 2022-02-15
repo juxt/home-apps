@@ -9,7 +9,7 @@ import { notEmpty, fileToString } from '@juxt-home/utils';
 import { toast } from 'react-toastify';
 import { CardByIdsQuery } from '@juxt-home/site';
 import { FormInputField, FormProps, Option } from './types';
-import _ from 'lodash-es';
+import * as _ from 'lodash-es';
 import {
   DeleteInactiveIcon,
   DeleteActiveIcon,

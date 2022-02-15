@@ -71,6 +71,7 @@ export type HiringCard = {
   _siteSubject?: Maybe<Scalars['ID']>;
   _siteValidTime: Scalars['String'];
   agent?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['String']>;
   cvPdf?: Maybe<File>;
   description?: Maybe<Scalars['String']>;
   files?: Maybe<Array<Maybe<File>>>;
@@ -84,6 +85,7 @@ export type HiringCard = {
 
 export type HiringCardInput = {
   agent?: InputMaybe<Scalars['String']>;
+  createdAt?: InputMaybe<Scalars['String']>;
   cvPdf?: InputMaybe<FileInput>;
   description?: InputMaybe<Scalars['String']>;
   files?: InputMaybe<Array<InputMaybe<FileInput>>>;
@@ -314,7 +316,7 @@ export type AllProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type AllProjectsQuery = { __typename?: 'Query', allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
 
-export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, project?: { __typename?: 'Project', id: string, name: string } | null };
+export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null };
 
 export type CardHistoryQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -328,7 +330,7 @@ export type CardByIdsQueryVariables = Exact<{
 }>;
 
 
-export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, _siteValidTime: string, _siteSubject?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'Project', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string } | null } | null> | null };
+export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'Project', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string } | null } | null> | null };
 
 export type CommentsForCardQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -409,7 +411,7 @@ export type DeleteWorkflowStateMutation = { __typename?: 'Mutation', deleteWorkf
 export type KanbanDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type KanbanDataQuery = { __typename?: 'Query', allWorkflows?: Array<{ __typename?: 'Workflow', name: string, description?: string | null, id: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null } | null> } | null> | null, allWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, cards?: Array<{ __typename?: 'HiringCard', id: string } | null> | null } | null> | null, allHiringCards?: Array<{ __typename?: 'HiringCard', id: string, _siteValidTime: string } | null> | null, allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
+export type KanbanDataQuery = { __typename?: 'Query', allWorkflows?: Array<{ __typename?: 'Workflow', name: string, description?: string | null, id: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null } | null> } | null> | null, allWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, cards?: Array<{ __typename?: 'HiringCard', id: string, createdAt?: string | null } | null> | null } | null> | null, allHiringCards?: Array<{ __typename?: 'HiringCard', id: string, _siteValidTime: string, createdAt?: string | null } | null> | null, allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
 
 export type MoveCardMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
@@ -473,7 +475,7 @@ export type UpdateWorkflowStateMutationVariables = Exact<{
 
 export type UpdateWorkflowStateMutation = { __typename?: 'Mutation', updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null };
 
-export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null };
+export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null };
 
 export const ProjectFieldsFragmentDoc = `
     fragment ProjectFields on Project {
@@ -488,6 +490,7 @@ export const CardFieldsFragmentDoc = `
     id
     title
     _siteValidTime
+    createdAt
     project {
       id
       name
@@ -584,6 +587,7 @@ export const CardByIdsDocument = `
     ... on HiringCard {
       id
       description
+      createdAt
       _siteValidTime
       _siteSubject
       cvPdf {
@@ -835,12 +839,14 @@ export const KanbanDataDocument = `
     cards {
       ... on HiringCard {
         id
+        createdAt
       }
     }
   }
   allHiringCards {
     id
     _siteValidTime
+    createdAt
   }
   allProjects {
     ...ProjectFields

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, {Component, Fragment} from 'react';
+import { Component } from 'react';
 
 let animationId;
 const sigmoid = (x) => x / (1 + Math.abs(x));
@@ -53,7 +53,7 @@ class NaturalDragAnimation extends Component {
 
   patchTransform = () => {
     const {
-      snapshot: {isDragging},
+      snapshot: { isDragging },
       style,
       animationRotationFade,
       rotationMultiplier,
@@ -84,7 +84,7 @@ class NaturalDragAnimation extends Component {
         },
         () => {
           animationId = requestAnimationFrame(this.patchTransform);
-        }
+        },
       );
     } else {
       animationId = requestAnimationFrame(this.patchTransform);
@@ -93,7 +93,7 @@ class NaturalDragAnimation extends Component {
 
   render() {
     const {
-      snapshot: {isDragging, dropAnimation},
+      snapshot: { isDragging, dropAnimation },
     } = this.props;
 
     const style =

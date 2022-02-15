@@ -14,12 +14,14 @@ query kanbanData {
     cards {
       ... on HiringCard {
         id
+        createdAt
       }
     }
   }
   allHiringCards {
     id
     _siteValidTime
+    createdAt
   }
   allProjects {
     ...ProjectFields

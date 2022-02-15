@@ -1,6 +1,6 @@
 import { useHotkeys } from 'react-hotkeys-hook';
 import { notEmpty } from '@juxt-home/utils';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   DraggableLocation,
@@ -9,7 +9,7 @@ import {
 } from 'react-beautiful-dnd';
 import { useSearch, useNavigate } from 'react-location';
 import { useQueryClient } from 'react-query';
-import { Column } from 'react-table';
+import { Column, Row } from 'react-table';
 import {
   defaultMutationProps,
   filteredCards,
@@ -25,7 +25,12 @@ import {
   useMoveCardMutation,
   useUpdateCardPositionMutation,
 } from '@juxt-home/site';
-import { SelectColumnFilter, Table } from '@juxt-home/ui-common';
+import {
+  SelectColumnFilter,
+  Table,
+  DateFilter,
+  DateFilterFn,
+} from '@juxt-home/ui-common';
 import { Heading } from './Headings';
 import { WorkflowStateContainer } from './WorkflowState';
 
@@ -130,9 +135,6 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
       {
         Header: 'id',
         accessor: 'id',
-        width: 20,
-        minWidth: 20,
-        maxWidth: 150,
       },
       {
         id: 'name',
@@ -146,9 +148,18 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         Filter: SelectColumnFilter,
       },
       {
+        id: 'created',
+        Header: 'Created',
+        accessor: 'createdAt',
+        Filter: DateFilter,
+        filter: DateFilterFn,
+      },
+      {
         id: 'lastUpdated',
-        Header: 'Last Updated',
+        Header: 'Last Edited',
         accessor: '_siteValidTime',
+        Filter: DateFilter,
+        filter: DateFilterFn,
       },
     ],
     [],
@@ -181,6 +192,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
       {isGrid && (
         <Table
           onRowClick={openCardForm}
+          hiddenColumns={['id']}
           data={gridData}
           columns={gridColumns}
         />

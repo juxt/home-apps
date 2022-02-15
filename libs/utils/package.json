@@ -1,5 +1,4 @@
 {
-  "name": "@juxt-home/utils",
-  "version": "0.0.1",
-  "type": "commonjs"
+  "name": "utils",
+  "version": "1.0.0"
 }

@@ -1,0 +1,19 @@
+{
+  "name": "site",
+  "version": "1.0.0",
+  "description": "Hooks and generated types for creating and modifying site data",
+  "scripts": {
+    "gen-watch": "yarn graphql-codegen --config ./codegen.js --watch",
+    "prod-generate": "cross-env GRAPHQL_API_URL=https://alexd.uk/site/kanban/graphql yarn gen-watch",
+    "dev-generate": "cross-env GRAPHQL_API_URL=http://localhost:5509/kanban/graphql yarn gen-watch",
+    "serve": "yarn prod-generate",
+    "build": "cross-env GRAPHQL_API_URL=https://alexd.uk/site/kanban/graphql graphql-codegen"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "@graphql-codegen/cli": "^2.6.1",
+    "@graphql-codegen/typescript-operations": "^2.3.0",
+    "@graphql-codegen/typescript-react-query": "^3.5.2"
+  }
+}

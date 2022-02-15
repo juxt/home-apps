@@ -83,7 +83,7 @@ export function Heading({
   });
 
   return (
-    <div className="lg:flex lg:items-center lg:justify-between z-20">
+    <div className="lg:flex lg:items-center lg:justify-between z-20 pb-4">
       <div className="flex-1 min-w-0">
         <nav className="flex" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-4">

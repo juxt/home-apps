@@ -35,14 +35,25 @@
       "application": {
         "style": "css",
         "linter": "eslint",
-        "babel": true
+        "compiler": "swc",
+        "pascalCaseFiles": true,
+        "globalCss": true,
+        "flat": true,
+        "unitTestRunner": "none"
       },
       "component": {
-        "style": "css"
+        "style": "css",
+        "pascalCaseFiles": true,
+        "globalCss": true,
+        "flat": true,
+        "skipTests": true
       },
       "library": {
         "style": "css",
-        "linter": "eslint"
+        "linter": "eslint",
+        "compiler": "swc",
+        "pascalCaseFiles": true,
+        "globalCss": true
       }
     }
   },
