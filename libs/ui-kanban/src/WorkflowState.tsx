@@ -1,7 +1,6 @@
 import { notEmpty } from '@juxt-home/utils';
 import { Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import Tippy, { useSingleton, TippyProps } from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
 import classNames from 'classnames';
 import { sanitize } from 'isomorphic-dompurify';
 import { useSearch } from 'react-location';
@@ -57,7 +56,7 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
       {(provided, snapshot) => {
         const isDragging = snapshot.isDragging && !snapshot.isDropAnimating;
         const cardStyles = classNames(
-          'text-left bg-white w-full sm:w-52 lg:w-64 rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400',
+          'text-left bg-white card-width rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400',
           isDragging && 'bg-blue-50 border-blue-400 shadow-lg',
           !card?.project && 'border-red-500 bg-red-50',
         );
@@ -142,7 +141,7 @@ const WorkflowState = memo(
               type="button"
               onClick={() => workflow?.id && setIsOpen(true)}
               className={classNames(
-                'prose cursor-pointer isolate',
+                'prose cursor-pointer isolate default-tippy-tooltip',
                 cards.length === 0 &&
                   !snapshot.isDraggingOver &&
                   'sm:transition sm:rotate-90 sm:relative sm:top-2 sm:left-10 sm:origin-top-left sm:whitespace-nowrap',
@@ -156,25 +155,19 @@ const WorkflowState = memo(
                 <Tippy
                   singleton={tooltipTarget}
                   delay={[100, 500]}
+                  className=" bg-slate-800 text-white text-center relative rounded text-sm whitespace-normal outline-none transition-all p-2"
                   content={
                     <div className="text-sm">
-                      <p>
-                        Column ID
-                        {workflowState.id}
-                      </p>
                       <p>{workflowState?.description}</p>
-                      <p>
-                        {cards.length} card
-                        {cards.length === 1 ? '' : 's'}
-                      </p>
+                      <br />
                       <p>Click to edit</p>
                     </div>
                   }>
-                  <div
-                    style={{ marginBlock: '8px' }}
-                    className="flex items-center justify-between my-2">
-                    <h3 style={{ marginBlock: 0 }}>{workflowState.name}</h3>
-                    <span className="px-2 bg-blue-50  text-gray-500 font-extralight rounded-md ">
+                  <div className="card-width flex items-center justify-between my-2">
+                    <h3 className="m-0 text-left truncate">
+                      {workflowState.name}
+                    </h3>
+                    <span className="px-2 bg-blue-50 text-gray-500 font-extralight rounded-md ">
                       {cards.length}
                     </span>
                   </div>

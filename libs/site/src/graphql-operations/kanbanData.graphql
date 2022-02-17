@@ -26,4 +26,5 @@ query kanbanData {
   allProjects {
     ...ProjectFields
   }
+  myJuxtcode
 }

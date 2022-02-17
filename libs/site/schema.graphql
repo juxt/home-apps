@@ -6,6 +6,7 @@ schema @site(type: "kanban/secret") {
 type Query {
   allWorkflows: [Workflow]
   workflow(id: ID!): Workflow
+  myJuxtcode: String @site(subject: "juxt.pass.alpha/username")
   allHiringCards: [HiringCard]
   cardHistory(id: ID!, limit: Int, offset: Int): [Card] @site(history: "desc")
   cardsByIds(ids: [ID]!): [Card]
@@ -46,6 +47,7 @@ type Mutation {
   deleteHiringCard(id: ID!): HiringCard @site(mutation: "delete")
   rollbackCard(id: ID!, asOf: String!): HiringCard @site(mutation: "rollback")
   createProject(project: ProjectInput): Project
+  createProjects(projects: [ProjectInput]): [Project]
   updateProject(id: ID!, project: ProjectInput): Project
     @site(mutation: "update")
   deleteProject(id: ID!): Project @site(mutation: "delete")
@@ -64,11 +66,13 @@ input CommentInput {
 input ProjectInput {
   name: String!
   description: String
+  id: ID
 }
 
 input WorkflowStateInput {
   name: String
   description: String
+  id: ID
   cardIds: [ID]
 }
 

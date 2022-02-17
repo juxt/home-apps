@@ -54,6 +54,7 @@ import {
   useKanbanDataQuery,
   useCardHistoryQuery,
   LocationGenerics,
+  useUserId,
 } from '@juxt-home/site';
 import {
   ModalStateProps,
@@ -74,6 +75,7 @@ import {
   Modal,
   Table,
 } from '@juxt-home/ui-common';
+import { juxters } from 'libs/ui-common/src/Tiptap/data';
 
 function PdfViewer({ pdfString }: { pdfString?: string }) {
   const pdfUrl = useMemo(() => {
@@ -449,6 +451,7 @@ export function UpdateHiringCardForm({
 
 function CommentSection({ cardId }: { cardId: string }) {
   const { data: comments } = useCommentForCard(cardId);
+  const userId = useUserId();
   const queryClient = useQueryClient();
   const commentMutationProps = {
     onSettled: () => {
@@ -517,7 +520,9 @@ function CommentSection({ cardId }: { cardId: string }) {
       document.removeEventListener('keydown', listener);
     };
   }, [submitComment]);
-  const gravatar = () => 'https://avatars.githubusercontent.com/u/9809256?v=4';
+  const gravatar = () =>
+    juxters.find((juxter) => juxter.staffRecord.juxtcode === userId)?.avatar ||
+    '';
 
   return (
     <section aria-labelledby="activity-title" className="sm:h-full">
@@ -986,16 +991,17 @@ function CardInfo({
                       {({ open }) => (
                         <>
                           <Disclosure.Button className={accordionButtonClass}>
-                            <span>Interview 1</span>
+                            <span>TODO</span>
                             {CloseIcon(open)}
                           </Disclosure.Button>
                           <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
                             <div className="mt-2 flex justify-between items-center">
-                              Status: Booked for 03/02/22 at 4pm
+                              TODO
+                              {/* Status: Booked for 03/02/22 at 4pm
                               <Button
                                 onClick={() => setShowQuestionModal(true)}>
                                 Start
-                              </Button>
+                              </Button> */}
                             </div>
                           </Disclosure.Panel>
                         </>

@@ -30,6 +30,10 @@
   }
 }
 
+.card-width {
+  @apply w-full sm:w-52 lg:w-64;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

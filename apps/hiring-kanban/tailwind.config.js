@@ -17,7 +17,7 @@ module.exports = {
         'screen/5': 'calc(100vh / 5)',
         'screen-90': '90vh',
         'screen-80': '80vh',
-        'full-minus-nav': 'calc(100vh - 134px)',
+        'full-minus-nav': 'calc(100vh - 78px)',
       }),
     },
   },

@@ -76,7 +76,7 @@
 
     > .char {
       display: inline-block;
-      vertical-align: top;
+      vertical-align: text-bottom;
       margin: 1px 2px 0 0;
       color: #0098b8;
     }
@@ -222,5 +222,117 @@
     /* prettylights-syntax-markup-deleted */
     color: #b31d28;
     background-color: #ffeef0;
+  }
+}
+
+.MentionDropdownItem {
+  display: flex;
+  align-items: center;
+  height: inherit;
+
+  .avatar {
+    border: 1px solid rgba(#003945, 0.3);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+  }
+
+  .name {
+    line-height: 20px;
+  }
+}
+
+.tippy-box[data-animation='fade'][data-state='hidden'] {
+  opacity: 0;
+}
+
+[data-tippy-root] {
+  max-width: calc(100vw - 10px);
+}
+
+.tippy-box[data-placement^='top'] > .tippy-arrow {
+  bottom: 0;
+}
+
+.tippy-box[data-placement^='top'] > .tippy-arrow:before {
+  bottom: -7px;
+  left: 0;
+  border-width: 8px 8px 0;
+  border-top-color: initial;
+  transform-origin: center top;
+}
+
+.tippy-box[data-inertia][data-state='visible'] {
+  transition-timing-function: cubic-bezier(0.54, 1.5, 0.38, 1.11);
+}
+
+.tippy-arrow {
+  width: 16px;
+  height: 16px;
+  @apply bg-slate-700;
+}
+
+.tippy-arrow:before {
+  content: '';
+  position: absolute;
+  border-color: transparent;
+  border-style: solid;
+}
+
+.SuggestionDropdown {
+  border: 1px solid rgba(#003945, 0.3);
+  border-radius: 5px;
+  max-height: calc(2px + (32px * 6));
+  min-width: calc(100% + 15px);
+  background-color: white;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-direction: column;
+    display: flex;
+    > button {
+      height: 32px;
+      @apply truncate;
+      font-size: 0.8em;
+      padding-left: 5px;
+      white-space: nowrap;
+      cursor: pointer;
+
+      &.selected,
+      &:hover {
+        color: #005d71;
+      }
+
+      &.selected {
+        background: rgba(#005d71, 0.15);
+      }
+
+      &:hover {
+        background: rgba(#005d71, 0.1);
+      }
+    }
+  }
+
+  &.os-host-scrollbar-vertical-hidden {
+    min-width: calc(100% + 5px);
+  }
+  .os-scrollbar-handle {
+    background: rgba(#003945, 0.3);
+  }
+  .os-scrollbar {
+    padding: 2px;
+    right: 0;
+    box-sizing: border-box;
+    background: rgba(#003945, 0.3);
+  }
+  > .os-scrollbar:hover {
+    > .os-scrollbar-track {
+      > .os-scrollbar-handle {
+        background-color: rgba(#003945, 0.5);
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-{:xt/id "{{base-uri}}/kanbantest/graphql"
+{:xt/id "{{base-uri}}/kanban/graphql"
  :juxt.http.alpha/content-type "text/plain;charset=utf-8"
  :juxt.http.alpha/methods #{:get :head :post :put :options}
  :juxt.http.alpha/acceptable-on-put "application/graphql"
@@ -7,7 +7,7 @@
  :juxt.http.alpha/max-content-length 5000000000
 
  :juxt.site.alpha/access-control-allow-origins
- {#regex "http://localhost:\\p{Digit}+"
+ {"http://localhost:\\p{Digit}+"
   {:juxt.site.alpha/access-control-allow-methods #{:post}
    :juxt.site.alpha/access-control-allow-headers #{"authorization" "content-type"}
    :juxt.site.alpha/access-control-allow-credentials true}}

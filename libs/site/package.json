@@ -4,7 +4,7 @@
   "description": "Hooks and generated types for creating and modifying site data",
   "scripts": {
     "watch-generate-hooks": "cross-env-shell GRAPHQL_API_URL='${SITE_BASE_URI}${GRAPHQL_PATH}' \"yarn graphql-codegen --config ./codegen.js --watch\"",
-    "watch-schema-upload": " cross-env-shell \"ls schema.graphql | entr -s './deploy'\"",
+    "watch-schema-upload": " cross-env-shell \"ls schema.graphql resources.edn | entr -s './deploy'\"",
     "prod-generate": "cross-env-shell SITE_BASE_URI=https://alexd.uk/site GRAPHQL_PATH=/kanban/graphql concurrently \"yarn:watch-*\"",
     "dev-generate": "cross-env-shell SITE_BASE_URI=http://localhost:5509 GRAPHQL_PATH=/kanban/graphql concurrently \"yarn:watch-*\"",
     "serve": "yarn prod-generate",

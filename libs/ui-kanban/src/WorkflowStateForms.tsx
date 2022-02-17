@@ -127,7 +127,8 @@ export function UpdateWorkflowStateModal({
           id: 'description',
           path: 'description',
           label: 'Description',
-          type: 'text',
+          rows: 8,
+          type: 'textarea',
         },
       ]}
     />

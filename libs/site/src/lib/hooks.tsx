@@ -143,3 +143,11 @@ export function useCardHistory(
   );
   return { ...queryResult, history: queryResult.data?.cardHistory };
 }
+
+export function useUserId() {
+  const { data } = useKanbanDataQuery(undefined, {
+    select: (data) => data?.myJuxtcode,
+    staleTime: Infinity,
+  });
+  return data;
+}

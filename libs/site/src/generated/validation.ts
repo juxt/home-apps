@@ -34,6 +34,7 @@ export function HiringCardInputSchema(): yup.SchemaOf<HiringCardInput> {
 export function ProjectInputSchema(): yup.SchemaOf<ProjectInput> {
   return yup.object({
     description: yup.string(),
+    id: yup.string(),
     name: yup.string().required()
   })
 }
@@ -42,6 +43,7 @@ export function WorkflowStateInputSchema(): yup.SchemaOf<WorkflowStateInput> {
   return yup.object({
     cardIds: yup.array().of(yup.string()).optional(),
     description: yup.string(),
+    id: yup.string(),
     name: yup.string()
   })
 }

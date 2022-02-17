@@ -1,5 +1,4 @@
 import { SuggestionProps } from '@tiptap/suggestion';
-
 import { Mention } from '../../data';
 import { SuggestionDropdown } from './SuggestionDropdown';
 
@@ -18,13 +17,9 @@ const MentionDropdown = forwardRef<SuggestionDropdownRef, MentionDropdownProps>(
       forwardedRef={ref}
       items={items}
       onSelect={command}
-      renderItem={({ name, staffRecord }) => (
+      renderItem={({ name, avatar }) => (
         <div className="MentionDropdownItem">
-          <img
-            className="avatar"
-            alt="avatar"
-            src={`https://home.juxt.site/profiles/${staffRecord.juxtcode}.jpg`}
-          />
+          <img className="avatar" alt="avatar" src={avatar} />
           <span className="name">{name}</span>
         </div>
       )}

@@ -7,7 +7,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch("https://alexd.uk/site/kanban/graphql", {
+    const res = await fetch("http://localhost:5509/kanban/graphql", {
     method: "POST",
     ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
@@ -100,6 +100,7 @@ export type Mutation = {
   createComment?: Maybe<Comment>;
   createHiringCard?: Maybe<HiringCard>;
   createProject?: Maybe<Project>;
+  createProjects?: Maybe<Array<Maybe<Project>>>;
   createWorkflow?: Maybe<Workflow>;
   createWorkflowState?: Maybe<WorkflowState>;
   createWorkflowStates?: Maybe<Array<Maybe<WorkflowState>>>;
@@ -130,6 +131,11 @@ export type MutationCreateHiringCardArgs = {
 
 export type MutationCreateProjectArgs = {
   project?: InputMaybe<ProjectInput>;
+};
+
+
+export type MutationCreateProjectsArgs = {
+  projects?: InputMaybe<Array<InputMaybe<ProjectInput>>>;
 };
 
 
@@ -230,6 +236,7 @@ export type Project = {
 
 export type ProjectInput = {
   description?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
   name: Scalars['String'];
 };
 
@@ -243,6 +250,7 @@ export type Query = {
   cardsByIds?: Maybe<Array<Maybe<Card>>>;
   cardsForProject?: Maybe<Array<Maybe<Card>>>;
   commentsForCard?: Maybe<Array<Maybe<Comment>>>;
+  myJuxtcode?: Maybe<Scalars['String']>;
   workflow?: Maybe<Workflow>;
   workflowState?: Maybe<WorkflowState>;
 };
@@ -302,6 +310,7 @@ export type WorkflowState = {
 export type WorkflowStateInput = {
   cardIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   description?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
   name?: InputMaybe<Scalars['String']>;
 };
 
@@ -411,7 +420,7 @@ export type DeleteWorkflowStateMutation = { __typename?: 'Mutation', deleteWorkf
 export type KanbanDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type KanbanDataQuery = { __typename?: 'Query', allWorkflows?: Array<{ __typename?: 'Workflow', name: string, description?: string | null, id: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null } | null> } | null> | null, allWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, cards?: Array<{ __typename?: 'HiringCard', id: string, createdAt?: string | null } | null> | null } | null> | null, allHiringCards?: Array<{ __typename?: 'HiringCard', id: string, _siteValidTime: string, createdAt?: string | null } | null> | null, allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
+export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflows?: Array<{ __typename?: 'Workflow', name: string, description?: string | null, id: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null } | null> } | null> | null, allWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, cards?: Array<{ __typename?: 'HiringCard', id: string, createdAt?: string | null } | null> | null } | null> | null, allHiringCards?: Array<{ __typename?: 'HiringCard', id: string, _siteValidTime: string, createdAt?: string | null } | null> | null, allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
 
 export type MoveCardMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
@@ -851,6 +860,7 @@ export const KanbanDataDocument = `
   allProjects {
     ...ProjectFields
   }
+  myJuxtcode
 }
     ${WorkflowStateFieldsFragmentDoc}
 ${ProjectFieldsFragmentDoc}`;
