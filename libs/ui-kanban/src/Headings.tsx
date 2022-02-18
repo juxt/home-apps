@@ -1,5 +1,6 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import {
+  CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EyeIcon,
@@ -18,8 +19,11 @@ import {
   LocationGenerics,
   useCurrentProject,
   useModalForm,
+  useWorkflowStates,
 } from '@juxt-home/site';
 import { useMobileDetect } from '@juxt-home/utils';
+import { RenderField } from '@juxt-home/ui-common';
+import { MultiSelect } from 'react-multi-select-component';
 
 export function Heading({
   workflow,
@@ -52,6 +56,28 @@ export function Heading({
     });
   };
 
+  const cols =
+    useWorkflowStates({ workflowId: workflow?.id || '' }).data?.map(
+      (state) => ({
+        label: state.name,
+        value: state.id,
+      }),
+    ) || [];
+  const [colIds, setColIds] = useState<typeof cols>([]);
+
+  const setToggleColumn = (colIds: typeof cols) => {
+    setColIds(colIds);
+    navigate({
+      replace: true,
+      search: {
+        ...search,
+        filters: {
+          colIds: colIds.map((c) => c.value),
+        },
+      },
+    });
+  };
+
   const isCardView = !search?.view || search.view === 'card';
   const ChangeViewIcon = isCardView ? (
     <ViewBoardsIcon
@@ -67,6 +93,7 @@ export function Heading({
   const changeViewText = isCardView ? 'Table View' : 'Card View';
   const handleChangeView = () => {
     navigate({
+      replace: true,
       search: { ...search, view: isCardView ? 'table' : 'card' },
     });
   };
@@ -84,6 +111,7 @@ export function Heading({
 
   const resetProjectFilters = () => {
     navigate({
+      replace: true,
       search: {
         ...search,
         workflowProjectId: undefined,
@@ -177,6 +205,19 @@ export function Heading({
             {changeViewText}
           </button>
         </span>
+        {!isMobile && (
+          <MultiSelect
+            valueRenderer={(value) => {
+              const count = value.filter((v) => v.value).length;
+              return `${count}/${cols.length} cols hidden`;
+            }}
+            className="tw-multiselect inline-flex items-center ml-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+            onChange={setToggleColumn}
+            options={cols}
+            labelledBy=""
+            value={colIds}
+          />
+        )}
 
         <span className="sm:ml-3">
           <button

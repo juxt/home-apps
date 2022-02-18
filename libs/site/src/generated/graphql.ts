@@ -1,32 +1,15 @@
-import {
-  useQuery,
-  UseQueryOptions,
-  useMutation,
-  UseMutationOptions,
-} from 'react-query';
+import { useQuery, UseQueryOptions, useMutation, UseMutationOptions } from 'react-query';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch('http://localhost:5509/kanban/graphql', {
-      method: 'POST',
-      ...{
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        credentials: 'include',
-      },
+    const res = await fetch("http://localhost:5509/kanban/graphql", {
+    method: "POST",
+    ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
     });
 
@@ -39,7 +22,7 @@ function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
     }
 
     return json.data;
-  };
+  }
 }
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -135,21 +118,26 @@ export type Mutation = {
   updateWorkflowState?: Maybe<WorkflowState>;
 };
 
+
 export type MutationCreateCommentArgs = {
   Comment?: InputMaybe<CommentInput>;
 };
+
 
 export type MutationCreateHiringCardArgs = {
   Card?: InputMaybe<HiringCardInput>;
 };
 
+
 export type MutationCreateProjectArgs = {
   project?: InputMaybe<ProjectInput>;
 };
 
+
 export type MutationCreateProjectsArgs = {
   projects?: InputMaybe<Array<InputMaybe<ProjectInput>>>;
 };
+
 
 export type MutationCreateWorkflowArgs = {
   description?: InputMaybe<Scalars['String']>;
@@ -157,33 +145,41 @@ export type MutationCreateWorkflowArgs = {
   workflowStateIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
 };
 
+
 export type MutationCreateWorkflowStateArgs = {
   WorkflowState?: InputMaybe<WorkflowStateInput>;
 };
+
 
 export type MutationCreateWorkflowStatesArgs = {
   workflowStates?: InputMaybe<Array<InputMaybe<WorkflowStateInput>>>;
 };
 
+
 export type MutationDeleteCommentArgs = {
   id: Scalars['ID'];
 };
+
 
 export type MutationDeleteHiringCardArgs = {
   id: Scalars['ID'];
 };
 
+
 export type MutationDeleteProjectArgs = {
   id: Scalars['ID'];
 };
+
 
 export type MutationDeleteWorkflowArgs = {
   id: Scalars['ID'];
 };
 
+
 export type MutationDeleteWorkflowStateArgs = {
   id: Scalars['ID'];
 };
+
 
 export type MutationMoveCardArgs = {
   cardId: Scalars['ID'];
@@ -191,25 +187,30 @@ export type MutationMoveCardArgs = {
   workflowStateId: Scalars['ID'];
 };
 
+
 export type MutationRollbackCardArgs = {
   asOf: Scalars['String'];
   id: Scalars['ID'];
 };
+
 
 export type MutationUpdateCommentArgs = {
   Comment?: InputMaybe<CommentInput>;
   id: Scalars['ID'];
 };
 
+
 export type MutationUpdateHiringCardArgs = {
   Card?: InputMaybe<HiringCardInput>;
   id: Scalars['ID'];
 };
 
+
 export type MutationUpdateProjectArgs = {
   id: Scalars['ID'];
   project?: InputMaybe<ProjectInput>;
 };
+
 
 export type MutationUpdateWorkflowArgs = {
   description?: InputMaybe<Scalars['String']>;
@@ -217,6 +218,7 @@ export type MutationUpdateWorkflowArgs = {
   name?: InputMaybe<Scalars['String']>;
   workflowStateIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
 };
+
 
 export type MutationUpdateWorkflowStateArgs = {
   cardIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
@@ -253,27 +255,33 @@ export type Query = {
   workflowState?: Maybe<WorkflowState>;
 };
 
+
 export type QueryCardHistoryArgs = {
   id: Scalars['ID'];
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryCardsByIdsArgs = {
   ids: Array<InputMaybe<Scalars['ID']>>;
 };
+
 
 export type QueryCardsForProjectArgs = {
   id: Scalars['ID'];
 };
 
+
 export type QueryCommentsForCardArgs = {
   id: Scalars['ID'];
 };
 
+
 export type QueryWorkflowArgs = {
   id: Scalars['ID'];
 };
+
 
 export type QueryWorkflowStateArgs = {
   id: Scalars['ID'];
@@ -309,106 +317,36 @@ export type WorkflowStateInput = {
 export enum WorkflowStateType {
   Done = 'DONE',
   Started = 'STARTED',
-  Unstarted = 'UNSTARTED',
+  Unstarted = 'UNSTARTED'
 }
 
-export type AllProjectsQueryVariables = Exact<{ [key: string]: never }>;
+export type AllProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type AllProjectsQuery = {
-  __typename?: 'Query';
-  allProjects?: Array<{
-    __typename?: 'Project';
-    id: string;
-    name: string;
-    description?: string | null;
-  } | null> | null;
-};
 
-export type CardFieldsFragment = {
-  __typename?: 'HiringCard';
-  id: string;
-  title: string;
-  _siteValidTime: string;
-  createdAt?: string | null;
-  project?: { __typename?: 'Project'; id: string; name: string } | null;
-};
+export type AllProjectsQuery = { __typename?: 'Query', allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
+
+export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null };
 
 export type CardHistoryQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
-export type CardHistoryQuery = {
-  __typename?: 'Query';
-  cardHistory?: Array<{
-    __typename?: 'HiringCard';
-    id: string;
-    title: string;
-    description?: string | null;
-    _siteValidTime: string;
-    _siteSubject?: string | null;
-    files?: Array<{ __typename?: 'File'; name: string } | null> | null;
-    cvPdf?: { __typename?: 'File'; name: string } | null;
-    workflowState?: { __typename?: 'WorkflowState'; name: string } | null;
-    project?: { __typename?: 'Project'; name: string } | null;
-  } | null> | null;
-};
+
+export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, title: string, description?: string | null, _siteValidTime: string, _siteSubject?: string | null, files?: Array<{ __typename?: 'File', name: string } | null> | null, cvPdf?: { __typename?: 'File', name: string } | null, workflowState?: { __typename?: 'WorkflowState', name: string } | null, project?: { __typename?: 'Project', name: string } | null } | null> | null };
 
 export type CardByIdsQueryVariables = Exact<{
   ids: Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>;
 }>;
 
-export type CardByIdsQuery = {
-  __typename?: 'Query';
-  cardsByIds?: Array<{
-    __typename?: 'HiringCard';
-    id: string;
-    description?: string | null;
-    createdAt?: string | null;
-    _siteValidTime: string;
-    _siteSubject?: string | null;
-    title: string;
-    cvPdf?: {
-      __typename?: 'File';
-      base64: string;
-      name: string;
-      type: string;
-    } | null;
-    files?: Array<{
-      __typename?: 'File';
-      base64: string;
-      name: string;
-      type: string;
-    } | null> | null;
-    project?: {
-      __typename?: 'Project';
-      description?: string | null;
-      id: string;
-      name: string;
-    } | null;
-    workflowState?: {
-      __typename?: 'WorkflowState';
-      id: string;
-      name: string;
-    } | null;
-  } | null> | null;
-};
+
+export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'Project', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string } | null } | null> | null };
 
 export type CommentsForCardQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
-export type CommentsForCardQuery = {
-  __typename?: 'Query';
-  commentsForCard?: Array<{
-    __typename?: 'Comment';
-    id: string;
-    _siteSubject?: string | null;
-    _siteValidTime: string;
-    text: string;
-    parentId?: string | null;
-    children?: Array<{ __typename?: 'Comment'; text: string } | null> | null;
-  } | null> | null;
-};
+
+export type CommentsForCardQuery = { __typename?: 'Query', commentsForCard?: Array<{ __typename?: 'Comment', id: string, _siteSubject?: string | null, _siteValidTime: string, text: string, parentId?: string | null, children?: Array<{ __typename?: 'Comment', text: string } | null> | null } | null> | null };
 
 export type CreateHiringCardMutationVariables = Exact<{
   card: HiringCardInput;
@@ -417,30 +355,23 @@ export type CreateHiringCardMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
 }>;
 
-export type CreateHiringCardMutation = {
-  __typename?: 'Mutation';
-  updateHiringCard?: { __typename?: 'HiringCard'; id: string } | null;
-  updateWorkflowState?: { __typename?: 'WorkflowState'; id: string } | null;
-};
+
+export type CreateHiringCardMutation = { __typename?: 'Mutation', updateHiringCard?: { __typename?: 'HiringCard', id: string } | null, updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null };
 
 export type CreateCommentMutationVariables = Exact<{
   Comment: CommentInput;
 }>;
 
-export type CreateCommentMutation = {
-  __typename?: 'Mutation';
-  createComment?: { __typename?: 'Comment'; id: string } | null;
-};
+
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment?: { __typename?: 'Comment', id: string } | null };
 
 export type CreateProjectMutationVariables = Exact<{
   project: ProjectInput;
   projectId: Scalars['ID'];
 }>;
 
-export type CreateProjectMutation = {
-  __typename?: 'Mutation';
-  createProject?: { __typename?: 'Project'; id: string } | null;
-};
+
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'Project', id: string } | null };
 
 export type CreateWorkflowMutationVariables = Exact<{
   name: Scalars['String'];
@@ -449,14 +380,8 @@ export type CreateWorkflowMutationVariables = Exact<{
   workflowStateIds: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
-export type CreateWorkflowMutation = {
-  __typename?: 'Mutation';
-  createWorkflowStates?: Array<{
-    __typename?: 'WorkflowState';
-    id: string;
-  } | null> | null;
-  createWorkflow?: { __typename?: 'Workflow'; id: string } | null;
-};
+
+export type CreateWorkflowMutation = { __typename?: 'Mutation', createWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string } | null> | null, createWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
 export type CreateWorkflowStateMutationVariables = Exact<{
   colId: Scalars['ID'];
@@ -466,29 +391,22 @@ export type CreateWorkflowStateMutationVariables = Exact<{
   description?: InputMaybe<Scalars['String']>;
 }>;
 
-export type CreateWorkflowStateMutation = {
-  __typename?: 'Mutation';
-  updateWorkflowState?: { __typename?: 'WorkflowState'; id: string } | null;
-  updateWorkflow?: { __typename?: 'Workflow'; id: string } | null;
-};
+
+export type CreateWorkflowStateMutation = { __typename?: 'Mutation', updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null, updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
 export type DeleteCommentMutationVariables = Exact<{
   commentId: Scalars['ID'];
 }>;
 
-export type DeleteCommentMutation = {
-  __typename?: 'Mutation';
-  deleteComment?: { __typename?: 'Comment'; id: string } | null;
-};
+
+export type DeleteCommentMutation = { __typename?: 'Mutation', deleteComment?: { __typename?: 'Comment', id: string } | null };
 
 export type DeleteWorkflowMutationVariables = Exact<{
   workflowId: Scalars['ID'];
 }>;
 
-export type DeleteWorkflowMutation = {
-  __typename?: 'Mutation';
-  deleteWorkflow?: { __typename?: 'Workflow'; id: string } | null;
-};
+
+export type DeleteWorkflowMutation = { __typename?: 'Mutation', deleteWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
 export type DeleteWorkflowStateMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -496,62 +414,13 @@ export type DeleteWorkflowStateMutationVariables = Exact<{
   workflowStateIds: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
-export type DeleteWorkflowStateMutation = {
-  __typename?: 'Mutation';
-  deleteWorkflowState?: { __typename?: 'WorkflowState'; id: string } | null;
-  updateWorkflow?: { __typename?: 'Workflow'; id: string } | null;
-};
 
-export type KanbanDataQueryVariables = Exact<{ [key: string]: never }>;
+export type DeleteWorkflowStateMutation = { __typename?: 'Mutation', deleteWorkflowState?: { __typename?: 'WorkflowState', id: string } | null, updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
-export type KanbanDataQuery = {
-  __typename?: 'Query';
-  myJuxtcode?: string | null;
-  allWorkflows?: Array<{
-    __typename?: 'Workflow';
-    name: string;
-    description?: string | null;
-    id: string;
-    workflowStates: Array<{
-      __typename?: 'WorkflowState';
-      id: string;
-      name: string;
-      description?: string | null;
-      workflow: { __typename?: 'Workflow'; name: string };
-      cards?: Array<{
-        __typename?: 'HiringCard';
-        id: string;
-        title: string;
-        _siteValidTime: string;
-        createdAt?: string | null;
-        project?: { __typename?: 'Project'; id: string; name: string } | null;
-      } | null> | null;
-    } | null>;
-  } | null> | null;
-  allWorkflowStates?: Array<{
-    __typename?: 'WorkflowState';
-    id: string;
-    name: string;
-    description?: string | null;
-    cards?: Array<{
-      __typename?: 'HiringCard';
-      id: string;
-      createdAt?: string | null;
-    } | null> | null;
-  } | null> | null;
-  allHiringCards?: Array<{
-    __typename?: 'HiringCard';
-    id: string;
-    _siteValidTime: string;
-    createdAt?: string | null;
-  } | null> | null;
-  allProjects?: Array<{
-    __typename?: 'Project';
-    id: string;
-    name: string;
-    description?: string | null;
-  } | null> | null;
-};
+export type KanbanDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflows?: Array<{ __typename?: 'Workflow', name: string, description?: string | null, id: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null } | null> } | null> | null, allWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, cards?: Array<{ __typename?: 'HiringCard', id: string, createdAt?: string | null } | null> | null } | null> | null, allHiringCards?: Array<{ __typename?: 'HiringCard', id: string, _siteValidTime: string, createdAt?: string | null } | null> | null, allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
 
 export type MoveCardMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
@@ -559,71 +428,52 @@ export type MoveCardMutationVariables = Exact<{
   previousCard?: InputMaybe<Scalars['ID']>;
 }>;
 
-export type MoveCardMutation = {
-  __typename?: 'Mutation';
-  moveCard?: { __typename?: 'HiringCard'; id: string } | null;
-};
 
-export type ProjectFieldsFragment = {
-  __typename?: 'Project';
-  id: string;
-  name: string;
-  description?: string | null;
-};
+export type MoveCardMutation = { __typename?: 'Mutation', moveCard?: { __typename?: 'HiringCard', id: string } | null };
+
+export type ProjectFieldsFragment = { __typename?: 'Project', id: string, name: string, description?: string | null };
 
 export type RollbackCardMutationVariables = Exact<{
   asOf: Scalars['String'];
   id: Scalars['ID'];
 }>;
 
-export type RollbackCardMutation = {
-  __typename?: 'Mutation';
-  rollbackCard?: { __typename?: 'HiringCard'; id: string } | null;
-};
+
+export type RollbackCardMutation = { __typename?: 'Mutation', rollbackCard?: { __typename?: 'HiringCard', id: string } | null };
 
 export type UpdateHiringCardMutationVariables = Exact<{
   card: HiringCardInput;
   cardId: Scalars['ID'];
 }>;
 
-export type UpdateHiringCardMutation = {
-  __typename?: 'Mutation';
-  updateHiringCard?: { __typename?: 'HiringCard'; id: string } | null;
-};
+
+export type UpdateHiringCardMutation = { __typename?: 'Mutation', updateHiringCard?: { __typename?: 'HiringCard', id: string } | null };
 
 export type UpdateCardPositionMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
   cardIds: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
-export type UpdateCardPositionMutation = {
-  __typename?: 'Mutation';
-  updateWorkflowState?: { __typename?: 'WorkflowState'; id: string } | null;
-};
+
+export type UpdateCardPositionMutation = { __typename?: 'Mutation', updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null };
 
 export type UpdateProjectMutationVariables = Exact<{
   project: ProjectInput;
   projectId: Scalars['ID'];
 }>;
 
-export type UpdateProjectMutation = {
-  __typename?: 'Mutation';
-  updateProject?: { __typename?: 'Project'; id: string } | null;
-};
+
+export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'Project', id: string } | null };
 
 export type UpdateWorkflowMutationVariables = Exact<{
   id: Scalars['ID'];
-  workflowStateIds?: InputMaybe<
-    Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>
-  >;
+  workflowStateIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>>;
   description?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
 }>;
 
-export type UpdateWorkflowMutation = {
-  __typename?: 'Mutation';
-  updateWorkflow?: { __typename?: 'Workflow'; id: string } | null;
-};
+
+export type UpdateWorkflowMutation = { __typename?: 'Mutation', updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
 export type UpdateWorkflowStateMutationVariables = Exact<{
   colId: Scalars['ID'];
@@ -631,26 +481,10 @@ export type UpdateWorkflowStateMutationVariables = Exact<{
   description?: InputMaybe<Scalars['String']>;
 }>;
 
-export type UpdateWorkflowStateMutation = {
-  __typename?: 'Mutation';
-  updateWorkflowState?: { __typename?: 'WorkflowState'; id: string } | null;
-};
 
-export type WorkflowStateFieldsFragment = {
-  __typename?: 'WorkflowState';
-  id: string;
-  name: string;
-  description?: string | null;
-  workflow: { __typename?: 'Workflow'; name: string };
-  cards?: Array<{
-    __typename?: 'HiringCard';
-    id: string;
-    title: string;
-    _siteValidTime: string;
-    createdAt?: string | null;
-    project?: { __typename?: 'Project'; id: string; name: string } | null;
-  } | null> | null;
-};
+export type UpdateWorkflowStateMutation = { __typename?: 'Mutation', updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null };
+
+export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null };
 
 export const ProjectFieldsFragmentDoc = `
     fragment ProjectFields on Project {
@@ -693,27 +527,25 @@ export const AllProjectsDocument = `
   }
 }
     ${ProjectFieldsFragmentDoc}`;
-export const useAllProjectsQuery = <TData = AllProjectsQuery, TError = Error>(
-  variables?: AllProjectsQueryVariables,
-  options?: UseQueryOptions<AllProjectsQuery, TError, TData>,
-) =>
-  useQuery<AllProjectsQuery, TError, TData>(
-    variables === undefined ? ['allProjects'] : ['allProjects', variables],
-    fetcher<AllProjectsQuery, AllProjectsQueryVariables>(
-      AllProjectsDocument,
-      variables,
-    ),
-    options,
-  );
+export const useAllProjectsQuery = <
+      TData = AllProjectsQuery,
+      TError = Error
+    >(
+      variables?: AllProjectsQueryVariables,
+      options?: UseQueryOptions<AllProjectsQuery, TError, TData>
+    ) =>
+    useQuery<AllProjectsQuery, TError, TData>(
+      variables === undefined ? ['allProjects'] : ['allProjects', variables],
+      fetcher<AllProjectsQuery, AllProjectsQueryVariables>(AllProjectsDocument, variables),
+      options
+    );
 useAllProjectsQuery.document = AllProjectsDocument;
 
-useAllProjectsQuery.getKey = (variables?: AllProjectsQueryVariables) =>
-  variables === undefined ? ['allProjects'] : ['allProjects', variables];
-useAllProjectsQuery.fetcher = (variables?: AllProjectsQueryVariables) =>
-  fetcher<AllProjectsQuery, AllProjectsQueryVariables>(
-    AllProjectsDocument,
-    variables,
-  );
+
+useAllProjectsQuery.getKey = (variables?: AllProjectsQueryVariables) => variables === undefined ? ['allProjects'] : ['allProjects', variables];
+;
+
+useAllProjectsQuery.fetcher = (variables?: AllProjectsQueryVariables) => fetcher<AllProjectsQuery, AllProjectsQueryVariables>(AllProjectsDocument, variables);
 export const CardHistoryDocument = `
     query cardHistory($id: ID!) {
   cardHistory(id: $id, limit: 100) {
@@ -739,29 +571,25 @@ export const CardHistoryDocument = `
   }
 }
     `;
-export const useCardHistoryQuery = <TData = CardHistoryQuery, TError = Error>(
-  variables: CardHistoryQueryVariables,
-  options?: UseQueryOptions<CardHistoryQuery, TError, TData>,
-) =>
-  useQuery<CardHistoryQuery, TError, TData>(
-    ['cardHistory', variables],
-    fetcher<CardHistoryQuery, CardHistoryQueryVariables>(
-      CardHistoryDocument,
-      variables,
-    ),
-    options,
-  );
+export const useCardHistoryQuery = <
+      TData = CardHistoryQuery,
+      TError = Error
+    >(
+      variables: CardHistoryQueryVariables,
+      options?: UseQueryOptions<CardHistoryQuery, TError, TData>
+    ) =>
+    useQuery<CardHistoryQuery, TError, TData>(
+      ['cardHistory', variables],
+      fetcher<CardHistoryQuery, CardHistoryQueryVariables>(CardHistoryDocument, variables),
+      options
+    );
 useCardHistoryQuery.document = CardHistoryDocument;
 
-useCardHistoryQuery.getKey = (variables: CardHistoryQueryVariables) => [
-  'cardHistory',
-  variables,
-];
-useCardHistoryQuery.fetcher = (variables: CardHistoryQueryVariables) =>
-  fetcher<CardHistoryQuery, CardHistoryQueryVariables>(
-    CardHistoryDocument,
-    variables,
-  );
+
+useCardHistoryQuery.getKey = (variables: CardHistoryQueryVariables) => ['cardHistory', variables];
+;
+
+useCardHistoryQuery.fetcher = (variables: CardHistoryQueryVariables) => fetcher<CardHistoryQuery, CardHistoryQueryVariables>(CardHistoryDocument, variables);
 export const CardByIdsDocument = `
     query cardByIds($ids: [ID]!) {
   cardsByIds(ids: $ids) {
@@ -795,29 +623,25 @@ export const CardByIdsDocument = `
   }
 }
     `;
-export const useCardByIdsQuery = <TData = CardByIdsQuery, TError = Error>(
-  variables: CardByIdsQueryVariables,
-  options?: UseQueryOptions<CardByIdsQuery, TError, TData>,
-) =>
-  useQuery<CardByIdsQuery, TError, TData>(
-    ['cardByIds', variables],
-    fetcher<CardByIdsQuery, CardByIdsQueryVariables>(
-      CardByIdsDocument,
-      variables,
-    ),
-    options,
-  );
+export const useCardByIdsQuery = <
+      TData = CardByIdsQuery,
+      TError = Error
+    >(
+      variables: CardByIdsQueryVariables,
+      options?: UseQueryOptions<CardByIdsQuery, TError, TData>
+    ) =>
+    useQuery<CardByIdsQuery, TError, TData>(
+      ['cardByIds', variables],
+      fetcher<CardByIdsQuery, CardByIdsQueryVariables>(CardByIdsDocument, variables),
+      options
+    );
 useCardByIdsQuery.document = CardByIdsDocument;
 
-useCardByIdsQuery.getKey = (variables: CardByIdsQueryVariables) => [
-  'cardByIds',
-  variables,
-];
-useCardByIdsQuery.fetcher = (variables: CardByIdsQueryVariables) =>
-  fetcher<CardByIdsQuery, CardByIdsQueryVariables>(
-    CardByIdsDocument,
-    variables,
-  );
+
+useCardByIdsQuery.getKey = (variables: CardByIdsQueryVariables) => ['cardByIds', variables];
+;
+
+useCardByIdsQuery.fetcher = (variables: CardByIdsQueryVariables) => fetcher<CardByIdsQuery, CardByIdsQueryVariables>(CardByIdsDocument, variables);
 export const CommentsForCardDocument = `
     query commentsForCard($id: ID!) {
   commentsForCard(id: $id) {
@@ -833,31 +657,24 @@ export const CommentsForCardDocument = `
 }
     `;
 export const useCommentsForCardQuery = <
-  TData = CommentsForCardQuery,
-  TError = Error,
->(
-  variables: CommentsForCardQueryVariables,
-  options?: UseQueryOptions<CommentsForCardQuery, TError, TData>,
-) =>
-  useQuery<CommentsForCardQuery, TError, TData>(
-    ['commentsForCard', variables],
-    fetcher<CommentsForCardQuery, CommentsForCardQueryVariables>(
-      CommentsForCardDocument,
-      variables,
-    ),
-    options,
-  );
+      TData = CommentsForCardQuery,
+      TError = Error
+    >(
+      variables: CommentsForCardQueryVariables,
+      options?: UseQueryOptions<CommentsForCardQuery, TError, TData>
+    ) =>
+    useQuery<CommentsForCardQuery, TError, TData>(
+      ['commentsForCard', variables],
+      fetcher<CommentsForCardQuery, CommentsForCardQueryVariables>(CommentsForCardDocument, variables),
+      options
+    );
 useCommentsForCardQuery.document = CommentsForCardDocument;
 
-useCommentsForCardQuery.getKey = (variables: CommentsForCardQueryVariables) => [
-  'commentsForCard',
-  variables,
-];
-useCommentsForCardQuery.fetcher = (variables: CommentsForCardQueryVariables) =>
-  fetcher<CommentsForCardQuery, CommentsForCardQueryVariables>(
-    CommentsForCardDocument,
-    variables,
-  );
+
+useCommentsForCardQuery.getKey = (variables: CommentsForCardQueryVariables) => ['commentsForCard', variables];
+;
+
+useCommentsForCardQuery.fetcher = (variables: CommentsForCardQueryVariables) => fetcher<CommentsForCardQuery, CommentsForCardQueryVariables>(CommentsForCardDocument, variables);
 export const CreateHiringCardDocument = `
     mutation createHiringCard($card: HiringCardInput!, $cardId: ID!, $cardIds: [ID!]!, $workflowStateId: ID!) {
   updateHiringCard(id: $cardId, Card: $card) {
@@ -868,35 +685,16 @@ export const CreateHiringCardDocument = `
   }
 }
     `;
-export const useCreateHiringCardMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    CreateHiringCardMutation,
-    TError,
-    CreateHiringCardMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    CreateHiringCardMutation,
-    TError,
-    CreateHiringCardMutationVariables,
-    TContext
-  >(
-    ['createHiringCard'],
-    (variables?: CreateHiringCardMutationVariables) =>
-      fetcher<CreateHiringCardMutation, CreateHiringCardMutationVariables>(
-        CreateHiringCardDocument,
-        variables,
-      )(),
-    options,
-  );
-useCreateHiringCardMutation.fetcher = (
-  variables: CreateHiringCardMutationVariables,
-) =>
-  fetcher<CreateHiringCardMutation, CreateHiringCardMutationVariables>(
-    CreateHiringCardDocument,
-    variables,
-  );
+export const useCreateHiringCardMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateHiringCardMutation, TError, CreateHiringCardMutationVariables, TContext>) =>
+    useMutation<CreateHiringCardMutation, TError, CreateHiringCardMutationVariables, TContext>(
+      ['createHiringCard'],
+      (variables?: CreateHiringCardMutationVariables) => fetcher<CreateHiringCardMutation, CreateHiringCardMutationVariables>(CreateHiringCardDocument, variables)(),
+      options
+    );
+useCreateHiringCardMutation.fetcher = (variables: CreateHiringCardMutationVariables) => fetcher<CreateHiringCardMutation, CreateHiringCardMutationVariables>(CreateHiringCardDocument, variables);
 export const CreateCommentDocument = `
     mutation createComment($Comment: CommentInput!) {
   createComment(Comment: $Comment) {
@@ -904,35 +702,16 @@ export const CreateCommentDocument = `
   }
 }
     `;
-export const useCreateCommentMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    CreateCommentMutation,
-    TError,
-    CreateCommentMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    CreateCommentMutation,
-    TError,
-    CreateCommentMutationVariables,
-    TContext
-  >(
-    ['createComment'],
-    (variables?: CreateCommentMutationVariables) =>
-      fetcher<CreateCommentMutation, CreateCommentMutationVariables>(
-        CreateCommentDocument,
-        variables,
-      )(),
-    options,
-  );
-useCreateCommentMutation.fetcher = (
-  variables: CreateCommentMutationVariables,
-) =>
-  fetcher<CreateCommentMutation, CreateCommentMutationVariables>(
-    CreateCommentDocument,
-    variables,
-  );
+export const useCreateCommentMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateCommentMutation, TError, CreateCommentMutationVariables, TContext>) =>
+    useMutation<CreateCommentMutation, TError, CreateCommentMutationVariables, TContext>(
+      ['createComment'],
+      (variables?: CreateCommentMutationVariables) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables)(),
+      options
+    );
+useCreateCommentMutation.fetcher = (variables: CreateCommentMutationVariables) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables);
 export const CreateProjectDocument = `
     mutation createProject($project: ProjectInput!, $projectId: ID!) {
   createProject(project: $project) {
@@ -940,35 +719,16 @@ export const CreateProjectDocument = `
   }
 }
     `;
-export const useCreateProjectMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    CreateProjectMutation,
-    TError,
-    CreateProjectMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    CreateProjectMutation,
-    TError,
-    CreateProjectMutationVariables,
-    TContext
-  >(
-    ['createProject'],
-    (variables?: CreateProjectMutationVariables) =>
-      fetcher<CreateProjectMutation, CreateProjectMutationVariables>(
-        CreateProjectDocument,
-        variables,
-      )(),
-    options,
-  );
-useCreateProjectMutation.fetcher = (
-  variables: CreateProjectMutationVariables,
-) =>
-  fetcher<CreateProjectMutation, CreateProjectMutationVariables>(
-    CreateProjectDocument,
-    variables,
-  );
+export const useCreateProjectMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateProjectMutation, TError, CreateProjectMutationVariables, TContext>) =>
+    useMutation<CreateProjectMutation, TError, CreateProjectMutationVariables, TContext>(
+      ['createProject'],
+      (variables?: CreateProjectMutationVariables) => fetcher<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, variables)(),
+      options
+    );
+useCreateProjectMutation.fetcher = (variables: CreateProjectMutationVariables) => fetcher<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, variables);
 export const CreateWorkflowDocument = `
     mutation createWorkflow($name: String!, $description: String, $workflowStates: [WorkflowStateInput!]!, $workflowStateIds: [ID!]!) {
   createWorkflowStates(workflowStates: $workflowStates) {
@@ -983,35 +743,16 @@ export const CreateWorkflowDocument = `
   }
 }
     `;
-export const useCreateWorkflowMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    CreateWorkflowMutation,
-    TError,
-    CreateWorkflowMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    CreateWorkflowMutation,
-    TError,
-    CreateWorkflowMutationVariables,
-    TContext
-  >(
-    ['createWorkflow'],
-    (variables?: CreateWorkflowMutationVariables) =>
-      fetcher<CreateWorkflowMutation, CreateWorkflowMutationVariables>(
-        CreateWorkflowDocument,
-        variables,
-      )(),
-    options,
-  );
-useCreateWorkflowMutation.fetcher = (
-  variables: CreateWorkflowMutationVariables,
-) =>
-  fetcher<CreateWorkflowMutation, CreateWorkflowMutationVariables>(
-    CreateWorkflowDocument,
-    variables,
-  );
+export const useCreateWorkflowMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateWorkflowMutation, TError, CreateWorkflowMutationVariables, TContext>) =>
+    useMutation<CreateWorkflowMutation, TError, CreateWorkflowMutationVariables, TContext>(
+      ['createWorkflow'],
+      (variables?: CreateWorkflowMutationVariables) => fetcher<CreateWorkflowMutation, CreateWorkflowMutationVariables>(CreateWorkflowDocument, variables)(),
+      options
+    );
+useCreateWorkflowMutation.fetcher = (variables: CreateWorkflowMutationVariables) => fetcher<CreateWorkflowMutation, CreateWorkflowMutationVariables>(CreateWorkflowDocument, variables);
 export const CreateWorkflowStateDocument = `
     mutation createWorkflowState($colId: ID!, $workflowStateIds: [ID!]!, $workflowId: ID!, $workflowStateName: String!, $description: String) {
   updateWorkflowState(
@@ -1027,37 +768,15 @@ export const CreateWorkflowStateDocument = `
 }
     `;
 export const useCreateWorkflowStateMutation = <
-  TError = Error,
-  TContext = unknown,
->(
-  options?: UseMutationOptions<
-    CreateWorkflowStateMutation,
-    TError,
-    CreateWorkflowStateMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    CreateWorkflowStateMutation,
-    TError,
-    CreateWorkflowStateMutationVariables,
-    TContext
-  >(
-    ['createWorkflowState'],
-    (variables?: CreateWorkflowStateMutationVariables) =>
-      fetcher<
-        CreateWorkflowStateMutation,
-        CreateWorkflowStateMutationVariables
-      >(CreateWorkflowStateDocument, variables)(),
-    options,
-  );
-useCreateWorkflowStateMutation.fetcher = (
-  variables: CreateWorkflowStateMutationVariables,
-) =>
-  fetcher<CreateWorkflowStateMutation, CreateWorkflowStateMutationVariables>(
-    CreateWorkflowStateDocument,
-    variables,
-  );
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateWorkflowStateMutation, TError, CreateWorkflowStateMutationVariables, TContext>) =>
+    useMutation<CreateWorkflowStateMutation, TError, CreateWorkflowStateMutationVariables, TContext>(
+      ['createWorkflowState'],
+      (variables?: CreateWorkflowStateMutationVariables) => fetcher<CreateWorkflowStateMutation, CreateWorkflowStateMutationVariables>(CreateWorkflowStateDocument, variables)(),
+      options
+    );
+useCreateWorkflowStateMutation.fetcher = (variables: CreateWorkflowStateMutationVariables) => fetcher<CreateWorkflowStateMutation, CreateWorkflowStateMutationVariables>(CreateWorkflowStateDocument, variables);
 export const DeleteCommentDocument = `
     mutation deleteComment($commentId: ID!) {
   deleteComment(id: $commentId) {
@@ -1065,35 +784,16 @@ export const DeleteCommentDocument = `
   }
 }
     `;
-export const useDeleteCommentMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    DeleteCommentMutation,
-    TError,
-    DeleteCommentMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    DeleteCommentMutation,
-    TError,
-    DeleteCommentMutationVariables,
-    TContext
-  >(
-    ['deleteComment'],
-    (variables?: DeleteCommentMutationVariables) =>
-      fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(
-        DeleteCommentDocument,
-        variables,
-      )(),
-    options,
-  );
-useDeleteCommentMutation.fetcher = (
-  variables: DeleteCommentMutationVariables,
-) =>
-  fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(
-    DeleteCommentDocument,
-    variables,
-  );
+export const useDeleteCommentMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteCommentMutation, TError, DeleteCommentMutationVariables, TContext>) =>
+    useMutation<DeleteCommentMutation, TError, DeleteCommentMutationVariables, TContext>(
+      ['deleteComment'],
+      (variables?: DeleteCommentMutationVariables) => fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, variables)(),
+      options
+    );
+useDeleteCommentMutation.fetcher = (variables: DeleteCommentMutationVariables) => fetcher<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, variables);
 export const DeleteWorkflowDocument = `
     mutation deleteWorkflow($workflowId: ID!) {
   deleteWorkflow(id: $workflowId) {
@@ -1101,35 +801,16 @@ export const DeleteWorkflowDocument = `
   }
 }
     `;
-export const useDeleteWorkflowMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    DeleteWorkflowMutation,
-    TError,
-    DeleteWorkflowMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    DeleteWorkflowMutation,
-    TError,
-    DeleteWorkflowMutationVariables,
-    TContext
-  >(
-    ['deleteWorkflow'],
-    (variables?: DeleteWorkflowMutationVariables) =>
-      fetcher<DeleteWorkflowMutation, DeleteWorkflowMutationVariables>(
-        DeleteWorkflowDocument,
-        variables,
-      )(),
-    options,
-  );
-useDeleteWorkflowMutation.fetcher = (
-  variables: DeleteWorkflowMutationVariables,
-) =>
-  fetcher<DeleteWorkflowMutation, DeleteWorkflowMutationVariables>(
-    DeleteWorkflowDocument,
-    variables,
-  );
+export const useDeleteWorkflowMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteWorkflowMutation, TError, DeleteWorkflowMutationVariables, TContext>) =>
+    useMutation<DeleteWorkflowMutation, TError, DeleteWorkflowMutationVariables, TContext>(
+      ['deleteWorkflow'],
+      (variables?: DeleteWorkflowMutationVariables) => fetcher<DeleteWorkflowMutation, DeleteWorkflowMutationVariables>(DeleteWorkflowDocument, variables)(),
+      options
+    );
+useDeleteWorkflowMutation.fetcher = (variables: DeleteWorkflowMutationVariables) => fetcher<DeleteWorkflowMutation, DeleteWorkflowMutationVariables>(DeleteWorkflowDocument, variables);
 export const DeleteWorkflowStateDocument = `
     mutation deleteWorkflowState($id: ID!, $workflowId: ID!, $workflowStateIds: [ID!]!) {
   deleteWorkflowState(id: $id) {
@@ -1141,37 +822,15 @@ export const DeleteWorkflowStateDocument = `
 }
     `;
 export const useDeleteWorkflowStateMutation = <
-  TError = Error,
-  TContext = unknown,
->(
-  options?: UseMutationOptions<
-    DeleteWorkflowStateMutation,
-    TError,
-    DeleteWorkflowStateMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    DeleteWorkflowStateMutation,
-    TError,
-    DeleteWorkflowStateMutationVariables,
-    TContext
-  >(
-    ['deleteWorkflowState'],
-    (variables?: DeleteWorkflowStateMutationVariables) =>
-      fetcher<
-        DeleteWorkflowStateMutation,
-        DeleteWorkflowStateMutationVariables
-      >(DeleteWorkflowStateDocument, variables)(),
-    options,
-  );
-useDeleteWorkflowStateMutation.fetcher = (
-  variables: DeleteWorkflowStateMutationVariables,
-) =>
-  fetcher<DeleteWorkflowStateMutation, DeleteWorkflowStateMutationVariables>(
-    DeleteWorkflowStateDocument,
-    variables,
-  );
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteWorkflowStateMutation, TError, DeleteWorkflowStateMutationVariables, TContext>) =>
+    useMutation<DeleteWorkflowStateMutation, TError, DeleteWorkflowStateMutationVariables, TContext>(
+      ['deleteWorkflowState'],
+      (variables?: DeleteWorkflowStateMutationVariables) => fetcher<DeleteWorkflowStateMutation, DeleteWorkflowStateMutationVariables>(DeleteWorkflowStateDocument, variables)(),
+      options
+    );
+useDeleteWorkflowStateMutation.fetcher = (variables: DeleteWorkflowStateMutationVariables) => fetcher<DeleteWorkflowStateMutation, DeleteWorkflowStateMutationVariables>(DeleteWorkflowStateDocument, variables);
 export const KanbanDataDocument = `
     query kanbanData {
   allWorkflows {
@@ -1205,27 +864,25 @@ export const KanbanDataDocument = `
 }
     ${WorkflowStateFieldsFragmentDoc}
 ${ProjectFieldsFragmentDoc}`;
-export const useKanbanDataQuery = <TData = KanbanDataQuery, TError = Error>(
-  variables?: KanbanDataQueryVariables,
-  options?: UseQueryOptions<KanbanDataQuery, TError, TData>,
-) =>
-  useQuery<KanbanDataQuery, TError, TData>(
-    variables === undefined ? ['kanbanData'] : ['kanbanData', variables],
-    fetcher<KanbanDataQuery, KanbanDataQueryVariables>(
-      KanbanDataDocument,
-      variables,
-    ),
-    options,
-  );
+export const useKanbanDataQuery = <
+      TData = KanbanDataQuery,
+      TError = Error
+    >(
+      variables?: KanbanDataQueryVariables,
+      options?: UseQueryOptions<KanbanDataQuery, TError, TData>
+    ) =>
+    useQuery<KanbanDataQuery, TError, TData>(
+      variables === undefined ? ['kanbanData'] : ['kanbanData', variables],
+      fetcher<KanbanDataQuery, KanbanDataQueryVariables>(KanbanDataDocument, variables),
+      options
+    );
 useKanbanDataQuery.document = KanbanDataDocument;
 
-useKanbanDataQuery.getKey = (variables?: KanbanDataQueryVariables) =>
-  variables === undefined ? ['kanbanData'] : ['kanbanData', variables];
-useKanbanDataQuery.fetcher = (variables?: KanbanDataQueryVariables) =>
-  fetcher<KanbanDataQuery, KanbanDataQueryVariables>(
-    KanbanDataDocument,
-    variables,
-  );
+
+useKanbanDataQuery.getKey = (variables?: KanbanDataQueryVariables) => variables === undefined ? ['kanbanData'] : ['kanbanData', variables];
+;
+
+useKanbanDataQuery.fetcher = (variables?: KanbanDataQueryVariables) => fetcher<KanbanDataQuery, KanbanDataQueryVariables>(KanbanDataDocument, variables);
 export const MoveCardDocument = `
     mutation moveCard($workflowStateId: ID!, $cardId: ID!, $previousCard: ID) {
   moveCard(
@@ -1239,28 +896,16 @@ export const MoveCardDocument = `
   }
 }
     `;
-export const useMoveCardMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    MoveCardMutation,
-    TError,
-    MoveCardMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<MoveCardMutation, TError, MoveCardMutationVariables, TContext>(
-    ['moveCard'],
-    (variables?: MoveCardMutationVariables) =>
-      fetcher<MoveCardMutation, MoveCardMutationVariables>(
-        MoveCardDocument,
-        variables,
-      )(),
-    options,
-  );
-useMoveCardMutation.fetcher = (variables: MoveCardMutationVariables) =>
-  fetcher<MoveCardMutation, MoveCardMutationVariables>(
-    MoveCardDocument,
-    variables,
-  );
+export const useMoveCardMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<MoveCardMutation, TError, MoveCardMutationVariables, TContext>) =>
+    useMutation<MoveCardMutation, TError, MoveCardMutationVariables, TContext>(
+      ['moveCard'],
+      (variables?: MoveCardMutationVariables) => fetcher<MoveCardMutation, MoveCardMutationVariables>(MoveCardDocument, variables)(),
+      options
+    );
+useMoveCardMutation.fetcher = (variables: MoveCardMutationVariables) => fetcher<MoveCardMutation, MoveCardMutationVariables>(MoveCardDocument, variables);
 export const RollbackCardDocument = `
     mutation rollbackCard($asOf: String!, $id: ID!) {
   rollbackCard(asOf: $asOf, id: $id) {
@@ -1270,33 +915,16 @@ export const RollbackCardDocument = `
   }
 }
     `;
-export const useRollbackCardMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    RollbackCardMutation,
-    TError,
-    RollbackCardMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    RollbackCardMutation,
-    TError,
-    RollbackCardMutationVariables,
-    TContext
-  >(
-    ['rollbackCard'],
-    (variables?: RollbackCardMutationVariables) =>
-      fetcher<RollbackCardMutation, RollbackCardMutationVariables>(
-        RollbackCardDocument,
-        variables,
-      )(),
-    options,
-  );
-useRollbackCardMutation.fetcher = (variables: RollbackCardMutationVariables) =>
-  fetcher<RollbackCardMutation, RollbackCardMutationVariables>(
-    RollbackCardDocument,
-    variables,
-  );
+export const useRollbackCardMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<RollbackCardMutation, TError, RollbackCardMutationVariables, TContext>) =>
+    useMutation<RollbackCardMutation, TError, RollbackCardMutationVariables, TContext>(
+      ['rollbackCard'],
+      (variables?: RollbackCardMutationVariables) => fetcher<RollbackCardMutation, RollbackCardMutationVariables>(RollbackCardDocument, variables)(),
+      options
+    );
+useRollbackCardMutation.fetcher = (variables: RollbackCardMutationVariables) => fetcher<RollbackCardMutation, RollbackCardMutationVariables>(RollbackCardDocument, variables);
 export const UpdateHiringCardDocument = `
     mutation updateHiringCard($card: HiringCardInput!, $cardId: ID!) {
   updateHiringCard(id: $cardId, Card: $card) {
@@ -1304,35 +932,16 @@ export const UpdateHiringCardDocument = `
   }
 }
     `;
-export const useUpdateHiringCardMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    UpdateHiringCardMutation,
-    TError,
-    UpdateHiringCardMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    UpdateHiringCardMutation,
-    TError,
-    UpdateHiringCardMutationVariables,
-    TContext
-  >(
-    ['updateHiringCard'],
-    (variables?: UpdateHiringCardMutationVariables) =>
-      fetcher<UpdateHiringCardMutation, UpdateHiringCardMutationVariables>(
-        UpdateHiringCardDocument,
-        variables,
-      )(),
-    options,
-  );
-useUpdateHiringCardMutation.fetcher = (
-  variables: UpdateHiringCardMutationVariables,
-) =>
-  fetcher<UpdateHiringCardMutation, UpdateHiringCardMutationVariables>(
-    UpdateHiringCardDocument,
-    variables,
-  );
+export const useUpdateHiringCardMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateHiringCardMutation, TError, UpdateHiringCardMutationVariables, TContext>) =>
+    useMutation<UpdateHiringCardMutation, TError, UpdateHiringCardMutationVariables, TContext>(
+      ['updateHiringCard'],
+      (variables?: UpdateHiringCardMutationVariables) => fetcher<UpdateHiringCardMutation, UpdateHiringCardMutationVariables>(UpdateHiringCardDocument, variables)(),
+      options
+    );
+useUpdateHiringCardMutation.fetcher = (variables: UpdateHiringCardMutationVariables) => fetcher<UpdateHiringCardMutation, UpdateHiringCardMutationVariables>(UpdateHiringCardDocument, variables);
 export const UpdateCardPositionDocument = `
     mutation updateCardPosition($workflowStateId: ID!, $cardIds: [ID!]!) {
   updateWorkflowState(id: $workflowStateId, cardIds: $cardIds) {
@@ -1341,37 +950,15 @@ export const UpdateCardPositionDocument = `
 }
     `;
 export const useUpdateCardPositionMutation = <
-  TError = Error,
-  TContext = unknown,
->(
-  options?: UseMutationOptions<
-    UpdateCardPositionMutation,
-    TError,
-    UpdateCardPositionMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    UpdateCardPositionMutation,
-    TError,
-    UpdateCardPositionMutationVariables,
-    TContext
-  >(
-    ['updateCardPosition'],
-    (variables?: UpdateCardPositionMutationVariables) =>
-      fetcher<UpdateCardPositionMutation, UpdateCardPositionMutationVariables>(
-        UpdateCardPositionDocument,
-        variables,
-      )(),
-    options,
-  );
-useUpdateCardPositionMutation.fetcher = (
-  variables: UpdateCardPositionMutationVariables,
-) =>
-  fetcher<UpdateCardPositionMutation, UpdateCardPositionMutationVariables>(
-    UpdateCardPositionDocument,
-    variables,
-  );
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateCardPositionMutation, TError, UpdateCardPositionMutationVariables, TContext>) =>
+    useMutation<UpdateCardPositionMutation, TError, UpdateCardPositionMutationVariables, TContext>(
+      ['updateCardPosition'],
+      (variables?: UpdateCardPositionMutationVariables) => fetcher<UpdateCardPositionMutation, UpdateCardPositionMutationVariables>(UpdateCardPositionDocument, variables)(),
+      options
+    );
+useUpdateCardPositionMutation.fetcher = (variables: UpdateCardPositionMutationVariables) => fetcher<UpdateCardPositionMutation, UpdateCardPositionMutationVariables>(UpdateCardPositionDocument, variables);
 export const UpdateProjectDocument = `
     mutation updateProject($project: ProjectInput!, $projectId: ID!) {
   updateProject(id: $projectId, project: $project) {
@@ -1379,35 +966,16 @@ export const UpdateProjectDocument = `
   }
 }
     `;
-export const useUpdateProjectMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    UpdateProjectMutation,
-    TError,
-    UpdateProjectMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    UpdateProjectMutation,
-    TError,
-    UpdateProjectMutationVariables,
-    TContext
-  >(
-    ['updateProject'],
-    (variables?: UpdateProjectMutationVariables) =>
-      fetcher<UpdateProjectMutation, UpdateProjectMutationVariables>(
-        UpdateProjectDocument,
-        variables,
-      )(),
-    options,
-  );
-useUpdateProjectMutation.fetcher = (
-  variables: UpdateProjectMutationVariables,
-) =>
-  fetcher<UpdateProjectMutation, UpdateProjectMutationVariables>(
-    UpdateProjectDocument,
-    variables,
-  );
+export const useUpdateProjectMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateProjectMutation, TError, UpdateProjectMutationVariables, TContext>) =>
+    useMutation<UpdateProjectMutation, TError, UpdateProjectMutationVariables, TContext>(
+      ['updateProject'],
+      (variables?: UpdateProjectMutationVariables) => fetcher<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, variables)(),
+      options
+    );
+useUpdateProjectMutation.fetcher = (variables: UpdateProjectMutationVariables) => fetcher<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, variables);
 export const UpdateWorkflowDocument = `
     mutation updateWorkflow($id: ID!, $workflowStateIds: [ID], $description: String, $name: String) {
   updateWorkflow(
@@ -1420,35 +988,16 @@ export const UpdateWorkflowDocument = `
   }
 }
     `;
-export const useUpdateWorkflowMutation = <TError = Error, TContext = unknown>(
-  options?: UseMutationOptions<
-    UpdateWorkflowMutation,
-    TError,
-    UpdateWorkflowMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    UpdateWorkflowMutation,
-    TError,
-    UpdateWorkflowMutationVariables,
-    TContext
-  >(
-    ['updateWorkflow'],
-    (variables?: UpdateWorkflowMutationVariables) =>
-      fetcher<UpdateWorkflowMutation, UpdateWorkflowMutationVariables>(
-        UpdateWorkflowDocument,
-        variables,
-      )(),
-    options,
-  );
-useUpdateWorkflowMutation.fetcher = (
-  variables: UpdateWorkflowMutationVariables,
-) =>
-  fetcher<UpdateWorkflowMutation, UpdateWorkflowMutationVariables>(
-    UpdateWorkflowDocument,
-    variables,
-  );
+export const useUpdateWorkflowMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateWorkflowMutation, TError, UpdateWorkflowMutationVariables, TContext>) =>
+    useMutation<UpdateWorkflowMutation, TError, UpdateWorkflowMutationVariables, TContext>(
+      ['updateWorkflow'],
+      (variables?: UpdateWorkflowMutationVariables) => fetcher<UpdateWorkflowMutation, UpdateWorkflowMutationVariables>(UpdateWorkflowDocument, variables)(),
+      options
+    );
+useUpdateWorkflowMutation.fetcher = (variables: UpdateWorkflowMutationVariables) => fetcher<UpdateWorkflowMutation, UpdateWorkflowMutationVariables>(UpdateWorkflowDocument, variables);
 export const UpdateWorkflowStateDocument = `
     mutation updateWorkflowState($colId: ID!, $name: String!, $description: String) {
   updateWorkflowState(id: $colId, name: $name, description: $description) {
@@ -1457,34 +1006,12 @@ export const UpdateWorkflowStateDocument = `
 }
     `;
 export const useUpdateWorkflowStateMutation = <
-  TError = Error,
-  TContext = unknown,
->(
-  options?: UseMutationOptions<
-    UpdateWorkflowStateMutation,
-    TError,
-    UpdateWorkflowStateMutationVariables,
-    TContext
-  >,
-) =>
-  useMutation<
-    UpdateWorkflowStateMutation,
-    TError,
-    UpdateWorkflowStateMutationVariables,
-    TContext
-  >(
-    ['updateWorkflowState'],
-    (variables?: UpdateWorkflowStateMutationVariables) =>
-      fetcher<
-        UpdateWorkflowStateMutation,
-        UpdateWorkflowStateMutationVariables
-      >(UpdateWorkflowStateDocument, variables)(),
-    options,
-  );
-useUpdateWorkflowStateMutation.fetcher = (
-  variables: UpdateWorkflowStateMutationVariables,
-) =>
-  fetcher<UpdateWorkflowStateMutation, UpdateWorkflowStateMutationVariables>(
-    UpdateWorkflowStateDocument,
-    variables,
-  );
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateWorkflowStateMutation, TError, UpdateWorkflowStateMutationVariables, TContext>) =>
+    useMutation<UpdateWorkflowStateMutation, TError, UpdateWorkflowStateMutationVariables, TContext>(
+      ['updateWorkflowState'],
+      (variables?: UpdateWorkflowStateMutationVariables) => fetcher<UpdateWorkflowStateMutation, UpdateWorkflowStateMutationVariables>(UpdateWorkflowStateDocument, variables)(),
+      options
+    );
+useUpdateWorkflowStateMutation.fetcher = (variables: UpdateWorkflowStateMutationVariables) => fetcher<UpdateWorkflowStateMutation, UpdateWorkflowStateMutationVariables>(UpdateWorkflowStateDocument, variables);

@@ -208,6 +208,8 @@ export function WorkflowStateContainer({
   workflow: NonNullable<TWorkflow>;
 }) {
   const [source, target] = useSingleton();
+  const search = useSearch<LocationGenerics>();
+  const hiddenColumnIds = search?.filters?.colIds ?? [];
   return (
     <div
       className="flex sm:flex-row flex-col max-w-full h-fit"
@@ -218,16 +220,25 @@ export function WorkflowStateContainer({
         delay={[500, 100]}
         moveTransition="transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)"
       />
-      {cols.map((col) => (
-        <WorkflowState
-          key={col.id}
-          tooltipTarget={target}
-          isDragging={isDragging}
-          workflowState={col}
-          cards={col?.cards?.filter(notEmpty) || []}
-          workflow={workflow}
-        />
-      ))}
+      {cols
+        .filter((col) => {
+          if (hiddenColumnIds.includes(col.id)) {
+            return false;
+          }
+          return true;
+        })
+        .map((col) => {
+          return (
+            <WorkflowState
+              key={col.id}
+              tooltipTarget={target}
+              isDragging={isDragging}
+              workflowState={col}
+              cards={col?.cards?.filter(notEmpty) || []}
+              workflow={workflow}
+            />
+          );
+        })}
       {provided.placeholder}
     </div>
   );

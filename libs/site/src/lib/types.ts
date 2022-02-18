@@ -35,7 +35,7 @@ export type LocationGenerics = MakeGenerics<{
     cardModalView?: string;
     view?: 'card' | 'table';
     filters?: {
-      [key: string]: string;
+      [key: string]: string[];
     };
     showDetails?: boolean;
     devMode?: boolean;

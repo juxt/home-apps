@@ -43,9 +43,11 @@ export function useModalForm(
   return [isModalOpen, setIsModalOpen];
 }
 
-export function useWorkflowStates() {
+export function useWorkflowStates(
+  { workflowId }: { workflowId: string } = { workflowId: '' },
+) {
   const { modalState } = useSearch<LocationGenerics>();
-  const id = modalState?.workflowId || '';
+  const id = modalState?.workflowId || workflowId;
   const workflowStateResult = useKanbanDataQuery(undefined, {
     enabled: id !== '',
     select: (data) =>

@@ -520,8 +520,8 @@ function CommentSection({ cardId }: { cardId: string }) {
       document.removeEventListener('keydown', listener);
     };
   }, [submitComment]);
-  const gravatar = () =>
-    juxters.find((juxter) => juxter.staffRecord.juxtcode === userId)?.avatar ||
+  const gravatar = (user: string) =>
+    juxters.find((juxter) => juxter.staffRecord.juxtcode === user)?.avatar ||
     '';
 
   return (
@@ -551,7 +551,7 @@ function CommentSection({ cardId }: { cardId: string }) {
                           <div className="relative">
                             <img
                               className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                              src={gravatar()}
+                              src={gravatar(item?._siteSubject || '')}
                               alt=""
                             />
 
@@ -619,7 +619,7 @@ function CommentSection({ cardId }: { cardId: string }) {
                 <div className="relative">
                   <img
                     className="h-10 w-10 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white"
-                    src={gravatar()}
+                    src={gravatar(userId || '')}
                     alt=""
                   />
 
@@ -1156,48 +1156,52 @@ function CardHistory() {
       </button>
     );
   }
+
   const data = useMemo(
     () =>
-      history?.filter(notEmpty).map((card, i) => {
-        const hasDescriptionChanged =
-          history[i + 1] && history[i + 1]?.description !== card?.description;
-        const projectChanged =
-          history[i + 1] &&
-          history[i + 1]?.project?.name !== card?.project?.name;
-        const cvChanged =
-          history[i + 1] && history[i + 1]?.cvPdf?.name !== card?.cvPdf?.name;
-        const filesChanged =
-          history[i + 1] &&
-          history[i + 1]?.files?.map((f) => f?.name).toString() !==
-            card?.files?.map((f) => f?.name).toString();
-        const titleChanged =
-          history[i + 1] && history[i + 1]?.title !== card?.title;
-        const nothingChanged =
-          !titleChanged &&
-          !hasDescriptionChanged &&
-          !projectChanged &&
-          !cvChanged &&
-          !filesChanged;
+      history
+        ?.filter(notEmpty)
+        .filter((h) => h._siteSubject)
+        .map((card, i) => {
+          const hasDescriptionChanged =
+            history[i + 1] && history[i + 1]?.description !== card?.description;
+          const projectChanged =
+            history[i + 1] &&
+            history[i + 1]?.project?.name !== card?.project?.name;
+          const cvChanged =
+            history[i + 1] && history[i + 1]?.cvPdf?.name !== card?.cvPdf?.name;
+          const filesChanged =
+            history[i + 1] &&
+            history[i + 1]?.files?.map((f) => f?.name).toString() !==
+              card?.files?.map((f) => f?.name).toString();
+          const titleChanged =
+            history[i + 1] && history[i + 1]?.title !== card?.title;
+          const nothingChanged =
+            !titleChanged &&
+            !hasDescriptionChanged &&
+            !projectChanged &&
+            !cvChanged &&
+            !filesChanged;
 
-        return {
-          ...card,
-          nothingChanged,
-          hasDescriptionChanged,
-          projectChanged,
-          cvChanged,
-          filesChanged,
-          titleChanged,
-          diff: [
-            titleChanged && 'Title changed',
-            hasDescriptionChanged && 'description changed',
-            projectChanged && 'project changed',
-            cvChanged && 'cv changed',
-            filesChanged && 'files changed',
-          ]
-            .filter((s) => s)
-            .join(', '),
-        };
-      }),
+          return {
+            ...card,
+            nothingChanged,
+            hasDescriptionChanged,
+            projectChanged,
+            cvChanged,
+            filesChanged,
+            titleChanged,
+            diff: [
+              titleChanged && 'Title changed',
+              hasDescriptionChanged && 'description changed',
+              projectChanged && 'project changed',
+              cvChanged && 'cv changed',
+              filesChanged && 'files changed',
+            ]
+              .filter((s) => s)
+              .join(', '),
+          };
+        }),
     [history],
   );
 

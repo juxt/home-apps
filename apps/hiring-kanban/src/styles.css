@@ -98,3 +98,18 @@
 .Resizer.disabled:hover {
   border-color: transparent;
 }
+
+.tw-multiselect > .dropdown-container {
+  border: none !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+}
+
+.tw-multiselect > .dropdown-container > .dropdown-heading {
+  height: auto !important;
+}
+
+.tw-multiselect > .dropdown-container:focus-within {
+  border: none !important;
+  box-shadow: none !important;
+}

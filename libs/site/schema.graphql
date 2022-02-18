@@ -1,4 +1,4 @@
-schema @site(type: "kanban/secret") {
+schema @site(type: "kanban/prod") {
   query: Query
   mutation: Mutation
 }
