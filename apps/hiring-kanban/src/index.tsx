@@ -16,11 +16,11 @@ ReactDOM.render(
       location={location}
       routes={[
         {
-          path: '/site/_apps/kanban/index.html',
+          path: '/_apps/kanban/index.html',
           element: <App />,
         },
         {
-          path: '/site/_apps/kanban',
+          path: '/_apps/kanban',
           element: <App />,
         },
         {

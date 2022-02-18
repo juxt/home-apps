@@ -27,15 +27,16 @@ import { LocationGenerics } from '@juxt-home/site';
 // Define a default UI for filtering
 function GlobalFilter({
   preGlobalFilteredRows,
-  globalFilter,
+  value,
+  setValue,
   setGlobalFilter,
 }: {
   preGlobalFilteredRows: any;
-  globalFilter: string;
+  value: string;
+  setValue: (value: string) => void;
   setGlobalFilter: (value: string) => void;
 }) {
   const count = preGlobalFilteredRows.length;
-  const [value, setValue] = useState(globalFilter);
   const onChange = useAsyncDebounce((value) => {
     setGlobalFilter(value || undefined);
   }, 200);
@@ -329,6 +330,7 @@ export function Table({
   const showPagination = canNextPage || canPreviousPage;
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
+  const [value, setValue] = useState(state.globalFilter);
   // Render the UI for your table
   return (
     <>
@@ -337,7 +339,8 @@ export function Table({
           <FilterLabelContainer>
             <GlobalFilter
               preGlobalFilteredRows={preGlobalFilteredRows}
-              globalFilter={state.globalFilter}
+              value={value}
+              setValue={setValue}
               setGlobalFilter={setGlobalFilter}
             />
           </FilterLabelContainer>
@@ -361,7 +364,9 @@ export function Table({
                 filters: undefined,
               },
             });
-            return setAllFilters([]);
+            setGlobalFilter('');
+            setValue('');
+            setAllFilters([]);
           }}>
           Reset
         </button>

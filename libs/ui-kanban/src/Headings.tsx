@@ -82,6 +82,15 @@ export function Heading({
     formModalType: 'addProject',
   });
 
+  const resetProjectFilters = () => {
+    navigate({
+      search: {
+        ...search,
+        workflowProjectId: undefined,
+      },
+    });
+  };
+
   return (
     <div className="lg:flex lg:items-center lg:justify-between z-20 pb-4">
       <div className="flex-1 min-w-0">
@@ -89,9 +98,11 @@ export function Heading({
           <ol className="flex items-center space-x-4">
             <li>
               <div className="flex">
-                <span className="text-sm font-medium text-gray-500 hover:text-gray-700">
+                <button
+                  onClick={resetProjectFilters}
+                  className="text-sm font-medium text-gray-500 hover:text-gray-700">
                   Projects
-                </span>
+                </button>
               </div>
             </li>
             <li>

@@ -11,7 +11,7 @@
         "compiler": "swc",
         "outputPath": "dist/apps/hiring-kanban",
         "index": "apps/hiring-kanban/src/index.html",
-        "baseHref": "/site/_apps/kanban/",
+        "baseHref": "/_apps/kanban/",
         "main": "apps/hiring-kanban/src/index.tsx",
         "polyfills": "apps/hiring-kanban/src/polyfills.ts",
         "tsConfig": "apps/hiring-kanban/tsconfig.app.json",

@@ -5,10 +5,12 @@
   "scripts": {
     "watch-generate-hooks": "cross-env-shell GRAPHQL_API_URL='${SITE_BASE_URI}${GRAPHQL_PATH}' \"yarn graphql-codegen --config ./codegen.js --watch\"",
     "watch-schema-upload": " cross-env-shell \"ls schema.graphql resources.edn | entr -s './deploy'\"",
-    "prod-generate": "cross-env-shell SITE_BASE_URI=https://alexd.uk/site GRAPHQL_PATH=/kanban/graphql concurrently \"yarn:watch-*\"",
+    "build-generate-hooks": "cross-env-shell GRAPHQL_API_URL='${SITE_BASE_URI}${GRAPHQL_PATH}' \"yarn graphql-codegen --config ./codegen.js\"",
+    "build-schema-upload": " cross-env-shell \"./deploy\"",
+    "prod-generate": "cross-env-shell SITE_BASE_URI=https://alexd.uk GRAPHQL_PATH=/kanban/graphql concurrently \"yarn:watch-*\"",
     "dev-generate": "cross-env-shell SITE_BASE_URI=http://localhost:5509 GRAPHQL_PATH=/kanban/graphql concurrently \"yarn:watch-*\"",
     "serve": "yarn prod-generate",
-    "build": "cross-env GRAPHQL_API_URL=https://alexd.uk/site/kanban/graphql graphql-codegen"
+    "build": "cross-env-shell SITE_BASE_URI=https://alexd.uk GRAPHQL_PATH=/kanban/graphql concurrently \"yarn:build-*\""
   },
   "license": "ISC",
   "devDependencies": {
