@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { useEffect, useMemo, useState, Fragment } from 'react';
 import { useNavigate, useSearch } from 'react-location';
 import { LocationGenerics } from '@juxt-home/site';
+import { useMobileDetect } from '@juxt-home/utils';
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -330,6 +331,7 @@ export function Table({
   const showPagination = canNextPage || canPreviousPage;
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
+  const isMobile = useMobileDetect().isMobile();
   const [value, setValue] = useState(state.globalFilter);
   // Render the UI for your table
   return (
@@ -391,8 +393,8 @@ export function Table({
                         // we can add them into the header props
                         <th
                           scope="col"
-                          {...column.getHeaderProps()}
-                          className="border-r-2 border-gray-200 group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {...(isMobile ? {} : column.getHeaderProps())}
+                          className="border-r-2 w-1 sm:w-auto border-gray-200 group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div
                             className="flex items-center justify-between"
                             {...column.getSortByToggleProps()}>
