@@ -420,13 +420,27 @@ export function Error({ text }: { text: string }) {
 }
 
 export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
-  const { fields, formHooks, title, id, description, onSubmit } = props;
+  const {
+    fields,
+    options,
+    className,
+    formHooks,
+    title,
+    id,
+    description,
+    onSubmit,
+  } = props;
   const {
     formState: { errors },
   } = formHooks;
   return (
-    <form id={id || title} onSubmit={onSubmit}>
-      <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+    <form className={className} id={id || title} onSubmit={onSubmit}>
+      <div className="relative bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        {options && (
+          <div className="absolute top-7 sm:top-5 right-4">
+            <OptionsMenu options={options} />
+          </div>
+        )}
         <div className="sm:flex sm:items-start">
           <div className="mt-3 text-center sm:mt-0 sm:text-left">
             <Dialog.Title

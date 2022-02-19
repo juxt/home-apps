@@ -1,4 +1,4 @@
-import { ModalStateProps, TiptapProps } from '../index';
+import { IconProps, ModalStateProps, TiptapProps } from '../index';
 import { ReactNode, BaseSyntheticEvent } from 'react';
 import { DropzoneProps } from 'react-dropzone';
 import { FieldPath, RegisterOptions, UseFormReturn } from 'react-hook-form';
@@ -141,6 +141,16 @@ export type FormInputField<T> = {
 
 export type FormProps<T> = {
   fields?: FormInputField<T>[];
+  options?: {
+    label: string;
+    id: string;
+    Icon: (props: IconProps) => JSX.Element;
+    ActiveIcon: (props: IconProps) => JSX.Element;
+    props: {
+      onClick: () => void;
+    };
+  }[];
+  className?: string;
   id?: string;
   handleDelete?: () => void;
   formHooks: UseFormReturn<T, object>;

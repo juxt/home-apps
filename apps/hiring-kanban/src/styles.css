@@ -113,3 +113,7 @@
   border: none !important;
   box-shadow: none !important;
 }
+
+.fixed-form-height {
+  height: calc(100% - 62px);
+}

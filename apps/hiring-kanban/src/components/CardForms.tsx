@@ -300,6 +300,36 @@ export function UpdateHiringCardForm({
     },
   });
 
+  const options = [
+    {
+      label: 'Archive',
+      id: 'archive',
+      Icon: ArchiveInactiveIcon,
+      ActiveIcon: ArchiveActiveIcon,
+      props: {
+        onClick: () => {
+          handleClose();
+          if (card?.id) {
+            toast.promise(
+              UpdateHiringCardMutation.mutateAsync({
+                cardId: card.id,
+                card: {
+                  ...card,
+                  workflowProjectId: null,
+                },
+              }),
+              {
+                pending: 'Archiving card...',
+                success: 'Card archived!',
+                error: 'Error archiving card',
+              },
+            );
+          }
+        },
+      },
+    },
+  ];
+
   useEffect(() => {
     const processCard = async () => {
       if (!card) return;
@@ -336,10 +366,11 @@ export function UpdateHiringCardForm({
     : 'Update Card';
   const projectOptions = useProjectOptions(workflowId);
   return (
-    <div className="relative h-full overflow-y-auto">
+    <div className="relative h-full">
       <Form
         title={title}
         formHooks={formHooks}
+        options={options}
         fields={[
           {
             id: 'CardName',
@@ -398,8 +429,9 @@ export function UpdateHiringCardForm({
           },
         ]}
         onSubmit={formHooks.handleSubmit(UpdateHiringCard, console.warn)}
+        className="overflow-y-auto fixed-form-height"
       />
-      <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+      <div className="fixed bottom-0 right-0 left-0 bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
         <button
           type="submit"
           form={title}
@@ -412,39 +444,6 @@ export function UpdateHiringCardForm({
           onClick={handleClose}>
           Cancel
         </button>
-      </div>
-      <div className="absolute top-7 sm:top-5 right-4">
-        <OptionsMenu
-          options={[
-            {
-              label: 'Archive',
-              id: 'archive',
-              Icon: ArchiveInactiveIcon,
-              ActiveIcon: ArchiveActiveIcon,
-              props: {
-                onClick: () => {
-                  handleClose();
-                  if (card?.id) {
-                    toast.promise(
-                      UpdateHiringCardMutation.mutateAsync({
-                        cardId: card.id,
-                        card: {
-                          ...card,
-                          workflowProjectId: null,
-                        },
-                      }),
-                      {
-                        pending: 'Archiving card...',
-                        success: 'Card archived!',
-                        error: 'Error archiving card',
-                      },
-                    );
-                  }
-                },
-              },
-            },
-          ]}
-        />
       </div>
     </div>
   );
