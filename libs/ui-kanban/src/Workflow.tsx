@@ -34,14 +34,17 @@ import {
 import { Heading } from './Headings';
 import { WorkflowStateContainer } from './WorkflowState';
 
-function processWorkflow(workflow: TWorkflow, projectId: string | undefined) {
+function processWorkflow(
+  workflow: TWorkflow,
+  workflowProjectId: string | undefined,
+) {
   if (!workflow) return null;
   const workflowStates = workflow?.workflowStates.filter(notEmpty) || [];
   return {
     ...workflow,
     workflowStates: workflowStates.map((c) => ({
       ...c,
-      cards: filteredCards(c.cards?.filter(notEmpty), projectId),
+      cards: filteredCards(c.cards?.filter(notEmpty), workflowProjectId),
     })),
   };
 }
@@ -53,10 +56,10 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
     () => processWorkflow(workflow, workflowProjectId),
     [workflow, workflowProjectId],
   );
-  const [filteredState, setState] = useState<TWorkflow>();
-  const unfilteredWorkflow = useKanbanDataQuery()?.data?.allWorkflows?.find(
-    (c) => c?.id === workflow?.id,
-  );
+  const [filteredState, setState] = useState<TWorkflow | null>();
+  const unfilteredWorkflow = useKanbanDataQuery({
+    id: workflow.id,
+  })?.data?.workflow;
 
   useEffect(() => {
     if (data) {
@@ -66,10 +69,10 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
 
   const queryClient = useQueryClient();
   const updateCardPosMutation = useUpdateCardPositionMutation({
-    ...defaultMutationProps(queryClient),
+    ...defaultMutationProps(queryClient, workflow.id),
   });
   const moveCardMutation = useMoveCardMutation({
-    ...defaultMutationProps(queryClient),
+    ...defaultMutationProps(queryClient, workflow.id),
   });
 
   const updateServerCards = useCallback(
@@ -106,7 +109,6 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
 
   const [, setIsAddCard] = useModalForm({
     formModalType: 'addCard',
-    workflowId: workflow?.id,
   });
 
   useHotkeys('c', () => {
@@ -176,7 +178,6 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
           modalState: {
             cardId,
             formModalType: 'editCard',
-            workflowId: workflow?.id,
             workflowStateId: workflow?.workflowStates.find((state) =>
               state?.cards?.find((c) => c?.id === cardId),
             )?.id,

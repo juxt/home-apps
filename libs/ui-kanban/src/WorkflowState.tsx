@@ -25,7 +25,6 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
   const [, setIsOpen] = useModalForm({
     formModalType: 'editCard',
     cardId: card.id,
-    workflowId: workflow?.id,
     workflowStateId: workflow?.workflowStates.find((state) =>
       state?.cards?.find((c) => c?.id === card.id),
     )?.id,

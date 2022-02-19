@@ -27,17 +27,17 @@ export function filteredCols({
 
 export function filteredCards(
   cards: TCard[] | undefined,
-  projectId: string | undefined,
+  workflowProjectId: string | undefined,
 ) {
-  if (!projectId) {
+  if (!workflowProjectId) {
     return cards;
   }
 
   return (
     cards?.filter(
       (card) =>
-        (projectId === '' && card?.project) ||
-        (card?.project?.name && card.project?.id === projectId),
+        (workflowProjectId === '' && card?.project) ||
+        (card?.project?.name && card.project?.id === workflowProjectId),
     ) ?? []
   );
 }
@@ -173,9 +173,12 @@ function moveCard(
   });
 }
 
-const defaultMutationProps = (queryClient: QueryClient) => ({
+const defaultMutationProps = (
+  queryClient: QueryClient,
+  workflowId: string,
+) => ({
   onSettled: () => {
-    queryClient.refetchQueries(useKanbanDataQuery.getKey());
+    queryClient.refetchQueries(useKanbanDataQuery.getKey({ id: workflowId }));
   },
 });
 

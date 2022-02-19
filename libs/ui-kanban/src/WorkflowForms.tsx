@@ -17,15 +17,18 @@ type AddWorkflowInput = Omit<
   workflowStateIds: Option[] | undefined;
 };
 
-type AddWorkflowModalProps = ModalStateProps;
+type AddWorkflowModalProps = ModalStateProps & {
+  workflowId: string;
+};
 
 export function AddWorkflowModal({
   isOpen,
   handleClose,
+  workflowId,
 }: AddWorkflowModalProps) {
   const queryClient = useQueryClient();
   const addWorkflowMutation = useCreateWorkflowMutation({
-    ...defaultMutationProps(queryClient),
+    ...defaultMutationProps(queryClient, workflowId),
   });
 
   const addWorkflow = (input: AddWorkflowInput) => {

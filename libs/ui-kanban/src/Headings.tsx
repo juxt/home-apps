@@ -1,6 +1,5 @@
 import { Fragment, useState } from 'react';
 import {
-  CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EyeIcon,
@@ -22,7 +21,6 @@ import {
   useWorkflowStates,
 } from '@juxt-home/site';
 import { useMobileDetect } from '@juxt-home/utils';
-import { RenderField } from '@juxt-home/ui-common';
 import { MultiSelect } from 'react-multi-select-component';
 
 export function Heading({
@@ -32,7 +30,7 @@ export function Heading({
   workflow: TWorkflow;
   handleAddCard: () => void;
 }) {
-  const currentProject = useCurrentProject().data;
+  const currentProject = useCurrentProject(workflow.id).data;
   const isMobile = useMobileDetect().isMobile();
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
@@ -103,7 +101,7 @@ export function Heading({
   const addProjectText = 'Add Project';
   const [, setProjectFormOpen] = useModalForm({
     formModalType: 'editProject',
-    projectId: currentProject?.id,
+    workflowProjectId: currentProject?.id,
   });
   const [, setAddProject] = useModalForm({
     formModalType: 'addProject',

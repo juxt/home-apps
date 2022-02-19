@@ -77,7 +77,7 @@ export type HiringCard = {
   files?: Maybe<Array<Maybe<File>>>;
   id: Scalars['ID'];
   languages?: Maybe<Array<Maybe<Scalars['String']>>>;
-  project?: Maybe<Project>;
+  project?: Maybe<WorkflowProject>;
   title: Scalars['String'];
   workflow?: Maybe<Workflow>;
   workflowState?: Maybe<WorkflowState>;
@@ -90,32 +90,32 @@ export type HiringCardInput = {
   description?: InputMaybe<Scalars['String']>;
   files?: InputMaybe<Array<InputMaybe<FileInput>>>;
   languages?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
-  projectId?: InputMaybe<Scalars['ID']>;
   title: Scalars['String'];
   workflowId?: InputMaybe<Scalars['ID']>;
+  workflowProjectId?: InputMaybe<Scalars['ID']>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createComment?: Maybe<Comment>;
   createHiringCard?: Maybe<HiringCard>;
-  createProject?: Maybe<Project>;
-  createProjects?: Maybe<Array<Maybe<Project>>>;
   createWorkflow?: Maybe<Workflow>;
+  createWorkflowProject?: Maybe<WorkflowProject>;
+  createWorkflowProjects?: Maybe<Array<Maybe<WorkflowProject>>>;
   createWorkflowState?: Maybe<WorkflowState>;
   createWorkflowStates?: Maybe<Array<Maybe<WorkflowState>>>;
   deleteComment?: Maybe<Comment>;
   deleteHiringCard?: Maybe<HiringCard>;
-  deleteProject?: Maybe<Project>;
   deleteWorkflow?: Maybe<Workflow>;
+  deleteWorkflowProject?: Maybe<WorkflowProject>;
   deleteWorkflowState?: Maybe<WorkflowState>;
   moveCard?: Maybe<Card>;
   rollbackCard?: Maybe<HiringCard>;
-  updateComment?: Maybe<Comment>;
   updateHiringCard?: Maybe<HiringCard>;
-  updateProject?: Maybe<Project>;
   updateWorkflow?: Maybe<Workflow>;
+  updateWorkflowProject?: Maybe<WorkflowProject>;
   updateWorkflowState?: Maybe<WorkflowState>;
+  updatecomment?: Maybe<Comment>;
 };
 
 
@@ -129,20 +129,21 @@ export type MutationCreateHiringCardArgs = {
 };
 
 
-export type MutationCreateProjectArgs = {
-  project?: InputMaybe<ProjectInput>;
-};
-
-
-export type MutationCreateProjectsArgs = {
-  projects?: InputMaybe<Array<InputMaybe<ProjectInput>>>;
-};
-
-
 export type MutationCreateWorkflowArgs = {
   description?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
   name: Scalars['String'];
   workflowStateIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+};
+
+
+export type MutationCreateWorkflowProjectArgs = {
+  workflowProject?: InputMaybe<WorkflowProjectInput>;
+};
+
+
+export type MutationCreateWorkflowProjectsArgs = {
+  workflowProjects?: InputMaybe<Array<InputMaybe<WorkflowProjectInput>>>;
 };
 
 
@@ -166,12 +167,12 @@ export type MutationDeleteHiringCardArgs = {
 };
 
 
-export type MutationDeleteProjectArgs = {
+export type MutationDeleteWorkflowArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteWorkflowArgs = {
+export type MutationDeleteWorkflowProjectArgs = {
   id: Scalars['ID'];
 };
 
@@ -194,21 +195,9 @@ export type MutationRollbackCardArgs = {
 };
 
 
-export type MutationUpdateCommentArgs = {
-  Comment?: InputMaybe<CommentInput>;
-  id: Scalars['ID'];
-};
-
-
 export type MutationUpdateHiringCardArgs = {
   Card?: InputMaybe<HiringCardInput>;
   id: Scalars['ID'];
-};
-
-
-export type MutationUpdateProjectArgs = {
-  id: Scalars['ID'];
-  project?: InputMaybe<ProjectInput>;
 };
 
 
@@ -220,6 +209,12 @@ export type MutationUpdateWorkflowArgs = {
 };
 
 
+export type MutationUpdateWorkflowProjectArgs = {
+  id: Scalars['ID'];
+  workflowProject?: InputMaybe<WorkflowProjectInput>;
+};
+
+
 export type MutationUpdateWorkflowStateArgs = {
   cardIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
   description?: InputMaybe<Scalars['String']>;
@@ -227,23 +222,16 @@ export type MutationUpdateWorkflowStateArgs = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-export type Project = {
-  __typename?: 'Project';
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-};
 
-export type ProjectInput = {
-  description?: InputMaybe<Scalars['String']>;
-  id?: InputMaybe<Scalars['ID']>;
-  name: Scalars['String'];
+export type MutationUpdatecommentArgs = {
+  Comment?: InputMaybe<CommentInput>;
+  id: Scalars['ID'];
 };
 
 export type Query = {
   __typename?: 'Query';
   allHiringCards?: Maybe<Array<Maybe<HiringCard>>>;
-  allProjects?: Maybe<Array<Maybe<Project>>>;
+  allWorkflowProjects?: Maybe<Array<Maybe<WorkflowProject>>>;
   allWorkflowStates?: Maybe<Array<Maybe<WorkflowState>>>;
   allWorkflows?: Maybe<Array<Maybe<Workflow>>>;
   cardHistory?: Maybe<Array<Maybe<Card>>>;
@@ -296,6 +284,19 @@ export type Workflow = {
   workflowStates: Array<Maybe<WorkflowState>>;
 };
 
+export type WorkflowProject = {
+  __typename?: 'WorkflowProject';
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
+
+export type WorkflowProjectInput = {
+  description?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
+  name: Scalars['String'];
+};
+
 export type WorkflowState = {
   __typename?: 'WorkflowState';
   _siteQuery?: Maybe<Scalars['String']>;
@@ -323,23 +324,23 @@ export enum WorkflowStateType {
 export type AllProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllProjectsQuery = { __typename?: 'Query', allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
+export type AllProjectsQuery = { __typename?: 'Query', allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null };
 
-export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null };
+export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null };
 
 export type CardHistoryQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, title: string, description?: string | null, _siteValidTime: string, _siteSubject?: string | null, files?: Array<{ __typename?: 'File', name: string } | null> | null, cvPdf?: { __typename?: 'File', name: string } | null, workflowState?: { __typename?: 'WorkflowState', name: string } | null, project?: { __typename?: 'Project', name: string } | null } | null> | null };
+export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, title: string, description?: string | null, _siteValidTime: string, _siteSubject?: string | null, files?: Array<{ __typename?: 'File', name: string } | null> | null, cvPdf?: { __typename?: 'File', name: string } | null, workflowState?: { __typename?: 'WorkflowState', name: string } | null, project?: { __typename?: 'WorkflowProject', name: string } | null } | null> | null };
 
 export type CardByIdsQueryVariables = Exact<{
   ids: Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>;
 }>;
 
 
-export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'Project', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string } | null } | null> | null };
+export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string } | null } | null> | null };
 
 export type CommentsForCardQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -364,14 +365,6 @@ export type CreateCommentMutationVariables = Exact<{
 
 
 export type CreateCommentMutation = { __typename?: 'Mutation', createComment?: { __typename?: 'Comment', id: string } | null };
-
-export type CreateProjectMutationVariables = Exact<{
-  project: ProjectInput;
-  projectId: Scalars['ID'];
-}>;
-
-
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'Project', id: string } | null };
 
 export type CreateWorkflowMutationVariables = Exact<{
   name: Scalars['String'];
@@ -417,10 +410,14 @@ export type DeleteWorkflowStateMutationVariables = Exact<{
 
 export type DeleteWorkflowStateMutation = { __typename?: 'Mutation', deleteWorkflowState?: { __typename?: 'WorkflowState', id: string } | null, updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
-export type KanbanDataQueryVariables = Exact<{ [key: string]: never; }>;
+export type KanbanDataQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
 
 
-export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflows?: Array<{ __typename?: 'Workflow', name: string, description?: string | null, id: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null } | null> } | null> | null, allWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, cards?: Array<{ __typename?: 'HiringCard', id: string, createdAt?: string | null } | null> | null } | null> | null, allHiringCards?: Array<{ __typename?: 'HiringCard', id: string, _siteValidTime: string, createdAt?: string | null } | null> | null, allProjects?: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null } | null> | null };
+export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflowStates?: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, cards?: Array<{ __typename?: 'HiringCard', id: string, createdAt?: string | null } | null> | null } | null> | null, allHiringCards?: Array<{ __typename?: 'HiringCard', id: string, _siteValidTime: string, createdAt?: string | null } | null> | null, allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null, workflow?: { __typename?: 'Workflow', description?: string | null, id: string, name: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null } | null> } | null };
+
+export type WorkflowProjectFieldsFragment = { __typename?: 'WorkflowProject', id: string, name: string, description?: string | null };
 
 export type MoveCardMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
@@ -430,8 +427,6 @@ export type MoveCardMutationVariables = Exact<{
 
 
 export type MoveCardMutation = { __typename?: 'Mutation', moveCard?: { __typename?: 'HiringCard', id: string } | null };
-
-export type ProjectFieldsFragment = { __typename?: 'Project', id: string, name: string, description?: string | null };
 
 export type RollbackCardMutationVariables = Exact<{
   asOf: Scalars['String'];
@@ -457,14 +452,6 @@ export type UpdateCardPositionMutationVariables = Exact<{
 
 export type UpdateCardPositionMutation = { __typename?: 'Mutation', updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null };
 
-export type UpdateProjectMutationVariables = Exact<{
-  project: ProjectInput;
-  projectId: Scalars['ID'];
-}>;
-
-
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'Project', id: string } | null };
-
 export type UpdateWorkflowMutationVariables = Exact<{
   id: Scalars['ID'];
   workflowStateIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>>;
@@ -475,6 +462,14 @@ export type UpdateWorkflowMutationVariables = Exact<{
 
 export type UpdateWorkflowMutation = { __typename?: 'Mutation', updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
+export type UpdateWorkflowProjectMutationVariables = Exact<{
+  workflowProject: WorkflowProjectInput;
+  workflowProjectId: Scalars['ID'];
+}>;
+
+
+export type UpdateWorkflowProjectMutation = { __typename?: 'Mutation', updateWorkflowProject?: { __typename?: 'WorkflowProject', id: string } | null };
+
 export type UpdateWorkflowStateMutationVariables = Exact<{
   colId: Scalars['ID'];
   name: Scalars['String'];
@@ -484,10 +479,18 @@ export type UpdateWorkflowStateMutationVariables = Exact<{
 
 export type UpdateWorkflowStateMutation = { __typename?: 'Mutation', updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null };
 
-export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'Project', id: string, name: string } | null } | null> | null };
+export type CreateWorkflowProjectMutationVariables = Exact<{
+  workflowProject: WorkflowProjectInput;
+  workflowProjectId: Scalars['ID'];
+}>;
 
-export const ProjectFieldsFragmentDoc = `
-    fragment ProjectFields on Project {
+
+export type CreateWorkflowProjectMutation = { __typename?: 'Mutation', createWorkflowProject?: { __typename?: 'WorkflowProject', id: string } | null };
+
+export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, workflow: { __typename?: 'Workflow', name: string }, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null };
+
+export const WorkflowProjectFieldsFragmentDoc = `
+    fragment WorkflowProjectFields on WorkflowProject {
   id
   name
   description
@@ -522,11 +525,11 @@ export const WorkflowStateFieldsFragmentDoc = `
     ${CardFieldsFragmentDoc}`;
 export const AllProjectsDocument = `
     query allProjects {
-  allProjects {
-    ...ProjectFields
+  allWorkflowProjects {
+    ...WorkflowProjectFields
   }
 }
-    ${ProjectFieldsFragmentDoc}`;
+    ${WorkflowProjectFieldsFragmentDoc}`;
 export const useAllProjectsQuery = <
       TData = AllProjectsQuery,
       TError = Error
@@ -712,23 +715,6 @@ export const useCreateCommentMutation = <
       options
     );
 useCreateCommentMutation.fetcher = (variables: CreateCommentMutationVariables) => fetcher<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, variables);
-export const CreateProjectDocument = `
-    mutation createProject($project: ProjectInput!, $projectId: ID!) {
-  createProject(project: $project) {
-    id
-  }
-}
-    `;
-export const useCreateProjectMutation = <
-      TError = Error,
-      TContext = unknown
-    >(options?: UseMutationOptions<CreateProjectMutation, TError, CreateProjectMutationVariables, TContext>) =>
-    useMutation<CreateProjectMutation, TError, CreateProjectMutationVariables, TContext>(
-      ['createProject'],
-      (variables?: CreateProjectMutationVariables) => fetcher<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, variables)(),
-      options
-    );
-useCreateProjectMutation.fetcher = (variables: CreateProjectMutationVariables) => fetcher<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, variables);
 export const CreateWorkflowDocument = `
     mutation createWorkflow($name: String!, $description: String, $workflowStates: [WorkflowStateInput!]!, $workflowStateIds: [ID!]!) {
   createWorkflowStates(workflowStates: $workflowStates) {
@@ -832,15 +818,7 @@ export const useDeleteWorkflowStateMutation = <
     );
 useDeleteWorkflowStateMutation.fetcher = (variables: DeleteWorkflowStateMutationVariables) => fetcher<DeleteWorkflowStateMutation, DeleteWorkflowStateMutationVariables>(DeleteWorkflowStateDocument, variables);
 export const KanbanDataDocument = `
-    query kanbanData {
-  allWorkflows {
-    name
-    description
-    id
-    workflowStates {
-      ...WorkflowStateFields
-    }
-  }
+    query kanbanData($id: ID!) {
   allWorkflowStates {
     id
     name
@@ -857,32 +835,40 @@ export const KanbanDataDocument = `
     _siteValidTime
     createdAt
   }
-  allProjects {
-    ...ProjectFields
+  allWorkflowProjects {
+    ...WorkflowProjectFields
   }
   myJuxtcode
+  workflow(id: $id) {
+    description
+    id
+    name
+    workflowStates {
+      ...WorkflowStateFields
+    }
+  }
 }
-    ${WorkflowStateFieldsFragmentDoc}
-${ProjectFieldsFragmentDoc}`;
+    ${WorkflowProjectFieldsFragmentDoc}
+${WorkflowStateFieldsFragmentDoc}`;
 export const useKanbanDataQuery = <
       TData = KanbanDataQuery,
       TError = Error
     >(
-      variables?: KanbanDataQueryVariables,
+      variables: KanbanDataQueryVariables,
       options?: UseQueryOptions<KanbanDataQuery, TError, TData>
     ) =>
     useQuery<KanbanDataQuery, TError, TData>(
-      variables === undefined ? ['kanbanData'] : ['kanbanData', variables],
+      ['kanbanData', variables],
       fetcher<KanbanDataQuery, KanbanDataQueryVariables>(KanbanDataDocument, variables),
       options
     );
 useKanbanDataQuery.document = KanbanDataDocument;
 
 
-useKanbanDataQuery.getKey = (variables?: KanbanDataQueryVariables) => variables === undefined ? ['kanbanData'] : ['kanbanData', variables];
+useKanbanDataQuery.getKey = (variables: KanbanDataQueryVariables) => ['kanbanData', variables];
 ;
 
-useKanbanDataQuery.fetcher = (variables?: KanbanDataQueryVariables) => fetcher<KanbanDataQuery, KanbanDataQueryVariables>(KanbanDataDocument, variables);
+useKanbanDataQuery.fetcher = (variables: KanbanDataQueryVariables) => fetcher<KanbanDataQuery, KanbanDataQueryVariables>(KanbanDataDocument, variables);
 export const MoveCardDocument = `
     mutation moveCard($workflowStateId: ID!, $cardId: ID!, $previousCard: ID) {
   moveCard(
@@ -959,23 +945,6 @@ export const useUpdateCardPositionMutation = <
       options
     );
 useUpdateCardPositionMutation.fetcher = (variables: UpdateCardPositionMutationVariables) => fetcher<UpdateCardPositionMutation, UpdateCardPositionMutationVariables>(UpdateCardPositionDocument, variables);
-export const UpdateProjectDocument = `
-    mutation updateProject($project: ProjectInput!, $projectId: ID!) {
-  updateProject(id: $projectId, project: $project) {
-    id
-  }
-}
-    `;
-export const useUpdateProjectMutation = <
-      TError = Error,
-      TContext = unknown
-    >(options?: UseMutationOptions<UpdateProjectMutation, TError, UpdateProjectMutationVariables, TContext>) =>
-    useMutation<UpdateProjectMutation, TError, UpdateProjectMutationVariables, TContext>(
-      ['updateProject'],
-      (variables?: UpdateProjectMutationVariables) => fetcher<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, variables)(),
-      options
-    );
-useUpdateProjectMutation.fetcher = (variables: UpdateProjectMutationVariables) => fetcher<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, variables);
 export const UpdateWorkflowDocument = `
     mutation updateWorkflow($id: ID!, $workflowStateIds: [ID], $description: String, $name: String) {
   updateWorkflow(
@@ -998,6 +967,23 @@ export const useUpdateWorkflowMutation = <
       options
     );
 useUpdateWorkflowMutation.fetcher = (variables: UpdateWorkflowMutationVariables) => fetcher<UpdateWorkflowMutation, UpdateWorkflowMutationVariables>(UpdateWorkflowDocument, variables);
+export const UpdateWorkflowProjectDocument = `
+    mutation updateWorkflowProject($workflowProject: WorkflowProjectInput!, $workflowProjectId: ID!) {
+  updateWorkflowProject(id: $workflowProjectId, workflowProject: $workflowProject) {
+    id
+  }
+}
+    `;
+export const useUpdateWorkflowProjectMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpdateWorkflowProjectMutation, TError, UpdateWorkflowProjectMutationVariables, TContext>) =>
+    useMutation<UpdateWorkflowProjectMutation, TError, UpdateWorkflowProjectMutationVariables, TContext>(
+      ['updateWorkflowProject'],
+      (variables?: UpdateWorkflowProjectMutationVariables) => fetcher<UpdateWorkflowProjectMutation, UpdateWorkflowProjectMutationVariables>(UpdateWorkflowProjectDocument, variables)(),
+      options
+    );
+useUpdateWorkflowProjectMutation.fetcher = (variables: UpdateWorkflowProjectMutationVariables) => fetcher<UpdateWorkflowProjectMutation, UpdateWorkflowProjectMutationVariables>(UpdateWorkflowProjectDocument, variables);
 export const UpdateWorkflowStateDocument = `
     mutation updateWorkflowState($colId: ID!, $name: String!, $description: String) {
   updateWorkflowState(id: $colId, name: $name, description: $description) {
@@ -1015,3 +1001,20 @@ export const useUpdateWorkflowStateMutation = <
       options
     );
 useUpdateWorkflowStateMutation.fetcher = (variables: UpdateWorkflowStateMutationVariables) => fetcher<UpdateWorkflowStateMutation, UpdateWorkflowStateMutationVariables>(UpdateWorkflowStateDocument, variables);
+export const CreateWorkflowProjectDocument = `
+    mutation createWorkflowProject($workflowProject: WorkflowProjectInput!, $workflowProjectId: ID!) {
+  createWorkflowProject(workflowProject: $workflowProject) {
+    id
+  }
+}
+    `;
+export const useCreateWorkflowProjectMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateWorkflowProjectMutation, TError, CreateWorkflowProjectMutationVariables, TContext>) =>
+    useMutation<CreateWorkflowProjectMutation, TError, CreateWorkflowProjectMutationVariables, TContext>(
+      ['createWorkflowProject'],
+      (variables?: CreateWorkflowProjectMutationVariables) => fetcher<CreateWorkflowProjectMutation, CreateWorkflowProjectMutationVariables>(CreateWorkflowProjectDocument, variables)(),
+      options
+    );
+useCreateWorkflowProjectMutation.fetcher = (variables: CreateWorkflowProjectMutationVariables) => fetcher<CreateWorkflowProjectMutation, CreateWorkflowProjectMutationVariables>(CreateWorkflowProjectDocument, variables);

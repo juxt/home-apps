@@ -1,5 +1,0 @@
-mutation createProject($project: ProjectInput!, $projectId: ID!) {
-  createProject(project: $project) {
-    id
-  }
-}

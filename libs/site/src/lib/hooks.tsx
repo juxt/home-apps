@@ -46,15 +46,12 @@ export function useModalForm(
 export function useWorkflowStates(
   { workflowId }: { workflowId: string } = { workflowId: '' },
 ) {
-  const { modalState } = useSearch<LocationGenerics>();
-  const id = modalState?.workflowId || workflowId;
-  const workflowStateResult = useKanbanDataQuery(undefined, {
-    enabled: id !== '',
-    select: (data) =>
-      data?.allWorkflows
-        ?.find((w) => w?.id === id)
-        ?.workflowStates.filter(notEmpty),
-  });
+  const workflowStateResult = useKanbanDataQuery(
+    { id: workflowId },
+    {
+      select: (data) => data?.workflow?.workflowStates.filter(notEmpty),
+    },
+  );
   return workflowStateResult;
 }
 
@@ -68,18 +65,24 @@ export function useStatesOptions() {
   return cols;
 }
 
-export function useWorkflowState(id?: string) {
-  const workflowStateResult = useKanbanDataQuery(undefined, {
-    select: (data) =>
-      data?.allWorkflowStates?.filter(notEmpty).find((s) => s.id === id),
-  });
+export function useWorkflowState(workflowId: string, wsId?: string) {
+  const workflowStateResult = useKanbanDataQuery(
+    { id: workflowId },
+    {
+      select: (data) =>
+        data?.allWorkflowStates?.filter(notEmpty).find((s) => s.id === wsId),
+    },
+  );
   return workflowStateResult;
 }
 
-export function useProjectOptions() {
-  const kanbanDataQuery = useKanbanDataQuery(undefined, {
-    select: (data) => data?.allProjects?.filter(notEmpty),
-  });
+export function useProjectOptions(workflowId: string) {
+  const kanbanDataQuery = useKanbanDataQuery(
+    { id: workflowId },
+    {
+      select: (data) => data?.allWorkflowProjects?.filter(notEmpty),
+    },
+  );
   return (
     kanbanDataQuery?.data?.map((p) => ({
       label: p.name,
@@ -88,12 +91,17 @@ export function useProjectOptions() {
   );
 }
 
-export function useCurrentProject() {
-  const projectId = useSearch<LocationGenerics>().workflowProjectId;
-  const projectQuery = useKanbanDataQuery(undefined, {
-    select: (data) =>
-      data?.allProjects?.filter(notEmpty).find((p) => p.id === projectId),
-  });
+export function useCurrentProject(workflowId: string) {
+  const workflowProjectId = useSearch<LocationGenerics>().workflowProjectId;
+  const projectQuery = useKanbanDataQuery(
+    { id: workflowId },
+    {
+      select: (data) =>
+        data?.allWorkflowProjects
+          ?.filter(notEmpty)
+          .find((p) => p.id === workflowProjectId),
+    },
+  );
   return projectQuery;
 }
 
@@ -147,9 +155,13 @@ export function useCardHistory(
 }
 
 export function useUserId() {
-  const { data } = useKanbanDataQuery(undefined, {
-    select: (data) => data?.myJuxtcode,
-    staleTime: Infinity,
-  });
+  // should probably make a user query
+  const { data } = useKanbanDataQuery(
+    { id: 'WorkflowHiring' },
+    {
+      select: (data) => data?.myJuxtcode,
+      staleTime: Infinity,
+    },
+  );
   return data;
 }

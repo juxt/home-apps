@@ -4,22 +4,22 @@ import { useEffect } from 'react';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import {
-  CreateProjectMutationVariables,
+  CreateWorkflowProjectMutationVariables,
   LocationGenerics,
-  useCreateProjectMutation,
-  UpdateProjectMutationVariables,
-  useUpdateProjectMutation,
+  useCreateWorkflowProjectMutation,
+  UpdateWorkflowProjectMutationVariables,
+  useUpdateWorkflowProjectMutation,
   useCurrentProject,
 } from '@juxt-home/site';
 import { ModalStateProps, ModalForm, Form, Modal } from '@juxt-home/ui-common';
 import { defaultMutationProps } from './utils';
 
-type AddProjectInput = CreateProjectMutationVariables;
+type AddProjectInput = CreateWorkflowProjectMutationVariables;
 
 type AddProjectModalProps = ModalStateProps;
 
 export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
-  const addProjectMutation = useCreateProjectMutation({
+  const addProjectMutation = useCreateWorkflowProjectMutation({
     ...defaultMutationProps,
   });
 
@@ -48,14 +48,14 @@ export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
           rules: {
             required: true,
           },
-          path: 'project.name',
+          path: 'workflowProject.name',
         },
         {
           id: 'ProjectDescription',
           label: 'Project Description',
           placeholder: 'Project Description',
           type: 'text',
-          path: 'project.description',
+          path: 'workflowProject.description',
         },
       ]}
       onSubmit={formHooks.handleSubmit(addProject, console.warn)}
@@ -65,39 +65,42 @@ export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
   );
 }
 
-type UpdateProjectInput = UpdateProjectMutationVariables;
+type UpdateWorkflowProjectInput = UpdateWorkflowProjectMutationVariables;
 
-type UpdateProjectModalProps = ModalStateProps;
+type UpdateWorkflowProjectModalProps = ModalStateProps & {
+  workflowId: string;
+};
 
-export function UpdateProjectModal({
+export function UpdateWorkflowProjectModal({
   isOpen,
   handleClose,
-}: UpdateProjectModalProps) {
+  workflowId,
+}: UpdateWorkflowProjectModalProps) {
   const { modalState } = useSearch<LocationGenerics>();
-  const projectId = modalState?.projectId;
+  const workflowProjectId = modalState?.workflowProjectId;
   const queryClient = useQueryClient();
-  const updateProjectMutation = useUpdateProjectMutation({
-    ...defaultMutationProps(queryClient),
+  const UpdateWorkflowProjectMutation = useUpdateWorkflowProjectMutation({
+    ...defaultMutationProps(queryClient, workflowId),
   });
 
-  const updateProject = (input: UpdateProjectInput) => {
+  const UpdateWorkflowProject = (input: UpdateWorkflowProjectInput) => {
     handleClose();
-    updateProjectMutation.mutate({ ...input });
+    UpdateWorkflowProjectMutation.mutate({ ...input });
   };
 
-  const project = useCurrentProject().data;
+  const project = useCurrentProject(workflowId).data;
 
-  const formHooks = useForm<UpdateProjectInput>({
+  const formHooks = useForm<UpdateWorkflowProjectInput>({
     defaultValues: {
-      projectId,
+      workflowProjectId,
     },
   });
 
   useEffect(() => {
     if (project) {
-      formHooks.setValue('project', { ...project });
+      formHooks.setValue('workflowProject', { ...project });
     }
-  }, [project]);
+  }, [formHooks, project]);
 
   const title = 'Update Project';
   return (
@@ -114,7 +117,7 @@ export function UpdateProjectModal({
               rules: {
                 required: true,
               },
-              path: 'project.name',
+              path: 'workflowProject.name',
               label: 'Name',
             },
             {
@@ -122,10 +125,10 @@ export function UpdateProjectModal({
               label: 'Project Description',
               placeholder: 'Project Description',
               type: 'text',
-              path: 'project.description',
+              path: 'workflowProject.description',
             },
           ]}
-          onSubmit={formHooks.handleSubmit(updateProject, console.warn)}
+          onSubmit={formHooks.handleSubmit(UpdateWorkflowProject, console.warn)}
         />
       </div>
       <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">

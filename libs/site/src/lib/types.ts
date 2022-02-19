@@ -5,8 +5,7 @@ import {
   WorkflowStateFieldsFragment,
 } from '../generated/graphql';
 
-export type TWorkflows = NonNullable<KanbanDataQuery['allWorkflows']>;
-export type TWorkflow = TWorkflows[0];
+export type TWorkflow = NonNullable<KanbanDataQuery['workflow']>;
 export type TCard = CardFieldsFragment;
 export type TWorkflowState = WorkflowStateFieldsFragment;
 
@@ -26,8 +25,7 @@ export type LocationGenerics = MakeGenerics<{
   Search: {
     modalState: {
       formModalType: WorkflowFormModalTypes;
-      projectId?: string;
-      workflowId?: string;
+      workflowProjectId?: string;
       workflowStateId?: string;
       cardId?: string;
     };

@@ -1,12 +1,4 @@
-query kanbanData {
-  allWorkflows {
-    name
-    description
-    id
-    workflowStates {
-      ...WorkflowStateFields
-    }
-  }
+query kanbanData($id: ID!) {
   allWorkflowStates {
     id
     name
@@ -23,8 +15,22 @@ query kanbanData {
     _siteValidTime
     createdAt
   }
-  allProjects {
-    ...ProjectFields
+  allWorkflowProjects {
+    ...WorkflowProjectFields
   }
   myJuxtcode
+  workflow(id: $id) {
+    description
+    id
+    name
+    workflowStates {
+      ...WorkflowStateFields
+    }
+  }
+}
+
+fragment WorkflowProjectFields on WorkflowProject {
+  id
+  name
+  description
 }

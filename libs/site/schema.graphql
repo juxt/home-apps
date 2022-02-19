@@ -12,13 +12,14 @@ type Query {
   cardsByIds(ids: [ID]!): [Card]
   allWorkflowStates: [WorkflowState]
   workflowState(id: ID!): WorkflowState
-  allProjects: [Project]
+  allWorkflowProjects: [WorkflowProject]
   commentsForCard(id: ID!): [Comment] @site(itemForId: "cardId")
-  cardsForProject(id: ID!): [Card] @site(itemForId: "projectId")
+  cardsForProject(id: ID!): [Card] @site(itemForId: "workflowProjectId")
 }
 
 type Mutation {
   createWorkflow(
+    id: ID
     name: String!
     description: String
     workflowStateIds: [ID]
@@ -46,13 +47,17 @@ type Mutation {
     @site(mutation: "update")
   deleteHiringCard(id: ID!): HiringCard @site(mutation: "delete")
   rollbackCard(id: ID!, asOf: String!): HiringCard @site(mutation: "rollback")
-  createProject(project: ProjectInput): Project
-  createProjects(projects: [ProjectInput]): [Project]
-  updateProject(id: ID!, project: ProjectInput): Project
-    @site(mutation: "update")
-  deleteProject(id: ID!): Project @site(mutation: "delete")
+  createWorkflowProject(workflowProject: WorkflowProjectInput): WorkflowProject
+  createWorkflowProjects(
+    workflowProjects: [WorkflowProjectInput]
+  ): [WorkflowProject]
+  updateWorkflowProject(
+    id: ID!
+    workflowProject: WorkflowProjectInput
+  ): WorkflowProject @site(mutation: "update")
+  deleteWorkflowProject(id: ID!): WorkflowProject @site(mutation: "delete")
   createComment(Comment: CommentInput): Comment
-  updateComment(id: ID!, Comment: CommentInput): Comment
+  updatecomment(id: ID!, Comment: CommentInput): Comment
     @site(mutation: "update")
   deleteComment(id: ID!): Comment @site(mutation: "delete")
 }
@@ -63,7 +68,7 @@ input CommentInput {
   cardId: ID!
 }
 
-input ProjectInput {
+input WorkflowProjectInput {
   name: String!
   description: String
   id: ID
@@ -85,7 +90,7 @@ input FileInput {
 input HiringCardInput {
   title: String!
   description: String
-  projectId: ID
+  workflowProjectId: ID
   createdAt: String
   workflowId: ID
   languages: [String]
@@ -120,15 +125,14 @@ type WorkflowState {
         edn: """
         {:find [e]
            :where [[e {{type}} "Workflow"]
-                   [e :workflowStateIds id]
-                   [(= id "{{object-id}}")]]}
+                   [e :workflowStateIds "{{object-id}}"]]}
         """
       }
     )
   cards: [Card] @site(each: "cardIds")
 }
 
-type Project {
+type WorkflowProject {
   id: ID!
   name: String!
   description: String
@@ -145,7 +149,7 @@ type HiringCard {
   title: String!
   _siteValidTime: String!
   _siteSubject: ID
-  project: Project @site(ref: "projectId")
+  project: WorkflowProject @site(ref: "workflowProjectId")
   description: String
   languages: [String]
   createdAt: String
@@ -159,8 +163,7 @@ type HiringCard {
         edn: """
         {:find [e]
            :where [[e {{type}} "WorkflowState"]
-                   [e :cardIds id]
-                   [(= id "{{object-id}}")]]}
+                   [e :cardIds "{{object-id}}"]]}
         """
       }
     )

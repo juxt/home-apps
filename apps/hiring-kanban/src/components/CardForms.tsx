@@ -73,9 +73,10 @@ import {
   RenderField,
   Button,
   Modal,
+  juxters,
   Table,
 } from '@juxt-home/ui-common';
-import { juxters } from 'libs/ui-common/src/Tiptap/data';
+import { workflowId } from '../constants';
 
 function PdfViewer({ pdfString }: { pdfString?: string }) {
   const pdfUrl = useMemo(() => {
@@ -108,7 +109,7 @@ export function AddHiringCardModal({
 }: AddHiringCardModalProps) {
   const queryClient = useQueryClient();
   const AddHiringCardMutation = useCreateHiringCardMutation({
-    ...defaultMutationProps(queryClient),
+    ...defaultMutationProps(queryClient, workflowId),
   });
   const { workflowProjectId } = useSearch<LocationGenerics>();
   const cols = useWorkflowStates().data || [];
@@ -146,7 +147,7 @@ export function AddHiringCardModal({
         ],
         card: {
           ...cardInput.card,
-          projectId: project?.value,
+          workflowProjectId: project?.value,
         },
       }),
       {
@@ -159,7 +160,7 @@ export function AddHiringCardModal({
     formHooks.resetField('card');
   };
 
-  const projectOptions = useProjectOptions();
+  const projectOptions = useProjectOptions(workflowId);
   const label = projectOptions.find(
     (p) => p.value === workflowProjectId,
   )?.label;
@@ -257,7 +258,7 @@ export function UpdateHiringCardForm({
     },
   });
   const moveCardMutation = useMoveCardMutation({
-    ...defaultMutationProps(queryClient),
+    ...defaultMutationProps(queryClient, workflowId),
   });
 
   const cols = useWorkflowStates().data || [];
@@ -272,7 +273,7 @@ export function UpdateHiringCardForm({
     handleClose();
     const { workflowState, project, ...cardInput } = input;
     const cardData = {
-      card: { ...cardInput.card, projectId: project?.value },
+      card: { ...cardInput.card, workflowProjectId: project?.value },
       cardId: input.cardId,
     };
 
@@ -317,14 +318,14 @@ export function UpdateHiringCardForm({
         label: card?.workflowState?.name || 'Select a state',
         value: card?.workflowState?.id || '',
       });
-      const projectId = card?.project?.id;
+      const workflowProjectId = card?.project?.id;
       formHooks.setValue('card', { ...card });
       if (card?.files) processCard();
       formHooks.setValue('card.cvPdf', card?.cvPdf);
-      if (card.project?.name && projectId) {
+      if (card.project?.name && workflowProjectId) {
         formHooks.setValue('project', {
           label: card.project?.name,
-          value: projectId,
+          value: workflowProjectId,
         });
       }
     }
@@ -333,7 +334,7 @@ export function UpdateHiringCardForm({
   const title = card?.title
     ? `${card.title}: ${card.workflowState?.name}`
     : 'Update Card';
-  const projectOptions = useProjectOptions();
+  const projectOptions = useProjectOptions(workflowId);
   return (
     <div className="relative h-full overflow-y-auto">
       <Form
@@ -429,7 +430,7 @@ export function UpdateHiringCardForm({
                         cardId: card.id,
                         card: {
                           ...card,
-                          projectId: null,
+                          workflowProjectId: null,
                         },
                       }),
                       {
@@ -986,7 +987,7 @@ function CardInfo({
               </div>
               <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
                 <div className="w-full lg:h-full lg:overflow-y-auto m-4">
-                  {true && (
+                  {false && (
                     <Disclosure defaultOpen as="div" className="mt-2 w-full">
                       {({ open }) => (
                         <>
@@ -1131,7 +1132,7 @@ function CardHistory() {
     onSettled: (data) => {
       const id = data?.rollbackCard?.id || '';
       queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
-      queryClient.refetchQueries(useKanbanDataQuery.getKey());
+      queryClient.refetchQueries(useKanbanDataQuery.getKey({ id: workflowId }));
       queryClient.refetchQueries(useCardHistoryQuery.getKey({ id }));
     },
   });

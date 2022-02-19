@@ -12,20 +12,24 @@ import {
 } from '@juxt-home/site';
 import {
   AddProjectModal,
-  UpdateProjectModal,
+  UpdateWorkflowProjectModal,
   Workflow,
   AddWorkflowStateModal,
   UpdateWorkflowStateModal,
 } from '@juxt-home/ui-kanban';
 import { AddHiringCardModal, HiringCardModal } from './components/CardForms';
+import { workflowId } from './constants';
 
 export function App() {
   const search = useSearch<LocationGenerics>();
   const refetch = search.modalState?.formModalType ? false : 3000;
-  const kanbanQueryResult = useKanbanDataQuery(undefined, {
-    refetchInterval: refetch,
-  });
-  const workflow = kanbanQueryResult.data?.allWorkflows?.[0];
+  const kanbanQueryResult = useKanbanDataQuery(
+    { id: 'WorkflowHiring' },
+    {
+      refetchInterval: refetch,
+    },
+  );
+  const workflow = kanbanQueryResult.data?.workflow;
   const [isModalOpen, setIsModalOpen] = useModalForm({
     formModalType: 'addWorkflowState',
   });
@@ -45,7 +49,7 @@ export function App() {
   const [isEditProject, setIsEditProject] = useModalForm({
     formModalType: 'editProject',
   });
-  const projects = kanbanQueryResult.data?.allProjects || [];
+  const projects = kanbanQueryResult.data?.allWorkflowProjects || [];
   const allCardIds =
     workflow?.workflowStates
       ?.flatMap((ws) => ws?.cards?.map((c) => c?.id))
@@ -77,10 +81,12 @@ export function App() {
       {kanbanQueryResult.isLoading && <div>Loading...</div>}
       <AddWorkflowStateModal
         isOpen={!!isModalOpen}
+        workflowId={workflowId}
         handleClose={() => setIsModalOpen(false)}
       />
       <UpdateWorkflowStateModal
         isOpen={!!isWorkflowStateModalOpen}
+        workflowId={workflowId}
         handleClose={() => setIsWorkflowStateModalOpen(false)}
       />
       <HiringCardModal
@@ -95,8 +101,9 @@ export function App() {
         isOpen={isAddProject}
         handleClose={() => setIsAddProject(false)}
       />
-      <UpdateProjectModal
+      <UpdateWorkflowProjectModal
         isOpen={isEditProject}
+        workflowId={workflowId}
         handleClose={() => setIsEditProject(false)}
       />
       <NavTabs

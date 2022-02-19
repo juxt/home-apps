@@ -19,18 +19,19 @@ type AddWorkflowStateInput = Omit<
   'colId' | 'workflowStateIds' | 'workflowId'
 >;
 
-type AddWorkflowStateModalProps = ModalStateProps;
+type AddWorkflowStateModalProps = ModalStateProps & {
+  workflowId: string;
+};
 
 export function AddWorkflowStateModal({
   isOpen,
   handleClose,
+  workflowId,
 }: AddWorkflowStateModalProps) {
   const queryClient = useQueryClient();
   const addColMutation = useCreateWorkflowStateMutation({
-    ...defaultMutationProps(queryClient),
+    ...defaultMutationProps(queryClient, workflowId),
   });
-  const { modalState } = useSearch<LocationGenerics>();
-  const workflowId = modalState?.workflowId;
   const cols = useWorkflowStates().data || [];
 
   const addWorkflowState = (col: AddWorkflowStateInput) => {
@@ -73,19 +74,22 @@ type UpdateWorkflowStateInput = Omit<
   'colId' | 'workflowStateIds' | 'workflowId'
 >;
 
-type UpdateWorkflowStateModalProps = ModalStateProps;
+type UpdateWorkflowStateModalProps = ModalStateProps & {
+  workflowId: string;
+};
 
 export function UpdateWorkflowStateModal({
   isOpen,
   handleClose,
+  workflowId,
 }: UpdateWorkflowStateModalProps) {
   const queryClient = useQueryClient();
   const updateColMutation = useUpdateWorkflowStateMutation({
-    ...defaultMutationProps(queryClient),
+    ...defaultMutationProps(queryClient, workflowId),
   });
   const { modalState } = useSearch<LocationGenerics>();
   const colId = modalState?.workflowStateId;
-  const workflowState = useWorkflowState(colId)?.data;
+  const workflowState = useWorkflowState(workflowId, colId)?.data;
 
   const updateWorkflowState = (col: UpdateWorkflowStateInput) => {
     if (colId) {
