@@ -43,9 +43,7 @@ export function useModalForm(
   return [isModalOpen, setIsModalOpen];
 }
 
-export function useWorkflowStates(
-  { workflowId }: { workflowId: string } = { workflowId: '' },
-) {
+export function useWorkflowStates({ workflowId }: { workflowId: string }) {
   const workflowStateResult = useKanbanDataQuery(
     { id: workflowId },
     {
@@ -55,14 +53,18 @@ export function useWorkflowStates(
   return workflowStateResult;
 }
 
-export function useStatesOptions() {
-  const workflowStateResult = useWorkflowStates();
+export function useStatesOptions({
+  workflowId,
+}: {
+  workflowId: string;
+}): [ReturnType<typeof useWorkflowStates>, { value: string; label: string }[]] {
+  const workflowStateResult = useWorkflowStates({ workflowId });
   const cols =
     workflowStateResult?.data?.map((c) => ({
       value: c.id,
       label: c.name,
     })) || [];
-  return cols;
+  return [workflowStateResult, cols];
 }
 
 export function useWorkflowState(workflowId: string, wsId?: string) {
@@ -124,9 +126,9 @@ export function useCardById(
   return { ...queryResult, card: queryResult.data?.cardsByIds?.[0] };
 }
 
-export function useCommentForCard(cardId: string) {
+export function useCommentForEntity(eId: string) {
   const query = useCommentsForCardQuery(
-    { id: cardId },
+    { id: eId },
     {
       select: (data) =>
         data?.commentsForCard?.filter(notEmpty).filter((c) => !c?.parentId),

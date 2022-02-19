@@ -32,7 +32,7 @@ export function AddWorkflowStateModal({
   const addColMutation = useCreateWorkflowStateMutation({
     ...defaultMutationProps(queryClient, workflowId),
   });
-  const cols = useWorkflowStates().data || [];
+  const cols = useWorkflowStates({ workflowId }).data || [];
 
   const addWorkflowState = (col: AddWorkflowStateInput) => {
     if (workflowId) {

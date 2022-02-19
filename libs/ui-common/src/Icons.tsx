@@ -1,3 +1,6 @@
+import { ChevronDownIcon } from '@heroicons/react/solid';
+import classNames from 'classnames';
+
 export type IconProps = React.HTMLAttributes<HTMLOrSVGElement>;
 
 export function SortIcon({ className }: IconProps) {
@@ -177,5 +180,16 @@ export function ArchiveActiveIcon(props: IconProps) {
       />
       <path d="M8 12H12" stroke="#A78BFA" strokeWidth="2" />
     </svg>
+  );
+}
+
+export function CloseIcon(open: boolean) {
+  return (
+    <ChevronDownIcon
+      className={classNames(
+        'w-4 h-4',
+        open ? 'transform rotate-180 text-primary-500' : '',
+      )}
+    />
   );
 }

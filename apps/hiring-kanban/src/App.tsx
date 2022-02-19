@@ -17,7 +17,10 @@ import {
   AddWorkflowStateModal,
   UpdateWorkflowStateModal,
 } from '@juxt-home/ui-kanban';
-import { AddHiringCardModal, HiringCardModal } from './components/CardForms';
+import {
+  AddHiringCardModalWrapper as AddHiringCardModal,
+  EditHiringCardModal as HiringCardModal,
+} from './components/CardForms';
 import { workflowId } from './constants';
 
 export function App() {
@@ -78,7 +81,7 @@ export function App() {
 
   return (
     <>
-      {kanbanQueryResult.isLoading && <div>Loading...</div>}
+      {kanbanQueryResult.isLoading && <div>Loading cards...</div>}
       <AddWorkflowStateModal
         isOpen={!!isModalOpen}
         workflowId={workflowId}

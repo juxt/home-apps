@@ -53,7 +53,7 @@ export function AddWorkflowModal({
   };
 
   const formHooks = useForm<AddWorkflowInput>();
-  const cols = useStatesOptions();
+  const [, cols] = useStatesOptions({ workflowId });
   const workflowStates: Option[] =
     distinctBy<typeof cols[0]>(cols, 'label') || [];
   return (
