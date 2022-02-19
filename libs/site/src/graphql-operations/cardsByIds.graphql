@@ -3,9 +3,11 @@ query cardByIds($ids: [ID]!) {
     ... on HiringCard {
       id
       description
+      agent
       createdAt
       _siteValidTime
       _siteSubject
+      location
       cvPdf {
         base64
         name

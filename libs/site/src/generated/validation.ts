@@ -25,6 +25,7 @@ export function HiringCardInputSchema(): yup.SchemaOf<HiringCardInput> {
     description: yup.string(),
     files: yup.array().of(yup.lazy(() => FileInputSchema()) as never).optional(),
     languages: yup.array().of(yup.string()).optional(),
+    location: yup.string(),
     title: yup.string().required(),
     workflowId: yup.string(),
     workflowProjectId: yup.string()

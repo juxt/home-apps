@@ -77,6 +77,7 @@ export type HiringCard = {
   files?: Maybe<Array<Maybe<File>>>;
   id: Scalars['ID'];
   languages?: Maybe<Array<Maybe<Scalars['String']>>>;
+  location?: Maybe<Scalars['String']>;
   project?: Maybe<WorkflowProject>;
   title: Scalars['String'];
   workflow?: Maybe<Workflow>;
@@ -90,6 +91,7 @@ export type HiringCardInput = {
   description?: InputMaybe<Scalars['String']>;
   files?: InputMaybe<Array<InputMaybe<FileInput>>>;
   languages?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  location?: InputMaybe<Scalars['String']>;
   title: Scalars['String'];
   workflowId?: InputMaybe<Scalars['ID']>;
   workflowProjectId?: InputMaybe<Scalars['ID']>;
@@ -340,7 +342,7 @@ export type CardByIdsQueryVariables = Exact<{
 }>;
 
 
-export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string } | null } | null> | null };
+export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string } | null } | null> | null };
 
 export type CommentsForCardQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -599,9 +601,11 @@ export const CardByIdsDocument = `
     ... on HiringCard {
       id
       description
+      agent
       createdAt
       _siteValidTime
       _siteSubject
+      location
       cvPdf {
         base64
         name

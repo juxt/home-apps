@@ -222,6 +222,18 @@ export function AddHiringCardModal({
           path: 'card.description',
         },
         {
+          label: 'Agent',
+          id: 'Agent',
+          type: 'text',
+          path: 'card.agent',
+        },
+        {
+          label: 'Location',
+          id: 'Location',
+          type: 'text',
+          path: 'card.location',
+        },
+        {
           label: 'Files',
           accept: 'image/jpeg, image/png, image/gif, application/pdf',
           id: 'CardFiles',
@@ -419,6 +431,18 @@ export function UpdateHiringCardForm({
             placeholder: 'Card Description',
             type: 'tiptap',
             path: 'card.description',
+          },
+          {
+            label: 'Agent',
+            id: 'Agent',
+            type: 'text',
+            path: 'card.agent',
+          },
+          {
+            label: 'Location',
+            id: 'Location',
+            type: 'text',
+            path: 'card.location',
           },
           {
             label: 'Other Files (optional)',
@@ -910,11 +934,19 @@ function CardInfo({
       localStorage.setItem('hsplitPos', size.toString());
     }
   };
+  const { devMode } = useSearch<LocationGenerics>();
+
   useThrottleFn(handleResize, 500, [splitSize]);
 
   const accordionButtonClass = classNames(
     'flex items-center justify-between w-full px-4 py-2 my-2 rounded-base cursor-base focus:outline-none',
     'bg-orange-50 rounded-lg text-primary-800 dark:bg-primary-200 dark:bg-opacity-15 dark:text-primary-200',
+  );
+  const metadataLabelClass = classNames(
+    'text-sm font-medium text-gray-700 dark:text-gray-200 font-bold',
+  );
+  const metadataClass = classNames(
+    'text-sm font-medium text-gray-700 dark:text-gray-200',
   );
   return (
     <>
@@ -951,29 +983,49 @@ function CardInfo({
                 <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
                   {card.title}
                 </h2>
-                <p>{card.id}</p>
-                {card?.project?.name && (
-                  <p>
-                    Project:
-                    {card.project.name}
+                <div className="grid grid-cols-2 text-left my-4">
+                  {devMode && (
+                    <>
+                      <p className={metadataLabelClass}>Card ID:</p>
+                      <p className={metadataClass}>{card.id}</p>
+                    </>
+                  )}
+                  {card?.project?.name && (
+                    <>
+                      <p className={metadataLabelClass}>Project:</p>
+                      <p className={metadataClass}>{card.project.name}</p>
+                    </>
+                  )}
+                  {card?.agent && (
+                    <>
+                      <p className={metadataLabelClass}>Agent:</p>
+                      <p className={metadataClass}>{card.agent}</p>
+                    </>
+                  )}
+                  {card?.location && (
+                    <>
+                      <p className={metadataLabelClass}>Location:</p>
+                      <p className={metadataClass}>{card.location}</p>
+                    </>
+                  )}
+                  <p className={metadataLabelClass}>Last Updated on:</p>
+                  <p className={metadataClass}>
+                    {new Date(card._siteValidTime).toLocaleString()}
                   </p>
-                )}
-                <p className="text-gray-500">
-                  Last Updated
-                  {card._siteValidTime}
-                </p>
-                {card?._siteSubject && (
-                  <p className="text-gray-500">
-                    By:
-                    {card._siteSubject}
-                  </p>
-                )}
-                {card?.workflowState && (
-                  <p className="text-gray-500">
-                    Status:
-                    {card.workflowState.name}
-                  </p>
-                )}
+                  {card?._siteSubject && (
+                    <>
+                      <p className={metadataLabelClass}>Updated By:</p>
+                      <p className={metadataClass}>{card._siteSubject}</p>
+                    </>
+                  )}
+                  {card?.workflowState && (
+                    <>
+                      <p className={metadataLabelClass}>Status:</p>
+                      <p className={metadataClass}>{card.workflowState.name}</p>
+                    </>
+                  )}
+                </div>
+
                 {card?.description && (
                   <div
                     className="ProseMirror p-2 prose text-left bg-white shadow-lg w-full no-scrollbar h-full mb-4"

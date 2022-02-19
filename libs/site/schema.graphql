@@ -95,6 +95,7 @@ input HiringCardInput {
   workflowId: ID
   languages: [String]
   agent: String
+  location: String
   files: [FileInput]
   cvPdf: FileInput
 }
@@ -149,11 +150,12 @@ type HiringCard {
   title: String!
   _siteValidTime: String!
   _siteSubject: ID
+  agent: String
   project: WorkflowProject @site(ref: "workflowProjectId")
   description: String
   languages: [String]
+  location: String
   createdAt: String
-  agent: String
   files: [File] @onObject
   cvPdf: File @onObject
   workflow: Workflow @site(ref: "workflowId")
