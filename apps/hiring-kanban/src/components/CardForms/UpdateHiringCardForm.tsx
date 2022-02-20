@@ -21,7 +21,7 @@ import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import _ from 'lodash';
 import { useEffect } from 'react';
 import { useForm, UseFormReturn, useFormState } from 'react-hook-form';
-import { useSearch } from 'react-location';
+import { useNavigate, useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';
@@ -303,13 +303,27 @@ export function QuickEditCard({
     }
     formHooks.reset(input);
   };
-  const onSubmit = formHooks.handleSubmit(UpdateHiringCard, console.warn);
+  const onSubmit = formHooks.handleSubmit(UpdateHiringCard, (errors) =>
+    toast.error(`WoopsieDoopsy, the form is invalid`),
+  );
 
   const isMobile = useMobileDetect().isMobile();
 
   const { isDirty } = useFormState(formHooks);
 
   const isEditing = isDirty;
+  const navigate = useNavigate<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
+
+  useEffect(() => {
+    navigate({
+      replace: true,
+      search: {
+        ...search,
+        isEditing,
+      },
+    });
+  }, [isEditing, navigate, search]);
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
