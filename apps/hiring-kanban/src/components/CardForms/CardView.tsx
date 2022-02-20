@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { useSearch } from 'react-location';
 import { useThrottleFn } from 'react-use';
 import { InterviewModal } from './InterviewForms';
-import { QuickEditCard, QuickEditCardWrapper } from './UpdateHiringCardForm';
+import { QuickEditCardWrapper } from './UpdateHiringCardForm';
 
 function CardInfo({
   card,
@@ -140,7 +140,7 @@ function CardInfo({
                   />
                 )}
               </div>
-              <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+              <div className="max-w-4xl h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
                 <div className="w-full lg:h-full lg:overflow-y-auto m-4">
                   <Disclosure as="div" className="mt-2 w-full">
                     {({ open }) => (

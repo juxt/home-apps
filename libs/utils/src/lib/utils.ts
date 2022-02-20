@@ -5,6 +5,14 @@ export function utils(): string {
   return 'utils';
 }
 
+export function take<T>(
+  input: T[],
+  start: number,
+  deleteCount = input.length - start,
+) {
+  return input.slice(0, start).concat(input.slice(start + deleteCount));
+}
+
 export function mapKeys<T, K extends keyof T>(
   obj: T,
   mapper: (key: K) => K,

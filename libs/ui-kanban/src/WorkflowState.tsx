@@ -14,6 +14,7 @@ import {
   useModalForm,
 } from '@juxt-home/site';
 import { memo } from 'react';
+import { TipTapContent } from 'libs/ui-common/src/Tiptap/Tiptap';
 
 type CardProps = {
   card: TCard;
@@ -82,12 +83,7 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                 </p>
                 <p className="prose lg:prose-xl">{card.title}</p>
                 {details && details.descriptionHtml && (
-                  <div
-                    className="ProseMirror h-min max-h-32 w-full my-2 overflow-y-auto"
-                    dangerouslySetInnerHTML={{
-                      __html: details.descriptionHtml,
-                    }}
-                  />
+                  <TipTapContent htmlString={details.descriptionHtml} />
                 )}
                 {details && details.imageSrc && (
                   <img

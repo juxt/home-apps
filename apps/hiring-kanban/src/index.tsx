@@ -10,17 +10,7 @@ import { Worker } from '@react-pdf-viewer/core';
 const location = new ReactLocation();
 const queryClient = new QueryClient();
 const rootElement = document.getElementById('root');
-window.addEventListener('beforeunload', (e) => {
-  const urlSearchParams = new URLSearchParams(window.location.search);
-  const edited = urlSearchParams.get('isEditing') === 'true';
-  if (edited) {
-    e.preventDefault();
-    const message = 'You have unsaved changes, are you sure you want to exit?';
-    e.returnValue = message;
-    return message;
-  }
-  return null;
-});
+
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>
     <Router

@@ -9,6 +9,7 @@ import {
   CardHistoryQuery,
   useCardHistoryQuery,
   LocationGenerics,
+  CommentsForCardQuery,
 } from '..';
 
 type ModalState = LocationGenerics['Search']['modalState'];
@@ -126,12 +127,20 @@ export function useCardById(
   return { ...queryResult, card: queryResult.data?.cardsByIds?.[0] };
 }
 
-export function useCommentForEntity(eId: string) {
+export function useCommentForEntity(
+  eId: string,
+  opts: UseQueryOptions<CommentsForCardQuery, Error, CommentsForCardQuery> = {},
+) {
   const query = useCommentsForCardQuery(
     { id: eId },
     {
-      select: (data) =>
-        data?.commentsForCard?.filter(notEmpty).filter((c) => !c?.parentId),
+      ...opts,
+      select: (data) => ({
+        ...data,
+        commentsForCard: data?.commentsForCard
+          ?.filter(notEmpty)
+          .filter((c) => !c?.parentId),
+      }),
     },
   );
   return query;

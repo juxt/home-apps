@@ -9,8 +9,9 @@ import Placeholder from '@tiptap/extension-placeholder';
 
 import type { Extensions } from '@tiptap/react';
 import { MentionSuggestion } from './extensions';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { sanitize } from 'isomorphic-dompurify';
 
 export type TiptapProps = {
   content?: string | null;
@@ -65,7 +66,6 @@ function Tiptap({
   if (withMentionSuggestion) {
     extensions.push(MentionSuggestion);
   }
-  const [, setEditorHtmlContent] = useState(content?.trim() || 'a');
   const tiptapEditor = useEditor({
     content,
     extensions,
@@ -73,8 +73,8 @@ function Tiptap({
     editorProps: {
       attributes: {
         class: classNames(
-          'prose prose-sm sm:prose focus:outline-none',
-          'h-56 w-full max-w-none rounded leading-none text-gray-700 bg-gray-50 border border-gray-300 p-3 text-base',
+          'prose-sm sm:prose focus:outline-none',
+          'h-20 sm:h-56 w-full max-w-none rounded leading-none text-gray-700 bg-gray-50 border border-gray-300 p-3 text-base',
           'overflow-y-auto focus:outline-none',
           editable &&
             'transition-colors ease-in-out placeholder-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30',
@@ -82,15 +82,15 @@ function Tiptap({
       },
     },
     onUpdate: ({ editor }) => {
-      setEditorHtmlContent(editor.getHTML());
       onChange(editor.getHTML());
     },
   });
-
   if (!tiptapEditor) {
     return null;
   }
-
+  if (content === '' || content === '<p></p>') {
+    tiptapEditor.commands.clearContent();
+  }
   return (
     <div className="w-full">
       <EditorContent editor={tiptapEditor} />
@@ -98,4 +98,24 @@ function Tiptap({
   );
 }
 
-export { Tiptap };
+function TipTapContent({
+  htmlString,
+  className,
+}: {
+  htmlString: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={classNames(
+        'ProseMirror h-min max-h-32 w-full my-2 overflow-y-auto',
+        className,
+      )}
+      dangerouslySetInnerHTML={{
+        __html: sanitize(htmlString),
+      }}
+    />
+  );
+}
+
+export { Tiptap, TipTapContent };

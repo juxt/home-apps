@@ -16,6 +16,7 @@ import {
   Option,
   Form,
   Button,
+  useDirty,
 } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
@@ -261,17 +262,8 @@ export function QuickEditCard({
   formHooks: UseFormReturn<UpdateHiringCardInput, object>;
   cols: TWorkflowState[];
 }) {
-  const navigate = useNavigate<LocationGenerics>();
-  const search = useSearch<LocationGenerics>();
   const reset = () => {
     formHooks.reset();
-    navigate({
-      replace: true,
-      search: {
-        ...search,
-        isEditing: false,
-      },
-    });
   };
 
   const queryClient = useQueryClient();
@@ -327,15 +319,7 @@ export function QuickEditCard({
 
   const isEditing = isDirty;
 
-  useEffect(() => {
-    navigate({
-      replace: true,
-      search: {
-        ...search,
-        isEditing,
-      },
-    });
-  }, [isEditing, navigate, search]);
+  useDirty({ isDirty });
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
@@ -348,6 +332,7 @@ export function QuickEditCard({
       }
       if (event.code === 'Esc' || event.code === 'Escape') {
         event.preventDefault();
+        event.stopPropagation();
         reset();
       }
     };
@@ -386,16 +371,6 @@ export function QuickEditCard({
         title={title}
         formHooks={formHooks}
         fields={[
-          {
-            id: 'CardName',
-            placeholder: 'Card Name',
-            type: 'text',
-            rules: {
-              required: true,
-            },
-            path: 'card.title',
-            label: 'Name',
-          },
           {
             id: 'CardProject',
             type: 'select',

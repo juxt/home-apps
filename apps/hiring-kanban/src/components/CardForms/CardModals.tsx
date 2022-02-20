@@ -5,10 +5,10 @@ import {
   useCardById,
   useStatesOptions,
 } from '@juxt-home/site';
-import { ModalTabs, Modal, PdfViewer } from '@juxt-home/ui-common';
+import { ModalTabs, Modal, PdfViewer, dirtyAtom } from '@juxt-home/ui-common';
 import { useMobileDetect } from '@juxt-home/utils';
+import { useAtom } from 'jotai';
 import * as _ from 'lodash';
-import { useEffect } from 'react';
 import { useNavigate, useSearch } from 'react-location';
 import { workflowId } from '../../constants';
 import { AddHiringCardModal } from './AddHiringCardForm';
@@ -63,7 +63,7 @@ export function EditHiringCardModal({
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { data, error } = useCardById(cardId);
   const navigate = useNavigate<LocationGenerics>();
-  const hasUnsaved = search.isEditing;
+  const [hasUnsaved] = useAtom(dirtyAtom);
   const card = data?.cardsByIds?.[0];
   const pdfLzString = card?.cvPdf?.base64;
   const isMobile = useMobileDetect().isMobile();
