@@ -6,10 +6,10 @@ import {
   FilePreview,
   CommentSection,
   PdfViewer,
+  TipTapContent,
 } from '@juxt-home/ui-common';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import classNames from 'classnames';
-import DOMPurify from 'dompurify';
 import { useState } from 'react';
 import { useSearch } from 'react-location';
 import { useThrottleFn } from 'react-use';
@@ -75,8 +75,8 @@ function CardInfo({
               }}
               split="horizontal"
               defaultSize={splitSize}>
-              <div className="text-center mx-4 flex flex-col w-full items-center justify-center isolate">
-                <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              <div className="mx-4 flex flex-col w-full items-center isolate">
+                <h2 className="text-center text-3xl font-extrabold text-gray-900 sm:text-4xl">
                   {card.title}
                 </h2>
                 <div className="grid grid-cols-2 text-left my-4">
@@ -131,12 +131,9 @@ function CardInfo({
                 </div>
 
                 {card?.description && (
-                  <div
-                    className="ProseMirror p-2 prose text-left bg-white shadow-lg w-full no-scrollbar h-full mb-4"
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(card?.description || ''),
-                    }}
+                  <TipTapContent
+                    className="p-2 max-h-max prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full"
+                    htmlString={card.description}
                   />
                 )}
               </div>
