@@ -167,6 +167,9 @@ export function CommentSection({ eId }: { eId: string }) {
                                     {
                                       label: 'Delete',
                                       id: 'delete',
+                                      hidden:
+                                        !userId ||
+                                        userId !== item?._siteSubject,
                                       Icon: DeleteInactiveIcon,
                                       ActiveIcon: DeleteActiveIcon,
                                       props: {

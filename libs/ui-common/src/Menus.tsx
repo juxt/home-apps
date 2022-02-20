@@ -7,6 +7,7 @@ export type MenuOption = {
   props: React.HTMLProps<HTMLButtonElement>;
   ActiveIcon: (props: React.HTMLAttributes<HTMLOrSVGElement>) => ReactElement;
   Icon: (props: React.HTMLAttributes<HTMLOrSVGElement>) => ReactElement;
+  hidden?: boolean;
   id: string;
 };
 
@@ -28,40 +29,38 @@ export function OptionsMenu({ options }: OptionsProps) {
         enterTo="transform opacity-100 scale-100"
         leave="transition ease-in duration-75"
         leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
-      >
+        leaveTo="transform opacity-0 scale-95">
         <Menu.Items className="z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
-          {options.map(({
-            label, props, id, Icon, ActiveIcon,
-          }) => (
-            <div key={id} className="py-1 cursor-pointer">
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    className={`${
-                      active ? 'bg-violet-500 text-white' : 'text-gray-900'
-                    } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                    {...props}
-                    type="button"
-                  >
-                    {active && (
-                    <ActiveIcon
-                      className="w-5 h-5 text-violet-300 mr-2"
-                      aria-hidden
-                    />
-                    )}
-                    {!active && (
-                    <Icon
-                      className="w-5 h-5 text-violet-500 mr-2"
-                      aria-hidden
-                    />
-                    )}
-                    {label}
-                  </button>
-                )}
-              </Menu.Item>
-            </div>
-          ))}
+          {options
+            .filter((option) => !option.hidden)
+            .map(({ label, props, id, Icon, ActiveIcon }) => (
+              <div key={id} className="py-1 cursor-pointer">
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      className={`${
+                        active ? 'bg-violet-500 text-white' : 'text-gray-900'
+                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      {...props}
+                      type="button">
+                      {active && (
+                        <ActiveIcon
+                          className="w-5 h-5 text-violet-300 mr-2"
+                          aria-hidden
+                        />
+                      )}
+                      {!active && (
+                        <Icon
+                          className="w-5 h-5 text-violet-500 mr-2"
+                          aria-hidden
+                        />
+                      )}
+                      {label}
+                    </button>
+                  )}
+                </Menu.Item>
+              </div>
+            ))}
         </Menu.Items>
       </Transition>
     </Menu>
