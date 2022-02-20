@@ -26,7 +26,7 @@ function TitleComponent({ value }: CellProps<TCardHistoryCard>) {
 
 export function CardHistory() {
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
-  const { history } = useCardHistory(cardId);
+  const { history, isLoading, isError, error } = useCardHistory(cardId);
   const queryClient = useQueryClient();
   const rollbackMutation = useRollbackCardMutation({
     onSettled: (data) => {
@@ -147,28 +147,20 @@ export function CardHistory() {
 
   return (
     <div className="relative h-full">
-      {!history ? (
-        <div className="flex flex-col lg:flex-row justify-around items-center lg:items-start h-screen">
-          <div className="flex flex-col justify-center items-center h-full">
-            <div className="text-center">
-              <h1 className="text-3xl font-extrabold text-gray-900">
-                Loading Card History...
-              </h1>
-            </div>
+      <div className="flex flex-col lg:flex-row justify-around items-center lg:items-start h-full">
+        <div className="flex flex-col h-full w-full overflow-x-auto lg:w-fit lg:overflow-x-hidden px-4 relative">
+          <div className="text-center">
+            <h1 className="text-3xl font-extrabold text-gray-900">
+              {isLoading
+                ? 'Loading...'
+                : isError
+                ? `Error: ${error?.name} - ${error?.message}`
+                : 'Card History'}
+            </h1>
           </div>
+          {history && <Table columns={cols} data={data} />}
         </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row justify-around items-center lg:items-start h-full">
-          <div className="flex flex-col h-full w-full overflow-x-auto lg:w-fit lg:overflow-x-hidden px-4 relative">
-            <div className="text-center">
-              <h1 className="text-3xl font-extrabold text-gray-900">
-                Card History
-              </h1>
-            </div>
-            <Table columns={cols} data={data} />
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
