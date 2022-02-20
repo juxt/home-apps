@@ -132,7 +132,8 @@ function CardInfo({
 
                 {card?.description && (
                   <TipTapContent
-                    className="p-2 max-h-max prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full"
+                    className="p-2 prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full"
+                    grow
                     htmlString={card.description}
                   />
                 )}

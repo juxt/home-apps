@@ -101,14 +101,17 @@ function Tiptap({
 function TipTapContent({
   htmlString,
   className,
+  grow,
 }: {
   htmlString: string;
   className?: string;
+  grow?: boolean;
 }) {
   return (
     <div
       className={classNames(
-        'ProseMirror h-min max-h-32 w-full my-2 overflow-y-auto',
+        'ProseMirror w-full my-2 overflow-y-auto',
+        grow ? 'max-h-max' : 'h-min max-h-32',
         className,
       )}
       dangerouslySetInnerHTML={{

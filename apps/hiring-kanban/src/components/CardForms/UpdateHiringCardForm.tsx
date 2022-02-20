@@ -363,7 +363,9 @@ export function QuickEditCard({
               </div>
             </div>
           ) : (
-            <p>Editing... Press ESC to cancel or Enter to save</p>
+            <p className="text-center">
+              Editing... Press ESC to cancel or Enter to save
+            </p>
           )}
         </div>
       )}
