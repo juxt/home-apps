@@ -4,6 +4,8 @@ query cardHistory($id: ID!) {
       id
       title
       description
+      location
+      agent
       files {
         name
       }
