@@ -15,6 +15,7 @@ import {
   ArchiveActiveIcon,
   Option,
   Form,
+  Button,
 } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
@@ -260,6 +261,19 @@ export function QuickEditCard({
   formHooks: UseFormReturn<UpdateHiringCardInput, object>;
   cols: TWorkflowState[];
 }) {
+  const navigate = useNavigate<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
+  const reset = () => {
+    formHooks.reset();
+    navigate({
+      replace: true,
+      search: {
+        ...search,
+        isEditing: false,
+      },
+    });
+  };
+
   const queryClient = useQueryClient();
   const UpdateHiringCardMutation = useUpdateHiringCardMutation({
     onSuccess: (data) => {
@@ -303,7 +317,7 @@ export function QuickEditCard({
     }
     formHooks.reset(input);
   };
-  const onSubmit = formHooks.handleSubmit(UpdateHiringCard, (errors) =>
+  const onSubmit = formHooks.handleSubmit(UpdateHiringCard, () =>
     toast.error(`WoopsieDoopsy, the form is invalid`),
   );
 
@@ -312,8 +326,6 @@ export function QuickEditCard({
   const { isDirty } = useFormState(formHooks);
 
   const isEditing = isDirty;
-  const navigate = useNavigate<LocationGenerics>();
-  const search = useSearch<LocationGenerics>();
 
   useEffect(() => {
     navigate({
@@ -336,7 +348,7 @@ export function QuickEditCard({
       }
       if (event.code === 'Esc' || event.code === 'Escape') {
         event.preventDefault();
-        formHooks.reset();
+        reset();
       }
     };
     document.addEventListener('keydown', listener);
@@ -347,10 +359,27 @@ export function QuickEditCard({
 
   const title = 'Quick Edit Card';
   return (
-    <div className="relative h-full">
+    <div className="relative h-full w-full">
       {isEditing && (
         <div className="fixed z-20 top-0 right-0 left-0 bg-red-50 px-4 py-4">
-          <p>Editing... Press ESC to cancel or Enter to save</p>
+          {isMobile ? (
+            <div className="flex justify-around items-center w-full mx-1">
+              <strong className="prose">Editing Card</strong>
+              <div className="space-x-4 w-2/5 flex-nowrap flex">
+                <Button primary onClick={onSubmit}>
+                  Save
+                </Button>
+                <Button
+                  onClick={() => {
+                    reset();
+                  }}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p>Editing... Press ESC to cancel or Enter to save</p>
+          )}
         </div>
       )}
       <Form
