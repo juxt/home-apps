@@ -156,7 +156,7 @@ export type FormProps<T> = {
   formHooks: UseFormReturn<T, object>;
   title?: string;
   description?: string;
-  onSubmit: (e: BaseSyntheticEvent) => void;
+  onSubmit?: (e: BaseSyntheticEvent) => void;
 };
 
 export type ModalFormProps<T> = FormProps<T> & ModalStateProps;

@@ -1,3 +1,4 @@
+import { Dialog } from '@headlessui/react';
 import {
   LocationGenerics,
   useUpdateHiringCardMutation,
@@ -6,17 +7,20 @@ import {
   useWorkflowStates,
   useCardById,
   useProjectOptions,
+  TWorkflowState,
+  TCard,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
   ArchiveActiveIcon,
+  Option,
   Form,
 } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';
-import { notEmpty } from '@juxt-home/utils';
+import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import _ from 'lodash';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn, useFormState } from 'react-hook-form';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
@@ -240,5 +244,187 @@ export function UpdateHiringCardForm({
         </button>
       </div>
     </div>
+  );
+}
+
+export function QuickEditCard({
+  card,
+  projectOptions,
+  stateOptions,
+  formHooks,
+  cols,
+}: {
+  card: TCard;
+  projectOptions: Option[];
+  stateOptions: Option[];
+  formHooks: UseFormReturn<UpdateHiringCardInput, object>;
+  cols: TWorkflowState[];
+}) {
+  const queryClient = useQueryClient();
+  const UpdateHiringCardMutation = useUpdateHiringCardMutation({
+    onSuccess: (data) => {
+      toast.success('Card updated!');
+      const id = data.updateHiringCard?.id;
+      if (id) {
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
+      }
+    },
+    onError: (error) => {
+      toast.error(`Error updating card ${error.message}`);
+    },
+  });
+  const moveCardMutation = useMoveCardMutation({
+    ...defaultMutationProps(queryClient, workflowId),
+  });
+
+  const UpdateHiringCard = (input: UpdateHiringCardInput) => {
+    const { workflowState, project, ...cardInput } = input;
+    const cardData = {
+      card: { ...cardInput.card, workflowProjectId: project?.value },
+      cardId: input.cardId,
+    };
+
+    const newState = cols.find((c) => c.id === workflowState?.value);
+    const oldState = cols.find((c) =>
+      c.cards?.find((wfCard) => wfCard?.id === card.id),
+    );
+    if (card && !_.isEqual(cardData.card, card)) {
+      UpdateHiringCardMutation.mutate({
+        card: cardData.card,
+        cardId: input.cardId,
+      });
+    }
+    if (newState && newState.id !== oldState?.id) {
+      moveCardMutation.mutate({
+        workflowStateId: newState.id,
+        cardId: input.cardId,
+        previousCard: 'end',
+      });
+    }
+    formHooks.reset(input);
+  };
+  const onSubmit = formHooks.handleSubmit(UpdateHiringCard, console.warn);
+
+  const isMobile = useMobileDetect().isMobile();
+
+  const { isDirty } = useFormState(formHooks);
+
+  const isEditing = isDirty;
+
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (!isEditing || isMobile || event.isComposing) {
+        return;
+      }
+      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+        event.preventDefault();
+        onSubmit();
+      }
+      if (event.code === 'Esc' || event.code === 'Escape') {
+        event.preventDefault();
+        formHooks.reset();
+      }
+    };
+    document.addEventListener('keydown', listener);
+    return () => {
+      document.removeEventListener('keydown', listener);
+    };
+  }, [onSubmit]);
+
+  const title = 'Quick Edit Card';
+  return (
+    <div className="relative h-full">
+      {isEditing && (
+        <div className="fixed z-20 top-0 right-0 left-0 bg-red-50 px-4 py-4">
+          <p>Editing... Press ESC to cancel or Enter to save</p>
+        </div>
+      )}
+      <Form
+        title={title}
+        formHooks={formHooks}
+        fields={[
+          {
+            id: 'CardName',
+            placeholder: 'Card Name',
+            type: 'text',
+            rules: {
+              required: true,
+            },
+            path: 'card.title',
+            label: 'Name',
+          },
+          {
+            id: 'CardProject',
+            type: 'select',
+            rules: {
+              required: {
+                value: true,
+                message: 'Please select a project',
+              },
+            },
+            options: projectOptions,
+            label: 'Project',
+            path: 'project',
+          },
+          {
+            id: 'CardState',
+            label: 'Card State',
+            rules: {
+              required: true,
+            },
+            options: stateOptions,
+            path: 'workflowState',
+            type: 'select',
+          },
+          {
+            label: 'Agent',
+            id: 'Agent',
+            type: 'text',
+            path: 'card.agent',
+          },
+          {
+            label: 'Location',
+            id: 'Location',
+            type: 'text',
+            path: 'card.location',
+          },
+        ]}
+        className="overflow-y-auto fixed-form-height"
+      />
+    </div>
+  );
+}
+
+export function QuickEditCardWrapper({ cardId }: { cardId: string }) {
+  const { card } = useCardById(cardId);
+  const cols = useWorkflowStates({ workflowId }).data || [];
+  const stateOptions = cols.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
+  const projectOptions = useProjectOptions(workflowId);
+  const formHooks = useForm<UpdateHiringCardInput>({
+    defaultValues: {
+      card,
+      cardId: card?.id,
+      project: projectOptions?.find((p) => p.value === card?.project?.id),
+      workflowState: stateOptions?.find(
+        (s) => s.value === card?.workflowState?.id,
+      ),
+    },
+  });
+
+  return (
+    <>
+      {card && (
+        <QuickEditCard
+          card={card}
+          projectOptions={projectOptions}
+          stateOptions={stateOptions}
+          formHooks={formHooks}
+          cols={cols}
+        />
+      )}
+    </>
   );
 }

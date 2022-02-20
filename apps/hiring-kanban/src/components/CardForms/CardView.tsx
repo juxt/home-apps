@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useSearch } from 'react-location';
 import { useThrottleFn } from 'react-use';
 import { InterviewModal } from './InterviewForms';
+import { QuickEditCard, QuickEditCardWrapper } from './UpdateHiringCardForm';
 
 function CardInfo({
   card,
@@ -141,6 +142,21 @@ function CardInfo({
               </div>
               <div className="max-w-4xl overflow-y-auto lg:overflow-y-hidden h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
                 <div className="w-full lg:h-full lg:overflow-y-auto m-4">
+                  <Disclosure as="div" className="mt-2 w-full">
+                    {({ open }) => (
+                      <>
+                        <Disclosure.Button className={accordionButtonClass}>
+                          <span>Quick Edit</span>
+                          {CloseIcon(open)}
+                        </Disclosure.Button>
+                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                          <div className="mt-2 flex justify-between items-center">
+                            <QuickEditCardWrapper cardId={card.id} />
+                          </div>
+                        </Disclosure.Panel>
+                      </>
+                    )}
+                  </Disclosure>
                   {false && (
                     <Disclosure defaultOpen as="div" className="mt-2 w-full">
                       {({ open }) => (
