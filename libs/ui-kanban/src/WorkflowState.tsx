@@ -2,19 +2,16 @@ import { notEmpty } from '@juxt-home/utils';
 import { Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import Tippy, { useSingleton, TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
-import { sanitize } from 'isomorphic-dompurify';
 import { useSearch } from 'react-location';
 import NaturalDragAnimation from './lib/react-dnd-animation';
 import {
   TCard,
   TWorkflow,
-  useCardByIdsQuery,
   TWorkflowState,
   LocationGenerics,
   useModalForm,
 } from '@juxt-home/site';
 import { memo } from 'react';
-import { TipTapContent } from 'libs/ui-common/src/Tiptap/Tiptap';
 
 type CardProps = {
   card: TCard;
@@ -30,26 +27,7 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
       state?.cards?.find((c) => c?.id === card.id),
     )?.id,
   });
-  const { data: detailedCard } = useCardByIdsQuery(
-    {
-      ids: [card.id],
-    },
-    {
-      enabled: false,
-      select: (data) => data?.cardsByIds?.filter(notEmpty)[0],
-    },
-  );
   const search = useSearch<LocationGenerics>();
-  const showDetails = search?.showDetails;
-  const details = showDetails && {
-    imageSrc:
-      detailedCard?.files?.filter((file) => file?.type.startsWith('image'))?.[0]
-        ?.base64 ?? '',
-    descriptionHtml:
-      detailedCard?.description &&
-      detailedCard?.description !== '<p></p>' &&
-      sanitize(detailedCard?.description),
-  };
 
   return (
     <Draggable draggableId={card.id} index={index}>
@@ -82,18 +60,6 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                   {card.project?.name}
                 </p>
                 <p className="prose lg:prose-xl">{card.title}</p>
-                {details && details.descriptionHtml && (
-                  <TipTapContent htmlString={details.descriptionHtml} />
-                )}
-                {details && details.imageSrc && (
-                  <img
-                    src={details.imageSrc}
-                    width={100}
-                    height={100}
-                    className="rounded"
-                    alt="Card"
-                  />
-                )}
               </div>
             )}
           </NaturalDragAnimation>

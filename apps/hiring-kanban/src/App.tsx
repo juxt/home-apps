@@ -1,12 +1,8 @@
 import { NavTabs } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
-import { useQueryClient } from 'react-query';
-import { useEffect } from 'react';
 import { useSearch } from 'react-location';
-import * as _ from 'lodash-es';
 import {
   LocationGenerics,
-  useCardByIdsQuery,
   useKanbanDataQuery,
   useModalForm,
 } from '@juxt-home/site';
@@ -53,32 +49,6 @@ export function App() {
     formModalType: 'editProject',
   });
   const projects = kanbanQueryResult.data?.allWorkflowProjects || [];
-  const allCardIds =
-    workflow?.workflowStates
-      ?.flatMap((ws) => ws?.cards?.map((c) => c?.id))
-      .filter(notEmpty) || [];
-
-  const queryClient = useQueryClient();
-  const prefetchCards = async () => {
-    const data = await queryClient.fetchQuery(
-      useCardByIdsQuery.getKey({ ids: _.uniq(allCardIds) }),
-      useCardByIdsQuery.fetcher({ ids: _.uniq(allCardIds) }),
-      { staleTime: Infinity },
-    );
-    data?.cardsByIds?.forEach((c) => {
-      if (!c) return;
-      queryClient.setQueryData(useCardByIdsQuery.getKey({ ids: [c.id] }), {
-        cardsByIds: [c],
-      });
-    });
-  };
-
-  useEffect(() => {
-    if (allCardIds.length > 0) {
-      prefetchCards();
-    }
-  }, [JSON.stringify(allCardIds)]);
-
   return (
     <>
       {kanbanQueryResult.isLoading && <div>Loading cards...</div>}
