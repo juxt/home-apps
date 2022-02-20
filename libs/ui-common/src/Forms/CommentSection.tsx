@@ -21,7 +21,6 @@ import { juxters } from '../Tiptap';
 import { RenderField, ErrorMessage } from './Components';
 import { useDirty } from './hooks';
 import { TipTapContent } from '../Tiptap/Tiptap';
-import { take } from '@juxt-home/utils';
 import { Button } from '../Buttons';
 
 export function CommentSection({ eId }: { eId: string }) {
@@ -31,7 +30,7 @@ export function CommentSection({ eId }: { eId: string }) {
   const [commentLimit, setCommentLimit] = useState(5);
   const allComments =
     _.sortBy(data?.commentsForCard, (c) => c._siteValidTime) || [];
-  const comments = take(allComments, commentLimit);
+  const comments = _.takeRight(allComments, commentLimit);
   const userId = useUserId();
   const queryClient = useQueryClient();
   const commentMutationProps = {
