@@ -344,7 +344,7 @@ export function QuickEditCard({
 
   const title = 'Quick Edit Card';
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full text-left">
       {isEditing && (
         <div className="fixed z-20 top-0 right-0 left-0 bg-red-50 px-4 py-4">
           {isMobile ? (
