@@ -8,10 +8,12 @@ import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
 
 import type { Extensions } from '@tiptap/react';
-import { MentionSuggestion } from './extensions';
+import { MentionSuggestion, TipTapCustomImage } from './extensions';
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'isomorphic-dompurify';
+import { CloseIcon, ExpandIcon } from '../Icons';
+import { ArrowsExpandIcon, XIcon } from '@heroicons/react/solid';
 
 export type TiptapProps = {
   content?: string | null;
@@ -36,7 +38,22 @@ function Tiptap({
   withPlaceholderExtension = false,
   withMentionSuggestion = false,
 }: TiptapProps) {
-  const extensions: Extensions = [StarterKit.configure(), Highlight];
+  const extensions: Extensions = [
+    StarterKit.configure(),
+    Highlight,
+    TipTapCustomImage((image) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader?.result as string);
+        };
+        reader.onerror = (error) => {
+          reject(error);
+        };
+        reader.readAsDataURL(image);
+      });
+    }),
+  ];
 
   if (withTypographyExtension) {
     extensions.push(Typography);
@@ -101,23 +118,36 @@ function Tiptap({
 function TipTapContent({
   htmlString,
   className,
-  grow,
+  growButton,
 }: {
   htmlString: string;
   className?: string;
-  grow?: boolean;
+  growButton?: boolean;
 }) {
+  const [grow, setGrow] = useState(false);
+  const iconClass = classNames(
+    'h-6 w-6 z-20 absolute top-1 right-0 m-1 opacity-50 hover:opacity-100',
+    'scale-75 hover:scale-100 cursor-pointer',
+  );
   return (
-    <div
-      className={classNames(
-        'ProseMirror w-full my-2 overflow-y-auto',
-        grow ? 'max-h-max' : 'h-min max-h-32',
-        className,
+    <div className="relative">
+      {growButton && grow && (
+        <XIcon onClick={() => setGrow(false)} className={iconClass} />
       )}
-      dangerouslySetInnerHTML={{
-        __html: sanitize(htmlString),
-      }}
-    />
+      {growButton && !grow && (
+        <ArrowsExpandIcon onClick={() => setGrow(true)} className={iconClass} />
+      )}
+      <div
+        className={classNames(
+          'ProseMirror w-full my-2 overflow-y-auto',
+          grow ? 'max-h-max' : 'h-min max-h-32',
+          className,
+        )}
+        dangerouslySetInnerHTML={{
+          __html: sanitize(htmlString),
+        }}
+      />
+    </div>
   );
 }
 

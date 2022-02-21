@@ -24,17 +24,8 @@ function CardInfo({
   resetSplit?: () => void;
 }) {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
-  const [splitSize, setSplitSize] = useState(
-    parseInt(localStorage.getItem('hsplitPos') || '700', 10),
-  );
-  const handleResize = (size?: number) => {
-    if (size) {
-      localStorage.setItem('hsplitPos', size.toString());
-    }
-  };
-  const { devMode } = useSearch<LocationGenerics>();
 
-  useThrottleFn(handleResize, 500, [splitSize]);
+  const { devMode } = useSearch<LocationGenerics>();
 
   const accordionButtonClass = classNames(
     'flex items-center justify-between w-full px-4 py-2 my-2 rounded-base cursor-base focus:outline-none',
@@ -59,7 +50,7 @@ function CardInfo({
             show={showQuestionModal}
             handleClose={() => setShowQuestionModal(false)}
           />
-          <div className="h-full rounded">
+          <div className="h-full overflow-y-auto flex flex-col items-center">
             {resetSplit && (
               <button
                 type="button"
@@ -68,146 +59,138 @@ function CardInfo({
                 Reset Split
               </button>
             )}
-            <SplitPane
-              onChange={setSplitSize}
-              style={{
-                overflowY: 'auto',
-              }}
-              split="horizontal"
-              defaultSize={splitSize}>
-              <div className="mx-4 flex flex-col w-full items-center isolate">
-                <h2 className="text-center text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                  {card.title}
-                </h2>
-                <div className="grid grid-cols-2 text-left my-4">
-                  {devMode && (
-                    <>
-                      <p className={metadataLabelClass}>Card ID:</p>
-                      <p className={metadataClass}>{card.id}</p>
-                    </>
-                  )}
-                  {card?.project?.name && (
-                    <>
-                      <p className={metadataLabelClass}>Project:</p>
-                      <p className={metadataClass}>{card.project.name}</p>
-                    </>
-                  )}
-                  {card?.agent && (
-                    <>
-                      <p className={metadataLabelClass}>Agent:</p>
-                      <p className={metadataClass}>{card.agent}</p>
-                    </>
-                  )}
-                  {card?.location && (
-                    <>
-                      <p className={metadataLabelClass}>Location:</p>
-                      <p className={metadataClass}>{card.location}</p>
-                    </>
-                  )}
-                  {card?.createdAt && (
-                    <>
-                      <p className={metadataLabelClass}>Created At:</p>
-                      <p className={metadataClass}>
-                        {new Date(card.createdAt).toLocaleString()}
-                      </p>
-                    </>
-                  )}
-                  <p className={metadataLabelClass}>Last Updated on:</p>
-                  <p className={metadataClass}>
-                    {new Date(card._siteValidTime).toLocaleString()}
-                  </p>
-                  {card?._siteSubject && (
-                    <>
-                      <p className={metadataLabelClass}>Updated By:</p>
-                      <p className={metadataClass}>{card._siteSubject}</p>
-                    </>
-                  )}
-                  {card?.workflowState && (
-                    <>
-                      <p className={metadataLabelClass}>Status:</p>
-                      <p className={metadataClass}>{card.workflowState.name}</p>
-                    </>
-                  )}
-                </div>
-
-                {card?.description && (
-                  <TipTapContent
-                    className="p-2 prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full"
-                    grow
-                    htmlString={card.description}
-                  />
+            <div className="mx-4 flex flex-col isolate">
+              <h2 className="text-center text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                {card.title}
+              </h2>
+              <div className="grid grid-cols-2 text-left my-4">
+                {devMode && (
+                  <>
+                    <p className={metadataLabelClass}>Card ID:</p>
+                    <p className={metadataClass}>{card.id}</p>
+                  </>
+                )}
+                {card?.project?.name && (
+                  <>
+                    <p className={metadataLabelClass}>Project:</p>
+                    <p className={metadataClass}>{card.project.name}</p>
+                  </>
+                )}
+                {card?.agent && (
+                  <>
+                    <p className={metadataLabelClass}>Agent:</p>
+                    <p className={metadataClass}>{card.agent}</p>
+                  </>
+                )}
+                {card?.location && (
+                  <>
+                    <p className={metadataLabelClass}>Location:</p>
+                    <p className={metadataClass}>{card.location}</p>
+                  </>
+                )}
+                {card?.createdAt && (
+                  <>
+                    <p className={metadataLabelClass}>Created At:</p>
+                    <p className={metadataClass}>
+                      {new Date(card.createdAt).toLocaleString()}
+                    </p>
+                  </>
+                )}
+                <p className={metadataLabelClass}>Last Updated on:</p>
+                <p className={metadataClass}>
+                  {new Date(card._siteValidTime).toLocaleString()}
+                </p>
+                {card?._siteSubject && (
+                  <>
+                    <p className={metadataLabelClass}>Updated By:</p>
+                    <p className={metadataClass}>{card._siteSubject}</p>
+                  </>
+                )}
+                {card?.workflowState && (
+                  <>
+                    <p className={metadataLabelClass}>Status:</p>
+                    <p className={metadataClass}>{card.workflowState.name}</p>
+                  </>
                 )}
               </div>
-              <div className="max-w-4xl h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
-                <div className="w-full lg:h-full lg:overflow-y-auto m-4">
-                  <Disclosure as="div" className="mt-2 w-full">
+
+              {card?.description && (
+                <TipTapContent
+                  className="p-2 prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full"
+                  growButton
+                  htmlString={card.description}
+                />
+              )}
+            </div>
+            <div className="max-w-4xl w-full h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+              <div className="w-full lg:h-full lg:overflow-y-auto m-4">
+                <Disclosure as="div" className="mt-2 w-full">
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className={accordionButtonClass}>
+                        <span>Quick Edit</span>
+                        {CloseIcon(open)}
+                      </Disclosure.Button>
+                      <Disclosure.Panel className=" pt-4 pb-2 text-sm text-muted">
+                        <div className="mt-2 flex justify-between items-center">
+                          <QuickEditCardWrapper cardId={card.id} />
+                        </div>
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+                {false && (
+                  <Disclosure defaultOpen as="div" className="mt-2 w-full">
                     {({ open }) => (
                       <>
                         <Disclosure.Button className={accordionButtonClass}>
-                          <span>Quick Edit</span>
+                          <span>TODO</span>
                           {CloseIcon(open)}
                         </Disclosure.Button>
                         <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
                           <div className="mt-2 flex justify-between items-center">
-                            <QuickEditCardWrapper cardId={card.id} />
+                            TODO
+                            {/* Status: Booked for 03/02/22 at 4pm
+                              <Button
+                                onClick={() => setShowQuestionModal(true)}>
+                                Start
+                              </Button> */}
                           </div>
                         </Disclosure.Panel>
                       </>
                     )}
                   </Disclosure>
-                  {false && (
-                    <Disclosure defaultOpen as="div" className="mt-2 w-full">
-                      {({ open }) => (
-                        <>
-                          <Disclosure.Button className={accordionButtonClass}>
-                            <span>TODO</span>
-                            {CloseIcon(open)}
-                          </Disclosure.Button>
-                          <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                            <div className="mt-2 flex justify-between items-center">
-                              TODO
-                              {/* Status: Booked for 03/02/22 at 4pm
-                              <Button
-                                onClick={() => setShowQuestionModal(true)}>
-                                Start
-                              </Button> */}
+                )}
+                {card?.files && card?.files.length > 0 && (
+                  <Disclosure as="div" className="mt-2 w-full">
+                    {({ open }) => (
+                      <>
+                        <Disclosure.Button className={accordionButtonClass}>
+                          <span>Other Files</span>
+                          {CloseIcon(open)}
+                        </Disclosure.Button>
+                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                          {card?.files && (
+                            <div className="mt-2 flex justify-between">
+                              {card.files.filter(notEmpty).map((file) => (
+                                <div
+                                  key={file.name}
+                                  className="flex items-center">
+                                  <FilePreview file={file} />
+                                </div>
+                              ))}
                             </div>
-                          </Disclosure.Panel>
-                        </>
-                      )}
-                    </Disclosure>
-                  )}
-                  {card?.files && card?.files.length > 0 && (
-                    <Disclosure as="div" className="mt-2 w-full">
-                      {({ open }) => (
-                        <>
-                          <Disclosure.Button className={accordionButtonClass}>
-                            <span>Other Files</span>
-                            {CloseIcon(open)}
-                          </Disclosure.Button>
-                          <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                            {card?.files && (
-                              <div className="mt-2 flex justify-between">
-                                {card.files.filter(notEmpty).map((file) => (
-                                  <div
-                                    key={file.name}
-                                    className="flex items-center">
-                                    <FilePreview file={file} />
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </Disclosure.Panel>
-                        </>
-                      )}
-                    </Disclosure>
-                  )}
-                </div>
-                <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
-                  <CommentSection eId={card.id} />
-                </div>
+                          )}
+                        </Disclosure.Panel>
+                      </>
+                    )}
+                  </Disclosure>
+                )}
               </div>
-            </SplitPane>
+              <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
+                <CommentSection eId={card.id} />
+              </div>
+            </div>
           </div>
         </>
       )}

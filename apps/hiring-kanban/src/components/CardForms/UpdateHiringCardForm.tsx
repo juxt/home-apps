@@ -326,8 +326,10 @@ export function QuickEditCard({
       if (!isEditing || isMobile || event.isComposing) {
         return;
       }
-      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+
+      if (event.code === 'KeyS' && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
+        event.stopImmediatePropagation();
         onSubmit();
       }
       if (event.code === 'Esc' || event.code === 'Escape') {
@@ -364,7 +366,7 @@ export function QuickEditCard({
             </div>
           ) : (
             <p className="text-center">
-              Editing... Press ESC to cancel or Enter to save
+              Editing... Press ESC to cancel or Ctrl/Cmd+S to save
             </p>
           )}
         </div>
@@ -407,6 +409,12 @@ export function QuickEditCard({
             id: 'Location',
             type: 'text',
             path: 'card.location',
+          },
+          {
+            label: 'Description',
+            id: 'desc',
+            type: 'tiptap',
+            path: 'card.description',
           },
         ]}
         className="overflow-y-auto fixed-form-height"

@@ -4,6 +4,8 @@
 /dist
 /tmp
 /out-tsc
+./libs/site/src/generated/
+
 
 # dependencies
 /node_modules
@@ -38,3 +40,4 @@ testem.log
 .DS_Store
 Thumbs.db
 node_modules
+.gitignore
