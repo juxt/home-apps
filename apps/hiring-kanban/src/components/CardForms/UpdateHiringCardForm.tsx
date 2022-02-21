@@ -23,7 +23,7 @@ import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import _ from 'lodash';
 import { useEffect } from 'react';
 import { useForm, UseFormReturn, useFormState } from 'react-hook-form';
-import { useNavigate, useSearch } from 'react-location';
+import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';
@@ -61,7 +61,11 @@ export function UpdateHiringCardForm({
     handleClose();
     const { workflowState, project, ...cardInput } = input;
     const cardData = {
-      card: { ...cardInput.card, workflowProjectId: project?.value },
+      card: {
+        ...cardInput.card,
+        workflowProjectId: project?.value,
+        stateStr: workflowState?.value,
+      },
       cardId: input.cardId,
     };
 

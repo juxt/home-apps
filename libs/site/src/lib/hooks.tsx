@@ -1,6 +1,9 @@
+import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty } from '@juxt-home/utils';
+import _ from 'lodash';
+import { DraggableLocation } from 'react-beautiful-dnd';
 import { useNavigate, useSearch } from 'react-location';
-import { UseQueryOptions } from 'react-query';
+import { useQueryClient, UseQueryOptions } from 'react-query';
 import {
   useKanbanDataQuery,
   CardByIdsQuery,
@@ -10,7 +13,12 @@ import {
   useCardHistoryQuery,
   LocationGenerics,
   CommentsForCardQuery,
+  TWorkflow,
+  TWorkflowState,
+  useUpdateCardPositionMutation,
+  useMoveCardMutation,
 } from '..';
+import { useUpdateHiringCardMutation } from '../generated/graphql';
 
 type ModalState = LocationGenerics['Search']['modalState'];
 
@@ -175,4 +183,51 @@ export function useUserId() {
     },
   );
   return data;
+}
+
+export function useMoveCard({ workflow }: { workflow: TWorkflow }) {
+  const queryClient = useQueryClient();
+  const updateCardPosMutation = useUpdateCardPositionMutation({
+    ...defaultMutationProps(queryClient, workflow.id),
+  });
+  const moveCardMutation = useMoveCardMutation({
+    ...defaultMutationProps(queryClient, workflow.id),
+  });
+  const updateCardMutation = useUpdateHiringCardMutation();
+  const updateServerCards = (
+    state: TWorkflow,
+    startCol: TWorkflowState,
+    endCol: TWorkflowState,
+    source: DraggableLocation,
+    destination: DraggableLocation,
+    draggableId: string,
+    prevCardId?: string | false,
+  ) => {
+    if (startCol === endCol) {
+      const cardsInSourceCol =
+        state?.workflowStates
+          .filter(notEmpty)
+          .find((c) => c.id === source.droppableId)
+          ?.cards?.filter(notEmpty)
+          .map((c) => c.id) || [];
+      updateCardPosMutation.mutate({
+        workflowStateId: startCol?.id,
+        cardIds: _.uniq(cardsInSourceCol),
+      });
+    } else if (endCol) {
+      updateCardMutation.mutate({
+        cardId: draggableId,
+        card: {
+          stateStr: endCol.name,
+        },
+      });
+
+      moveCardMutation.mutate({
+        workflowStateId: endCol?.id,
+        cardId: draggableId,
+        previousCard: prevCardId || 'start',
+      });
+    }
+  };
+  return [updateServerCards];
 }

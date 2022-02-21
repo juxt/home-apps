@@ -81,6 +81,8 @@ export function CardHistory() {
             history[i + 1] && history[i + 1]?.location !== card?.location;
           const agentChanged =
             history[i + 1] && history[i + 1]?.agent !== card?.agent;
+          const stateChanged =
+            history[i + 1] && history[i + 1]?.stateStr !== card?.stateStr;
           const nothingChanged =
             !titleChanged &&
             !hasDescriptionChanged &&
@@ -88,6 +90,7 @@ export function CardHistory() {
             !cvChanged &&
             !agentChanged &&
             !locationChanged &&
+            !stateChanged &&
             !filesChanged;
 
           return {
@@ -103,6 +106,7 @@ export function CardHistory() {
               hasDescriptionChanged && 'description changed',
               projectChanged && 'project changed',
               cvChanged && 'cv changed',
+              stateChanged && `state changed to ${card.stateStr}`,
               filesChanged && 'files changed',
               agentChanged && 'agent changed',
               locationChanged && 'location changed',

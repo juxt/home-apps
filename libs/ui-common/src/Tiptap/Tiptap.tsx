@@ -126,20 +126,21 @@ function TipTapContent({
 }) {
   const [grow, setGrow] = useState(false);
   const iconClass = classNames(
-    'h-6 w-6 z-20 absolute top-1 right-0 m-1 opacity-50 hover:opacity-100',
+    'h-6 w-6 z-20 absolute -top-4 right-0 text-white bg-black opacity-50 hover:opacity-100',
     'scale-75 hover:scale-100 cursor-pointer',
   );
+  const showGrowButton = growButton && htmlString.length > 200;
   return (
-    <div className="relative">
-      {growButton && grow && (
+    <div className="relative w-full">
+      {showGrowButton && grow && (
         <XIcon onClick={() => setGrow(false)} className={iconClass} />
       )}
-      {growButton && !grow && (
+      {showGrowButton && !grow && (
         <ArrowsExpandIcon onClick={() => setGrow(true)} className={iconClass} />
       )}
       <div
         className={classNames(
-          'ProseMirror w-full my-2 overflow-y-auto',
+          ' ProseMirror w-full my-2 overflow-y-auto',
           grow ? 'max-h-max' : 'h-min max-h-32',
           className,
         )}

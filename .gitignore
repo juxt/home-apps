@@ -41,3 +41,5 @@ testem.log
 Thumbs.db
 node_modules
 .gitignore
+libs/site/src/generated/graphql.ts
+libs/site/src/generated/validation.ts

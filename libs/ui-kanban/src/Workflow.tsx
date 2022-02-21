@@ -1,29 +1,17 @@
 import { useHotkeys } from 'react-hotkeys-hook';
 import { notEmpty } from '@juxt-home/utils';
 import * as _ from 'lodash';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  DraggableLocation,
-  DragDropContext,
-  Droppable,
-} from 'react-beautiful-dnd';
+import { useEffect, useMemo, useState } from 'react';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useSearch, useNavigate } from 'react-location';
-import { useQueryClient } from 'react-query';
-import { Column, Row } from 'react-table';
-import {
-  defaultMutationProps,
-  filteredCards,
-  filteredCols,
-  moveCard,
-} from './utils';
+import { Column } from 'react-table';
+import { filteredCards, filteredCols, moveCard } from './utils';
 import {
   TWorkflow,
-  TWorkflowState,
   LocationGenerics,
   useModalForm,
   useKanbanDataQuery,
-  useMoveCardMutation,
-  useUpdateCardPositionMutation,
+  useMoveCard,
 } from '@juxt-home/site';
 import {
   SelectColumnFilter,
@@ -66,46 +54,6 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
       setState(data);
     }
   }, [data]);
-
-  const queryClient = useQueryClient();
-  const updateCardPosMutation = useUpdateCardPositionMutation({
-    ...defaultMutationProps(queryClient, workflow.id),
-  });
-  const moveCardMutation = useMoveCardMutation({
-    ...defaultMutationProps(queryClient, workflow.id),
-  });
-
-  const updateServerCards = useCallback(
-    (
-      state: TWorkflow,
-      startCol: TWorkflowState,
-      endCol: TWorkflowState,
-      source: DraggableLocation,
-      destination: DraggableLocation,
-      draggableId: string,
-      prevCardId?: string | false,
-    ) => {
-      if (startCol === endCol) {
-        const cardsInSourceCol =
-          state?.workflowStates
-            .filter(notEmpty)
-            .find((c) => c.id === source.droppableId)
-            ?.cards?.filter(notEmpty)
-            .map((c) => c.id) || [];
-        updateCardPosMutation.mutate({
-          workflowStateId: startCol?.id,
-          cardIds: _.uniq(cardsInSourceCol),
-        });
-      } else if (endCol) {
-        moveCardMutation.mutate({
-          workflowStateId: endCol?.id,
-          cardId: draggableId,
-          previousCard: prevCardId || 'start',
-        });
-      }
-    },
-    [moveCardMutation, updateCardPosMutation],
-  );
 
   const [, setIsAddCard] = useModalForm({
     formModalType: 'addCard',
@@ -186,6 +134,8 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
       });
     }
   };
+
+  const [updateServerCards] = useMoveCard({ workflow });
 
   return (
     <div className="px-4 h-full-minus-nav">

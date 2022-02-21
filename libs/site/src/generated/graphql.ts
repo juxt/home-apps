@@ -79,6 +79,7 @@ export type HiringCard = {
   languages?: Maybe<Array<Maybe<Scalars['String']>>>;
   location?: Maybe<Scalars['String']>;
   project?: Maybe<WorkflowProject>;
+  stateStr?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   workflow?: Maybe<Workflow>;
   workflowState?: Maybe<WorkflowState>;
@@ -92,7 +93,8 @@ export type HiringCardInput = {
   files?: InputMaybe<Array<InputMaybe<FileInput>>>;
   languages?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   location?: InputMaybe<Scalars['String']>;
-  title: Scalars['String'];
+  stateStr?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
   workflowId?: InputMaybe<Scalars['ID']>;
   workflowProjectId?: InputMaybe<Scalars['ID']>;
 };
@@ -335,7 +337,7 @@ export type CardHistoryQueryVariables = Exact<{
 }>;
 
 
-export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, title: string, description?: string | null, location?: string | null, agent?: string | null, _siteValidTime: string, _siteSubject?: string | null, files?: Array<{ __typename?: 'File', name: string } | null> | null, cvPdf?: { __typename?: 'File', name: string } | null, workflowState?: { __typename?: 'WorkflowState', name: string } | null, project?: { __typename?: 'WorkflowProject', name: string } | null } | null> | null };
+export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, title: string, description?: string | null, location?: string | null, agent?: string | null, stateStr?: string | null, _siteValidTime: string, _siteSubject?: string | null, files?: Array<{ __typename?: 'File', name: string } | null> | null, cvPdf?: { __typename?: 'File', name: string } | null, workflowState?: { __typename?: 'WorkflowState', name: string } | null, project?: { __typename?: 'WorkflowProject', name: string } | null } | null> | null };
 
 export type CardByIdsQueryVariables = Exact<{
   ids: Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>;
@@ -560,6 +562,7 @@ export const CardHistoryDocument = `
       description
       location
       agent
+      stateStr
       files {
         name
       }
