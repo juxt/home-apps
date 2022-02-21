@@ -273,7 +273,7 @@ export function CardView() {
               resetSplit={splitSize > 400 ? resetSplit : undefined}
               card={card}
             />
-            <div className="max-w-3xl block overflow-y-auto">
+            <div className="block overflow-y-auto">
               {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
               <PdfViewer key={splitSize} pdfString={pdfData} />
             </div>
