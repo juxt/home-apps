@@ -6,7 +6,6 @@ import {
   useStatesOptions,
 } from '@juxt-home/site';
 import { ModalTabs, Modal, PdfViewer, dirtyAtom } from '@juxt-home/ui-common';
-import { useMobileDetect } from '@juxt-home/utils';
 import { useAtom } from 'jotai';
 import * as _ from 'lodash';
 import { useNavigate, useSearch } from 'react-location';
@@ -66,7 +65,6 @@ export function EditHiringCardModal({
   const [hasUnsaved] = useAtom(dirtyAtom);
   const card = data?.cardsByIds?.[0];
   const pdfLzString = card?.cvPdf?.base64;
-  const isMobile = useMobileDetect().isMobile();
 
   const onClose = () => {
     const confirmation =
@@ -100,7 +98,7 @@ export function EditHiringCardModal({
         <ModalTabs
           tabs={[
             { id: 'view', name: 'View', default: !cardModalView },
-            { id: 'cv', name: 'CV', hidden: !isMobile || !pdfLzString },
+            { id: 'cv', name: 'CV', hidden: !pdfLzString },
             { id: 'update', name: 'Edit' },
             { id: 'history', name: 'History' },
           ]}
@@ -129,7 +127,7 @@ export function EditHiringCardModal({
         )}
         {cardModalView === 'history' && <CardHistory />}
         {cardModalView === 'cv' && (
-          <div className="block mx-auto max-w-xl h-full min-h-full ">
+          <div className="block mx-auto h-full min-h-full ">
             <PdfViewer pdfString={pdfLzString} />
           </div>
         )}
