@@ -22,6 +22,7 @@ import { RenderField, ErrorMessage } from './Components';
 import { useDirty } from './hooks';
 import { TipTapContent } from '../Tiptap/Tiptap';
 import { Button } from '../Buttons';
+import splitbee from '@splitbee/web';
 
 export function CommentSection({ eId }: { eId: string }) {
   const { data, isLoading } = useCommentForEntity(eId, {
@@ -32,6 +33,13 @@ export function CommentSection({ eId }: { eId: string }) {
     _.sortBy(data?.commentsForCard, (c) => c._siteValidTime) || [];
   const comments = _.takeRight(allComments, commentLimit);
   const userId = useUserId();
+
+  useEffect(() => {
+    if (userId) {
+      splitbee.user.set({ username: userId });
+    }
+  }, [userId]);
+
   const queryClient = useQueryClient();
   const commentMutationProps = {
     onSettled: () => {
@@ -43,6 +51,10 @@ export function CommentSection({ eId }: { eId: string }) {
   const addComment = useCallback(
     (input: CreateCommentMutationVariables) => {
       if (input.Comment.text !== '' && input.Comment.text !== '<p></p>') {
+        splitbee.track('comment', {
+          entityId: eId,
+          commentText: input.Comment.text,
+        });
         toast.promise(
           addCommentMutation.mutateAsync({
             Comment: {

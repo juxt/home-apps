@@ -6,11 +6,14 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
 import { Outlet, ReactLocation, Router } from 'react-location';
 import { Worker } from '@react-pdf-viewer/core';
+import splitbee from '@splitbee/web';
 
 const location = new ReactLocation();
 const queryClient = new QueryClient();
 const rootElement = document.getElementById('root');
-
+if (window.location.hostname !== 'localhost') {
+  splitbee.init();
+}
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>
     <Router
