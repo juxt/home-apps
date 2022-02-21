@@ -19,6 +19,14 @@ const juxterData = [
     },
   },
   {
+    id: 'https://home.juxt.site/home/people/7f8503eb-ba07-4939-8e39-8b53a581d845',
+    github: 'TheKotlinDev',
+    name: 'John Mone',
+    staffRecord: {
+      juxtcode: 'jmo',
+    },
+  },
+  {
     id: 'https://home.juxt.site/home/people/6036b355-566d-4e24-b5e4-a1c11d8e3a6b',
     name: 'Kathryn McAllister',
     staffRecord: {

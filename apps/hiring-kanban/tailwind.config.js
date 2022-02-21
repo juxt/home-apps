@@ -5,6 +5,7 @@ module.exports = {
   content: [
     join(__dirname, 'src/**/!(*.stories|*.spec).{ts,tsx,html}'),
     'libs/ui-common/src/**/*.{ts,tsx,html}',
+    'libs/ui-kanban/src/**/*.{ts,tsx,html}',
     'libs/forms/src/**/*.{ts,tsx,html}',
     ...createGlobPatternsForDependencies(__dirname),
   ],
