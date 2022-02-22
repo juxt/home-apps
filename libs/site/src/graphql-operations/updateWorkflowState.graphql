@@ -1,9 +1,5 @@
-mutation updateWorkflowState(
-  $colId: ID!
-  $name: String!
-  $description: String
-) {
-  updateWorkflowState(id: $colId, name: $name, description: $description) {
+mutation updateWorkflowState($id: ID!, $workflowState: WorkflowStateInput!) {
+  updateWorkflowState(id: $id, workflowState: $workflowState) {
     id
   }
 }

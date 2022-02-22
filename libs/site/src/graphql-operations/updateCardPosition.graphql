@@ -1,5 +1,8 @@
-mutation updateCardPosition($workflowStateId: ID!, $cardIds: [ID!]!) {
-  updateWorkflowState(id: $workflowStateId, cardIds: $cardIds) {
+mutation updateCardPosition(
+  $workflowStateId: ID!
+  $workflowState: WorkflowStateInput!
+) {
+  updateWorkflowState(id: $workflowStateId, workflowState: $workflowState) {
     id
   }
 }

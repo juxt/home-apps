@@ -170,7 +170,9 @@ export function WorkflowStateContainer({
 }) {
   const [source, target] = useSingleton();
   const search = useSearch<LocationGenerics>();
-  const hiddenColumnIds = search?.filters?.colIds ?? [];
+  const colIds = search?.filters?.colIds ?? search?.filters?.roleFilters ?? [];
+
+  const hiddenColumnIds = new Set(colIds);
   return (
     <div
       className="flex sm:flex-row flex-col max-w-full h-fit"
@@ -182,12 +184,7 @@ export function WorkflowStateContainer({
         moveTransition="transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)"
       />
       {cols
-        .filter((col) => {
-          if (hiddenColumnIds.includes(col.id)) {
-            return false;
-          }
-          return true;
-        })
+        .filter((col) => !hiddenColumnIds.has(col.id))
         .map((col) => {
           return (
             <WorkflowState

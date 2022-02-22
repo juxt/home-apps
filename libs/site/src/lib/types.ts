@@ -3,11 +3,18 @@ import {
   KanbanDataQuery,
   CardFieldsFragment,
   WorkflowStateFieldsFragment,
+  CardByIdsQuery,
 } from '../generated/graphql';
 
 export type TWorkflow = NonNullable<KanbanDataQuery['workflow']>;
 export type TCard = CardFieldsFragment;
+export type TDetailedCard = NonNullable<
+  NonNullable<CardByIdsQuery['cardsByIds']>[0]
+>;
 export type TWorkflowState = WorkflowStateFieldsFragment;
+export type TKanbanWorkflowState = NonNullable<
+  NonNullable<KanbanDataQuery['allWorkflowStates']>[0]
+>;
 
 export type WorkflowFormModalTypes =
   | 'addCard'

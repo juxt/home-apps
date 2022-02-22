@@ -11,7 +11,7 @@ import {
   UpdateWorkflowProjectModal,
   Workflow,
   AddWorkflowStateModal,
-  UpdateWorkflowStateModal,
+  UpdateWorkflowStateModalWrapper,
 } from '@juxt-home/ui-kanban';
 import {
   AddHiringCardModalWrapper as AddHiringCardModal,
@@ -57,7 +57,7 @@ export function App() {
         workflowId={workflowId}
         handleClose={() => setIsModalOpen(false)}
       />
-      <UpdateWorkflowStateModal
+      <UpdateWorkflowStateModalWrapper
         isOpen={!!isWorkflowStateModalOpen}
         workflowId={workflowId}
         handleClose={() => setIsWorkflowStateModalOpen(false)}

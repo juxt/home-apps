@@ -5,22 +5,31 @@ import { useEffect, useMemo, useState } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useSearch, useNavigate } from 'react-location';
 import { Column } from 'react-table';
-import { filteredCards, filteredCols, moveCard } from './utils';
+import {
+  defaultMutationProps,
+  filteredCards,
+  filteredCols,
+  moveCard,
+} from './utils';
 import {
   TWorkflow,
   LocationGenerics,
   useModalForm,
   useKanbanDataQuery,
   useMoveCard,
+  useUserId,
 } from '@juxt-home/site';
+
 import {
   SelectColumnFilter,
   Table,
   DateFilter,
   DateFilterFn,
+  roles,
 } from '@juxt-home/ui-common';
 import { Heading } from './Headings';
 import { WorkflowStateContainer } from './WorkflowState';
+import { useQueryClient } from 'react-query';
 
 function processWorkflow(
   workflow: TWorkflow,
@@ -39,6 +48,7 @@ function processWorkflow(
 
 export function Workflow({ workflow }: { workflow: TWorkflow }) {
   const search = useSearch<LocationGenerics>();
+  const navigate = useNavigate<LocationGenerics>();
   const { workflowProjectId, devMode } = search;
   const data = useMemo(
     () => processWorkflow(workflow, workflowProjectId),
@@ -48,12 +58,37 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
   const unfilteredWorkflow = useKanbanDataQuery({
     id: workflow.id,
   })?.data?.workflow;
+  const username = useUserId() || 'admin';
 
   useEffect(() => {
     if (data) {
       setState(data);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (data) {
+      const newIds = data.workflowStates
+        .filter((c) => {
+          return !c?.roles?.find(
+            (role) => role && roles?.[role]?.find((user) => user === username),
+          );
+        })
+        .map((c) => c.id);
+      if (!_.isEqual(search?.filters?.roleFilters, newIds)) {
+        navigate({
+          replace: true,
+          search: {
+            ...search,
+            filters: {
+              ...search.filters,
+              roleFilters: newIds,
+            },
+          },
+        });
+      }
+    }
+  }, [data, navigate, search, username]);
 
   const [, setIsAddCard] = useModalForm({
     formModalType: 'addCard',
@@ -114,7 +149,6 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
     ],
     [],
   );
-  const navigate = useNavigate<LocationGenerics>();
 
   const openCardForm = ({ values }: { values: typeof gridColumns[0] }) => {
     const cardId = values.id;
@@ -134,12 +168,24 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
       });
     }
   };
+  const queryClient = useQueryClient();
+  const onMoveCardSuccess = () => {
+    return defaultMutationProps(queryClient, workflow.id);
+  };
 
-  const [updateServerCards] = useMoveCard({ workflow });
+  const [updateServerCards] = useMoveCard({ handleSuccess: onMoveCardSuccess });
 
+  const initialHiddenCols =
+    search?.filters?.colIds ?? search?.filters?.roleFilters ?? [];
   return (
     <div className="px-4 h-full-minus-nav">
-      <Heading workflow={workflow} handleAddCard={() => setIsAddCard(true)} />
+      {search.filters?.roleFilters && (
+        <Heading
+          workflow={workflow}
+          initialHiddenCols={initialHiddenCols}
+          handleAddCard={() => setIsAddCard(true)}
+        />
+      )}
       {isGrid && (
         <Table
           onRowClick={openCardForm}

@@ -1,9 +1,8 @@
-import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty } from '@juxt-home/utils';
 import _ from 'lodash';
 import { DraggableLocation } from 'react-beautiful-dnd';
 import { useNavigate, useSearch } from 'react-location';
-import { useQueryClient, UseQueryOptions } from 'react-query';
+import { UseQueryOptions } from 'react-query';
 import {
   useKanbanDataQuery,
   CardByIdsQuery,
@@ -185,13 +184,12 @@ export function useUserId() {
   return data;
 }
 
-export function useMoveCard({ workflow }: { workflow: TWorkflow }) {
-  const queryClient = useQueryClient();
+export function useMoveCard({ handleSuccess }: { handleSuccess: () => void }) {
   const updateCardPosMutation = useUpdateCardPositionMutation({
-    ...defaultMutationProps(queryClient, workflow.id),
+    onSuccess: handleSuccess,
   });
   const moveCardMutation = useMoveCardMutation({
-    ...defaultMutationProps(queryClient, workflow.id),
+    onSuccess: handleSuccess,
   });
   const updateCardMutation = useUpdateHiringCardMutation();
   const updateServerCards = (
@@ -212,7 +210,9 @@ export function useMoveCard({ workflow }: { workflow: TWorkflow }) {
           .map((c) => c.id) || [];
       updateCardPosMutation.mutate({
         workflowStateId: startCol?.id,
-        cardIds: _.uniq(cardsInSourceCol),
+        workflowState: {
+          cardIds: _.uniq(cardsInSourceCol),
+        },
       });
     } else if (endCol) {
       updateCardMutation.mutate({

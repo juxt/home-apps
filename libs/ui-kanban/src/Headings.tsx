@@ -24,9 +24,11 @@ import { MultiSelect } from 'react-multi-select-component';
 export function Heading({
   workflow,
   handleAddCard,
+  initialHiddenCols,
 }: {
   workflow: TWorkflow;
   handleAddCard: () => void;
+  initialHiddenCols: string[];
 }) {
   const currentProject = useCurrentProject(workflow.id).data;
   const isMobile = useMobileDetect().isMobile();
@@ -40,7 +42,9 @@ export function Heading({
         value: state.id,
       }),
     ) || [];
-  const [colIds, setColIds] = useState<typeof cols>([]);
+  const [colIds, setColIds] = useState<typeof cols>(
+    initialHiddenCols.map((c) => ({ value: c, label: '' })),
+  );
 
   const setToggleColumn = (colIds: typeof cols) => {
     setColIds(colIds);

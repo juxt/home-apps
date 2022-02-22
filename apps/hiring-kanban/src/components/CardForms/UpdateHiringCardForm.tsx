@@ -1,4 +1,3 @@
-import { Dialog } from '@headlessui/react';
 import {
   LocationGenerics,
   useUpdateHiringCardMutation,
@@ -9,6 +8,7 @@ import {
   useProjectOptions,
   TWorkflowState,
   TCard,
+  UpdateHiringCardMutationVariables,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
@@ -17,6 +17,7 @@ import {
   Form,
   Button,
   useDirty,
+  juxters,
 } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
@@ -255,12 +256,14 @@ export function UpdateHiringCardForm({
 
 export function QuickEditCard({
   card,
+  usernameOptions,
   projectOptions,
   stateOptions,
   formHooks,
   cols,
 }: {
   card: TCard;
+  usernameOptions: Option[];
   projectOptions: Option[];
   stateOptions: Option[];
   formHooks: UseFormReturn<UpdateHiringCardInput, object>;
@@ -288,9 +291,13 @@ export function QuickEditCard({
   });
 
   const UpdateHiringCard = (input: UpdateHiringCardInput) => {
-    const { workflowState, project, ...cardInput } = input;
-    const cardData = {
-      card: { ...cardInput.card, workflowProjectId: project?.value },
+    const { workflowState, project, owners, ...cardInput } = input;
+    const cardData: UpdateHiringCardMutationVariables = {
+      card: {
+        ...cardInput.card,
+        workflowProjectId: project?.value,
+        currentOwnerUsernames: owners?.map((o) => o.value),
+      },
       cardId: input.cardId,
     };
 
@@ -380,6 +387,13 @@ export function QuickEditCard({
         formHooks={formHooks}
         fields={[
           {
+            id: 'owners',
+            label: 'Owners',
+            type: 'multiselect',
+            options: usernameOptions,
+            path: 'owners',
+          },
+          {
             id: 'CardProject',
             type: 'select',
             rules: {
@@ -435,10 +449,17 @@ export function QuickEditCardWrapper({ cardId }: { cardId: string }) {
     value: c.id,
   }));
   const projectOptions = useProjectOptions(workflowId);
+  const usernameOptions = juxters.map((user) => ({
+    label: user.name,
+    value: user.staffRecord.juxtcode,
+  }));
   const formHooks = useForm<UpdateHiringCardInput>({
     defaultValues: {
       card,
       cardId: card?.id,
+      owners: usernameOptions.filter((user) =>
+        card?.currentOwnerUsernames?.includes(user.value),
+      ),
       project: projectOptions?.find((p) => p.value === card?.project?.id),
       workflowState: stateOptions?.find(
         (s) => s.value === card?.workflowState?.id,
@@ -451,6 +472,7 @@ export function QuickEditCardWrapper({ cardId }: { cardId: string }) {
       {card && (
         <QuickEditCard
           card={card}
+          usernameOptions={usernameOptions}
           projectOptions={projectOptions}
           stateOptions={stateOptions}
           formHooks={formHooks}

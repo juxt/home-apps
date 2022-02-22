@@ -13,5 +13,6 @@ export type AddHiringCardModalProps = ModalStateProps;
 export type EditCardModalProps = ModalStateProps;
 export type UpdateHiringCardInput = UpdateHiringCardMutationVariables & {
   project: Option;
+  owners?: Option[] | null;
   workflowState: Option;
 };

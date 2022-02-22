@@ -2,14 +2,9 @@ mutation createWorkflowState(
   $colId: ID!
   $workflowStateIds: [ID!]!
   $workflowId: ID!
-  $workflowStateName: String!
-  $description: String
+  $workflowState: WorkflowStateInput!
 ) {
-  updateWorkflowState(
-    id: $colId
-    name: $workflowStateName
-    description: $description
-  ) {
+  updateWorkflowState(id: $colId, workflowState: $workflowState) {
     id
   }
   updateWorkflow(id: $workflowId, workflowStateIds: $workflowStateIds) {

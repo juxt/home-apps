@@ -41,13 +41,15 @@ export function AddHiringCardModal({
       AddHiringCardMutation.mutateAsync({
         cardId: newId,
         workflowStateId: workflowState?.value || cols[0].id,
-        cardIds: [
-          ...(cols
-            .find((c) => c.id === workflowState?.value)
-            ?.cards?.filter(notEmpty)
-            .map((c) => c.id) || []),
-          newId,
-        ],
+        workflowState: {
+          cardIds: [
+            ...(cols
+              .find((c) => c.id === workflowState?.value)
+              ?.cards?.filter(notEmpty)
+              .map((c) => c.id) || []),
+            newId,
+          ],
+        },
         card: {
           ...cardInput.card,
           workflowProjectId: project?.value,

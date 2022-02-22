@@ -3,6 +3,8 @@ query kanbanData($id: ID!) {
     id
     name
     description
+    roles
+    tasks
     cards {
       ... on HiringCard {
         id

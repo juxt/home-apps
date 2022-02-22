@@ -25,6 +25,8 @@ export type TiptapProps = {
   withTaskListExtension?: boolean;
   withPlaceholderExtension?: boolean;
   withMentionSuggestion?: boolean;
+  unstyled?: boolean;
+  className?: string;
 };
 
 function Tiptap({
@@ -37,6 +39,8 @@ function Tiptap({
   withTaskListExtension = false,
   withPlaceholderExtension = false,
   withMentionSuggestion = false,
+  unstyled = false,
+  className = '',
 }: TiptapProps) {
   const extensions: Extensions = [
     StarterKit.configure(),
@@ -89,19 +93,47 @@ function Tiptap({
     editable,
     editorProps: {
       attributes: {
-        class: classNames(
-          'prose-sm sm:prose focus:outline-none',
-          'h-20 sm:h-56 w-full max-w-none rounded leading-none text-gray-700 bg-gray-50 border border-gray-300 p-3 text-base',
-          'overflow-y-auto focus:outline-none',
-          editable &&
-            'transition-colors ease-in-out placeholder-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30',
-        ),
+        class: !unstyled
+          ? classNames(
+              className,
+              'prose-sm sm:prose focus:outline-none',
+              'h-20 sm:h-56 w-full max-w-none rounded leading-none text-gray-700 bg-gray-50 border border-gray-300 p-3 text-base',
+              'overflow-y-auto focus:outline-none',
+              editable &&
+                'transition-colors ease-in-out placeholder-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30',
+            )
+          : className,
       },
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (
+      tiptapEditor &&
+      content &&
+      content.length > 0 &&
+      content !== '<p></p>' &&
+      !tiptapEditor.isFocused &&
+      !tiptapEditor.isDestroyed
+    ) {
+      tiptapEditor.commands.setContent('');
+      tiptapEditor.commands.setContent(content);
+    }
+  }, [content, tiptapEditor]);
+
+  useEffect(() => {
+    return () => {
+      if (tiptapEditor) {
+        console.log('destroy');
+
+        tiptapEditor.destroy();
+      }
+    };
+  }, [tiptapEditor]);
+
   if (!tiptapEditor) {
     return null;
   }

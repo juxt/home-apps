@@ -1,5 +1,6 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { defaultMutationProps } from './utils';
@@ -11,6 +12,7 @@ import {
   useUpdateWorkflowStateMutation,
   useWorkflowState,
   LocationGenerics,
+  TKanbanWorkflowState,
 } from '@juxt-home/site';
 import { ModalForm, ModalStateProps } from '@juxt-home/ui-common';
 
@@ -57,7 +59,7 @@ export function AddWorkflowStateModal({
       fields={[
         {
           id: 'name',
-          path: 'workflowStateName',
+          path: 'workflowState.name',
           rules: {
             required: true,
           },
@@ -72,43 +74,49 @@ export function AddWorkflowStateModal({
 type UpdateWorkflowStateInput = Omit<
   UpdateWorkflowStateMutationVariables,
   'colId' | 'workflowStateIds' | 'workflowId'
->;
+> & {
+  tasksString: string;
+  rolesString: string;
+};
 
 type UpdateWorkflowStateModalProps = ModalStateProps & {
   workflowId: string;
+  workflowState: TKanbanWorkflowState;
 };
 
 export function UpdateWorkflowStateModal({
   isOpen,
   handleClose,
   workflowId,
+  workflowState,
 }: UpdateWorkflowStateModalProps) {
+  const colId = workflowState.id;
+  const formHooks = useForm<UpdateWorkflowStateInput>({
+    defaultValues: {
+      workflowState,
+      tasksString: workflowState?.tasks?.join('\n'),
+      rolesString: workflowState?.roles?.join('\n'),
+      id: colId,
+    },
+  });
   const queryClient = useQueryClient();
   const updateColMutation = useUpdateWorkflowStateMutation({
     ...defaultMutationProps(queryClient, workflowId),
   });
-  const { modalState } = useSearch<LocationGenerics>();
-  const colId = modalState?.workflowStateId;
-  const workflowState = useWorkflowState(workflowId, colId)?.data;
 
   const updateWorkflowState = (col: UpdateWorkflowStateInput) => {
     if (colId) {
       handleClose();
       updateColMutation.mutate({
-        ...col,
-        colId,
+        workflowState: {
+          ...col.workflowState,
+          tasks: col.tasksString.split('\n'),
+          roles: col.rolesString.split('\n'),
+        },
+        id: colId,
       });
     }
   };
-  const formHooks = useForm<UpdateWorkflowStateInput>();
-  useEffect(() => {
-    if (workflowState) {
-      formHooks.setValue('name', workflowState.name);
-      if (workflowState?.description) {
-        formHooks.setValue('description', workflowState.description);
-      }
-    }
-  }, [formHooks, workflowState]);
 
   return (
     <ModalForm<UpdateWorkflowStateInput>
@@ -120,7 +128,7 @@ export function UpdateWorkflowStateModal({
       fields={[
         {
           id: 'name',
-          path: 'name',
+          path: 'workflowState.name',
           rules: {
             required: true,
           },
@@ -129,12 +137,49 @@ export function UpdateWorkflowStateModal({
         },
         {
           id: 'description',
-          path: 'description',
+          path: 'workflowState.description',
           label: 'Description',
           rows: 8,
           type: 'textarea',
         },
+        {
+          id: 'tasks',
+          path: 'tasksString',
+          label: 'Tasks',
+          type: 'textarea',
+        },
+        {
+          id: 'roles',
+          path: 'rolesString',
+          label: 'Roles',
+          type: 'textarea',
+        },
       ]}
     />
+  );
+}
+
+export function UpdateWorkflowStateModalWrapper({
+  isOpen,
+  handleClose,
+  workflowId,
+}: ModalStateProps & {
+  workflowId: string;
+}) {
+  const { modalState } = useSearch<LocationGenerics>();
+  const colId = modalState?.workflowStateId;
+  const workflowState = useWorkflowState(workflowId, colId)?.data;
+
+  return (
+    <>
+      {colId && workflowState && (
+        <UpdateWorkflowStateModal
+          isOpen={isOpen}
+          handleClose={handleClose}
+          workflowId={workflowId}
+          workflowState={workflowState}
+        />
+      )}
+    </>
   );
 }

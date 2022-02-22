@@ -142,6 +142,20 @@ const assocAvatar = (mention: Omit<Mention, 'avatar'>) => {
 
 export const juxters = juxterData.map(assocAvatar);
 
+const basicRoles: Record<string, string[]> = {
+  HiringAdmins: ['admin', 'eix', 'tek', 'kat', 'hbr'],
+  DecisionMakers: ['admin', 'jon', 'mal', 'joe'],
+  Founders: ['admin', 'jon', 'mal'],
+};
+
+export const roles: Record<string, string[]> = {
+  ...basicRoles,
+  Interviewers: juxters
+    .map((j) => j.staffRecord.juxtcode)
+    .filter((s) => !basicRoles.HiringAdmins.includes(s))
+    .concat(['admin']),
+};
+
 const MENTION_SUGGESTIONS: Mention[] = shuffle(juxters);
 
 export { MENTION_SUGGESTIONS };

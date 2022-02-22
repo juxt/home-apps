@@ -1,20 +1,134 @@
 import SplitPane from '@andrewray/react-split-pane';
 import { Disclosure } from '@headlessui/react';
-import { CardByIdsQuery, LocationGenerics, useCardById } from '@juxt-home/site';
+import {
+  CardByIdsQuery,
+  LocationGenerics,
+  TDetailedCard,
+  TKanbanWorkflowState,
+  useCardById,
+  useCardByIdsQuery,
+  useUpdateHiringCardMutation,
+} from '@juxt-home/site';
 import {
   CloseIcon,
   FilePreview,
   CommentSection,
   PdfViewer,
   TipTapContent,
+  RenderField,
+  Button,
 } from '@juxt-home/ui-common';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import classNames from 'classnames';
-import { useState } from 'react';
+import { BaseSyntheticEvent, useCallback, useEffect, useState } from 'react';
 import { useSearch } from 'react-location';
 import { useThrottleFn } from 'react-use';
 import { InterviewModal } from './InterviewForms';
 import { QuickEditCardWrapper } from './UpdateHiringCardForm';
+import ReactDOMServer from 'react-dom/server';
+import { useForm } from 'react-hook-form';
+import { useQueryClient } from 'react-query';
+import { toast } from 'react-toastify';
+
+function tasksToDefaultContentJSX(state: TKanbanWorkflowState) {
+  return (
+    <ul data-type="taskList">
+      {state.tasks?.map((task) => (
+        <li key={state.id + task} data-type="taskItem" data-checked="false">
+          {task}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+type TaskForm = { content: string };
+
+function TaskListForState({ card }: { card: TDetailedCard }) {
+  const state = card?.workflowState;
+  const content = card?.taskHtml
+    ? card.taskHtml
+    : state && state.tasks
+    ? ReactDOMServer.renderToString(tasksToDefaultContentJSX(state))
+    : 'no state';
+  const formHooks = useForm<TaskForm>({
+    defaultValues: { content },
+  });
+  const queryClient = useQueryClient();
+  const updateCard = useUpdateHiringCardMutation({
+    onSuccess: (data) => {
+      toast.success('Card updated!');
+      const id = data.updateHiringCard?.id;
+      if (id) {
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
+      }
+    },
+    onError: (error) => {
+      toast.error(`Error updating card ${error.message}`);
+    },
+  });
+
+  const handleUpdateCard = useCallback(
+    ({ content: input }: TaskForm) => {
+      if (input && input !== card.taskHtml) {
+        updateCard.mutate({
+          cardId: card.id,
+          card: {
+            taskHtml: input,
+          },
+        });
+      }
+    },
+    [formHooks],
+  );
+
+  const reset = () => {
+    if (state) {
+      formHooks.reset({
+        content,
+      });
+    }
+  };
+
+  useEffect(() => {
+    reset();
+  }, [content]);
+
+  const handleSubmit = useCallback((e?: BaseSyntheticEvent) => {
+    if (!formHooks.formState.isDirty) {
+      e?.preventDefault();
+      return;
+    }
+    formHooks.handleSubmit(handleUpdateCard, () =>
+      toast.error('Error updating card...'),
+    )(e);
+  }, []);
+  return (
+    <form onSubmit={handleSubmit}>
+      {formHooks.formState.isDirty && (
+        <div>
+          <Button type="submit">Save</Button>
+          <Button onClick={() => reset()} type="reset">
+            Cancel
+          </Button>
+        </div>
+      )}
+      <RenderField<TaskForm>
+        props={{
+          formHooks,
+        }}
+        field={{
+          type: 'tiptap',
+          path: 'content',
+          label: 'Tasks',
+          unstyled: true,
+          id: 'task-list',
+          withTaskListExtension: true,
+        }}
+      />
+    </form>
+  );
+}
 
 function CardInfo({
   card,
@@ -113,7 +227,14 @@ function CardInfo({
                   </>
                 )}
               </div>
-
+              {card?.workflowState && (
+                <div className="bg-red-50 prose-sm sm:prose mb-2 p-2">
+                  <h2>
+                    Action Needed From {card.workflowState.roles?.join(' / ')}
+                  </h2>
+                  <TaskListForState card={card} />
+                </div>
+              )}
               {card?.description && (
                 <TipTapContent
                   className="p-2 prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full"
