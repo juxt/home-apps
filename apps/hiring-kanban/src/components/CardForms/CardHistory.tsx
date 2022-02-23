@@ -56,9 +56,6 @@ export function CardHistory() {
           onClick={() => handleRollback(row.original)}>
           Rollback
         </button>
-        <button type="button" onClick={() => console.log(row)}>
-          Open preview
-        </button>
       </>
     );
   }

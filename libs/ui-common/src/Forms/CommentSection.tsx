@@ -210,7 +210,7 @@ export function CommentSection({ eId }: { eId: string }) {
                               </p>
                             </div>
                             <TipTapContent
-                              growButton
+                              fullHeight
                               className="mt-2 max-h-max prose text-sm text-gray-700"
                               htmlString={item.text}
                             />

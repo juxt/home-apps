@@ -151,12 +151,14 @@ function TipTapContent({
   htmlString,
   className,
   growButton,
+  fullHeight,
 }: {
   htmlString: string;
   className?: string;
   growButton?: boolean;
+  fullHeight?: boolean;
 }) {
-  const [grow, setGrow] = useState(false);
+  const [grow, setGrow] = useState(fullHeight);
   const iconClass = classNames(
     'text-white rounded bg-blue-500 text-sm opacity-100 hover:opacity-80',
     ' cursor-pointer',
@@ -174,9 +176,11 @@ function TipTapContent({
           __html: sanitize(htmlString),
         }}
       />
-      <button className={iconClass} onClick={() => setGrow(!grow)}>
-        {`${grow ? 'Show less' : 'Show more'}`}
-      </button>
+      {showGrowButton && (
+        <button className={iconClass} onClick={() => setGrow(!grow)}>
+          {`${grow ? 'Show less' : 'Show more'}`}
+        </button>
+      )}
     </div>
   );
 }
