@@ -15,6 +15,7 @@ import {
   TKanbanWorkflowState,
 } from '@juxt-home/site';
 import { ModalForm, ModalStateProps } from '@juxt-home/ui-common';
+import splitbee from '@splitbee/web';
 
 type AddWorkflowStateInput = Omit<
   CreateWorkflowStateMutationVariables,
@@ -102,6 +103,11 @@ export function UpdateWorkflowStateModal({
   const queryClient = useQueryClient();
   const updateColMutation = useUpdateWorkflowStateMutation({
     ...defaultMutationProps(queryClient, workflowId),
+    onSuccess: (data) => {
+      splitbee.track('Update Column', {
+        data: JSON.stringify(data),
+      });
+    },
   });
 
   const updateWorkflowState = (col: UpdateWorkflowStateInput) => {

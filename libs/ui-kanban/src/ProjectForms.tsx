@@ -13,6 +13,7 @@ import {
 } from '@juxt-home/site';
 import { ModalStateProps, ModalForm, Form, Modal } from '@juxt-home/ui-common';
 import { defaultMutationProps } from './utils';
+import splitbee from '@splitbee/web';
 
 type AddProjectInput = CreateWorkflowProjectMutationVariables;
 
@@ -21,6 +22,11 @@ type AddProjectModalProps = ModalStateProps;
 export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
   const addProjectMutation = useCreateWorkflowProjectMutation({
     ...defaultMutationProps,
+    onSuccess: (data) => {
+      splitbee.track('Add Project', {
+        data: JSON.stringify(data),
+      });
+    },
   });
 
   const addProject = (input: AddProjectInput) => {
@@ -81,6 +87,11 @@ export function UpdateWorkflowProjectModal({
   const queryClient = useQueryClient();
   const UpdateWorkflowProjectMutation = useUpdateWorkflowProjectMutation({
     ...defaultMutationProps(queryClient, workflowId),
+    onSuccess: (data) => {
+      splitbee.track('Update Project', {
+        data: JSON.stringify(data),
+      });
+    },
   });
 
   const UpdateWorkflowProject = (input: UpdateWorkflowProjectInput) => {

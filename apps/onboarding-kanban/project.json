@@ -1,0 +1,65 @@
+{
+  "root": "apps/onboarding-kanban",
+  "sourceRoot": "apps/onboarding-kanban/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "swc",
+        "outputPath": "dist/apps/onboarding-kanban",
+        "index": "apps/onboarding-kanban/src/index.html",
+        "baseHref": "/",
+        "main": "apps/onboarding-kanban/src/main.tsx",
+        "polyfills": "apps/onboarding-kanban/src/polyfills.ts",
+        "tsConfig": "apps/onboarding-kanban/tsconfig.app.json",
+        "assets": [
+          "apps/onboarding-kanban/src/favicon.ico",
+          "apps/onboarding-kanban/src/assets"
+        ],
+        "styles": ["apps/onboarding-kanban/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/onboarding-kanban/src/environments/environment.ts",
+              "with": "apps/onboarding-kanban/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "onboarding-kanban:build",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "onboarding-kanban:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/onboarding-kanban/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

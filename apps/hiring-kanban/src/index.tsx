@@ -12,7 +12,10 @@ const location = new ReactLocation();
 const queryClient = new QueryClient();
 const rootElement = document.getElementById('root');
 if (window.location.hostname !== 'localhost') {
-  splitbee.init();
+  splitbee.init({
+    scriptUrl: '/bee.js',
+    apiUrl: '/_hive',
+  });
 }
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>

@@ -9,6 +9,8 @@ import {
   TWorkflowState,
   TCard,
   UpdateHiringCardMutationVariables,
+  TDetailedCard,
+  TKanbanWorkflowState,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
@@ -18,11 +20,14 @@ import {
   Button,
   useDirty,
   juxters,
+  RenderField,
 } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
+import splitbee from '@splitbee/web';
 import _ from 'lodash';
-import { useEffect } from 'react';
+import { BaseSyntheticEvent, useCallback, useEffect } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { useForm, UseFormReturn, useFormState } from 'react-hook-form';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
@@ -48,6 +53,11 @@ export function UpdateHiringCardForm({
   });
   const moveCardMutation = useMoveCardMutation({
     ...defaultMutationProps(queryClient, workflowId),
+    onSuccess: (data) => {
+      splitbee.track('Move Card From Form', {
+        data: JSON.stringify(data),
+      });
+    },
   });
 
   const cols = useWorkflowStates({ workflowId }).data || [];
@@ -288,6 +298,11 @@ export function QuickEditCard({
   });
   const moveCardMutation = useMoveCardMutation({
     ...defaultMutationProps(queryClient, workflowId),
+    onSuccess: (data) => {
+      splitbee.track('Move Card From Quick Edit', {
+        data: JSON.stringify(data),
+      });
+    },
   });
 
   const UpdateHiringCard = (input: UpdateHiringCardInput) => {
@@ -480,5 +495,115 @@ export function QuickEditCardWrapper({ cardId }: { cardId: string }) {
         />
       )}
     </>
+  );
+}
+
+function tasksToDefaultContentJSX(state: TKanbanWorkflowState) {
+  return (
+    <ul data-type="taskList">
+      {state.tasks?.map((task) => (
+        <li key={state.id + task} data-type="taskItem" data-checked="false">
+          {task}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+type TaskForm = { content: string };
+
+export function TaskListForState({ card }: { card: TDetailedCard }) {
+  const state = card?.workflowState;
+  const content = card?.taskHtml
+    ? card.taskHtml
+    : state && state.tasks
+    ? ReactDOMServer.renderToString(tasksToDefaultContentJSX(state))
+    : 'no state';
+  const formHooks = useForm<TaskForm>({
+    defaultValues: { content },
+  });
+  useDirty({ isDirty: formHooks.formState.isDirty });
+  const queryClient = useQueryClient();
+  const updateCard = useUpdateHiringCardMutation({
+    onSuccess: (data) => {
+      toast.success('Card updated!');
+      splitbee.track('tasklist update', {
+        cardId: data.updateHiringCard?.id,
+        task: content,
+      });
+      const id = data.updateHiringCard?.id;
+      if (id) {
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
+      }
+    },
+    onError: (error) => {
+      toast.error(`Error updating card ${error.message}`);
+    },
+  });
+
+  const handleUpdateCard = useCallback(
+    ({ content: input }: TaskForm) => {
+      if (input && input !== card.taskHtml) {
+        updateCard.mutate({
+          cardId: card.id,
+          card: {
+            taskHtml: input,
+          },
+        });
+      }
+    },
+    [formHooks],
+  );
+
+  const reset = () => {
+    if (state) {
+      formHooks.reset({
+        content,
+      });
+    }
+  };
+
+  useEffect(() => {
+    reset();
+  }, [content]);
+
+  const handleSubmit = useCallback((e?: BaseSyntheticEvent) => {
+    if (!formHooks.formState.isDirty) {
+      e?.preventDefault();
+      return;
+    }
+    formHooks.handleSubmit(handleUpdateCard, () =>
+      toast.error('Error updating card...'),
+    )(e);
+  }, []);
+  return (
+    <form onSubmit={handleSubmit}>
+      <RenderField<TaskForm>
+        props={{
+          formHooks,
+        }}
+        field={{
+          type: 'tiptap',
+          path: 'content',
+          label: 'Tasks',
+          unstyled: true,
+          id: 'task-list',
+          withTaskListExtension: true,
+        }}
+      />
+      {formHooks.formState.isDirty && (
+        <div className="block sm:flex justify-end">
+          <Button className="my-2 sm:my-0 sm:mx-2" primary type="submit">
+            Save
+          </Button>
+          <Button
+            className="w-full sm:w-auto inline-flex justify-center"
+            onClick={() => reset()}
+            type="reset">
+            Cancel
+          </Button>
+        </div>
+      )}
+    </form>
   );
 }

@@ -30,6 +30,7 @@ import {
 import { Heading } from './Headings';
 import { WorkflowStateContainer } from './WorkflowState';
 import { useQueryClient } from 'react-query';
+import splitbee from '@splitbee/web';
 
 function processWorkflow(
   workflow: TWorkflow,
@@ -170,7 +171,14 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
   };
   const queryClient = useQueryClient();
   const onMoveCardSuccess = () => {
-    return defaultMutationProps(queryClient, workflow.id);
+    return {
+      ...defaultMutationProps(queryClient, workflow.id),
+      onSuccess: (data: object) => {
+        splitbee.track('Move Card From Board', {
+          data: JSON.stringify(data),
+        });
+      },
+    };
   };
 
   const [updateServerCards] = useMoveCard({ handleSuccess: onMoveCardSuccess });

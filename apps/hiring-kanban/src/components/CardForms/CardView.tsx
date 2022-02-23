@@ -4,10 +4,7 @@ import {
   CardByIdsQuery,
   LocationGenerics,
   TDetailedCard,
-  TKanbanWorkflowState,
   useCardById,
-  useCardByIdsQuery,
-  useUpdateHiringCardMutation,
 } from '@juxt-home/site';
 import {
   CloseIcon,
@@ -15,120 +12,14 @@ import {
   CommentSection,
   PdfViewer,
   TipTapContent,
-  RenderField,
-  Button,
 } from '@juxt-home/ui-common';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import classNames from 'classnames';
-import { BaseSyntheticEvent, useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSearch } from 'react-location';
 import { useThrottleFn } from 'react-use';
 import { InterviewModal } from './InterviewForms';
-import { QuickEditCardWrapper } from './UpdateHiringCardForm';
-import ReactDOMServer from 'react-dom/server';
-import { useForm } from 'react-hook-form';
-import { useQueryClient } from 'react-query';
-import { toast } from 'react-toastify';
-
-function tasksToDefaultContentJSX(state: TKanbanWorkflowState) {
-  return (
-    <ul data-type="taskList">
-      {state.tasks?.map((task) => (
-        <li key={state.id + task} data-type="taskItem" data-checked="false">
-          {task}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-type TaskForm = { content: string };
-
-function TaskListForState({ card }: { card: TDetailedCard }) {
-  const state = card?.workflowState;
-  const content = card?.taskHtml
-    ? card.taskHtml
-    : state && state.tasks
-    ? ReactDOMServer.renderToString(tasksToDefaultContentJSX(state))
-    : 'no state';
-  const formHooks = useForm<TaskForm>({
-    defaultValues: { content },
-  });
-  const queryClient = useQueryClient();
-  const updateCard = useUpdateHiringCardMutation({
-    onSuccess: (data) => {
-      toast.success('Card updated!');
-      const id = data.updateHiringCard?.id;
-      if (id) {
-        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
-      }
-    },
-    onError: (error) => {
-      toast.error(`Error updating card ${error.message}`);
-    },
-  });
-
-  const handleUpdateCard = useCallback(
-    ({ content: input }: TaskForm) => {
-      if (input && input !== card.taskHtml) {
-        updateCard.mutate({
-          cardId: card.id,
-          card: {
-            taskHtml: input,
-          },
-        });
-      }
-    },
-    [formHooks],
-  );
-
-  const reset = () => {
-    if (state) {
-      formHooks.reset({
-        content,
-      });
-    }
-  };
-
-  useEffect(() => {
-    reset();
-  }, [content]);
-
-  const handleSubmit = useCallback((e?: BaseSyntheticEvent) => {
-    if (!formHooks.formState.isDirty) {
-      e?.preventDefault();
-      return;
-    }
-    formHooks.handleSubmit(handleUpdateCard, () =>
-      toast.error('Error updating card...'),
-    )(e);
-  }, []);
-  return (
-    <form onSubmit={handleSubmit}>
-      {formHooks.formState.isDirty && (
-        <div>
-          <Button type="submit">Save</Button>
-          <Button onClick={() => reset()} type="reset">
-            Cancel
-          </Button>
-        </div>
-      )}
-      <RenderField<TaskForm>
-        props={{
-          formHooks,
-        }}
-        field={{
-          type: 'tiptap',
-          path: 'content',
-          label: 'Tasks',
-          unstyled: true,
-          id: 'task-list',
-          withTaskListExtension: true,
-        }}
-      />
-    </form>
-  );
-}
+import { QuickEditCardWrapper, TaskListForState } from './UpdateHiringCardForm';
 
 function CardInfo({
   card,
@@ -319,11 +210,7 @@ function CardInfo({
   );
 }
 
-export function CardView() {
-  const cardId = useSearch<LocationGenerics>().modalState?.cardId;
-  const { data, isLoading } = useCardById(cardId);
-
-  const card = data?.cardsByIds?.[0];
+export function CardView({ card }: { card: TDetailedCard }) {
   const screen = useMobileDetect();
   const isMobile = screen.isMobile();
 
@@ -344,46 +231,56 @@ export function CardView() {
   };
 
   const pdfData = card?.cvPdf?.base64;
+  return (
+    <div className="flex h-full flex-col lg:flex-row justify-around items-center lg:items-start ">
+      {isMobile || !pdfData ? (
+        <div className="w-full h-full overflow-y-scroll">
+          {card && <CardInfo card={card} />}
+        </div>
+      ) : (
+        <SplitPane
+          pane2Style={{
+            overflowY: 'auto',
+          }}
+          paneStyle={{
+            height: '100%',
+          }}
+          key={splitKey}
+          split="vertical"
+          defaultSize={splitSize}
+          onChange={setSplitSize}>
+          <CardInfo
+            resetSplit={splitSize > 400 ? resetSplit : undefined}
+            card={card}
+          />
+          <div className="block overflow-y-auto">
+            {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
+            <PdfViewer key={splitSize} pdfString={pdfData} />
+          </div>
+        </SplitPane>
+      )}
+    </div>
+  );
+}
+
+export function CardViewWrapper() {
+  const cardId = useSearch<LocationGenerics>().modalState?.cardId;
+  const { data, isLoading } = useCardById(cardId);
+
+  const card = data?.cardsByIds?.[0];
 
   return (
     <div className="relative h-full">
-      <div className="flex h-full flex-col lg:flex-row justify-around items-center lg:items-start ">
-        {isMobile || !pdfData ? (
-          <div className="w-full h-full overflow-y-scroll">
-            {card && <CardInfo card={card} />}
+      {isLoading && (
+        <div className="flex flex-col justify-center items-center h-full">
+          <div className="text-center">
+            <h1 className="text-3xl font-extrabold text-gray-900">
+              Loading Card Details...
+            </h1>
           </div>
-        ) : (
-          <SplitPane
-            pane2Style={{
-              overflowY: 'auto',
-            }}
-            paneStyle={{
-              height: '100%',
-            }}
-            key={splitKey}
-            split="vertical"
-            defaultSize={splitSize}
-            onChange={setSplitSize}>
-            {isLoading && (
-              <div className="flex flex-col justify-center items-center h-full">
-                <div className="text-center">
-                  <h1 className="text-3xl font-extrabold text-gray-900">
-                    Loading Card Details...
-                  </h1>
-                </div>
-              </div>
-            )}
-            <CardInfo
-              resetSplit={splitSize > 400 ? resetSplit : undefined}
-              card={card}
-            />
-            <div className="block overflow-y-auto">
-              {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
-              <PdfViewer key={splitSize} pdfString={pdfData} />
-            </div>
-          </SplitPane>
-        )}
-      </div>
+        </div>
+      )}
+      {card && <CardView card={card} />}
     </div>
   );
 }

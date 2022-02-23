@@ -39,7 +39,8 @@
         "pascalCaseFiles": true,
         "globalCss": true,
         "flat": true,
-        "unitTestRunner": "none"
+        "unitTestRunner": "none",
+        "babel": true
       },
       "component": {
         "style": "css",

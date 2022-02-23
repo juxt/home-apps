@@ -2,6 +2,7 @@ import { TWorkflowState, useCreateHiringCardMutation } from '@juxt-home/site';
 import { ModalForm, Option } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty } from '@juxt-home/utils';
+import splitbee from '@splitbee/web';
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
@@ -28,6 +29,11 @@ export function AddHiringCardModal({
   const queryClient = useQueryClient();
   const AddHiringCardMutation = useCreateHiringCardMutation({
     ...defaultMutationProps(queryClient, workflowId),
+    onSuccess: (data) => {
+      splitbee.track('Add Hiring Card', {
+        data: JSON.stringify(data),
+      });
+    },
   });
   const AddHiringCard = (card: AddHiringCardInput) => {
     if (!cols.length) {

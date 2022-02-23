@@ -49,12 +49,17 @@ export function CardHistory() {
   // eslint-disable-next-line react/no-unstable-nested-components
   function RollbackButton({ row }: CellProps<TCardHistoryCard>) {
     return (
-      <button
-        type="button"
-        className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        onClick={() => handleRollback(row.original)}>
-        Rollback
-      </button>
+      <>
+        <button
+          type="button"
+          className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          onClick={() => handleRollback(row.original)}>
+          Rollback
+        </button>
+        <button type="button" onClick={() => console.log(row)}>
+          Open preview
+        </button>
+      </>
     );
   }
 
@@ -83,6 +88,8 @@ export function CardHistory() {
             history[i + 1] && history[i + 1]?.agent !== card?.agent;
           const stateChanged =
             history[i + 1] && history[i + 1]?.stateStr !== card?.stateStr;
+          const taskHtmlChanged =
+            history[i + 1] && history[i + 1]?.taskHtml !== card?.taskHtml;
           const nothingChanged =
             !titleChanged &&
             !hasDescriptionChanged &&
@@ -91,6 +98,7 @@ export function CardHistory() {
             !agentChanged &&
             !locationChanged &&
             !stateChanged &&
+            !taskHtmlChanged &&
             !filesChanged;
 
           return {
@@ -110,6 +118,7 @@ export function CardHistory() {
               filesChanged && 'files changed',
               agentChanged && 'agent changed',
               locationChanged && 'location changed',
+              taskHtmlChanged && 'task changed',
             ]
               .filter((s) => s)
               .join(', '),

@@ -12,7 +12,7 @@ import { useNavigate, useSearch } from 'react-location';
 import { workflowId } from '../../constants';
 import { AddHiringCardModal } from './AddHiringCardForm';
 import { CardHistory } from './CardHistory';
-import { CardView } from './CardView';
+import { CardViewWrapper } from './CardView';
 import {
   AddHiringCardModalProps,
   AddHiringCardInput,
@@ -121,7 +121,7 @@ export function EditHiringCardModal({
             </div>
           </div>
         )}
-        {(!cardModalView || cardModalView === 'view') && <CardView />}
+        {(!cardModalView || cardModalView === 'view') && <CardViewWrapper />}
         {cardModalView === 'update' && (
           <UpdateHiringCardForm handleClose={onClose} />
         )}
