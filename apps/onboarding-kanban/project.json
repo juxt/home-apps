@@ -12,7 +12,7 @@
         "outputPath": "dist/apps/onboarding-kanban",
         "index": "apps/onboarding-kanban/src/index.html",
         "baseHref": "/",
-        "main": "apps/onboarding-kanban/src/main.tsx",
+        "main": "apps/onboarding-kanban/src/index.tsx",
         "polyfills": "apps/onboarding-kanban/src/polyfills.ts",
         "tsConfig": "apps/onboarding-kanban/tsconfig.app.json",
         "assets": [

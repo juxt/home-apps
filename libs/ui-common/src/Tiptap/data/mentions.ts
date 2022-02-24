@@ -152,7 +152,7 @@ export const roles: Record<string, string[]> = {
   ...basicRoles,
   Interviewers: juxters
     .map((j) => j.staffRecord.juxtcode)
-    .filter((s) => !basicRoles.HiringAdmins.includes(s))
+    .filter((s) => !basicRoles['HiringAdmins'].includes(s))
     .concat(['admin']),
 };
 

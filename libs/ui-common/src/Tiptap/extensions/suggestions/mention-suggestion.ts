@@ -38,10 +38,12 @@ const MentionSuggestion = Node.create<MentionOptions>({
             ])
             .run();
         },
-        allow: ({ editor, range }) => editor
-          .can()
-          .insertContentAt(range, { type: 'mentionSuggestion' }),
-        items: ({ query }) => MENTION_SUGGESTIONS.filter(({ name }) => name.toLowerCase().includes(query.toLowerCase())),
+        allow: ({ editor, range }) =>
+          editor.can().insertContentAt(range, { type: 'mentionSuggestion' }),
+        items: ({ query }) =>
+          MENTION_SUGGESTIONS.filter(({ name }) =>
+            name.toLowerCase().includes(query.toLowerCase()),
+          ),
         render: () => {
           let reactRenderer: ReactRenderer<SuggestionDropdownRef>;
           let popup: Instance<Props>[];
@@ -92,14 +94,15 @@ const MentionSuggestion = Node.create<MentionOptions>({
       id: {
         default: null,
         renderHTML: (attributes) => ({
-          'data-user-id': attributes.id,
+          'data-user-id': attributes['id'],
         }),
       },
       name: {
         default: null,
-        parseHTML: (element) => element.getAttribute('aria-label')?.split(/\s(.+)/)[1],
+        parseHTML: (element) =>
+          element.getAttribute('aria-label')?.split(/\s(.+)/)[1],
         renderHTML: (attributes) => ({
-          'aria-label': `Name: ${attributes.name}`,
+          'aria-label': `Name: ${attributes['name']}`,
         }),
       },
     };
@@ -112,7 +115,7 @@ const MentionSuggestion = Node.create<MentionOptions>({
       'span',
       mergeAttributes({ 'data-mention': '' }, HTMLAttributes),
       ['span', { class: 'char' }, this.options.suggestion.char],
-      ['span', { class: 'name' }, node.attrs.name],
+      ['span', { class: 'name' }, node.attrs['name']],
     ];
   },
   renderText({ node }) {
