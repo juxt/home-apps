@@ -98,7 +98,8 @@ export function App() {
                   })?.length || 0),
                 0,
               ) || 0,
-          }))}
+          }))
+          .filter((p) => p.count > 0)}
       />
 
       {workflow && <Workflow key={workflow.id} workflow={workflow} />}

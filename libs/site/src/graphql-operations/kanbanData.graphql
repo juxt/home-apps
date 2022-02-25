@@ -1,22 +1,4 @@
 query kanbanData($id: ID!) {
-  allWorkflowStates {
-    id
-    name
-    description
-    roles
-    tasks
-    cards {
-      ... on HiringCard {
-        id
-        createdAt
-      }
-    }
-  }
-  allHiringCards {
-    id
-    _siteValidTime
-    createdAt
-  }
   allWorkflowProjects {
     ...WorkflowProjectFields
   }

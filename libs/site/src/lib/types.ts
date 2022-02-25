@@ -12,9 +12,6 @@ export type TDetailedCard = NonNullable<
   NonNullable<CardByIdsQuery['cardsByIds']>[0]
 >;
 export type TWorkflowState = WorkflowStateFieldsFragment;
-export type TKanbanWorkflowState = NonNullable<
-  NonNullable<KanbanDataQuery['allWorkflowStates']>[0]
->;
 
 export type WorkflowFormModalTypes =
   | 'addCard'

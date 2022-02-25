@@ -4,9 +4,6 @@ fragment WorkflowStateFields on WorkflowState {
   description
   roles
   tasks
-  workflow {
-    name
-  }
   cards {
     ...CardFields
   }

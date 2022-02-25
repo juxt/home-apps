@@ -10,7 +10,6 @@ import {
   TCard,
   UpdateHiringCardMutationVariables,
   TDetailedCard,
-  TKanbanWorkflowState,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
@@ -498,7 +497,7 @@ export function QuickEditCardWrapper({ cardId }: { cardId: string }) {
   );
 }
 
-function tasksToDefaultContentJSX(state: TKanbanWorkflowState) {
+function tasksToDefaultContentJSX(state: TWorkflowState) {
   return (
     <ul data-type="taskList">
       {state.tasks?.map((task) => (

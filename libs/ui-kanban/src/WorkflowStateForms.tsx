@@ -12,7 +12,7 @@ import {
   useUpdateWorkflowStateMutation,
   useWorkflowState,
   LocationGenerics,
-  TKanbanWorkflowState,
+  TWorkflowState,
 } from '@juxt-home/site';
 import { ModalForm, ModalStateProps } from '@juxt-home/ui-common';
 import splitbee from '@splitbee/web';
@@ -82,7 +82,7 @@ type UpdateWorkflowStateInput = Omit<
 
 type UpdateWorkflowStateModalProps = ModalStateProps & {
   workflowId: string;
-  workflowState: TKanbanWorkflowState;
+  workflowState: TWorkflowState;
 };
 
 export function UpdateWorkflowStateModal({

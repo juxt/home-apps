@@ -80,7 +80,9 @@ export function useWorkflowState(workflowId: string, wsId?: string) {
     { id: workflowId },
     {
       select: (data) =>
-        data?.allWorkflowStates?.filter(notEmpty).find((s) => s.id === wsId),
+        data?.workflow?.workflowStates
+          ?.filter(notEmpty)
+          .find((s) => s.id === wsId),
     },
   );
   return workflowStateResult;
