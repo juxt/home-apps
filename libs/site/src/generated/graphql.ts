@@ -345,6 +345,8 @@ export type AllProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type AllProjectsQuery = { __typename?: 'Query', allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null };
 
+export type CardDetailsFragment = { __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null };
+
 export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null };
 
 export type CardHistoryQueryVariables = Exact<{
@@ -352,14 +354,14 @@ export type CardHistoryQueryVariables = Exact<{
 }>;
 
 
-export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, title: string, description?: string | null, location?: string | null, agent?: string | null, stateStr?: string | null, taskHtml?: string | null, _siteValidTime: string, _siteSubject?: string | null, files?: Array<{ __typename?: 'File', name: string } | null> | null, cvPdf?: { __typename?: 'File', name: string } | null, workflowState?: { __typename?: 'WorkflowState', name: string } | null, project?: { __typename?: 'WorkflowProject', name: string } | null } | null> | null };
+export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null } | null> | null };
 
 export type CardByIdsQueryVariables = Exact<{
   ids: Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>;
 }>;
 
 
-export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null } | null> | null };
+export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null } | null> | null };
 
 export type CommentsForEidQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -518,6 +520,44 @@ export type CreateWorkflowProjectMutation = { __typename?: 'Mutation', createWor
 
 export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, roles?: Array<string | null> | null, tasks?: Array<string | null> | null, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null };
 
+export const CardDetailsFragmentDoc = `
+    fragment CardDetails on Card {
+  ... on HiringCard {
+    id
+    description
+    agent
+    createdAt
+    _siteValidTime
+    _siteSubject
+    location
+    currentOwnerUsernames
+    taskHtml
+    cvPdf {
+      base64
+      name
+      type
+    }
+    files {
+      base64
+      name
+      type
+    }
+    project {
+      description
+      id
+      name
+    }
+    title
+    workflowState {
+      id
+      name
+      tasks
+      roles
+    }
+    stateStr
+  }
+}
+    `;
 export const WorkflowProjectFieldsFragmentDoc = `
     fragment WorkflowProjectFields on WorkflowProject {
   id
@@ -580,32 +620,10 @@ useAllProjectsQuery.fetcher = (variables?: AllProjectsQueryVariables) => fetcher
 export const CardHistoryDocument = `
     query cardHistory($id: ID!) {
   cardHistory(id: $id, limit: 100) {
-    ... on HiringCard {
-      id
-      title
-      description
-      location
-      agent
-      stateStr
-      taskHtml
-      files {
-        name
-      }
-      cvPdf {
-        name
-      }
-      _siteValidTime
-      _siteSubject
-      workflowState {
-        name
-      }
-      project {
-        name
-      }
-    }
+    ...CardDetails
   }
 }
-    `;
+    ${CardDetailsFragmentDoc}`;
 export const useCardHistoryQuery = <
       TData = CardHistoryQuery,
       TError = Error
@@ -628,42 +646,10 @@ useCardHistoryQuery.fetcher = (variables: CardHistoryQueryVariables) => fetcher<
 export const CardByIdsDocument = `
     query cardByIds($ids: [ID]!) {
   cardsByIds(ids: $ids) {
-    ... on HiringCard {
-      id
-      description
-      agent
-      createdAt
-      _siteValidTime
-      _siteSubject
-      location
-      currentOwnerUsernames
-      taskHtml
-      cvPdf {
-        base64
-        name
-        type
-      }
-      files {
-        base64
-        name
-        type
-      }
-      project {
-        description
-        id
-        name
-      }
-      title
-      workflowState {
-        id
-        name
-        tasks
-        roles
-      }
-    }
+    ...CardDetails
   }
 }
-    `;
+    ${CardDetailsFragmentDoc}`;
 export const useCardByIdsQuery = <
       TData = CardByIdsQuery,
       TError = Error

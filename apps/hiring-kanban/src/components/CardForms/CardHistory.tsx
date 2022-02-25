@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   LocationGenerics,
   useCardHistory,
@@ -7,14 +8,15 @@ import {
   useCardHistoryQuery,
   CardHistoryQuery,
 } from '@juxt-home/site';
-import { Table } from '@juxt-home/ui-common';
+import { Modal, Table } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { CellProps } from 'react-table';
 import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';
+import { CardView } from './CardView';
 
 type TCardHistoryCard = NonNullable<
   NonNullable<CardHistoryQuery['cardHistory']>[0]
@@ -25,6 +27,14 @@ function TitleComponent({ value }: CellProps<TCardHistoryCard>) {
 }
 
 export function CardHistory() {
+  const [showPreviewModal, setShowPreviewModal] = useState<boolean | number>(
+    false,
+  );
+
+  const handleClose = () => {
+    setShowPreviewModal(false);
+  };
+
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { history, isLoading, isError, error } = useCardHistory(cardId);
   const queryClient = useQueryClient();
@@ -55,6 +65,13 @@ export function CardHistory() {
           className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           onClick={() => handleRollback(row.original)}>
           Rollback
+        </button>
+
+        <button
+          type="button"
+          className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          onClick={() => setShowPreviewModal(row.index)}>
+          Preview
         </button>
       </>
     );
@@ -169,6 +186,13 @@ export function CardHistory() {
             </h1>
           </div>
           {history && <Table columns={cols} data={data} />}
+
+          <Modal isOpen={!!showPreviewModal} handleClose={handleClose}>
+            {typeof showPreviewModal === 'number' &&
+              history?.[showPreviewModal] && (
+                <CardView card={history[showPreviewModal]!} />
+              )}
+          </Modal>
         </div>
       </div>
     </div>

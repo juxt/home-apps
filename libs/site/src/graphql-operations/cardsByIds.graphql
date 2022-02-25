@@ -1,37 +1,5 @@
 query cardByIds($ids: [ID]!) {
   cardsByIds(ids: $ids) {
-    ... on HiringCard {
-      id
-      description
-      agent
-      createdAt
-      _siteValidTime
-      _siteSubject
-      location
-      currentOwnerUsernames
-      taskHtml
-      cvPdf {
-        base64
-        name
-        type
-      }
-      files {
-        base64
-        name
-        type
-      }
-      project {
-        description
-        id
-        name
-      }
-      title
-      workflowState {
-        id
-        name
-        tasks
-        roles
-      }
-    }
+    ...CardDetails
   }
 }
