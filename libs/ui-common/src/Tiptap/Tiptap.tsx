@@ -127,8 +127,6 @@ function Tiptap({
   useEffect(() => {
     return () => {
       if (tiptapEditor) {
-        console.log('destroy');
-
         tiptapEditor.destroy();
       }
     };

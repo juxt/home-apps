@@ -26,23 +26,29 @@ import {
   DateFilter,
   DateFilterFn,
   roles,
+  searchAtom,
 } from '@juxt-home/ui-common';
 import { Heading } from './Headings';
 import { WorkflowStateContainer } from './WorkflowState';
 import { useQueryClient } from 'react-query';
 import splitbee from '@splitbee/web';
+import { useAtom } from 'jotai';
 
 function processWorkflow(
   workflow: TWorkflow,
   workflowProjectId: string | undefined,
+  searchString: string,
 ) {
-  if (!workflow) return null;
   const workflowStates = workflow?.workflowStates.filter(notEmpty) || [];
   return {
     ...workflow,
     workflowStates: workflowStates.map((c) => ({
       ...c,
-      cards: filteredCards(c.cards?.filter(notEmpty), workflowProjectId),
+      cards: filteredCards(
+        c.cards?.filter(notEmpty),
+        workflowProjectId,
+        searchString,
+      ),
     })),
   };
 }
@@ -51,9 +57,10 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
   const search = useSearch<LocationGenerics>();
   const navigate = useNavigate<LocationGenerics>();
   const { workflowProjectId, devMode } = search;
+  const [searchString] = useAtom(searchAtom);
   const data = useMemo(
-    () => processWorkflow(workflow, workflowProjectId),
-    [workflow, workflowProjectId],
+    () => processWorkflow(workflow, workflowProjectId, searchString),
+    [workflow, workflowProjectId, searchString],
   );
   const [filteredState, setState] = useState<TWorkflow | null>();
   const unfilteredWorkflow = useKanbanDataQuery({

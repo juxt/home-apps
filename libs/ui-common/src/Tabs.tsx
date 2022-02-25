@@ -1,9 +1,11 @@
 import { SearchIcon } from '@heroicons/react/solid';
 import { LocationGenerics } from '@juxt-home/site';
 import classNames from 'classnames';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearch } from 'react-location';
 import Select from 'react-select';
-import { Option } from './Forms';
+import { useAsyncDebounce } from 'react-table';
+import { Option, useGlobalSearch } from './Forms';
 
 type Tab = {
   id: string;
@@ -39,6 +41,8 @@ export function NavTabs({ tabs, navName }: TabProps) {
       },
     });
   };
+
+  const [searchVal, setSearchVal] = useGlobalSearch();
 
   return (
     <div className="mb-2">
@@ -80,6 +84,8 @@ export function NavTabs({ tabs, navName }: TabProps) {
                     className="block pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="Search"
                     type="search"
+                    onChange={(e) => setSearchVal(e.target.value)}
+                    value={searchVal}
                   />
                 </div>
               </div>
