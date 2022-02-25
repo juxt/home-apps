@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { BookOpenIcon, DatabaseIcon } from '@heroicons/react/solid';
 import {
   LocationGenerics,
   useCardHistory,
@@ -59,21 +60,29 @@ export function CardHistory() {
   // eslint-disable-next-line react/no-unstable-nested-components
   function RollbackButton({ row }: CellProps<TCardHistoryCard>) {
     return (
-      <>
+      <div className="flex flex-row justify-between">
         <button
           type="button"
-          className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          title="Rollback"
+          className="mt-3"
           onClick={() => handleRollback(row.original)}>
-          Rollback
+          <DatabaseIcon
+            className="h-5 w-8 text-stone-700 hover:text-indigo-700"
+            aria-hidden="true"
+          />
         </button>
 
         <button
           type="button"
-          className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          title="Preview"
+          className="mt-3"
           onClick={() => setShowPreviewModal(row.index)}>
-          Preview
+          <BookOpenIcon
+            className="h-6 w-8 text-stone-700 hover:text-indigo-700"
+            aria-hidden="true"
+          />
         </button>
-      </>
+      </div>
     );
   }
 
