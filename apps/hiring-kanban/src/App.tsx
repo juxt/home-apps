@@ -12,6 +12,7 @@ import {
   Workflow,
   AddWorkflowStateModal,
   UpdateWorkflowStateModalWrapper,
+  ViewCommentsModal,
 } from '@juxt-home/ui-kanban';
 import {
   AddHiringCardModalWrapper as AddHiringCardModal,
@@ -21,6 +22,7 @@ import { workflowId } from './constants';
 
 export function App() {
   const search = useSearch<LocationGenerics>();
+
   const refetch = search.modalState?.formModalType ? false : 3000;
   const kanbanQueryResult = useKanbanDataQuery(
     { id: workflowId },
@@ -28,6 +30,7 @@ export function App() {
       refetchInterval: refetch,
     },
   );
+
   const workflow = kanbanQueryResult.data?.workflow;
   const [isModalOpen, setIsModalOpen] = useModalForm({
     formModalType: 'addWorkflowState',
@@ -44,6 +47,9 @@ export function App() {
   });
   const [isAddProject, setIsAddProject] = useModalForm({
     formModalType: 'addProject',
+  });
+  const [isViewComments, setIsViewComments] = useModalForm({
+    formModalType: 'viewComments',
   });
   const [isEditProject, setIsEditProject] = useModalForm({
     formModalType: 'editProject',
@@ -73,6 +79,10 @@ export function App() {
       <AddProjectModal
         isOpen={isAddProject}
         handleClose={() => setIsAddProject(false)}
+      />
+      <ViewCommentsModal
+        isOpen={isViewComments}
+        handleClose={() => setIsViewComments(false)}
       />
       <UpdateWorkflowProjectModal
         isOpen={isEditProject}

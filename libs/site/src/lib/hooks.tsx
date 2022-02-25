@@ -16,6 +16,7 @@ import {
   TWorkflowState,
   useUpdateCardPositionMutation,
   useMoveCardMutation,
+  userAvatar,
 } from '..';
 import { useUpdateHiringCardMutation } from '../generated/graphql';
 
@@ -146,7 +147,7 @@ export function useCommentForEntity(
       ...opts,
       select: (data) => ({
         ...data,
-        commentsForCard: data?.commentsForCard
+        commentsForEntity: data?.commentsForEntity
           ?.filter(notEmpty)
           .filter((c) => !c?.parentId),
       }),
@@ -174,7 +175,7 @@ export function useCardHistory(
   return { ...queryResult, history: queryResult.data?.cardHistory };
 }
 
-export function useUserId() {
+export function useUser() {
   // should probably make a user query
   const { data } = useKanbanDataQuery(
     { id: 'WorkflowHiring' },
@@ -183,7 +184,11 @@ export function useUserId() {
       staleTime: Infinity,
     },
   );
-  return data;
+  const userImg = userAvatar(data);
+  return {
+    id: data,
+    avatar: userImg || '',
+  };
 }
 
 export function useMoveCard({ handleSuccess }: { handleSuccess: () => void }) {

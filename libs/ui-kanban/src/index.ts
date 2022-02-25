@@ -5,3 +5,4 @@ export * from './Workflow';
 export * from './WorkflowStateForms';
 export * from './WorkflowState';
 export * from './WorkflowForms';
+export * from './CardCommentsModal';

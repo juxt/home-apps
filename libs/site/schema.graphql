@@ -13,7 +13,9 @@ type Query {
   allWorkflowStates: [WorkflowState]
   workflowState(id: ID!): WorkflowState
   allWorkflowProjects: [WorkflowProject]
-  commentsForCard(id: ID!): [Comment] @site(itemForId: "cardId")
+  commentsForEntity(id: ID!, limit: Int, order: String): [Comment]
+    @site(itemForId: "cardId")
+  allComments(limit: Int): [Comment]
   cardsForProject(id: ID!): [Card] @site(itemForId: "workflowProjectId")
 }
 
@@ -186,6 +188,7 @@ type Comment {
   text: String!
   _siteSubject: String
   _siteValidTime: String!
+  _siteCreatedAt: String!
   parentId: String
   card: Card @site(ref: "cardId")
   children: [Comment] @site(ref: "parentId")

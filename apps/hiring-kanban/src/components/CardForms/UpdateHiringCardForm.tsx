@@ -6,6 +6,7 @@ import {
   useWorkflowStates,
   useCardById,
   useProjectOptions,
+  juxters,
   TWorkflowState,
   TCard,
   UpdateHiringCardMutationVariables,
@@ -18,7 +19,6 @@ import {
   Form,
   Button,
   useDirty,
-  juxters,
   RenderField,
 } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';

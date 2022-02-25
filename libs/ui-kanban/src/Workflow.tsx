@@ -17,7 +17,8 @@ import {
   useModalForm,
   useKanbanDataQuery,
   useMoveCard,
-  useUserId,
+  roles,
+  useUser,
 } from '@juxt-home/site';
 
 import {
@@ -25,7 +26,6 @@ import {
   Table,
   DateFilter,
   DateFilterFn,
-  roles,
   searchAtom,
 } from '@juxt-home/ui-common';
 import { Heading } from './Headings';
@@ -66,7 +66,8 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
   const unfilteredWorkflow = useKanbanDataQuery({
     id: workflow.id,
   })?.data?.workflow;
-  const username = useUserId() || 'admin';
+  const { id } = useUser();
+  const username = id ?? 'admin';
 
   useEffect(() => {
     if (data) {

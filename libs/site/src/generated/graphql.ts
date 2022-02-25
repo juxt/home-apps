@@ -7,7 +7,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch("http://localhost:5509/kanban/graphql", {
+    const res = await fetch("https://alexd.uk/kanban/graphql", {
     method: "POST",
     ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
@@ -37,6 +37,7 @@ export type Card = HiringCard;
 
 export type Comment = {
   __typename?: 'Comment';
+  _siteCreatedAt: Scalars['String'];
   _siteQuery?: Maybe<Scalars['String']>;
   _siteSubject?: Maybe<Scalars['String']>;
   _siteValidTime: Scalars['String'];
@@ -236,6 +237,7 @@ export type MutationUpdatecommentArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  allComments?: Maybe<Array<Maybe<Comment>>>;
   allHiringCards?: Maybe<Array<Maybe<HiringCard>>>;
   allWorkflowProjects?: Maybe<Array<Maybe<WorkflowProject>>>;
   allWorkflowStates?: Maybe<Array<Maybe<WorkflowState>>>;
@@ -243,10 +245,15 @@ export type Query = {
   cardHistory?: Maybe<Array<Maybe<Card>>>;
   cardsByIds?: Maybe<Array<Maybe<Card>>>;
   cardsForProject?: Maybe<Array<Maybe<Card>>>;
-  commentsForCard?: Maybe<Array<Maybe<Comment>>>;
+  commentsForEntity?: Maybe<Array<Maybe<Comment>>>;
   myJuxtcode?: Maybe<Scalars['String']>;
   workflow?: Maybe<Workflow>;
   workflowState?: Maybe<WorkflowState>;
+};
+
+
+export type QueryAllCommentsArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -267,8 +274,10 @@ export type QueryCardsForProjectArgs = {
 };
 
 
-export type QueryCommentsForCardArgs = {
+export type QueryCommentsForEntityArgs = {
   id: Scalars['ID'];
+  limit?: InputMaybe<Scalars['Int']>;
+  order?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -352,12 +361,24 @@ export type CardByIdsQueryVariables = Exact<{
 
 export type CardByIdsQuery = { __typename?: 'Query', cardsByIds?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null } | null> | null };
 
+export type CommentsForEidQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type CommentsForEidQuery = { __typename?: 'Query', commentsForEntity?: Array<{ __typename?: 'Comment', id: string, text: string, _siteSubject?: string | null, _siteValidTime: string, _siteCreatedAt: string, children?: Array<{ __typename?: 'Comment', _siteSubject?: string | null, id: string } | null> | null } | null> | null };
+
+export type RecentCommentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RecentCommentsQuery = { __typename?: 'Query', allComments?: Array<{ __typename?: 'Comment', id: string, _siteCreatedAt: string, _siteValidTime: string, _siteSubject?: string | null, text: string, card?: { __typename?: 'HiringCard', id: string, title: string } | null } | null> | null };
+
 export type CommentsForCardQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type CommentsForCardQuery = { __typename?: 'Query', commentsForCard?: Array<{ __typename?: 'Comment', id: string, _siteSubject?: string | null, _siteValidTime: string, text: string, parentId?: string | null, children?: Array<{ __typename?: 'Comment', text: string } | null> | null } | null> | null };
+export type CommentsForCardQuery = { __typename?: 'Query', commentsForEntity?: Array<{ __typename?: 'Comment', id: string, _siteCreatedAt: string, _siteSubject?: string | null, _siteValidTime: string, text: string, parentId?: string | null, children?: Array<{ __typename?: 'Comment', text: string } | null> | null } | null> | null };
 
 export type CreateHiringCardMutationVariables = Exact<{
   card: HiringCardInput;
@@ -662,10 +683,81 @@ useCardByIdsQuery.getKey = (variables: CardByIdsQueryVariables) => ['cardByIds',
 ;
 
 useCardByIdsQuery.fetcher = (variables: CardByIdsQueryVariables) => fetcher<CardByIdsQuery, CardByIdsQueryVariables>(CardByIdsDocument, variables);
+export const CommentsForEidDocument = `
+    query commentsForEID($id: ID!) {
+  commentsForEntity(id: $id) {
+    id
+    text
+    _siteSubject
+    _siteValidTime
+    _siteCreatedAt
+    children {
+      _siteSubject
+      id
+    }
+  }
+}
+    `;
+export const useCommentsForEidQuery = <
+      TData = CommentsForEidQuery,
+      TError = Error
+    >(
+      variables: CommentsForEidQueryVariables,
+      options?: UseQueryOptions<CommentsForEidQuery, TError, TData>
+    ) =>
+    useQuery<CommentsForEidQuery, TError, TData>(
+      ['commentsForEID', variables],
+      fetcher<CommentsForEidQuery, CommentsForEidQueryVariables>(CommentsForEidDocument, variables),
+      options
+    );
+useCommentsForEidQuery.document = CommentsForEidDocument;
+
+
+useCommentsForEidQuery.getKey = (variables: CommentsForEidQueryVariables) => ['commentsForEID', variables];
+;
+
+useCommentsForEidQuery.fetcher = (variables: CommentsForEidQueryVariables) => fetcher<CommentsForEidQuery, CommentsForEidQueryVariables>(CommentsForEidDocument, variables);
+export const RecentCommentsDocument = `
+    query recentComments {
+  allComments(limit: 5) {
+    id
+    card {
+      ... on HiringCard {
+        id
+        title
+      }
+    }
+    _siteCreatedAt
+    _siteValidTime
+    _siteSubject
+    text
+  }
+}
+    `;
+export const useRecentCommentsQuery = <
+      TData = RecentCommentsQuery,
+      TError = Error
+    >(
+      variables?: RecentCommentsQueryVariables,
+      options?: UseQueryOptions<RecentCommentsQuery, TError, TData>
+    ) =>
+    useQuery<RecentCommentsQuery, TError, TData>(
+      variables === undefined ? ['recentComments'] : ['recentComments', variables],
+      fetcher<RecentCommentsQuery, RecentCommentsQueryVariables>(RecentCommentsDocument, variables),
+      options
+    );
+useRecentCommentsQuery.document = RecentCommentsDocument;
+
+
+useRecentCommentsQuery.getKey = (variables?: RecentCommentsQueryVariables) => variables === undefined ? ['recentComments'] : ['recentComments', variables];
+;
+
+useRecentCommentsQuery.fetcher = (variables?: RecentCommentsQueryVariables) => fetcher<RecentCommentsQuery, RecentCommentsQueryVariables>(RecentCommentsDocument, variables);
 export const CommentsForCardDocument = `
     query commentsForCard($id: ID!) {
-  commentsForCard(id: $id) {
+  commentsForEntity(id: $id, limit: 100, order: "asc") {
     id
+    _siteCreatedAt
     _siteSubject
     _siteValidTime
     text

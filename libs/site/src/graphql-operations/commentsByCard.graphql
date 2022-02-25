@@ -1,6 +1,7 @@
 query commentsForCard($id: ID!) {
-  commentsForCard(id: $id) {
+  commentsForEntity(id: $id, limit: 100, order: "asc") {
     id
+    _siteCreatedAt
     _siteSubject
     _siteValidTime
     text
