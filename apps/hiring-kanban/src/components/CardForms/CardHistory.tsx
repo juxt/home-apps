@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { BookOpenIcon, DatabaseIcon } from '@heroicons/react/solid';
+import {
+  BookOpenIcon,
+  DatabaseIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+} from '@heroicons/react/solid';
 import {
   LocationGenerics,
   useCardHistory,
@@ -199,7 +204,28 @@ export function CardHistory() {
           <Modal isOpen={!!showPreviewModal} handleClose={handleClose}>
             {typeof showPreviewModal === 'number' &&
               history?.[showPreviewModal] && (
-                <CardView card={history[showPreviewModal]!} />
+                <>
+                  <CardView card={history[showPreviewModal]!} />
+                  <button
+                    type="button"
+                    title="Previous"
+                    onClick={() => setShowPreviewModal(showPreviewModal + 1)}>
+                    <ChevronDoubleLeftIcon
+                      className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 hover:text-indigo-700"
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    title="Next"
+                    onClick={() => setShowPreviewModal(showPreviewModal - 1)}>
+                    <ChevronDoubleRightIcon
+                      style={{ marginLeft: '50rem' }}
+                      className="absolute -mt-60 h-8 w-8 text-stone-400 hover:text-indigo-700 "
+                      aria-hidden="true"
+                    />
+                  </button>
+                </>
               )}
           </Modal>
         </div>
