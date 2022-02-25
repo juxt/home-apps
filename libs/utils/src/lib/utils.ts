@@ -105,8 +105,11 @@ export function fileToString(file: File): Promise<string> {
 }
 
 export const base64toBlob = (data: string) => {
-  // Cut the prefix `data:application/pdf;base64` from the raw base 64
-  const bytes = atob(data);
+  // Cut the prefix `data:application/pdf;base64` from the raw base 64 (some pdfs don't have this though)
+  const base64Raw = data.startsWith('data:application')
+    ? data.split(',')[1]
+    : data;
+  const bytes = atob(base64Raw);
   let { length } = bytes;
   const out = new Uint8Array(length);
 

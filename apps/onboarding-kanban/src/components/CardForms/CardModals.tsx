@@ -64,7 +64,7 @@ export function EditHiringCardModal({
   const navigate = useNavigate<LocationGenerics>();
   const [hasUnsaved] = useAtom(dirtyAtom);
   const card = data?.cardsByIds?.[0];
-  const pdfLzString = card?.cvPdf?.base64;
+  const pdfBase64 = card?.cvPdf?.base64;
 
   const onClose = () => {
     const confirmation =
@@ -98,7 +98,7 @@ export function EditHiringCardModal({
         <ModalTabs
           tabs={[
             { id: 'view', name: 'View', default: !cardModalView },
-            { id: 'cv', name: 'CV', hidden: !pdfLzString },
+            { id: 'cv', name: 'CV', hidden: !pdfBase64 },
             { id: 'update', name: 'Edit' },
             { id: 'history', name: 'History' },
           ]}
@@ -128,7 +128,7 @@ export function EditHiringCardModal({
         {cardModalView === 'history' && <CardHistory />}
         {cardModalView === 'cv' && (
           <div className="block mx-auto h-full min-h-full ">
-            <PdfViewer pdfString={pdfLzString} />
+            <PdfViewer pdfString={pdfBase64} />
           </div>
         )}
       </div>
