@@ -1,7 +1,7 @@
 import SplitPane from '@andrewray/react-split-pane';
 import { Disclosure } from '@headlessui/react';
 import {
-  CardByIdsQuery,
+  CardDetailsFragment,
   LocationGenerics,
   TDetailedCard,
   useCardById,
@@ -25,7 +25,7 @@ function CardInfo({
   card,
   resetSplit,
 }: {
-  card?: NonNullable<NonNullable<CardByIdsQuery['cardsByIds']>[0]>;
+  card?: CardDetailsFragment;
   resetSplit?: () => void;
 }) {
   const [showQuestionModal, setShowQuestionModal] = useState(false);

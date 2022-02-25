@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  BookOpenIcon,
+  DatabaseIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+} from '@heroicons/react/solid';
 import {
   LocationGenerics,
   useCardHistory,
@@ -7,14 +14,15 @@ import {
   useCardHistoryQuery,
   CardHistoryQuery,
 } from '@juxt-home/site';
-import { Table } from '@juxt-home/ui-common';
+import { Modal, Table } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { CellProps } from 'react-table';
 import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';
+import { CardView } from './CardView';
 
 type TCardHistoryCard = NonNullable<
   NonNullable<CardHistoryQuery['cardHistory']>[0]
@@ -25,6 +33,14 @@ function TitleComponent({ value }: CellProps<TCardHistoryCard>) {
 }
 
 export function CardHistory() {
+  const [showPreviewModal, setShowPreviewModal] = useState<boolean | number>(
+    false,
+  );
+
+  const handleClose = () => {
+    setShowPreviewModal(false);
+  };
+
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { history, isLoading, isError, error } = useCardHistory(cardId);
   const queryClient = useQueryClient();
@@ -49,17 +65,29 @@ export function CardHistory() {
   // eslint-disable-next-line react/no-unstable-nested-components
   function RollbackButton({ row }: CellProps<TCardHistoryCard>) {
     return (
-      <>
+      <div className="flex flex-row justify-between">
         <button
           type="button"
-          className="inline-flex justify-center items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          title="Rollback"
+          className="mt-3"
           onClick={() => handleRollback(row.original)}>
-          Rollback
+          <DatabaseIcon
+            className="h-5 w-8 text-stone-700 hover:text-indigo-700"
+            aria-hidden="true"
+          />
         </button>
-        <button type="button" onClick={() => console.log(row)}>
-          Open preview
+
+        <button
+          type="button"
+          title="Preview"
+          className="mt-3"
+          onClick={() => setShowPreviewModal(row.index)}>
+          <BookOpenIcon
+            className="h-6 w-8 text-stone-700 hover:text-indigo-700"
+            aria-hidden="true"
+          />
         </button>
-      </>
+      </div>
     );
   }
 
@@ -172,6 +200,34 @@ export function CardHistory() {
             </h1>
           </div>
           {history && <Table columns={cols} data={data} />}
+
+          <Modal isOpen={!!showPreviewModal} handleClose={handleClose}>
+            {typeof showPreviewModal === 'number' &&
+              history?.[showPreviewModal] && (
+                <>
+                  <CardView card={history[showPreviewModal]!} />
+                  <button
+                    type="button"
+                    title="Previous"
+                    onClick={() => setShowPreviewModal(showPreviewModal + 1)}>
+                    <ChevronDoubleLeftIcon
+                      className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 hover:text-indigo-700"
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    title="Next"
+                    onClick={() => setShowPreviewModal(showPreviewModal - 1)}>
+                    <ChevronDoubleRightIcon
+                      style={{ marginLeft: '50rem' }}
+                      className="absolute -mt-60 h-8 w-8 text-stone-400 hover:text-indigo-700 "
+                      aria-hidden="true"
+                    />
+                  </button>
+                </>
+              )}
+          </Modal>
         </div>
       </div>
     </div>
