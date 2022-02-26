@@ -13,6 +13,7 @@ import {
   useKanbanDataQuery,
   useCardHistoryQuery,
   CardHistoryQuery,
+  useAsOf,
 } from '@juxt-home/site';
 import { Modal, Table } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
@@ -37,12 +38,18 @@ export function CardHistory() {
     false,
   );
 
-  const handleClose = () => {
-    setShowPreviewModal(false);
-  };
-
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { history, isLoading, isError, error } = useCardHistory(cardId);
+  const previewIndex =
+    typeof showPreviewModal === 'number' ? showPreviewModal : 0;
+  const previewCard = history?.[previewIndex];
+
+  const [, setAsOf] = useAsOf({ validTime: previewCard?._siteValidTime });
+
+  const handleClose = () => {
+    setAsOf(undefined);
+    setShowPreviewModal(false);
+  };
   const queryClient = useQueryClient();
   const rollbackMutation = useRollbackCardMutation({
     onSettled: (data) => {
@@ -199,35 +206,46 @@ export function CardHistory() {
                 : 'Card History'}
             </h1>
           </div>
-          {history && <Table columns={cols} data={data} />}
-
-          <Modal isOpen={!!showPreviewModal} handleClose={handleClose}>
-            {typeof showPreviewModal === 'number' &&
-              history?.[showPreviewModal] && (
-                <>
-                  <CardView card={history[showPreviewModal]!} />
-                  <button
-                    type="button"
-                    title="Previous"
-                    onClick={() => setShowPreviewModal(showPreviewModal + 1)}>
-                    <ChevronDoubleLeftIcon
-                      className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 hover:text-indigo-700"
-                      aria-hidden="true"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    title="Next"
-                    onClick={() => setShowPreviewModal(showPreviewModal - 1)}>
-                    <ChevronDoubleRightIcon
-                      style={{ marginLeft: '50rem' }}
-                      className="absolute -mt-60 h-8 w-8 text-stone-400 hover:text-indigo-700 "
-                      aria-hidden="true"
-                    />
-                  </button>
-                </>
-              )}
-          </Modal>
+          {history && (
+            <>
+              <Table columns={cols} data={data} />
+              <Modal
+                isOpen={showPreviewModal !== false}
+                handleClose={handleClose}>
+                {previewCard && typeof previewIndex === 'number' && (
+                  <>
+                    <CardView card={previewCard} />
+                    <button
+                      type="button"
+                      title="Previous"
+                      disabled={previewIndex === history.length - 1}
+                      className="absolute cursor-pointer top-1/2 left-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => setShowPreviewModal(previewIndex + 1)}>
+                      <ChevronDoubleLeftIcon
+                        className="h-8 w-8 text-white bg-slate-500 rounded-full hover:text-slate-200"
+                        aria-hidden="true"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={previewIndex === 0}
+                      title="Previous"
+                      className="absolute cursor-pointer top-1/2 right-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => setShowPreviewModal(previewIndex - 1)}>
+                      <ChevronDoubleRightIcon
+                        className="h-8 w-8 text-white bg-slate-500 rounded-full hover:text-slate-200"
+                        aria-hidden="true"
+                      />
+                    </button>
+                    <h1 className="absolute bottom-2 text-center right-0 left-0 text-lg text-white bg-black">
+                      History Item - showing card as of{' '}
+                      {previewCard._siteValidTime}
+                    </h1>
+                  </>
+                )}
+              </Modal>
+            </>
+          )}
         </div>
       </div>
     </div>

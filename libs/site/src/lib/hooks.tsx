@@ -1,5 +1,7 @@
 import { notEmpty } from '@juxt-home/utils';
+import { atom, useAtom } from 'jotai';
 import _ from 'lodash';
+import { useEffect } from 'react';
 import { DraggableLocation } from 'react-beautiful-dnd';
 import { useNavigate, useSearch } from 'react-location';
 import { UseQueryOptions } from 'react-query';
@@ -138,11 +140,11 @@ export function useCardById(
 }
 
 export function useCommentForEntity(
-  eId: string,
+  { asOf, eId }: { asOf?: string; eId: string },
   opts: UseQueryOptions<CommentsForCardQuery, Error, CommentsForCardQuery> = {},
 ) {
   const query = useCommentsForCardQuery(
-    { id: eId },
+    { id: eId, asOf },
     {
       ...opts,
       select: (data) => ({
@@ -161,7 +163,7 @@ export function useCardHistory(
   opts?: UseQueryOptions<CardHistoryQuery, Error, CardHistoryQuery>,
 ) {
   const queryResult = useCardHistoryQuery(
-    { id: cardId || '' },
+    { id: cardId || '', historicalDb: true },
     {
       ...opts,
       select: (data) => ({
@@ -237,4 +239,18 @@ export function useMoveCard({ handleSuccess }: { handleSuccess: () => void }) {
     }
   };
   return [updateServerCards];
+}
+
+export const asOfAtom = atom<string | undefined>(undefined);
+
+export function useAsOf({
+  validTime,
+}: {
+  validTime?: string;
+}): [string | undefined, (v: string | undefined) => void] {
+  const [asOf, setAsOf] = useAtom(asOfAtom);
+  useEffect(() => {
+    setAsOf(validTime);
+  }, [validTime, setAsOf]);
+  return [asOf, setAsOf];
 }

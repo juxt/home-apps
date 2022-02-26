@@ -8,13 +8,18 @@ type Query {
   workflow(id: ID!): Workflow
   myJuxtcode: String @site(subject: "juxt.pass.alpha/username")
   allHiringCards: [HiringCard]
-  cardHistory(id: ID!, limit: Int, offset: Int): [Card] @site(history: "desc")
+  cardHistory(id: ID!, limit: Int, offset: Int, historicalDb: Boolean): [Card]
+    @site(history: "desc")
   cardsByIds(ids: [ID]!): [Card]
   allWorkflowStates: [WorkflowState]
   workflowState(id: ID!): WorkflowState
   allWorkflowProjects: [WorkflowProject]
-  commentsForEntity(id: ID!, limit: Int, order: String): [Comment]
-    @site(itemForId: "cardId")
+  commentsForEntity(
+    id: ID!
+    limit: Int
+    order: String
+    asOf: String
+  ): [Comment] @site(itemForId: "cardId")
   allComments(limit: Int): [Comment]
   cardsForProject(id: ID!): [Card] @site(itemForId: "workflowProjectId")
 }

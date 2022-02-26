@@ -12,6 +12,8 @@ import {
   useUser,
   useModalForm,
   userAvatar,
+  useAsOf,
+  asOfAtom,
 } from '@juxt-home/site';
 import * as _ from 'lodash';
 import { useCallback, BaseSyntheticEvent, useEffect, useState } from 'react';
@@ -25,6 +27,7 @@ import { useDirty } from './hooks';
 import { TipTapContent } from '../Tiptap/Tiptap';
 import { Button } from '../Buttons';
 import splitbee from '@splitbee/web';
+import { useAtom } from 'jotai';
 
 function CommentForm({
   userProfileImg,
@@ -297,9 +300,14 @@ export function CommentLoading({ count }: { count: number }) {
 }
 
 export function CommentSection({ eId }: { eId: string }) {
-  const { data, isLoading } = useCommentForEntity(eId, {
-    refetchInterval: 5000,
-  });
+  const [asOf] = useAtom(asOfAtom);
+
+  const { data, isLoading } = useCommentForEntity(
+    { eId, asOf },
+    {
+      refetchInterval: 5000,
+    },
+  );
   const [commentLimit, setCommentLimit] = useState(5);
   const allComments = data?.commentsForEntity || [];
   const comments = _.takeRight(allComments, commentLimit);

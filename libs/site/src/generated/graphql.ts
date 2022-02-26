@@ -258,6 +258,7 @@ export type QueryAllCommentsArgs = {
 
 
 export type QueryCardHistoryArgs = {
+  historicalDb?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   limit?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
@@ -275,6 +276,7 @@ export type QueryCardsForProjectArgs = {
 
 
 export type QueryCommentsForEntityArgs = {
+  asOf?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   limit?: InputMaybe<Scalars['Int']>;
   order?: InputMaybe<Scalars['String']>;
@@ -351,6 +353,7 @@ export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title:
 
 export type CardHistoryQueryVariables = Exact<{
   id: Scalars['ID'];
+  historicalDb?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
@@ -377,6 +380,7 @@ export type RecentCommentsQuery = { __typename?: 'Query', allComments?: Array<{ 
 
 export type CommentsForCardQueryVariables = Exact<{
   id: Scalars['ID'];
+  asOf?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -618,8 +622,8 @@ useAllProjectsQuery.getKey = (variables?: AllProjectsQueryVariables) => variable
 
 useAllProjectsQuery.fetcher = (variables?: AllProjectsQueryVariables) => fetcher<AllProjectsQuery, AllProjectsQueryVariables>(AllProjectsDocument, variables);
 export const CardHistoryDocument = `
-    query cardHistory($id: ID!) {
-  cardHistory(id: $id, limit: 100) {
+    query cardHistory($id: ID!, $historicalDb: Boolean) {
+  cardHistory(id: $id, limit: 100, historicalDb: $historicalDb) {
     ...CardDetails
   }
 }
@@ -740,8 +744,8 @@ useRecentCommentsQuery.getKey = (variables?: RecentCommentsQueryVariables) => va
 
 useRecentCommentsQuery.fetcher = (variables?: RecentCommentsQueryVariables) => fetcher<RecentCommentsQuery, RecentCommentsQueryVariables>(RecentCommentsDocument, variables);
 export const CommentsForCardDocument = `
-    query commentsForCard($id: ID!) {
-  commentsForEntity(id: $id, limit: 100, order: "asc") {
+    query commentsForCard($id: ID!, $asOf: String) {
+  commentsForEntity(id: $id, limit: 100, order: "asc", asOf: $asOf) {
     id
     _siteCreatedAt
     _siteSubject
