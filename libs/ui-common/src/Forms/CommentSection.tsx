@@ -99,21 +99,6 @@ function CommentForm({
     onSubmit: submitComment,
   };
   const error = formHooks.formState.errors.Comment?.text;
-  useEffect(() => {
-    const listener = (event: KeyboardEvent) => {
-      if (
-        (event.code === 'Enter' || event.code === 'NumpadEnter') &&
-        (event.ctrlKey || event.metaKey)
-      ) {
-        submitComment();
-      }
-    };
-    document.addEventListener('keydown', listener);
-    return () => {
-      document.removeEventListener('keydown', listener);
-    };
-  }, [submitComment]);
-
   return (
     <div className="mt-10">
       <div className="flex space-x-3">
@@ -144,6 +129,7 @@ function CommentForm({
                   id: 'commentText',
                   path: 'Comment.text',
                   placeholder: 'Type a comment (ctrl+enter to send)',
+                  // why this slow
                   type: 'tiptap',
                 }}
                 props={commentFormProps}
@@ -338,7 +324,9 @@ export function CommentSection({ eId }: { eId: string }) {
     <section aria-labelledby="activity-title" className="sm:h-full">
       <div className="divide-y divide-gray-200 pr-2">
         <div className="pb-4">
-          <h2 className="text-lg font-medium text-gray-900">Comments</h2>
+          <h2 className="text-lg font-medium text-gray-900">
+            General Comments
+          </h2>
         </div>
         <div className="pt-6">
           {/* Activity feed */}

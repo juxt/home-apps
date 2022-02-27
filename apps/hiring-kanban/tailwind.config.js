@@ -9,6 +9,7 @@ module.exports = {
     'libs/forms/src/**/*.{ts,tsx,html}',
     ...createGlobPatternsForDependencies(__dirname),
   ],
+  important: true,
   theme: {
     extend: {
       height: () => ({

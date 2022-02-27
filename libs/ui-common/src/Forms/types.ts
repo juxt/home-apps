@@ -52,7 +52,7 @@ type WithIdAndType<
     | 'tiptap'
     | 'hidden',
 > = {
-  id: string;
+  id?: string;
   type: T;
 };
 
@@ -123,6 +123,7 @@ export type SubmitButtonProps = SubmitProps & WithIdAndType<'submit'>;
 
 export type FormInputField<T> = {
   path: FieldPath<T>;
+  id?: string;
   label?: string;
   description?: string;
   required?: boolean;
@@ -156,7 +157,7 @@ export type FormProps<T> = {
   handleDelete?: () => void;
   formHooks: UseFormReturn<T, object>;
   title?: string;
-  description?: string;
+  description?: string | ReactNode;
   onSubmit?: (e: BaseSyntheticEvent) => void;
 };
 

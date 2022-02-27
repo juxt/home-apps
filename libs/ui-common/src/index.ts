@@ -9,3 +9,4 @@ export * from './Tiptap';
 export * from './Forms';
 export * from './types';
 export * from './PdfViewer';
+export * from './DataDisplay';

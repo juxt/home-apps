@@ -114,12 +114,15 @@ function Tiptap({
     if (
       tiptapEditor &&
       content &&
-      content.length > 0 &&
-      content !== '<p></p>' &&
       !tiptapEditor.isFocused &&
       !tiptapEditor.isDestroyed
     ) {
-      tiptapEditor.commands.setContent('');
+      if (content === '' || content === '<p></p>') {
+        tiptapEditor.commands.clearContent();
+      }
+      if (content.length > 0 && content !== '<p></p>') {
+        tiptapEditor.commands.setContent('');
+      }
       tiptapEditor.commands.setContent(content);
     }
   }, [content, tiptapEditor]);
@@ -135,9 +138,7 @@ function Tiptap({
   if (!tiptapEditor) {
     return null;
   }
-  if (content === '' || content === '<p></p>') {
-    tiptapEditor.commands.clearContent();
-  }
+
   return (
     <div className="w-full">
       <EditorContent editor={tiptapEditor} />

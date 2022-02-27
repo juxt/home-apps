@@ -151,3 +151,5 @@ export function userAvatar(username?: string | null): string {
       ?.avatar ?? ''
   );
 }
+
+export const hiringWorkflowId = 'WorkflowHiring';

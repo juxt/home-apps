@@ -12,6 +12,7 @@ import {
   CommentSection,
   PdfViewer,
   TipTapContent,
+  MetadataGrid,
 } from '@juxt-home/ui-common';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import classNames from 'classnames';
@@ -30,16 +31,11 @@ function CardInfo({
 }) {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
 
-  const { devMode } = useSearch<LocationGenerics>();
-
   const accordionButtonClass = classNames(
     'flex items-center justify-between w-full px-4 py-2 my-2 rounded-base cursor-base focus:outline-none',
     'bg-orange-50 rounded-lg text-primary-800',
   );
-  const metadataLabelClass = classNames(
-    'text-sm font-medium text-gray-700 font-bold',
-  );
-  const metadataClass = classNames('text-sm font-medium text-gray-700');
+  const { devMode } = useSearch<LocationGenerics>();
   return (
     <>
       {!card && (
@@ -64,60 +60,45 @@ function CardInfo({
                 Reset Split
               </button>
             )}
-            <div className="mx-4 flex flex-col isolate">
-              <h2 className="text-center text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                {card.title}
-              </h2>
-              <div className="grid grid-cols-2 text-left my-4">
-                {devMode && (
-                  <>
-                    <p className={metadataLabelClass}>Card ID:</p>
-                    <p className={metadataClass}>{card.id}</p>
-                  </>
-                )}
-                {card?.project?.name && (
-                  <>
-                    <p className={metadataLabelClass}>Project:</p>
-                    <p className={metadataClass}>{card.project.name}</p>
-                  </>
-                )}
-                {card?.agent && (
-                  <>
-                    <p className={metadataLabelClass}>Agent:</p>
-                    <p className={metadataClass}>{card.agent}</p>
-                  </>
-                )}
-                {card?.location && (
-                  <>
-                    <p className={metadataLabelClass}>Location:</p>
-                    <p className={metadataClass}>{card.location}</p>
-                  </>
-                )}
-                {card?.createdAt && (
-                  <>
-                    <p className={metadataLabelClass}>Created At:</p>
-                    <p className={metadataClass}>
-                      {new Date(card.createdAt).toLocaleString()}
-                    </p>
-                  </>
-                )}
-                <p className={metadataLabelClass}>Last Updated on:</p>
-                <p className={metadataClass}>
-                  {new Date(card._siteValidTime).toLocaleString()}
-                </p>
-                {card?._siteSubject && (
-                  <>
-                    <p className={metadataLabelClass}>Updated By:</p>
-                    <p className={metadataClass}>{card._siteSubject}</p>
-                  </>
-                )}
-                {card?.workflowState && (
-                  <>
-                    <p className={metadataLabelClass}>Status:</p>
-                    <p className={metadataClass}>{card.workflowState.name}</p>
-                  </>
-                )}
-              </div>
+            <MetadataGrid
+              title={card.title}
+              metadata={[
+                {
+                  label: 'Card ID',
+                  value: card.id,
+                  hidden: !devMode,
+                },
+                {
+                  label: 'Project:',
+                  value: card.project?.name,
+                },
+                {
+                  label: 'Agent:',
+                  value: card.agent,
+                },
+                {
+                  label: 'Location:',
+                  value: card.location,
+                },
+                {
+                  label: 'Created At:',
+                  value: card.createdAt,
+                  type: 'date',
+                },
+                {
+                  label: 'Last Updated At:',
+                  value: card._siteValidTime,
+                  type: 'date',
+                },
+                {
+                  label: 'Last Updated By:',
+                  value: card._siteSubject,
+                },
+                {
+                  label: 'Status:',
+                  value: card.workflowState?.name,
+                },
+              ]}>
               {card?.workflowState && (
                 <div className="bg-red-50 prose-sm sm:prose mb-2 p-2">
                   <h2>
@@ -133,7 +114,7 @@ function CardInfo({
                   htmlString={card.description}
                 />
               )}
-            </div>
+            </MetadataGrid>
             <div className="max-w-4xl w-full h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
               <div className="w-full lg:h-full lg:overflow-y-auto m-4">
                 <Disclosure as="div" className="mt-2 w-full">

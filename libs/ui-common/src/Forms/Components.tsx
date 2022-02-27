@@ -5,7 +5,7 @@ import { MultiSelect } from 'react-multi-select-component';
 import Select, { GroupBase, Props as SelectProps } from 'react-select';
 import { DownloadIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
-import { notEmpty, fileToString } from '@juxt-home/utils';
+import { notEmpty, fileToString, useMobileDetect } from '@juxt-home/utils';
 import { toast } from 'react-toastify';
 import { CardByIdsQuery } from '@juxt-home/site';
 import { FormInputField, FormProps, Option } from './types';
@@ -14,8 +14,11 @@ import {
   DeleteActiveIcon,
   OptionsMenu,
   Tiptap,
+  Button,
+  useDirty,
 } from '../index';
 import get from 'lodash-es/get';
+import { useEffect } from 'react';
 
 const inputClass =
   'relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-contrast-light text-contrast bg-gray-50 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base';
@@ -505,24 +508,85 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
 }
 
 export function StandaloneForm<T extends FieldValues = FieldValues>(
-  props: FormProps<T>,
+  props: FormProps<T> & {
+    handleSubmit: () => void;
+    preForm?: React.ReactNode;
+  },
 ) {
-  const { fields, className, formHooks, title, id, description, onSubmit } =
-    props;
   const {
-    formState: { errors },
+    fields,
+    className,
+    preForm,
+    formHooks,
+    title,
+    id,
+    description,
+    onSubmit,
+    handleSubmit,
+  } = props;
+  const {
+    reset,
+    formState: { errors, isDirty },
   } = formHooks;
+
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (!isDirty || event.isComposing) {
+        return;
+      }
+
+      if (event.code === 'KeyS' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        handleSubmit();
+      }
+      if (event.code === 'Esc' || event.code === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        reset();
+      }
+    };
+    document.addEventListener('keydown', listener);
+    return () => {
+      document.removeEventListener('keydown', listener);
+    };
+  }, [handleSubmit, isDirty, reset]);
+
   return (
-    <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-600 shadow px-4 py-5 rounded-md sm:rounded-lg sm:p-6">
-        <div className="md:grid md:grid-cols-3 md:gap-6">
-          <div className="md:col-span-1">
-            <h3 className="text-lg font-medium leading-6 text-contrast">
+    <div className="space-y-6 py-2">
+      <div className="bg-slate-50 dark:bg-slate-600 shadow px-4 py-5 rounded-md sm:rounded-lg sm:p-6">
+        {isDirty && (
+          <div className="fixed z-20 top-0 right-0 left-0 bg-red-50 px-4 py-4">
+            <div className="sm:hidden flex justify-around items-center w-full mx-1">
+              <strong className="prose">Editing Card</strong>
+              <div className="space-x-4 w-2/5 flex-nowrap flex">
+                <Button primary onClick={onSubmit}>
+                  Save
+                </Button>
+                <Button
+                  onClick={() => {
+                    reset();
+                  }}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+            <p className="text-center hidden sm:block">
+              Editing... Press ESC to cancel or Ctrl/Cmd+S to save
+            </p>
+          </div>
+        )}
+        <div className="xl:grid xl:grid-cols-4 xl:gap-6">
+          <div className="xl:col-span-1 min-w-min">
+            <h3 className="text-xl font-medium leading-6 text-contrast">
               {title}
             </h3>
-            <p className="mt-1 text-sm text-contrast-light">{description}</p>
+            <div className="mt-1 text-sm text-contrast-light">
+              {description}
+            </div>
           </div>
-          <div className="mt-5 md:mt-0 md:col-span-2">
+          <div className="mt-5 xl:mt-0 xl:col-span-3">
+            {preForm}
             <form
               className={classNames('space-y-6', className)}
               id={id || title}
@@ -533,7 +597,7 @@ export function StandaloneForm<T extends FieldValues = FieldValues>(
                   const label = field?.label || field.path;
                   const error = get(errors, field.path);
                   return (
-                    <div key={field.id}>
+                    <div key={field.id || field.label}>
                       <label
                         htmlFor={label}
                         className="block text-sm font-medium text-contrast">
@@ -558,14 +622,6 @@ export function StandaloneForm<T extends FieldValues = FieldValues>(
             </form>
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-start flex-row-reverse">
-        <button
-          type="submit"
-          className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Submit
-        </button>
       </div>
     </div>
   );
