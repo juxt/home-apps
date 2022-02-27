@@ -1,6 +1,7 @@
 import { ChatAltIcon } from '@heroicons/react/solid';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import takeRight from 'lodash-es/takeRight';
 import {
   useCommentForEntity,
   useCommentsForCardQuery,
@@ -12,10 +13,8 @@ import {
   useUser,
   useModalForm,
   userAvatar,
-  useAsOf,
   asOfAtom,
 } from '@juxt-home/site';
-import * as _ from 'lodash';
 import { useCallback, BaseSyntheticEvent, useEffect, useState } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
@@ -310,7 +309,7 @@ export function CommentSection({ eId }: { eId: string }) {
   );
   const [commentLimit, setCommentLimit] = useState(5);
   const allComments = data?.commentsForEntity || [];
-  const comments = _.takeRight(allComments, commentLimit);
+  const comments = takeRight(allComments, commentLimit);
   const { id: userId, avatar } = useUser();
 
   const queryClient = useQueryClient();

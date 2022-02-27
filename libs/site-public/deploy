@@ -1,0 +1,3 @@
+site -s check-token || site get-token -u admin -p admin -b $SITE_BASE_URI
+site post-resources --file resources.edn -b $SITE_BASE_URI
+site put-graphql --file schema.graphql --path $GRAPHQL_PATH -b $SITE_BASE_URI 

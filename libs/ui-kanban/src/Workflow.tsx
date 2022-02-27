@@ -1,6 +1,6 @@
 import { useHotkeys } from 'react-hotkeys-hook';
 import { notEmpty } from '@juxt-home/utils';
-import * as _ from 'lodash';
+import isEqual from 'lodash-es/isEqual';
 import { useEffect, useMemo, useState } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useSearch, useNavigate } from 'react-location';
@@ -84,16 +84,17 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
           );
         })
         .map((c) => c.id);
-      if (!_.isEqual(search?.filters?.roleFilters, newIds)) {
+      if (!isEqual(search?.filters?.roleFilters, newIds)) {
         navigate({
           replace: true,
-          search: {
+          search: (search) => ({
             ...search,
+            workflowProjectId: '',
             filters: {
-              ...search.filters,
+              ...search?.filters,
               roleFilters: newIds,
             },
-          },
+          }),
         });
       }
     }

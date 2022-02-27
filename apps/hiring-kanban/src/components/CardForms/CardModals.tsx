@@ -58,7 +58,7 @@ export function EditHiringCardModal({
   isOpen,
   handleClose,
 }: EditCardModalProps) {
-  const { cardModalView, ...search } = useSearch<LocationGenerics>();
+  const { cardModalView } = useSearch<LocationGenerics>();
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { data, error } = useCardById(cardId);
   const navigate = useNavigate<LocationGenerics>();
@@ -74,16 +74,13 @@ export function EditHiringCardModal({
     if (!hasUnsaved || confirmation) {
       handleClose();
       if (cardModalView !== 'view') {
-        // delayed to stop flicker
-        setTimeout(() => {
-          navigate({
-            search: {
-              ...search,
-              modalState: undefined,
-              cardModalView: undefined,
-            },
-          });
-        }, 400);
+        navigate({
+          search: (search) => ({
+            ...search,
+            modalState: undefined,
+            cardModalView: undefined,
+          }),
+        });
       }
     }
   };

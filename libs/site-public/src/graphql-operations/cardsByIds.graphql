@@ -1,0 +1,5 @@
+query cardByIds($ids: [ID]!) {
+  cardsByIds(ids: $ids) {
+    ...CardDetails
+  }
+}

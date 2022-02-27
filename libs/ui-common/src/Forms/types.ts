@@ -124,6 +124,7 @@ export type SubmitButtonProps = SubmitProps & WithIdAndType<'submit'>;
 export type FormInputField<T> = {
   path: FieldPath<T>;
   label?: string;
+  description?: string;
   required?: boolean;
   rules?: RegisterOptions;
 } & (

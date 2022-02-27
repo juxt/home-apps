@@ -1,0 +1,18 @@
+schema @site(type: "public/prod") {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  candidateById(id: ID!): Candidate
+}
+
+type Mutation {
+
+}
+
+type Candidate {
+  id: ID!
+  name: String!
+  email: String!
+}

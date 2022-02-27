@@ -1,5 +1,4 @@
 import { juxters } from '@juxt-home/site';
-import shuffle from 'lodash-es/shuffle';
 
 type Mention = {
   name: string;
@@ -10,7 +9,7 @@ type Mention = {
   };
 };
 
-const MENTION_SUGGESTIONS: Mention[] = shuffle(juxters);
+const MENTION_SUGGESTIONS: Mention[] = juxters;
 
 export type { Mention };
 

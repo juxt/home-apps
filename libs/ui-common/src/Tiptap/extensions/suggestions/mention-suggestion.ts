@@ -119,7 +119,7 @@ const MentionSuggestion = Node.create<MentionOptions>({
     ];
   },
   renderText({ node }) {
-    return `${this.options.suggestion.char}${node.attrs.name}`;
+    return `${this.options.suggestion.char}${node.attrs['name']}`;
   },
   /* addKeyboardShortcuts() {
         return {

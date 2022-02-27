@@ -9,16 +9,16 @@ import { notEmpty, fileToString } from '@juxt-home/utils';
 import { toast } from 'react-toastify';
 import { CardByIdsQuery } from '@juxt-home/site';
 import { FormInputField, FormProps, Option } from './types';
-import * as _ from 'lodash-es';
 import {
   DeleteInactiveIcon,
   DeleteActiveIcon,
   OptionsMenu,
   Tiptap,
 } from '../index';
+import get from 'lodash-es/get';
 
 const inputClass =
-  'relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-gray-500 text-gray-700 bg-gray-50 border border-gray-300 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base';
+  'relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-contrast-light text-contrast bg-gray-50 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base';
 
 function CustomSelect<
   SelectOption,
@@ -192,7 +192,7 @@ export function RenderField<T>({
                                 </p>
                               </label>
                             </div>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-contrast-LIGHT">
                               {field.accept
                                 ?.toString()
                                 ?.replace(/image\/|application\//g, '')
@@ -294,7 +294,7 @@ export function RenderField<T>({
                               </p>
                             </label>
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-contrast-LIGHT">
                             {field.accept
                               ?.toString()
                               ?.replace(/image\/|application\//g, '')
@@ -405,7 +405,7 @@ export function Label(text: string) {
   return (
     <label
       htmlFor="about"
-      className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+      className="block text-sm font-medium text-contrast sm:mt-px sm:pt-2">
       {text}
     </label>
   );
@@ -450,7 +450,7 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
             </Dialog.Title>
             {description && (
               <div className="mt-2">
-                <p className="text-sm text-gray-500">{description}</p>
+                <p className="text-sm text-contrast-LIGHT">{description}</p>
               </div>
             )}
           </div>
@@ -459,7 +459,7 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
           <div>
             <div>
               {description && (
-                <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                <p className="mt-1 max-w-2xl text-sm text-contrast-LIGHT">
                   {description}
                 </p>
               )}
@@ -475,14 +475,14 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
                 ?.filter((field) => field.type !== 'hidden')
                 .map((field) => {
                   const label = field?.label || field.path;
-                  const error = _.get(errors, field.path);
+                  const error = get(errors, field.path);
                   return (
                     <div
                       key={field.id}
                       className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                       <label
                         htmlFor={label}
-                        className="block capitalize text-sm font-medium text-gray-700 sm:mt-px">
+                        className="block capitalize text-sm font-medium text-contrast sm:mt-px">
                         {label}
                       </label>
                       <div className="mt-1 sm:mt-0 sm:col-span-2">
@@ -501,5 +501,72 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
         </div>
       </div>
     </form>
+  );
+}
+
+export function StandaloneForm<T extends FieldValues = FieldValues>(
+  props: FormProps<T>,
+) {
+  const { fields, className, formHooks, title, id, description, onSubmit } =
+    props;
+  const {
+    formState: { errors },
+  } = formHooks;
+  return (
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-slate-600 shadow px-4 py-5 rounded-md sm:rounded-lg sm:p-6">
+        <div className="md:grid md:grid-cols-3 md:gap-6">
+          <div className="md:col-span-1">
+            <h3 className="text-lg font-medium leading-6 text-contrast">
+              {title}
+            </h3>
+            <p className="mt-1 text-sm text-contrast-light">{description}</p>
+          </div>
+          <div className="mt-5 md:mt-0 md:col-span-2">
+            <form
+              className={classNames('space-y-6', className)}
+              id={id || title}
+              onSubmit={onSubmit}>
+              {fields
+                ?.filter((field) => field.type !== 'hidden')
+                .map((field) => {
+                  const label = field?.label || field.path;
+                  const error = get(errors, field.path);
+                  return (
+                    <div key={field.id}>
+                      <label
+                        htmlFor={label}
+                        className="block text-sm font-medium text-contrast">
+                        {label}
+                      </label>
+                      <div className="mt-1">
+                        <RenderField field={field} props={props} />
+                      </div>
+                      {field.description && (
+                        <p className="mt-2 text-sm text-contrast-LIGHT">
+                          {field.description}
+                        </p>
+                      )}
+                      {error && (
+                        <p className="text-red-500">
+                          {error.message || 'This field is required'}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-start flex-row-reverse">
+        <button
+          type="submit"
+          className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Submit
+        </button>
+      </div>
+    </div>
   );
 }
