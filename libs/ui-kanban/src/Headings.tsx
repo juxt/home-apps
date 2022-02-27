@@ -194,7 +194,7 @@ export function Heading({
             {changeViewText}
           </button>
         </span>
-        {!isMobile && (
+        {!isMobile && isCardView && (
           <MultiSelect
             valueRenderer={(value) => {
               const count = value.filter((v) => v.value).length;

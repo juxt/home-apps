@@ -1,0 +1,28 @@
+{
+  "root": "apps/interview-form-e2e",
+  "sourceRoot": "apps/interview-form-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/interview-form-e2e/cypress.json",
+        "devServerTarget": "interview-form:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "interview-form:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/interview-form-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["interview-form"]
+}

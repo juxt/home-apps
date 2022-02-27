@@ -5,10 +5,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
 import { Outlet, ReactLocation, Router } from 'react-location';
+import { parseSearch, stringifySearch } from '@tanstack/react-location-jsurl';
 import { Worker } from '@react-pdf-viewer/core';
 import splitbee from '@splitbee/web';
 
-const location = new ReactLocation();
+const location = new ReactLocation({
+  parseSearch,
+  stringifySearch,
+});
 const queryClient = new QueryClient();
 const rootElement = document.getElementById('root');
 if (window.location.hostname !== 'localhost') {

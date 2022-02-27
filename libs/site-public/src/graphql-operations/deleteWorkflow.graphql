@@ -1,5 +1,0 @@
-mutation deleteWorkflow($workflowId: ID!) {
-  deleteWorkflow(id: $workflowId) {
-    id
-  }
-}

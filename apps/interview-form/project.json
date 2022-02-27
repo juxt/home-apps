@@ -1,0 +1,65 @@
+{
+  "root": "apps/interview-form",
+  "sourceRoot": "apps/interview-form/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/interview-form",
+        "index": "apps/interview-form/src/index.html",
+        "baseHref": "/",
+        "main": "apps/interview-form/src/main.tsx",
+        "polyfills": "apps/interview-form/src/polyfills.ts",
+        "tsConfig": "apps/interview-form/tsconfig.app.json",
+        "assets": [
+          "apps/interview-form/src/favicon.ico",
+          "apps/interview-form/src/assets"
+        ],
+        "styles": ["apps/interview-form/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/interview-form/src/environments/environment.ts",
+              "with": "apps/interview-form/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "interview-form:build",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "interview-form:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/interview-form/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

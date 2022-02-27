@@ -1,7 +1,0 @@
-mutation rollbackCard($asOf: String!, $id: ID!) {
-  rollbackCard(asOf: $asOf, id: $id) {
-    ... on HiringCard {
-      id
-    }
-  }
-}

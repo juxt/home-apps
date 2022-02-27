@@ -1,5 +1,0 @@
-query cardHistory($id: ID!, $historicalDb: Boolean) {
-  cardHistory(id: $id, limit: 100, historicalDb: $historicalDb) {
-    ...CardDetails
-  }
-}

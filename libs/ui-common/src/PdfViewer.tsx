@@ -1,9 +1,15 @@
 import { base64toBlob } from '@juxt-home/utils';
-import { Viewer } from '@react-pdf-viewer/core';
+import { Viewer, ViewerProps } from '@react-pdf-viewer/core';
 import { useMemo, useEffect } from 'react';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 
-export function PdfViewer({ pdfString }: { pdfString?: string }) {
+export function PdfViewer({
+  pdfString,
+  props,
+}: {
+  pdfString?: string;
+  props?: Omit<ViewerProps, 'fileUrl'>;
+}) {
   const pdfUrl = useMemo(() => {
     const pdfBlob = pdfString && base64toBlob(pdfString);
     if (pdfBlob) {
@@ -18,5 +24,5 @@ export function PdfViewer({ pdfString }: { pdfString?: string }) {
     },
     [pdfUrl],
   );
-  return pdfUrl ? <Viewer fileUrl={pdfUrl} /> : <p>No Pdf</p>;
+  return pdfUrl ? <Viewer {...props} fileUrl={pdfUrl} /> : <p>No Pdf</p>;
 }
