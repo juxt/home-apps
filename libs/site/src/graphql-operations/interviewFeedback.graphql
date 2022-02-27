@@ -1,0 +1,5 @@
+mutation createInterviewFeedback($interviewFeedback: InterviewFeedbackInput!) {
+  createInterviewFeedback(interviewFeedback: $interviewFeedback) {
+    id
+  }
+}

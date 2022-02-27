@@ -65,6 +65,23 @@ type Mutation {
   updatecomment(id: ID!, Comment: CommentInput): Comment
     @site(mutation: "update")
   deleteComment(id: ID!): Comment @site(mutation: "delete")
+  createInterviewFeedback(
+    interviewFeedback: InterviewFeedbackInput!
+  ): InterviewFeedback
+}
+
+input HiringScoreCardInput {
+  text: String!
+  score: Int!
+  description: String
+}
+
+input InterviewFeedbackInput {
+  id: ID!
+  overallScore: Int!
+  summary: String!
+  scoreCards: [HiringScoreCardInput]
+  cardId: ID!
 }
 
 input CommentInput {
@@ -184,6 +201,24 @@ type HiringCard {
         """
       }
     )
+}
+
+type HiringScoreCard {
+  text: String!
+  description: String
+  score: Int
+}
+
+type InterviewFeedback {
+  id: ID!
+  overallScore: Int!
+  summary: String!
+  scoreCards: [HiringScoreCard] @onObject
+  _siteSubject: String
+  _siteValidTime: String!
+  _siteCreatedAt: String!
+  card: Card @site(ref: "cardId")
+  _siteQuery: String
 }
 
 union Card = HiringCard

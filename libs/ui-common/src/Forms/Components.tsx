@@ -538,11 +538,12 @@ export function StandaloneForm<T extends FieldValues = FieldValues>(
       if (event.code === 'KeyS' && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         event.stopImmediatePropagation();
+        console.log('submit');
+
         handleSubmit();
       }
       if (event.code === 'Esc' || event.code === 'Escape') {
         event.preventDefault();
-        event.stopPropagation();
         reset();
       }
     };

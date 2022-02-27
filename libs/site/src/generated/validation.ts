@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { CommentInput, FileInput, HiringCardInput, WorkflowProjectInput, WorkflowStateInput, WorkflowStateType } from './graphql'
+import { CommentInput, FileInput, HiringCardInput, HiringScoreCardInput, InterviewFeedbackInput, WorkflowProjectInput, WorkflowStateInput, WorkflowStateType } from './graphql'
 
 export function CommentInputSchema(): yup.SchemaOf<CommentInput> {
   return yup.object({
@@ -32,6 +32,24 @@ export function HiringCardInputSchema(): yup.SchemaOf<HiringCardInput> {
     title: yup.string(),
     workflowId: yup.string(),
     workflowProjectId: yup.string()
+  })
+}
+
+export function HiringScoreCardInputSchema(): yup.SchemaOf<HiringScoreCardInput> {
+  return yup.object({
+    description: yup.string(),
+    score: yup.number().defined(),
+    text: yup.string().required()
+  })
+}
+
+export function InterviewFeedbackInputSchema(): yup.SchemaOf<InterviewFeedbackInput> {
+  return yup.object({
+    cardId: yup.string().required(),
+    id: yup.string().required(),
+    overallScore: yup.number().defined(),
+    scoreCards: yup.array().of(yup.lazy(() => HiringScoreCardInputSchema()) as never).optional(),
+    summary: yup.string().required()
   })
 }
 

@@ -111,19 +111,14 @@ function Tiptap({
   });
 
   useEffect(() => {
+    const editorContent = tiptapEditor?.getHTML();
     if (
       tiptapEditor &&
-      content &&
-      !tiptapEditor.isFocused &&
-      !tiptapEditor.isDestroyed
+      !tiptapEditor.isDestroyed &&
+      editorContent !== content
     ) {
-      if (content === '' || content === '<p></p>') {
-        tiptapEditor.commands.clearContent();
-      }
-      if (content.length > 0 && content !== '<p></p>') {
-        tiptapEditor.commands.setContent('');
-      }
-      tiptapEditor.commands.setContent(content);
+      console.log('clearing');
+      tiptapEditor.commands.clearContent(true);
     }
   }, [content, tiptapEditor]);
 

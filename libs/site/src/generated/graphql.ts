@@ -104,10 +104,45 @@ export type HiringCardInput = {
   workflowProjectId?: InputMaybe<Scalars['ID']>;
 };
 
+export type HiringScoreCard = {
+  __typename?: 'HiringScoreCard';
+  description?: Maybe<Scalars['String']>;
+  score?: Maybe<Scalars['Int']>;
+  text: Scalars['String'];
+};
+
+export type HiringScoreCardInput = {
+  description?: InputMaybe<Scalars['String']>;
+  score: Scalars['Int'];
+  text: Scalars['String'];
+};
+
+export type InterviewFeedback = {
+  __typename?: 'InterviewFeedback';
+  _siteCreatedAt: Scalars['String'];
+  _siteQuery?: Maybe<Scalars['String']>;
+  _siteSubject?: Maybe<Scalars['String']>;
+  _siteValidTime: Scalars['String'];
+  card?: Maybe<Card>;
+  id: Scalars['ID'];
+  overallScore: Scalars['Int'];
+  scoreCards?: Maybe<Array<Maybe<HiringScoreCard>>>;
+  summary: Scalars['String'];
+};
+
+export type InterviewFeedbackInput = {
+  cardId: Scalars['ID'];
+  id: Scalars['ID'];
+  overallScore: Scalars['Int'];
+  scoreCards?: InputMaybe<Array<InputMaybe<HiringScoreCardInput>>>;
+  summary: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createComment?: Maybe<Comment>;
   createHiringCard?: Maybe<HiringCard>;
+  createInterviewFeedback?: Maybe<InterviewFeedback>;
   createWorkflow?: Maybe<Workflow>;
   createWorkflowProject?: Maybe<WorkflowProject>;
   createWorkflowProjects?: Maybe<Array<Maybe<WorkflowProject>>>;
@@ -135,6 +170,11 @@ export type MutationCreateCommentArgs = {
 
 export type MutationCreateHiringCardArgs = {
   Card?: InputMaybe<HiringCardInput>;
+};
+
+
+export type MutationCreateInterviewFeedbackArgs = {
+  interviewFeedback: InterviewFeedbackInput;
 };
 
 
@@ -445,6 +485,13 @@ export type DeleteWorkflowStateMutationVariables = Exact<{
 
 
 export type DeleteWorkflowStateMutation = { __typename?: 'Mutation', deleteWorkflowState?: { __typename?: 'WorkflowState', id: string } | null, updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
+
+export type CreateInterviewFeedbackMutationVariables = Exact<{
+  interviewFeedback: InterviewFeedbackInput;
+}>;
+
+
+export type CreateInterviewFeedbackMutation = { __typename?: 'Mutation', createInterviewFeedback?: { __typename?: 'InterviewFeedback', id: string } | null };
 
 export type KanbanDataQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -912,6 +959,23 @@ export const useDeleteWorkflowStateMutation = <
       options
     );
 useDeleteWorkflowStateMutation.fetcher = (variables: DeleteWorkflowStateMutationVariables) => fetcher<DeleteWorkflowStateMutation, DeleteWorkflowStateMutationVariables>(DeleteWorkflowStateDocument, variables);
+export const CreateInterviewFeedbackDocument = `
+    mutation createInterviewFeedback($interviewFeedback: InterviewFeedbackInput!) {
+  createInterviewFeedback(interviewFeedback: $interviewFeedback) {
+    id
+  }
+}
+    `;
+export const useCreateInterviewFeedbackMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateInterviewFeedbackMutation, TError, CreateInterviewFeedbackMutationVariables, TContext>) =>
+    useMutation<CreateInterviewFeedbackMutation, TError, CreateInterviewFeedbackMutationVariables, TContext>(
+      ['createInterviewFeedback'],
+      (variables?: CreateInterviewFeedbackMutationVariables) => fetcher<CreateInterviewFeedbackMutation, CreateInterviewFeedbackMutationVariables>(CreateInterviewFeedbackDocument, variables)(),
+      options
+    );
+useCreateInterviewFeedbackMutation.fetcher = (variables: CreateInterviewFeedbackMutationVariables) => fetcher<CreateInterviewFeedbackMutation, CreateInterviewFeedbackMutationVariables>(CreateInterviewFeedbackDocument, variables);
 export const KanbanDataDocument = `
     query kanbanData($id: ID!) {
   allWorkflowProjects {

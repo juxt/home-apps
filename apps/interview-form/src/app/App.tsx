@@ -1,14 +1,17 @@
 import './App.css';
 import {
+  CreateInterviewFeedbackMutationVariables,
   hiringWorkflowId,
   TDetailedCard,
   UpdateHiringCardMutationVariables,
+  useAllProjectsQuery,
   useCardById,
   useProjectOptions,
 } from '@juxt-home/site';
-import { useMobileDetect, useWindowSize } from '@juxt-home/utils';
+import { notEmpty, useMobileDetect, useWindowSize } from '@juxt-home/utils';
 import { lazy, Suspense } from 'react';
 import {
+  MetadataGrid,
   StandaloneForm,
   TipTapContent,
   Option,
@@ -47,17 +50,30 @@ function InterviewForm({ card }: { card: TDetailedCard }) {
   const cardFormHooks = useForm<InterviewCardFormFields>({
     defaultValues: {
       project: { label: card?.project?.name, value: card?.project?.id },
-      card: card,
+      card: {
+        location: card?.location,
+      },
     },
   });
-  const feedbackFormHooks = useForm<InterviewCardFormFields>();
+  const feedbackFormHooks = useForm<CreateInterviewFeedbackMutationVariables>({
+    defaultValues: {
+      interviewFeedback: {
+        cardId: card.id,
+        id: `${card.id}alexstage1feedback`,
+        overallScore: 0,
+        summary: '<p></p>',
+      },
+    },
+  });
 
   return (
     <div className="w-full my-4 px-4">
       {card && (
         <>
           <StandaloneForm
-            handleSubmit={() => null}
+            handleSubmit={() =>
+              cardFormHooks.handleSubmit(console.log, console.log)()
+            }
             formHooks={cardFormHooks}
             title="Candidate details"
             description="Edit this only if it is incorrect"
@@ -86,30 +102,38 @@ function InterviewForm({ card }: { card: TDetailedCard }) {
             ]}
           />
           <StandaloneForm
-            handleSubmit={() => null}
+            handleSubmit={() => {
+              feedbackFormHooks.handleSubmit(console.log, console.log)();
+            }}
             formHooks={feedbackFormHooks}
             title="Alx's feedback"
             description="Record any information specific to this interview here"
             fields={[
               {
-                id: 'CardProject',
-                type: 'select',
+                type: 'number',
+                label: 'Overall Score',
                 rules: {
                   required: {
                     value: true,
-                    message: 'Please select a project',
+                    message: 'Please enter an overall score',
+                  },
+                  max: {
+                    value: 10,
+                    message: 'Please enter a score between 0 and 10',
+                  },
+                  min: {
+                    value: 0,
+                    message: 'Please enter a score between 0 and 10',
                   },
                 },
-                options: projectOptions,
-                label: 'Project',
-                path: 'project',
+                path: 'interviewFeedback.overallScore',
               },
               {
-                path: 'card.location',
-                label: 'Location',
+                path: 'interviewFeedback.summary',
+                label: 'Summary',
                 description:
-                  'Where the candidate will primarily be working from',
-                type: 'text',
+                  'Overall summary of the interview, what did the candidate do well?',
+                type: 'tiptap',
               },
             ]}
           />
@@ -144,7 +168,13 @@ function DesktopView() {
 }
 
 function MobileView() {
-  return null;
+  // not sure anyone will actually use this on mobile so probably not worth thinking too much about
+  const { card } = useCardById('card-candidates/NazariiBardiuk.adoc');
+  return card ? (
+    <div className="h-screen overflow-auto">
+      <InterviewForm card={card} />
+    </div>
+  ) : null;
 }
 
 export function App() {
