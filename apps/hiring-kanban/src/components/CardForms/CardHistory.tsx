@@ -32,6 +32,37 @@ function TitleComponent({ value }: CellProps<TCardHistoryCard>) {
   return <div className="text-sm truncate">{value || 'Untitled'}</div>;
 }
 
+function DoubleIconDisabled({
+  title,
+  updatePreview,
+  leftIcon,
+  rightIcon,
+}: {
+  title: string;
+  updatePreview: () => void;
+  leftIcon: boolean;
+  rightIcon: boolean;
+}) {
+  return (
+    <button type="button" title={title} disabled onClick={() => updatePreview}>
+      {leftIcon && (
+        <ChevronDoubleLeftIcon
+          aria-hidden="true"
+          className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 cursor-not-allowed"
+        />
+      )}
+      {rightIcon && (
+        <ChevronDoubleRightIcon
+          aria-hidden="true"
+          className="absolute -mt-60 h-8 w-8 text-stone-400 cursor-not-allowed"
+          style={{ marginLeft: '50rem' }}
+        />
+      )}
+      )
+    </button>
+  );
+}
+
 export function CardHistory() {
   const [showPreviewModal, setShowPreviewModal] = useState<boolean | number>(
     false,
@@ -206,25 +237,48 @@ export function CardHistory() {
               history?.[showPreviewModal] && (
                 <>
                   <CardView card={history[showPreviewModal]!} />
-                  <button
-                    type="button"
-                    title="Previous"
-                    onClick={() => setShowPreviewModal(showPreviewModal + 1)}>
-                    <ChevronDoubleLeftIcon
-                      className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 hover:text-indigo-700"
-                      aria-hidden="true"
+                  {showPreviewModal === history.length - 1 ? (
+                    <DoubleIconDisabled
+                      title="Previous"
+                      updatePreview={() =>
+                        setShowPreviewModal(showPreviewModal + 1)
+                      }
+                      leftIcon
+                      rightIcon={false}
                     />
-                  </button>
-                  <button
-                    type="button"
-                    title="Next"
-                    onClick={() => setShowPreviewModal(showPreviewModal - 1)}>
-                    <ChevronDoubleRightIcon
-                      style={{ marginLeft: '50rem' }}
-                      className="absolute -mt-60 h-8 w-8 text-stone-400 hover:text-indigo-700 "
-                      aria-hidden="true"
+                  ) : (
+                    <button
+                      type="button"
+                      title="Previous"
+                      onClick={() => setShowPreviewModal(showPreviewModal + 1)}>
+                      <ChevronDoubleLeftIcon
+                        className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 hover:text-indigo-700"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  )}
+
+                  {showPreviewModal === 0 ? (
+                    <DoubleIconDisabled
+                      title="Next"
+                      updatePreview={() =>
+                        setShowPreviewModal(showPreviewModal - 1)
+                      }
+                      rightIcon
+                      leftIcon={false}
                     />
-                  </button>
+                  ) : (
+                    <button
+                      type="button"
+                      title="Next"
+                      onClick={() => setShowPreviewModal(showPreviewModal - 1)}>
+                      <ChevronDoubleRightIcon
+                        style={{ marginLeft: '50rem' }}
+                        className="absolute -mt-60 h-8 w-8 text-stone-400 hover:text-indigo-700"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  )}
                 </>
               )}
           </Modal>
