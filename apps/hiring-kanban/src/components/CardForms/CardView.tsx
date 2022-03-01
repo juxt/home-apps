@@ -199,7 +199,7 @@ function CardInfo({
                   </Disclosure>
                 )}
               </div>
-              <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
+              <div className="w-full px-4 mr-5 sm:h-full lg:overflow-y-auto">
                 <CommentSection eId={card.id} />
               </div>
             </div>

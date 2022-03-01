@@ -48,14 +48,13 @@ function DoubleIconDisabled({
       {leftIcon && (
         <ChevronDoubleLeftIcon
           aria-hidden="true"
-          className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 cursor-not-allowed"
+          className="absolute top-60 left-0 h-8 w-6 text-stone-400 cursor-not-allowed"
         />
       )}
       {rightIcon && (
         <ChevronDoubleRightIcon
           aria-hidden="true"
-          className="absolute -mt-60 h-8 w-8 text-stone-400 cursor-not-allowed"
-          style={{ marginLeft: '50rem' }}
+          className="absolute top-60 right-8 h-8 w-6 text-stone-400 cursor-not-allowed"
         />
       )}
       )
@@ -252,7 +251,7 @@ export function CardHistory() {
                       title="Previous"
                       onClick={() => setShowPreviewModal(showPreviewModal + 1)}>
                       <ChevronDoubleLeftIcon
-                        className="absolute -mt-60 ml-10  h-8 w-8 text-stone-400 hover:text-indigo-700"
+                        className="absolute top-60 left-0 h-8 w-6 text-stone-400 hover:text-indigo-700"
                         aria-hidden="true"
                       />
                     </button>
@@ -273,8 +272,7 @@ export function CardHistory() {
                       title="Next"
                       onClick={() => setShowPreviewModal(showPreviewModal - 1)}>
                       <ChevronDoubleRightIcon
-                        style={{ marginLeft: '50rem' }}
-                        className="absolute -mt-60 h-8 w-8 text-stone-400 hover:text-indigo-700"
+                        className="absolute top-60 right-8 h-8 w-6 text-stone-400 hover:text-indigo-700"
                         aria-hidden="true"
                       />
                     </button>
