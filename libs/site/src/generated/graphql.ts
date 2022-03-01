@@ -7,7 +7,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch("http://localhost:5509/kanban/graphql", {
+    const res = await fetch("https://alexd.uk/kanban/graphql", {
     method: "POST",
     ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
@@ -104,6 +104,24 @@ export type HiringCardInput = {
   workflowProjectId?: InputMaybe<Scalars['ID']>;
 };
 
+export type HiringQuestion = {
+  __typename?: 'HiringQuestion';
+  description?: Maybe<Scalars['String']>;
+  question: Scalars['String'];
+  response?: Maybe<Scalars['String']>;
+  scoreCards?: Maybe<Array<Maybe<HiringScoreCard>>>;
+  scoreCardsLabel?: Maybe<Scalars['String']>;
+};
+
+export type HiringQuestionInput = {
+  description?: InputMaybe<Scalars['String']>;
+  preSet?: InputMaybe<Scalars['Boolean']>;
+  question: Scalars['String'];
+  response: Scalars['String'];
+  scoreCards: Array<HiringScoreCardInput>;
+  scoreCardsLabel?: InputMaybe<Scalars['String']>;
+};
+
 export type HiringScoreCard = {
   __typename?: 'HiringScoreCard';
   description?: Maybe<Scalars['String']>;
@@ -113,6 +131,7 @@ export type HiringScoreCard = {
 
 export type HiringScoreCardInput = {
   description?: InputMaybe<Scalars['String']>;
+  preSet?: InputMaybe<Scalars['Boolean']>;
   score: Scalars['Int'];
   text: Scalars['String'];
 };
@@ -126,7 +145,7 @@ export type InterviewFeedback = {
   card?: Maybe<Card>;
   id: Scalars['ID'];
   overallScore: Scalars['Int'];
-  scoreCards?: Maybe<Array<Maybe<HiringScoreCard>>>;
+  questions?: Maybe<Array<Maybe<HiringQuestion>>>;
   summary: Scalars['String'];
 };
 
@@ -134,7 +153,7 @@ export type InterviewFeedbackInput = {
   cardId: Scalars['ID'];
   id: Scalars['ID'];
   overallScore: Scalars['Int'];
-  scoreCards?: InputMaybe<Array<InputMaybe<HiringScoreCardInput>>>;
+  questions: Array<HiringQuestionInput>;
   summary: Scalars['String'];
 };
 

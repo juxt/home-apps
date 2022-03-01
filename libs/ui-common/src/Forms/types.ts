@@ -1,7 +1,13 @@
 import { IconProps, ModalStateProps, TiptapProps } from '../index';
 import { ReactNode, BaseSyntheticEvent } from 'react';
 import { DropzoneProps } from 'react-dropzone';
-import { FieldPath, RegisterOptions, UseFormReturn } from 'react-hook-form';
+import {
+  FieldArrayPath,
+  FieldPath,
+  FieldValues,
+  RegisterOptions,
+  UseFormReturn,
+} from 'react-hook-form';
 
 export type Option = {
   value: string;
@@ -50,6 +56,7 @@ type WithIdAndType<
     | 'select'
     | 'multiselect'
     | 'tiptap'
+    | 'custom'
     | 'hidden',
 > = {
   id?: string;
@@ -121,6 +128,10 @@ export type MultiSelectDefinition = {
 
 export type SubmitButtonProps = SubmitProps & WithIdAndType<'submit'>;
 
+export type CustomInputProps = {
+  component: JSX.Element;
+} & WithIdAndType<'custom'>;
+
 export type FormInputField<T> = {
   path: FieldPath<T>;
   id?: string;
@@ -139,6 +150,7 @@ export type FormInputField<T> = {
   | SelectInputDefinition
   | MultiSelectDefinition
   | TiptapDefinition
+  | CustomInputProps
 );
 
 export type FormProps<T> = {

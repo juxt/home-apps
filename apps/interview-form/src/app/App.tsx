@@ -1,34 +1,42 @@
 import './App.css';
 import {
   CreateInterviewFeedbackMutationVariables,
+  Exact,
   hiringWorkflowId,
+  InterviewFeedbackInput,
   TDetailedCard,
   UpdateHiringCardMutationVariables,
-  useAllProjectsQuery,
   useCardById,
   useProjectOptions,
+  useUser,
 } from '@juxt-home/site';
-import { notEmpty, useMobileDetect, useWindowSize } from '@juxt-home/utils';
-import { lazy, Suspense } from 'react';
+import { useMobileDetect, useWindowSize } from '@juxt-home/utils';
+import { lazy, Suspense, useEffect } from 'react';
 import {
-  MetadataGrid,
   StandaloneForm,
   TipTapContent,
   Option,
   CommentSection,
+  Button,
+  ThumbDown,
+  ThumbUp,
+  DoubleThumbUp,
+  ThumbUpDown,
+  Tiptap,
+  DeleteActiveIcon,
+  inputClass,
 } from '@juxt-home/ui-common';
-import { useForm } from 'react-hook-form';
+import {
+  Controller,
+  FieldArrayWithId,
+  useFieldArray,
+  useForm,
+  UseFormReturn,
+} from 'react-hook-form';
+import classNames from 'classnames';
+import splitbee from '@splitbee/web';
 
 const PdfViewer = lazy(() => import('../components/PdfViewer'));
-
-function IndividualFeedback({ cardId }: { cardId: string }) {
-  return (
-    <div>
-      <h2>Rating</h2>
-      <input type="slider" />
-    </div>
-  );
-}
 
 function CardDescription({ card }: { card: TDetailedCard }) {
   return (
@@ -37,6 +45,257 @@ function CardDescription({ card }: { card: TDetailedCard }) {
       {card.description && (
         <TipTapContent htmlString={card.description} growButton />
       )}
+    </div>
+  );
+}
+
+function InterviewScoreComponent({
+  onChange,
+  value,
+}: {
+  onChange: (value: number) => void;
+  value: number;
+}) {
+  const scores = [
+    {
+      label: 'No',
+      icon: ThumbDown,
+      fill: 'red',
+    },
+    {
+      label: 'Not Sure',
+      fill: 'orange',
+      icon: ThumbUpDown,
+    },
+    {
+      label: 'Yes',
+      fill: 'green',
+      icon: ThumbUp,
+    },
+    {
+      label: 'Strong Yes',
+      fill: 'green',
+      icon: DoubleThumbUp,
+    },
+  ];
+  return (
+    <div className="flex flex-wrap mt-2">
+      {scores.map((score, idx) => {
+        const scoreValue = idx + 1;
+        const selected = value === scoreValue;
+        return (
+          <Button
+            key={score.label}
+            className={classNames(
+              ' h-9 whitespace-nowrap mb-2 mr-3 last:mr-0',
+              selected
+                ? 'shadow-inner text-black hover:bg-blue-50 bg-blue-100'
+                : 'text-gray-600 shadow-sm',
+            )}
+            onClick={() => onChange(scoreValue)}>
+            {score?.icon && (
+              <score.icon
+                fill={selected ? score.fill : 'gray'}
+                className="w-6 h-6 mr-2"
+              />
+            )}
+            {score.label}
+          </Button>
+        );
+      })}
+    </div>
+  );
+}
+
+function ScoreCardArray({
+  formHooks,
+  scoreCardIndex,
+  questionIndex,
+  onRemove,
+  scoreCard,
+}: {
+  questionIndex: number;
+  scoreCardIndex: number;
+  onRemove: () => void;
+  formHooks: UseFormReturn<CreateInterviewFeedbackMutationVariables, object>;
+  scoreCard: FieldArrayWithId<
+    Exact<{
+      interviewFeedback: InterviewFeedbackInput;
+    }>,
+    `interviewFeedback.questions.${number}.scoreCards`,
+    'id'
+  >;
+}) {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = formHooks;
+
+  return (
+    <div className="py-2">
+      <div className="flex">
+        {scoreCard.preSet ? (
+          <p>{scoreCard.text}</p>
+        ) : (
+          <input
+            className={classNames(inputClass, 'my-4')}
+            placeholder="Score Card Text"
+            {...register(
+              `interviewFeedback.questions.${questionIndex}.scoreCards.${scoreCardIndex}.text`,
+            )}
+          />
+        )}
+        <button
+          onClick={onRemove}
+          type="button"
+          title="Remove Question"
+          className="cursor-pointer">
+          <DeleteActiveIcon
+            fill="pink"
+            stroke="red"
+            className="ml-2 w-5 h-5 opacity-80 hover:opacity-100"
+          />
+        </button>
+      </div>
+
+      <p className="text-gray-500 italic">{scoreCard.description}</p>
+      <Controller
+        render={({ field }) => (
+          <InterviewScoreComponent
+            onChange={field.onChange}
+            value={field.value}
+          />
+        )}
+        name={`interviewFeedback.questions.${questionIndex}.scoreCards.${scoreCardIndex}.score`}
+        control={control}
+      />
+    </div>
+  );
+}
+
+function QuestionForm({
+  formHooks,
+  question,
+  questionIndex,
+  onRemove,
+}: {
+  formHooks: UseFormReturn<CreateInterviewFeedbackMutationVariables, object>;
+  question: FieldArrayWithId<
+    Exact<{
+      interviewFeedback: InterviewFeedbackInput;
+    }>,
+    'interviewFeedback.questions',
+    'id'
+  >;
+  questionIndex: number;
+  onRemove: () => void;
+}) {
+  const { control, register } = formHooks;
+  const {
+    fields: scoreCards,
+    remove,
+    append,
+  } = useFieldArray({
+    control,
+    name: `interviewFeedback.questions.${questionIndex}.scoreCards`,
+  });
+  return (
+    <div>
+      <div className="flex items-center">
+        <p>Question {questionIndex + 1}</p>
+        <button
+          onClick={onRemove}
+          type="button"
+          title="Remove Question"
+          className="cursor-pointer">
+          <DeleteActiveIcon
+            fill="pink"
+            stroke="red"
+            className="ml-2 w-5 h-5 opacity-80 hover:opacity-100"
+          />
+        </button>
+      </div>
+      {question.preSet ? (
+        <p className="text-gray-500 italic">{question.question}</p>
+      ) : (
+        <input
+          className={classNames(inputClass, 'my-4')}
+          placeholder="Question Text"
+          {...register(`interviewFeedback.questions.${questionIndex}.question`)}
+        />
+      )}
+      <Controller
+        name={`interviewFeedback.questions.${questionIndex}.response`}
+        control={control}
+        render={(controlProps) => {
+          const { value, onChange } = controlProps.field;
+          return (
+            <Tiptap
+              onChange={onChange}
+              content={value as string}
+              placeholder="Enter the candidates response as accurately as possible"
+              withTypographyExtension
+              withPlaceholderExtension
+            />
+          );
+        }}
+      />
+      <div className="pl-4 py-2">
+        {scoreCards.length > 0 ? (
+          <strong className="text-bold text-lg">
+            {question.scoreCardsLabel}
+          </strong>
+        ) : null}
+        {scoreCards.map((scoreCard, scoreCardIdx) => (
+          <ScoreCardArray
+            key={scoreCard.id}
+            scoreCard={scoreCard}
+            questionIndex={questionIndex}
+            scoreCardIndex={scoreCardIdx}
+            formHooks={formHooks}
+            onRemove={() => remove(scoreCardIdx)}
+          />
+        ))}
+        {!question.preSet && (
+          <Button onClick={() => append({})}>Add ScoreCard</Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function QuestionArray({
+  formHooks,
+}: {
+  formHooks: UseFormReturn<CreateInterviewFeedbackMutationVariables, object>;
+}) {
+  const {
+    control,
+    formState: { errors },
+  } = formHooks;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'interviewFeedback.questions',
+  });
+  return (
+    <div className="py-2">
+      {fields.map((field, i) => (
+        <QuestionForm
+          key={field.id}
+          formHooks={formHooks}
+          question={field}
+          questionIndex={i}
+          onRemove={() => remove(i)}
+        />
+      ))}
+      <Button
+        primary
+        noMargin
+        className="m-0 p-0"
+        onClick={() => append({ question: '' })}>
+        Add Question
+      </Button>
     </div>
   );
 }
@@ -60,11 +319,56 @@ function InterviewForm({ card }: { card: TDetailedCard }) {
       interviewFeedback: {
         cardId: card.id,
         id: `${card.id}alexstage1feedback`,
-        overallScore: 0,
         summary: '<p></p>',
+        questions: [
+          {
+            question: 'Tell us about yourself',
+            response: '<p></p>',
+            description: 'looking for x y z',
+            preSet: true,
+            scoreCardsLabel: 'First Impression',
+            scoreCards: [
+              {
+                text: 'Communication skills',
+                description:
+                  'Will they communicate well with clients and colleagues?',
+                preSet: true,
+              },
+              {
+                text: 'Evidence of passion',
+                description: 'Do they have passion for their work?',
+                preSet: true,
+              },
+            ],
+          },
+          {
+            question:
+              'Describe the type of work environment in which you are most productive.',
+            response: '<p></p>',
+            description:
+              'See if they are ok with remote, also use this to guage consulting vs t1',
+            preSet: true,
+            scoreCardsLabel: 'Soft Skills',
+            scoreCards: [
+              {
+                text: 'Collaborative',
+                preSet: true,
+              },
+              {
+                text: 'Takes ownership',
+                preSet: true,
+              },
+              {
+                text: 'Passion',
+                preSet: true,
+              },
+            ],
+          },
+        ],
       },
     },
   });
+  const { id: username } = useUser();
 
   return (
     <div className="w-full my-4 px-4">
@@ -72,7 +376,10 @@ function InterviewForm({ card }: { card: TDetailedCard }) {
         <>
           <StandaloneForm
             handleSubmit={() =>
-              cardFormHooks.handleSubmit(console.log, console.log)()
+              cardFormHooks.handleSubmit(
+                (data) => alert(JSON.stringify(data)),
+                console.log,
+              )()
             }
             formHooks={cardFormHooks}
             title="Candidate details"
@@ -103,15 +410,36 @@ function InterviewForm({ card }: { card: TDetailedCard }) {
           />
           <StandaloneForm
             handleSubmit={() => {
-              feedbackFormHooks.handleSubmit(console.log, console.log)();
+              feedbackFormHooks.handleSubmit(
+                (data) => alert(JSON.stringify(data)),
+                console.log,
+              )();
             }}
             formHooks={feedbackFormHooks}
-            title="Alx's feedback"
+            title={`${username}'s feedback`}
             description="Record any information specific to this interview here"
             fields={[
               {
-                type: 'number',
+                type: 'custom',
+                component: <QuestionArray formHooks={feedbackFormHooks} />,
+                label: 'Questions Asked',
+                path: 'interviewFeedback.questions',
+              },
+              {
+                type: 'custom',
                 label: 'Overall Score',
+                component: (
+                  <Controller
+                    render={({ field }) => (
+                      <InterviewScoreComponent
+                        onChange={field.onChange}
+                        value={field.value}
+                      />
+                    )}
+                    name="interviewFeedback.overallScore"
+                    control={feedbackFormHooks.control}
+                  />
+                ),
                 rules: {
                   required: {
                     value: true,
@@ -146,12 +474,17 @@ function InterviewForm({ card }: { card: TDetailedCard }) {
   );
 }
 
+const hardcodedCardId =
+  process.env['NODE_ENV'] === 'production'
+    ? 'card-1646084960436'
+    : 'card-candidates/NazariiBardiuk.adoc';
+
 function DesktopView() {
-  const { card } = useCardById('card-candidates/NazariiBardiuk.adoc');
+  const { card } = useCardById(hardcodedCardId);
   const size = useWindowSize();
   return (
     <div className="flex">
-      <div className="overflow-auto h-screen w-full">
+      <div className="overflow-auto no-scrollbar h-screen w-full">
         {card && <InterviewForm card={card} />}
       </div>
       <div className="overflow-auto h-screen w-full">
@@ -169,7 +502,7 @@ function DesktopView() {
 
 function MobileView() {
   // not sure anyone will actually use this on mobile so probably not worth thinking too much about
-  const { card } = useCardById('card-candidates/NazariiBardiuk.adoc');
+  const { card } = useCardById(hardcodedCardId);
   return card ? (
     <div className="h-screen overflow-auto">
       <InterviewForm card={card} />
@@ -178,8 +511,14 @@ function MobileView() {
 }
 
 export function App() {
-  const { card, isLoading } = useCardById('card-candidates/AdamHeinke.adoc');
+  const { card, isLoading } = useCardById(hardcodedCardId);
   const isMobile = useMobileDetect().isMobile();
+  const { id: username } = useUser();
+  useEffect(() => {
+    if (username) {
+      splitbee.user.set({ userId: username });
+    }
+  }, [username]);
   return (
     <div>
       {isLoading ? (

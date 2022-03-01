@@ -31,6 +31,10 @@ ReactDOM.render(
             path: '/',
             element: <App />,
           },
+          {
+            path: '/*',
+            element: <App />,
+          },
         ]}>
         <Outlet />
       </Router>

@@ -79,6 +79,14 @@ const juxterData = [
   },
   {
     id: 'https://home.juxt.site/home/people/59e47083-c60e-4cc4-bd82-9733d065bb20',
+    name: 'Lucio DAlessandro',
+    github: 'luciodale',
+    staffRecord: {
+      juxtcode: 'lda',
+    },
+  },
+  {
+    id: 'https://home.juxt.site/home/people/59e47083-c60e-4cc4-bd82-9733d065bb20',
     name: 'Alex Davis',
     github: 'armincerf',
     staffRecord: {

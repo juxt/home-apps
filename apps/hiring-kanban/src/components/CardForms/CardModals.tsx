@@ -62,10 +62,10 @@ export function EditHiringCardModal({
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { data, error } = useCardById(cardId);
   const navigate = useNavigate<LocationGenerics>();
-  const [hasUnsaved] = useAtom(dirtyAtom);
   const card = data?.cardsByIds?.[0];
   const pdfBase64 = card?.cvPdf?.base64;
 
+  const [hasUnsaved] = useAtom(dirtyAtom);
   const onClose = () => {
     const confirmation =
       hasUnsaved &&

@@ -70,17 +70,27 @@ type Mutation {
   ): InterviewFeedback
 }
 
+input HiringQuestionInput {
+  question: String!
+  response: String!
+  description: String
+  scoreCardsLabel: String
+  scoreCards: [HiringScoreCardInput!]!
+  preSet: Boolean
+}
+
 input HiringScoreCardInput {
   text: String!
   score: Int!
   description: String
+  preSet: Boolean
 }
 
 input InterviewFeedbackInput {
   id: ID!
   overallScore: Int!
   summary: String!
-  scoreCards: [HiringScoreCardInput]
+  questions: [HiringQuestionInput!]!
   cardId: ID!
 }
 
@@ -209,11 +219,19 @@ type HiringScoreCard {
   score: Int
 }
 
+type HiringQuestion {
+  question: String!
+  response: String
+  description: String
+  scoreCardsLabel: String
+  scoreCards: [HiringScoreCard] @onObject
+}
+
 type InterviewFeedback {
   id: ID!
   overallScore: Int!
   summary: String!
-  scoreCards: [HiringScoreCard] @onObject
+  questions: [HiringQuestion] @onObject
   _siteSubject: String
   _siteValidTime: String!
   _siteCreatedAt: String!

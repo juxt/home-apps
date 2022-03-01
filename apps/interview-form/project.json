@@ -11,7 +11,7 @@
         "compiler": "babel",
         "outputPath": "dist/apps/interview-form",
         "index": "apps/interview-form/src/index.html",
-        "baseHref": "/",
+        "baseHref": "/_apps/interview/",
         "main": "apps/interview-form/src/main.tsx",
         "polyfills": "apps/interview-form/src/polyfills.ts",
         "tsConfig": "apps/interview-form/tsconfig.app.json",

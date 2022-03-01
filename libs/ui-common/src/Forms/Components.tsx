@@ -20,8 +20,8 @@ import {
 import get from 'lodash-es/get';
 import { useEffect } from 'react';
 
-const inputClass =
-  'relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-contrast-light text-contrast bg-gray-50 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base';
+export const inputClass =
+  'relative inline-flex w-full rounded leading-none transition-colors ease-in-out placeholder-contrast-light text-contrast bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30 p-3 text-base';
 
 function CustomSelect<
   SelectOption,
@@ -538,8 +538,6 @@ export function StandaloneForm<T extends FieldValues = FieldValues>(
       if (event.code === 'KeyS' && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        console.log('submit');
-
         handleSubmit();
       }
       if (event.code === 'Esc' || event.code === 'Escape') {
@@ -553,6 +551,8 @@ export function StandaloneForm<T extends FieldValues = FieldValues>(
     };
   }, [handleSubmit, isDirty, reset]);
 
+  useDirty({ isDirty });
+
   return (
     <div className="space-y-6 py-2">
       <div className="bg-slate-50 dark:bg-slate-600 shadow px-4 py-5 rounded-md sm:rounded-lg sm:p-6">
@@ -561,7 +561,7 @@ export function StandaloneForm<T extends FieldValues = FieldValues>(
             <div className="sm:hidden flex justify-around items-center w-full mx-1">
               <strong className="prose">Editing Card</strong>
               <div className="space-x-4 w-2/5 flex-nowrap flex">
-                <Button primary onClick={onSubmit}>
+                <Button primary onClick={handleSubmit}>
                   Save
                 </Button>
                 <Button
@@ -605,7 +605,11 @@ export function StandaloneForm<T extends FieldValues = FieldValues>(
                         {label}
                       </label>
                       <div className="mt-1">
-                        <RenderField field={field} props={props} />
+                        {field.type === 'custom' ? (
+                          field.component
+                        ) : (
+                          <RenderField field={field} props={props} />
+                        )}
                       </div>
                       {field.description && (
                         <p className="mt-2 text-sm text-contrast-LIGHT">
