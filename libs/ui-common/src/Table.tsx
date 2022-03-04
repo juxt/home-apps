@@ -92,7 +92,6 @@ export function SelectColumnFilter({
   // Render a multi-select box
 
   const navigate = useNavigate<LocationGenerics>();
-  const search = useSearch<LocationGenerics>();
 
   return (
     <>
@@ -104,13 +103,13 @@ export function SelectColumnFilter({
         value={filterValue || ''}
         onChange={(e) => {
           navigate({
-            search: {
+            search: (search) => ({
               ...search,
               filters: {
                 ...search.filters,
                 [id]: e.target.value,
               },
-            },
+            }),
           });
           setFilter(e.target.value || undefined);
         }}>
@@ -186,13 +185,13 @@ export function DateFilter({
         value={filterValue || ''}
         onChange={(e) => {
           navigate({
-            search: {
+            search: (search) => ({
               ...search,
               filters: {
                 ...search.filters,
                 [id]: e.target.value,
               },
-            },
+            }),
           });
         }}>
         <option value="">All</option>
@@ -330,7 +329,6 @@ export function Table({
   );
   const showPagination = canNextPage || canPreviousPage;
   const navigate = useNavigate<LocationGenerics>();
-  const search = useSearch<LocationGenerics>();
   const isMobile = useMobileDetect().isMobile();
   const [value, setValue] = useState(state.globalFilter);
   // Render the UI for your table
@@ -361,10 +359,10 @@ export function Table({
           className="inline-flex items-center align-center mt-2 sm:mt-0 mx-auto sm:mx-0 px-4 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           onClick={() => {
             navigate({
-              search: {
+              search: (search) => ({
                 ...search,
                 filters: undefined,
-              },
+              }),
             });
             setGlobalFilter('');
             setValue('');

@@ -168,7 +168,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
     if (cardId) {
       navigate({
         replace: true,
-        search: {
+        search: (search) => ({
           ...search,
           modalState: {
             cardId,
@@ -177,7 +177,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
               state?.cards?.find((c) => c?.id === cardId),
             )?.id,
           },
-        },
+        }),
       });
     }
   };

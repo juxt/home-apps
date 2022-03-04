@@ -36,10 +36,10 @@ export function useModalForm(
     if (shouldOpen) {
       navigate({
         replace: true,
-        search: {
+        search: (search) => ({
           ...search,
           modalState: { ...currentModalState, ...modalState },
-        },
+        }),
       });
     } else {
       navigate({

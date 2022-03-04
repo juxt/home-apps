@@ -18,7 +18,6 @@ import {
   useCurrentProject,
   useModalForm,
   useWorkflowStates,
-  useRecentCommentsQuery,
 } from '@juxt-home/site';
 import { useMobileDetect } from '@juxt-home/utils';
 import { MultiSelect } from 'react-multi-select-component';
@@ -52,12 +51,12 @@ export function Heading({
     setColIds(colIds);
     navigate({
       replace: true,
-      search: {
+      search: (search) => ({
         ...search,
         filters: {
           colIds: colIds.map((c) => c.value),
         },
-      },
+      }),
     });
   };
 
@@ -77,7 +76,7 @@ export function Heading({
   const handleChangeView = () => {
     navigate({
       replace: true,
-      search: { ...search, view: isCardView ? 'table' : 'card' },
+      search: (search) => ({ ...search, view: isCardView ? 'table' : 'card' }),
     });
   };
 
@@ -99,10 +98,10 @@ export function Heading({
   const resetProjectFilters = () => {
     navigate({
       replace: true,
-      search: {
+      search: (search) => ({
         ...search,
         workflowProjectId: undefined,
-      },
+      }),
     });
   };
 

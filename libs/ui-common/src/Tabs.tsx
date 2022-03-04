@@ -34,11 +34,10 @@ export function NavTabs({ tabs, navName }: TabProps) {
   );
   const onTabClick = (id?: string) => {
     navigate({
-      to: '.',
-      search: {
+      search: (search) => ({
         ...search,
         [navName]: id,
-      },
+      }),
     });
   };
 
@@ -138,10 +137,10 @@ export function ModalTabs({ tabs, navName }: TabProps) {
   const onTabClick = (id?: string) => {
     navigate({
       replace: true,
-      search: {
+      search: (search) => ({
         ...search,
         [navName]: id,
-      },
+      }),
     });
   };
 
@@ -196,15 +195,15 @@ export function ToggleTabs({ tabs }: { tabs: ToggleTab[] }) {
   const onTabClick = (id: string) => {
     navigate({
       replace: true,
-      search: {
+      search: (search) => ({
         ...search,
         filters: {
-          ...search['filters'],
+          ...search?.['filters'],
           tabs: selected.includes(id)
             ? selected.filter((i) => i !== id)
             : [...selected, id],
         },
-      },
+      }),
     });
   };
 
