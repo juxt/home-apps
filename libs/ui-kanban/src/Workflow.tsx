@@ -1,5 +1,5 @@
 import { useHotkeys } from 'react-hotkeys-hook';
-import { notEmpty } from '@juxt-home/utils';
+import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import isEqual from 'lodash-es/isEqual';
 import { useEffect, useMemo, useState } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -75,6 +75,8 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
     }
   }, [data]);
 
+  const isMobile = useMobileDetect().isMobile();
+
   useEffect(() => {
     if (data) {
       const newIds = data.workflowStates
@@ -90,6 +92,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
           search: (search) => ({
             ...search,
             workflowProjectId: '',
+            view: isMobile ? 'table' : 'card',
             filters: {
               ...search?.filters,
               roleFilters: newIds,
@@ -98,7 +101,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         });
       }
     }
-  }, [data, navigate, search, username]);
+  }, [data, isMobile, navigate, search, username]);
 
   const [, setIsAddCard] = useModalForm({
     formModalType: 'addCard',
