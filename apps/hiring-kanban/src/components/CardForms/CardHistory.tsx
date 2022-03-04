@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  BookOpenIcon,
-  DatabaseIcon,
-  ChevronDoubleLeftIcon,
-  ChevronDoubleRightIcon,
-} from '@heroicons/react/solid';
+import { BookOpenIcon, DatabaseIcon } from '@heroicons/react/solid';
 import {
   LocationGenerics,
   useCardHistory,
@@ -15,7 +10,7 @@ import {
   CardHistoryQuery,
 } from '@juxt-home/site';
 import { Modal, Table } from '@juxt-home/ui-common';
-import { notEmpty } from '@juxt-home/utils';
+import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import { useMemo, useState } from 'react';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
@@ -32,36 +27,6 @@ function TitleComponent({ value }: CellProps<TCardHistoryCard>) {
   return <div className="text-sm truncate">{value || 'Untitled'}</div>;
 }
 
-function DoubleIconDisabled({
-  title,
-  updatePreview,
-  leftIcon,
-  rightIcon,
-}: {
-  title: string;
-  updatePreview: () => void;
-  leftIcon: boolean;
-  rightIcon: boolean;
-}) {
-  return (
-    <button type="button" title={title} disabled onClick={() => updatePreview}>
-      {leftIcon && (
-        <ChevronDoubleLeftIcon
-          aria-hidden="true"
-          className="absolute top-60 left-0 h-8 w-6 text-stone-400 cursor-not-allowed"
-        />
-      )}
-      {rightIcon && (
-        <ChevronDoubleRightIcon
-          aria-hidden="true"
-          className="absolute top-60 right-8 h-8 w-6 text-stone-400 cursor-not-allowed"
-        />
-      )}
-      )
-    </button>
-  );
-}
-
 export function CardHistory() {
   const [showPreviewModal, setShowPreviewModal] = useState<boolean | number>(
     false,
@@ -70,6 +35,8 @@ export function CardHistory() {
   const handleClose = () => {
     setShowPreviewModal(false);
   };
+  const screen = useMobileDetect();
+  const isMobile = screen.isMobile();
 
   const cardId = useSearch<LocationGenerics>().modalState?.cardId;
   const { history, isLoading, isError, error } = useCardHistory(cardId);
@@ -101,10 +68,11 @@ export function CardHistory() {
           title="Rollback"
           className="mt-3"
           onClick={() => handleRollback(row.original)}>
-          <DatabaseIcon
-            className="h-5 w-8 text-stone-700 hover:text-indigo-700"
-            aria-hidden="true"
-          />
+          {isMobile ? (
+            <p className="preview-text">Rollback</p>
+          ) : (
+            <DatabaseIcon className="preview-icon" aria-hidden="true" />
+          )}
         </button>
 
         <button
@@ -112,10 +80,11 @@ export function CardHistory() {
           title="Preview"
           className="mt-3"
           onClick={() => setShowPreviewModal(row.index)}>
-          <BookOpenIcon
-            className="h-6 w-8 text-stone-700 hover:text-indigo-700"
-            aria-hidden="true"
-          />
+          {isMobile ? (
+            <p className="preview-text">Preview</p>
+          ) : (
+            <BookOpenIcon className="preview-icon" aria-hidden="true" />
+          )}
         </button>
       </div>
     );
@@ -216,6 +185,10 @@ export function CardHistory() {
     [],
   );
 
+  const isOpen = typeof showPreviewModal === 'number';
+  const previousDisabled =
+    history !== undefined && showPreviewModal === history.length - 1;
+  const nextDisabled = showPreviewModal === 0;
   return (
     <div className="relative h-full">
       <div className="flex flex-col lg:flex-row justify-around items-center lg:items-start h-full">
@@ -230,54 +203,17 @@ export function CardHistory() {
             </h1>
           </div>
           {history && <Table columns={cols} data={data} />}
-
-          <Modal isOpen={!!showPreviewModal} handleClose={handleClose}>
+          <Modal
+            isOpen={isOpen}
+            handleClose={handleClose}
+            hasPrevAndNextBtn
+            previousDisabled={previousDisabled}
+            nextDisabled={nextDisabled}
+            updatePrev={() => setShowPreviewModal(+showPreviewModal + 1)}
+            updateNext={() => setShowPreviewModal(+showPreviewModal - 1)}>
             {typeof showPreviewModal === 'number' &&
               history?.[showPreviewModal] && (
-                <>
-                  <CardView card={history[showPreviewModal]!} />
-                  {showPreviewModal === history.length - 1 ? (
-                    <DoubleIconDisabled
-                      title="Previous"
-                      updatePreview={() =>
-                        setShowPreviewModal(showPreviewModal + 1)
-                      }
-                      leftIcon
-                      rightIcon={false}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      title="Previous"
-                      onClick={() => setShowPreviewModal(showPreviewModal + 1)}>
-                      <ChevronDoubleLeftIcon
-                        className="absolute top-60 left-0 h-8 w-6 text-stone-400 hover:text-indigo-700"
-                        aria-hidden="true"
-                      />
-                    </button>
-                  )}
-
-                  {showPreviewModal === 0 ? (
-                    <DoubleIconDisabled
-                      title="Next"
-                      updatePreview={() =>
-                        setShowPreviewModal(showPreviewModal - 1)
-                      }
-                      rightIcon
-                      leftIcon={false}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      title="Next"
-                      onClick={() => setShowPreviewModal(showPreviewModal - 1)}>
-                      <ChevronDoubleRightIcon
-                        className="absolute top-60 right-8 h-8 w-6 text-stone-400 hover:text-indigo-700"
-                        aria-hidden="true"
-                      />
-                    </button>
-                  )}
-                </>
+                <CardView card={history[showPreviewModal]!} />
               )}
           </Modal>
         </div>

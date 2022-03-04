@@ -1,6 +1,10 @@
 /* eslint-disable react/destructuring-assignment */
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import {
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+} from '@heroicons/react/solid';
 import { Form, ModalFormProps } from './Forms';
 import classNames from 'classnames';
 import { ModalStateProps } from './types';
@@ -47,11 +51,21 @@ export function Modal({
   noScroll,
   className,
   children,
+  hasPrevAndNextBtn,
+  updatePrev,
+  updateNext,
+  previousDisabled,
+  nextDisabled,
 }: ModalStateProps & {
   children: React.ReactNode;
   fullWidth?: boolean;
   className?: string;
   noScroll?: boolean;
+  hasPrevAndNextBtn?: boolean;
+  updatePrev?: () => void;
+  updateNext?: () => void;
+  previousDisabled?: boolean;
+  nextDisabled?: boolean;
 }) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -80,6 +94,7 @@ export function Modal({
             aria-hidden="true">
             &#8203;
           </span>
+
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -90,16 +105,42 @@ export function Modal({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
             <div
               className={classNames(
-                'relative w-full inline-block align-bottom',
-                'bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all',
+                'w-full relative inline-block align-bottom',
+                'bg-white rounded-lg text-left overflow-visible shadow-xl transform transition-all',
                 ' sm:align-middle sm:w-full h-screen-90 ',
-                !noScroll && 'overflow-y-auto',
+                !noScroll && 'overflow-y-visible',
                 !fullWidth && 'sm:max-w-4xl',
                 className,
               )}>
               <div className="h-full flex flex-col justify-between">
                 {children}
               </div>
+              {hasPrevAndNextBtn ? (
+                <>
+                  <button
+                    type="button"
+                    title="Previous"
+                    onClick={updatePrev}
+                    disabled={previousDisabled}
+                    className="disabled:opacity-0">
+                    <ChevronDoubleLeftIcon
+                      className="prevAndNext-icons -left-2 sm:-left-10"
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    title="Next"
+                    onClick={updateNext}
+                    disabled={nextDisabled}
+                    className="disabled:opacity-0">
+                    <ChevronDoubleRightIcon
+                      className="prevAndNext-icons -right-2 sm:-right-10"
+                      aria-hidden="true"
+                    />
+                  </button>
+                </>
+              ) : null}
             </div>
           </Transition.Child>
         </div>

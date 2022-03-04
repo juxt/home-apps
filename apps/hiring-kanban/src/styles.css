@@ -117,3 +117,14 @@
 .fixed-form-height {
   height: calc(100% - 62px);
 }
+
+.preview-text {
+  @apply text-xs font-bold text-stone-700;
+}
+.preview-icon {
+  @apply h-5 w-8 text-stone-700 hover:text-indigo-700;
+}
+
+.prevAndNext-icons {
+  @apply absolute top-1/2 h-6 sm:h-8 w-6 sm:w-8 text-stone-200 hover:text-stone-400 bg-slate-700 sm:bg-slate-900 rounded-2xl;
+}
