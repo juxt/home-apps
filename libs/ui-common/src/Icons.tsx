@@ -276,3 +276,54 @@ export function ThumbUpDown(props: IconProps) {
     </svg>
   );
 }
+
+export function IconForScore({
+  score,
+  fill,
+  withLabel,
+}: {
+  score?: number;
+  fill?: string;
+  withLabel?: boolean;
+}) {
+  const defaultProps = {
+    className: 'w-6 h-6 mr-2 inline-block',
+  };
+  const data = [
+    {
+      score: 1,
+      icon: ThumbDown,
+      defaultFill: 'red',
+      label: 'No',
+    },
+    {
+      score: 2,
+      icon: ThumbUpDown,
+      defaultFill: 'gray',
+      label: 'Not sure',
+    },
+    {
+      score: 3,
+      icon: ThumbUp,
+      defaultFill: 'green',
+      label: 'Yes',
+    },
+    {
+      score: 4,
+      icon: DoubleThumbUp,
+      defaultFill: 'green',
+      label: 'Strong Yes',
+    },
+  ];
+  const item = data.find((i) => i.score === score);
+  return item ? (
+    <>
+      <item.icon
+        {...defaultProps}
+        title={item.label}
+        fill={item?.defaultFill || fill}
+      />
+      {withLabel && <span className="text-xs">{item.label}</span>}
+    </>
+  ) : null;
+}

@@ -1,6 +1,6 @@
-import { isDefined } from '@juxt-home/utils';
+import { notEmpty } from '@juxt-home/utils';
 import classNames from 'classnames';
-import React from 'react';
+import { Fragment } from 'react';
 
 type MetadataItem = {
   label: string;
@@ -30,8 +30,9 @@ export function MetadataGrid({
       <div className="grid grid-cols-2 text-left my-4">
         {metadata
           .filter((item) => item?.value && !item?.hidden)
+          .filter(notEmpty)
           .map((item) => (
-            <React.Fragment key={item.label}>
+            <Fragment key={item?.label}>
               <p className={metadataLabelClass}>{item.label}</p>
               <p className={metadataClass}>
                 {item?.value && item.type === 'date'
@@ -40,7 +41,7 @@ export function MetadataGrid({
                   ? item.value
                   : item.value}
               </p>
-            </React.Fragment>
+            </Fragment>
           ))}
       </div>
       {children}

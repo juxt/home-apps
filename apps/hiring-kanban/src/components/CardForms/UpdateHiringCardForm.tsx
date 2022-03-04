@@ -518,6 +518,7 @@ export function TaskListForState({ card }: { card: TDetailedCard }) {
     : state && state.tasks
     ? ReactDOMServer.renderToString(tasksToDefaultContentJSX(state))
     : 'no state';
+
   const formHooks = useForm<TaskForm>({
     defaultValues: { content },
   });

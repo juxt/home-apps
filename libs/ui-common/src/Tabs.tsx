@@ -1,10 +1,10 @@
 import { SearchIcon } from '@heroicons/react/solid';
 import { LocationGenerics } from '@juxt-home/site';
+import { useMobileDetect } from '@juxt-home/utils';
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { useNavigate, useSearch } from 'react-location';
 import Select from 'react-select';
-import { useAsyncDebounce } from 'react-table';
 import { Option, useGlobalSearch } from './Forms';
 
 type Tab = {
@@ -137,7 +137,7 @@ export function ModalTabs({ tabs, navName }: TabProps) {
 
   const onTabClick = (id?: string) => {
     navigate({
-      to: '.',
+      replace: true,
       search: {
         ...search,
         [navName]: id,
@@ -146,8 +146,10 @@ export function ModalTabs({ tabs, navName }: TabProps) {
   };
 
   return (
-    <div className="border-b border-gray-200">
-      <nav className="-mb-px flex space-x-8 justify-center" aria-label="Tabs">
+    <div className="border-b border-gray-200  overflow-x-auto">
+      <nav
+        className="-mb-px flex space-x-4 sm:space-x-8 justify-center"
+        aria-label="Tabs">
         {tabs
           .filter((t) => !t.hidden)
           .map((tab) => {
@@ -161,10 +163,69 @@ export function ModalTabs({ tabs, navName }: TabProps) {
                   isCurrent
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
-                  'whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm',
+                  'sm:whitespace-nowrap cursor-pointer flex py-3 px-1 border-b-2 font-medium text-sm',
                 )}
                 aria-current={isCurrent ? 'page' : undefined}>
                 {tab.name}
+              </button>
+            );
+          })}
+      </nav>
+    </div>
+  );
+}
+
+type ToggleTab = Tab & { selectedName: string };
+
+export function useHasFilter() {
+  const { filters, view } = useSearch<LocationGenerics>();
+  const isMobile = useMobileDetect().isMobile();
+  const hasFilter = useCallback(
+    (filter) =>
+      isMobile ? view === filter : filters?.['tabs']?.includes(filter),
+    [filters, isMobile, view],
+  );
+  return (filter: string) => hasFilter(filter);
+}
+
+export function ToggleTabs({ tabs }: { tabs: ToggleTab[] }) {
+  const navigate = useNavigate<LocationGenerics>();
+  const search = useSearch<LocationGenerics>();
+  const selected = search['filters']?.['tabs'] ?? [];
+
+  const onTabClick = (id: string) => {
+    navigate({
+      replace: true,
+      search: {
+        ...search,
+        filters: {
+          ...search['filters'],
+          tabs: selected.includes(id)
+            ? selected.filter((i) => i !== id)
+            : [...selected, id],
+        },
+      },
+    });
+  };
+
+  return (
+    <div className="border-b border-gray-200">
+      <nav className="-mb-px flex space-x-8 justify-center" aria-label="Tabs">
+        {tabs
+          .filter((t) => !t.hidden)
+          .map((tab) => {
+            const isSelected = selected.includes(tab.id);
+            return (
+              <button
+                type="button"
+                key={tab.id + tab.name}
+                onClick={() => onTabClick(tab.id)}
+                className={classNames(
+                  'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
+                  'whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm',
+                )}
+                aria-current={isSelected ? 'page' : undefined}>
+                {isSelected ? tab.selectedName : tab.name}
               </button>
             );
           })}

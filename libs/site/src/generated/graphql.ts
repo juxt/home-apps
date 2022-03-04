@@ -7,7 +7,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch("https://alexd.uk/kanban/graphql", {
+    const res = await fetch("http://localhost:5509/kanban/graphql", {
     method: "POST",
     ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
@@ -108,8 +108,8 @@ export type HiringQuestion = {
   __typename?: 'HiringQuestion';
   description?: Maybe<Scalars['String']>;
   question: Scalars['String'];
-  response?: Maybe<Scalars['String']>;
-  scoreCards?: Maybe<Array<Maybe<HiringScoreCard>>>;
+  response: Scalars['String'];
+  scoreCards: Array<HiringScoreCard>;
   scoreCardsLabel?: Maybe<Scalars['String']>;
 };
 
@@ -125,7 +125,7 @@ export type HiringQuestionInput = {
 export type HiringScoreCard = {
   __typename?: 'HiringScoreCard';
   description?: Maybe<Scalars['String']>;
-  score?: Maybe<Scalars['Int']>;
+  score: Scalars['Int'];
   text: Scalars['String'];
 };
 
@@ -145,7 +145,7 @@ export type InterviewFeedback = {
   card?: Maybe<Card>;
   id: Scalars['ID'];
   overallScore: Scalars['Int'];
-  questions?: Maybe<Array<Maybe<HiringQuestion>>>;
+  questions: Array<HiringQuestion>;
   summary: Scalars['String'];
 };
 
@@ -305,6 +305,7 @@ export type Query = {
   cardsByIds?: Maybe<Array<Maybe<Card>>>;
   cardsForProject?: Maybe<Array<Maybe<Card>>>;
   commentsForEntity?: Maybe<Array<Maybe<Comment>>>;
+  feedbackForCard?: Maybe<Array<Maybe<InterviewFeedback>>>;
   myJuxtcode?: Maybe<Scalars['String']>;
   workflow?: Maybe<Workflow>;
   workflowState?: Maybe<WorkflowState>;
@@ -342,6 +343,11 @@ export type QueryCommentsForEntityArgs = {
 };
 
 
+export type QueryFeedbackForCardArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type QueryWorkflowArgs = {
   id: Scalars['ID'];
 };
@@ -363,6 +369,7 @@ export type Workflow = {
 export type WorkflowProject = {
   __typename?: 'WorkflowProject';
   description?: Maybe<Scalars['String']>;
+  hiringCard?: Maybe<HiringCard>;
   id: Scalars['ID'];
   name: Scalars['String'];
 };
@@ -511,6 +518,13 @@ export type CreateInterviewFeedbackMutationVariables = Exact<{
 
 
 export type CreateInterviewFeedbackMutation = { __typename?: 'Mutation', createInterviewFeedback?: { __typename?: 'InterviewFeedback', id: string } | null };
+
+export type FeedbackForCardQueryVariables = Exact<{
+  cardId: Scalars['ID'];
+}>;
+
+
+export type FeedbackForCardQuery = { __typename?: 'Query', feedbackForCard?: Array<{ __typename?: 'InterviewFeedback', id: string, overallScore: number, summary: string, _siteSubject?: string | null, _siteValidTime: string, _siteCreatedAt: string, questions: Array<{ __typename?: 'HiringQuestion', question: string, response: string, description?: string | null, scoreCardsLabel?: string | null, scoreCards: Array<{ __typename?: 'HiringScoreCard', text: string, description?: string | null, score: number }> }> } | null> | null };
 
 export type KanbanDataQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -995,6 +1009,48 @@ export const useCreateInterviewFeedbackMutation = <
       options
     );
 useCreateInterviewFeedbackMutation.fetcher = (variables: CreateInterviewFeedbackMutationVariables) => fetcher<CreateInterviewFeedbackMutation, CreateInterviewFeedbackMutationVariables>(CreateInterviewFeedbackDocument, variables);
+export const FeedbackForCardDocument = `
+    query feedbackForCard($cardId: ID!) {
+  feedbackForCard(id: $cardId) {
+    id
+    overallScore
+    summary
+    questions {
+      question
+      response
+      description
+      scoreCardsLabel
+      scoreCards {
+        text
+        description
+        score
+      }
+    }
+    _siteSubject
+    _siteValidTime
+    _siteCreatedAt
+  }
+}
+    `;
+export const useFeedbackForCardQuery = <
+      TData = FeedbackForCardQuery,
+      TError = Error
+    >(
+      variables: FeedbackForCardQueryVariables,
+      options?: UseQueryOptions<FeedbackForCardQuery, TError, TData>
+    ) =>
+    useQuery<FeedbackForCardQuery, TError, TData>(
+      ['feedbackForCard', variables],
+      fetcher<FeedbackForCardQuery, FeedbackForCardQueryVariables>(FeedbackForCardDocument, variables),
+      options
+    );
+useFeedbackForCardQuery.document = FeedbackForCardDocument;
+
+
+useFeedbackForCardQuery.getKey = (variables: FeedbackForCardQueryVariables) => ['feedbackForCard', variables];
+;
+
+useFeedbackForCardQuery.fetcher = (variables: FeedbackForCardQueryVariables) => fetcher<FeedbackForCardQuery, FeedbackForCardQueryVariables>(FeedbackForCardDocument, variables);
 export const KanbanDataDocument = `
     query kanbanData($id: ID!) {
   allWorkflowProjects {

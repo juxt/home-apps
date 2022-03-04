@@ -1,22 +1,29 @@
 import './App.css';
+import isEqual from 'lodash-es/isEqual';
 import {
   CreateInterviewFeedbackMutationVariables,
   Exact,
+  FeedbackForCardQuery,
   hiringWorkflowId,
+  InterviewFeedback,
   InterviewFeedbackInput,
+  LocationGenerics,
   TDetailedCard,
   UpdateHiringCardMutationVariables,
   useCardById,
+  useCardByIdsQuery,
+  useCreateInterviewFeedbackMutation,
+  useFeedbackForCardQuery,
   useProjectOptions,
+  useUpdateHiringCardMutation,
   useUser,
 } from '@juxt-home/site';
-import { useMobileDetect, useWindowSize } from '@juxt-home/utils';
+import { notEmpty, useMobileDetect, useWindowSize } from '@juxt-home/utils';
 import { lazy, Suspense, useEffect } from 'react';
 import {
   StandaloneForm,
   TipTapContent,
   Option,
-  CommentSection,
   Button,
   ThumbDown,
   ThumbUp,
@@ -25,6 +32,10 @@ import {
   Tiptap,
   DeleteActiveIcon,
   inputClass,
+  ToggleTabs,
+  useHasFilter,
+  ModalTabs,
+  CommentSection,
 } from '@juxt-home/ui-common';
 import {
   Controller,
@@ -35,8 +46,42 @@ import {
 } from 'react-hook-form';
 import classNames from 'classnames';
 import splitbee from '@splitbee/web';
+import { useSearch } from 'react-location';
+import { useQueryClient } from 'react-query';
+import { toast } from 'react-toastify';
 
 const PdfViewer = lazy(() => import('../components/PdfViewer'));
+
+const tabs = [
+  {
+    id: 'details',
+    name: 'Show Candidate Details',
+    selectedName: 'Hide Candidate Details',
+  },
+  {
+    id: 'pdf',
+    name: 'Show PDF',
+    selectedName: 'Hide PDF',
+  },
+  {
+    id: 'comments',
+    name: 'Show Comments',
+    selectedName: 'Hide Comments',
+  },
+  {
+    id: 'feedback',
+    name: 'Show Feedback',
+    selectedName: 'Hide Feedback',
+  },
+];
+
+function useInterviewCard() {
+  const { interviewCardId } = useSearch<LocationGenerics>();
+  const data = useCardById(
+    interviewCardId || 'card-candidates/NazariiBardiuk.adoc',
+  );
+  return data;
+}
 
 function CardDescription({ card }: { card: TDetailedCard }) {
   return (
@@ -126,11 +171,7 @@ function ScoreCardArray({
     'id'
   >;
 }) {
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = formHooks;
+  const { register, control } = formHooks;
 
   return (
     <div className="py-2">
@@ -270,10 +311,7 @@ function QuestionArray({
 }: {
   formHooks: UseFormReturn<CreateInterviewFeedbackMutationVariables, object>;
 }) {
-  const {
-    control,
-    formState: { errors },
-  } = formHooks;
+  const { control } = formHooks;
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'interviewFeedback.questions',
@@ -300,218 +338,331 @@ function QuestionArray({
   );
 }
 
+const defaultFeedbackData = (cardId: string, username: string) => ({
+  cardId: cardId,
+  id: `${cardId}${username}stage1feedback`,
+  summary: '<p></p>',
+  questions: [
+    {
+      question: 'Tell us about yourself',
+      response: '<p></p>',
+      description: 'looking for x y z',
+      preSet: true,
+      scoreCardsLabel: 'First Impression',
+      scoreCards: [
+        {
+          text: 'Communication skills',
+          description:
+            'Will they communicate well with clients and colleagues?',
+          preSet: true,
+        },
+        {
+          text: 'Evidence of passion',
+          description: 'Do they have passion for their work?',
+          preSet: true,
+        },
+      ],
+    },
+    {
+      question:
+        'Describe the type of work environment in which you are most productive.',
+      response: '<p></p>',
+      description:
+        'See if they are ok with remote, also use this to guage consulting vs t1',
+      preSet: true,
+      scoreCardsLabel: 'Soft Skills',
+      scoreCards: [
+        {
+          text: 'Collaborative',
+          preSet: true,
+        },
+        {
+          text: 'Takes ownership',
+          preSet: true,
+        },
+        {
+          text: 'Passion',
+          preSet: true,
+        },
+      ],
+    },
+  ],
+});
+
 type InterviewCardFormFields = UpdateHiringCardMutationVariables & {
   project: Option;
 };
 
-function InterviewForm({ card }: { card: TDetailedCard }) {
+function InterviewForm({
+  card,
+  feedbackData,
+}: {
+  card: TDetailedCard;
+  feedbackData: FeedbackForCardQuery;
+}) {
   const projectOptions = useProjectOptions(hiringWorkflowId);
   const cardFormHooks = useForm<InterviewCardFormFields>({
     defaultValues: {
       project: { label: card?.project?.name, value: card?.project?.id },
+      cardId: card.id,
       card: {
         location: card?.location,
       },
     },
   });
+
+  const { id: username } = useUser();
+  const myFeedback = feedbackData.feedbackForCard?.find(
+    (feedback) => feedback?._siteSubject === username,
+  );
+  const initialFeedback = {
+    ...myFeedback,
+    questions: myFeedback?.questions?.filter(notEmpty) ?? [],
+  };
   const feedbackFormHooks = useForm<CreateInterviewFeedbackMutationVariables>({
     defaultValues: {
-      interviewFeedback: {
-        cardId: card.id,
-        id: `${card.id}alexstage1feedback`,
-        summary: '<p></p>',
-        questions: [
-          {
-            question: 'Tell us about yourself',
-            response: '<p></p>',
-            description: 'looking for x y z',
-            preSet: true,
-            scoreCardsLabel: 'First Impression',
-            scoreCards: [
-              {
-                text: 'Communication skills',
-                description:
-                  'Will they communicate well with clients and colleagues?',
-                preSet: true,
-              },
-              {
-                text: 'Evidence of passion',
-                description: 'Do they have passion for their work?',
-                preSet: true,
-              },
-            ],
-          },
-          {
-            question:
-              'Describe the type of work environment in which you are most productive.',
-            response: '<p></p>',
-            description:
-              'See if they are ok with remote, also use this to guage consulting vs t1',
-            preSet: true,
-            scoreCardsLabel: 'Soft Skills',
-            scoreCards: [
-              {
-                text: 'Collaborative',
-                preSet: true,
-              },
-              {
-                text: 'Takes ownership',
-                preSet: true,
-              },
-              {
-                text: 'Passion',
-                preSet: true,
-              },
-            ],
-          },
-        ],
-      },
+      interviewFeedback: initialFeedback.questions?.[0]
+        ? initialFeedback
+        : defaultFeedbackData(card.id, username),
     },
   });
-  const { id: username } = useUser();
 
+  const hasFilter = useHasFilter();
+  const showComments = hasFilter('comments');
+  const showFeedback = hasFilter('feedback');
+  const showDetails = hasFilter('details');
+
+  const queryClient = useQueryClient();
+  const UpdateHiringCardMutation = useUpdateHiringCardMutation({
+    onSuccess: (data) => {
+      toast.success('Card updated!');
+      const id = data.updateHiringCard?.id;
+      if (id) {
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
+      }
+    },
+    onError: (error) => {
+      toast.error(`Error updating card ${error.message}`);
+    },
+  });
+  const UpdateHiringCard = (input: InterviewCardFormFields) => {
+    const { project, ...cardInput } = input;
+    const cardData: UpdateHiringCardMutationVariables = {
+      card: {
+        ...cardInput.card,
+        workflowProjectId: project?.value,
+      },
+      cardId: input.cardId,
+    };
+
+    if (card && !isEqual(cardData.card, card)) {
+      UpdateHiringCardMutation.mutate({
+        card: cardData.card,
+        cardId: input.cardId,
+      });
+    }
+  };
+
+  const AddFeedbackMutation = useCreateInterviewFeedbackMutation({
+    onSuccess: (data) => {
+      toast.success('Card updated!');
+      const id = data.createInterviewFeedback?.id;
+      if (id) {
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
+      }
+    },
+    onError: (error) => {
+      toast.error(`Error updating card ${error.message}`);
+    },
+  });
+  const AddFeedback = (input: CreateInterviewFeedbackMutationVariables) => {
+    AddFeedbackMutation.mutate({
+      ...input,
+    });
+    feedbackFormHooks.reset(input);
+  };
   return (
     <div className="w-full my-4 px-4">
       {card && (
         <>
-          <StandaloneForm
-            handleSubmit={() =>
-              cardFormHooks.handleSubmit(
-                (data) => alert(JSON.stringify(data)),
-                console.log,
-              )()
-            }
-            formHooks={cardFormHooks}
-            title="Candidate details"
-            description="Edit this only if it is incorrect"
-            preForm={<CardDescription card={card} />}
-            fields={[
-              {
-                id: 'CardProject',
-                type: 'select',
-                rules: {
-                  required: {
-                    value: true,
-                    message: 'Please select a project',
+          {showDetails && (
+            <StandaloneForm
+              handleSubmit={() =>
+                cardFormHooks.handleSubmit(UpdateHiringCard, console.log)()
+              }
+              formHooks={cardFormHooks}
+              title="Candidate details"
+              description="Edit this only if it is incorrect"
+              preForm={<CardDescription card={card} />}
+              fields={[
+                {
+                  id: 'CardProject',
+                  type: 'select',
+                  rules: {
+                    required: {
+                      value: true,
+                      message: 'Please select a project',
+                    },
                   },
+                  options: projectOptions,
+                  label: 'Project',
+                  path: 'project',
                 },
-                options: projectOptions,
-                label: 'Project',
-                path: 'project',
-              },
-              {
-                path: 'card.location',
-                label: 'Location',
-                description:
-                  'Where the candidate will primarily be working from',
-                type: 'text',
-              },
-            ]}
-          />
-          <StandaloneForm
-            handleSubmit={() => {
-              feedbackFormHooks.handleSubmit(
-                (data) => alert(JSON.stringify(data)),
-                console.log,
-              )();
-            }}
-            formHooks={feedbackFormHooks}
-            title={`${username}'s feedback`}
-            description="Record any information specific to this interview here"
-            fields={[
-              {
-                type: 'custom',
-                component: <QuestionArray formHooks={feedbackFormHooks} />,
-                label: 'Questions Asked',
-                path: 'interviewFeedback.questions',
-              },
-              {
-                type: 'custom',
-                label: 'Overall Score',
-                component: (
-                  <Controller
-                    render={({ field }) => (
-                      <InterviewScoreComponent
-                        onChange={field.onChange}
-                        value={field.value}
-                      />
-                    )}
-                    name="interviewFeedback.overallScore"
-                    control={feedbackFormHooks.control}
-                  />
-                ),
-                rules: {
-                  required: {
-                    value: true,
-                    message: 'Please enter an overall score',
-                  },
-                  max: {
-                    value: 10,
-                    message: 'Please enter a score between 0 and 10',
-                  },
-                  min: {
-                    value: 0,
-                    message: 'Please enter a score between 0 and 10',
-                  },
+                {
+                  path: 'card.location',
+                  label: 'Location',
+                  description:
+                    'Where the candidate will primarily be working from',
+                  type: 'text',
                 },
-                path: 'interviewFeedback.overallScore',
-              },
-              {
-                path: 'interviewFeedback.summary',
-                label: 'Summary',
-                description:
-                  'Overall summary of the interview, what did the candidate do well?',
-                type: 'tiptap',
-              },
-            ]}
-          />
+              ]}
+            />
+          )}
+          {showFeedback && (
+            <StandaloneForm
+              handleSubmit={() => {
+                feedbackFormHooks.handleSubmit(AddFeedback, console.log)();
+              }}
+              formHooks={feedbackFormHooks}
+              title={`${username}'s feedback`}
+              description="Record any information specific to this interview here"
+              fields={[
+                {
+                  type: 'custom',
+                  component: <QuestionArray formHooks={feedbackFormHooks} />,
+                  label: 'Questions Asked',
+                  path: 'interviewFeedback.questions',
+                },
+                {
+                  type: 'custom',
+                  label: 'Overall Score',
+                  component: (
+                    <Controller
+                      render={({ field }) => (
+                        <InterviewScoreComponent
+                          onChange={field.onChange}
+                          value={field.value}
+                        />
+                      )}
+                      name="interviewFeedback.overallScore"
+                      control={feedbackFormHooks.control}
+                    />
+                  ),
+                  rules: {
+                    required: {
+                      value: true,
+                      message: 'Please enter an overall score',
+                    },
+                    max: {
+                      value: 10,
+                      message: 'Please enter a score between 0 and 10',
+                    },
+                    min: {
+                      value: 0,
+                      message: 'Please enter a score between 0 and 10',
+                    },
+                  },
+                  path: 'interviewFeedback.overallScore',
+                },
+                {
+                  path: 'interviewFeedback.summary',
+                  label: 'Summary',
+                  description:
+                    'Overall summary of the interview, what did the candidate do well?',
+                  type: 'tiptap',
+                },
+              ]}
+            />
+          )}
         </>
       )}
-      <div className="pt-2">
-        <CommentSection eId="foo" />
-      </div>
+      {showComments && (
+        <Suspense fallback={<div>loading comment section...</div>}>
+          <div className="pt-2">
+            {card?.id && <CommentSection eId={card.id} />}
+          </div>
+        </Suspense>
+      )}
     </div>
   );
 }
 
-const hardcodedCardId =
-  process.env['NODE_ENV'] === 'production'
-    ? 'card-1646084960436'
-    : 'card-candidates/NazariiBardiuk.adoc';
-
-function DesktopView() {
-  const { card } = useCardById(hardcodedCardId);
-  const size = useWindowSize();
+function PDF({ width, base64 }: { width: string; base64?: string }) {
   return (
-    <div className="flex">
-      <div className="overflow-auto no-scrollbar h-screen w-full">
-        {card && <InterviewForm card={card} />}
-      </div>
-      <div className="overflow-auto h-screen w-full">
+    <div>
+      {base64 ? (
         <Suspense fallback={<div>loading pdf worker...</div>}>
           <PdfViewer
             // needed so the pdf viewer resizes correctly
-            key={size.width?.toString() || 'pdfviewer'}
-            pdfString={card?.cvPdf?.base64}
+            key={width}
+            pdfString={base64}
           />
         </Suspense>
+      ) : (
+        <div>
+          <h1>No PDF</h1>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InterviewFormWrapper({ card }: { card: TDetailedCard }) {
+  const { isLoading, data } = useFeedbackForCardQuery({ cardId: card.id });
+  return (
+    <div>
+      {isLoading ? (
+        <div>loading...</div>
+      ) : data ? (
+        <InterviewForm feedbackData={data} card={card} />
+      ) : (
+        <div>no data</div>
+      )}
+    </div>
+  );
+}
+
+function DesktopView() {
+  const { card } = useInterviewCard();
+  const size = useWindowSize();
+  const base64 = card?.cvPdf?.base64;
+  const hasFilter = useHasFilter();
+  const showPdf = hasFilter('pdf');
+  return (
+    <div className="flex">
+      <div className="sm:overflow-auto no-scrollbar h-screen-90 pb-10 w-full">
+        {card && <InterviewFormWrapper card={card} />}
       </div>
+
+      {showPdf ? (
+        <div className="sm:overflow-auto h-screen-90 w-full">
+          <PDF width={size.width?.toString() || 'pdf'} base64={base64} />
+        </div>
+      ) : null}
     </div>
   );
 }
 
 function MobileView() {
   // not sure anyone will actually use this on mobile so probably not worth thinking too much about
-  const { card } = useCardById(hardcodedCardId);
-  return card ? (
-    <div className="h-screen overflow-auto">
-      <InterviewForm card={card} />
-    </div>
-  ) : null;
+  const { card } = useInterviewCard();
+  const base64 = card?.cvPdf?.base64;
+  const hasFilter = useHasFilter();
+  const showPdf = hasFilter('pdf');
+
+  if (!card) {
+    return <div>loading...</div>;
+  }
+
+  return showPdf ? (
+    <PDF width="pdf" base64={base64} />
+  ) : (
+    <InterviewFormWrapper card={card} />
+  );
 }
 
 export function App() {
-  const { card, isLoading } = useCardById(hardcodedCardId);
+  const { card, isLoading } = useInterviewCard();
   const isMobile = useMobileDetect().isMobile();
   const { id: username } = useUser();
   useEffect(() => {
@@ -519,19 +670,24 @@ export function App() {
       splitbee.user.set({ userId: username });
     }
   }, [username]);
+  const CardView = isMobile ? MobileView : DesktopView;
   return (
-    <div>
+    <>
+      <div className="sticky top-0 z-10 bg-white">
+        {isMobile ? (
+          <ModalTabs navName="view" tabs={tabs} />
+        ) : (
+          <ToggleTabs tabs={tabs} />
+        )}
+      </div>
+
       {isLoading ? (
         <div>Loading...</div>
       ) : card ? (
-        isMobile ? (
-          <MobileView />
-        ) : (
-          <DesktopView />
-        )
+        <CardView />
       ) : (
         <div>No card found</div>
       )}
-    </div>
+    </>
   );
 }

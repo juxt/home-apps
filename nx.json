@@ -35,7 +35,7 @@
       "application": {
         "style": "css",
         "linter": "eslint",
-        "compiler": "swc",
+        "compiler": "babel",
         "pascalCaseFiles": true,
         "globalCss": true,
         "flat": true,
@@ -52,7 +52,7 @@
       "library": {
         "style": "css",
         "linter": "eslint",
-        "compiler": "swc",
+        "compiler": "babel",
         "pascalCaseFiles": true,
         "globalCss": true
       }

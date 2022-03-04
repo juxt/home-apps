@@ -20,6 +20,7 @@ module.exports = {
         'screen-90': '90vh',
         'screen-80': '80vh',
         'full-minus-nav': 'calc(100vh - 78px)',
+        'column-height': 'calc(100vh - 215px)',
       }),
     },
   },

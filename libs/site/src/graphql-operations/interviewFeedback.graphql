@@ -3,3 +3,25 @@ mutation createInterviewFeedback($interviewFeedback: InterviewFeedbackInput!) {
     id
   }
 }
+
+query feedbackForCard($cardId: ID!) {
+  feedbackForCard(id: $cardId) {
+    id
+    overallScore
+    summary
+    questions {
+      question
+      response
+      description
+      scoreCardsLabel
+      scoreCards {
+        text
+        description
+        score
+      }
+    }
+    _siteSubject
+    _siteValidTime
+    _siteCreatedAt
+  }
+}

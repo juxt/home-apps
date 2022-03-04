@@ -121,9 +121,6 @@ function CommentForm({
         <div className="min-w-0 flex-1 text-left">
           <form onSubmit={commentFormProps.onSubmit}>
             <div>
-              <label htmlFor="comment" className="sr-only">
-                Comment
-              </label>
               <RenderField
                 field={{
                   id: 'commentText',

@@ -5,6 +5,7 @@ import {
   LocationGenerics,
   TDetailedCard,
   useCardById,
+  useFeedbackForCardQuery,
 } from '@juxt-home/site';
 import {
   CloseIcon,
@@ -13,11 +14,13 @@ import {
   PdfViewer,
   TipTapContent,
   MetadataGrid,
+  IconForScore,
 } from '@juxt-home/ui-common';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useSearch } from 'react-location';
+import { toast } from 'react-toastify';
 import { useThrottleFn } from 'react-use';
 import { InterviewModal } from './InterviewForms';
 import { QuickEditCardWrapper, TaskListForState } from './UpdateHiringCardForm';
@@ -29,13 +32,28 @@ function CardInfo({
   card?: CardDetailsFragment;
   resetSplit?: () => void;
 }) {
-  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   const accordionButtonClass = classNames(
     'flex items-center justify-between w-full px-4 py-2 my-2 rounded-base cursor-base focus:outline-none',
     'bg-orange-50 rounded-lg text-primary-800',
   );
   const { devMode } = useSearch<LocationGenerics>();
+  const { data: cardFeedbackData } = useFeedbackForCardQuery(
+    {
+      cardId: card?.id || '',
+    },
+    {
+      enabled: notEmpty(card?.id),
+    },
+  );
+  const totalFeedbacks = cardFeedbackData?.feedbackForCard?.length || 0;
+  const totalScores = cardFeedbackData?.feedbackForCard
+    ?.filter(notEmpty)
+    ?.map((f) => f.overallScore)
+    ?.reduce((acc, curr) => acc + curr || 0, 0);
+  const averageScore =
+    totalScores && totalFeedbacks && Math.floor(totalScores / totalFeedbacks);
   return (
     <>
       {!card && (
@@ -48,8 +66,9 @@ function CardInfo({
       {card && (
         <>
           <InterviewModal
-            show={showQuestionModal}
-            handleClose={() => setShowQuestionModal(false)}
+            feedbackForCard={cardFeedbackData?.feedbackForCard}
+            show={showFeedbackModal}
+            handleClose={() => setShowFeedbackModal(false)}
           />
           <div className="h-full overflow-y-auto flex flex-col items-center">
             {resetSplit && (
@@ -99,7 +118,7 @@ function CardInfo({
                   value: card.workflowState?.name,
                 },
               ]}>
-              {card?.workflowState && (
+              {card?.workflowState && card.workflowState.tasks?.[0] && (
                 <div className="bg-red-50 prose-sm sm:prose mb-2 p-2">
                   <h2>
                     Action Needed From {card.workflowState.roles?.join(' / ')}
@@ -132,26 +151,52 @@ function CardInfo({
                     </>
                   )}
                 </Disclosure>
-                {false && (
+                {true && (
                   <Disclosure defaultOpen as="div" className="mt-2 w-full">
-                    {({ open }) => (
-                      <>
-                        <Disclosure.Button className={accordionButtonClass}>
-                          <span>TODO</span>
-                          {CloseIcon(open)}
-                        </Disclosure.Button>
-                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                          <div className="mt-2 flex justify-between items-center">
-                            TODO
-                            {/* Status: Booked for 03/02/22 at 4pm
-                              <Button
-                                onClick={() => setShowQuestionModal(true)}>
-                                Start
-                              </Button> */}
-                          </div>
-                        </Disclosure.Panel>
-                      </>
-                    )}
+                    {({ open }) => {
+                      const interviewFeedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback))`;
+                      return (
+                        <>
+                          <Disclosure.Button className={accordionButtonClass}>
+                            <span>Interview 1 Feedback</span>
+                            {CloseIcon(open)}
+                          </Disclosure.Button>
+                          <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                            <div className="flex flex-col items-center">
+                              <button
+                                type="button"
+                                className="bg-slate-200 rounded-lg text-primary-800 p-4"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(
+                                    interviewFeedbackUrl,
+                                  );
+                                  toast.success('Copied to clipboard');
+                                }}>
+                                Copy Interview Link
+                              </button>
+                              {averageScore ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setShowFeedbackModal(true)}
+                                  className="bg-stone-200 mt-2 rounded-lg text-primary-800 p-4">
+                                  Show Feedback ({totalFeedbacks} collected so
+                                  far)
+                                </button>
+                              ) : null}
+                              {averageScore ? (
+                                <div className="flex space-x-4 my-4">
+                                  <strong>Average Score</strong>
+                                  <IconForScore
+                                    score={averageScore}
+                                    withLabel
+                                  />
+                                </div>
+                              ) : null}
+                            </div>
+                          </Disclosure.Panel>
+                        </>
+                      );
+                    }}
                   </Disclosure>
                 )}
                 {card?.files && card?.files.length > 0 && (
@@ -211,7 +256,7 @@ export function CardView({ card }: { card: TDetailedCard }) {
     localStorage.removeItem('vsplitPos');
   };
 
-  const pdfData = card?.cvPdf?.base64;
+  const pdfData = false;
   return (
     <div className="flex h-full flex-col lg:flex-row justify-around items-center lg:items-start ">
       {isMobile || !pdfData ? (

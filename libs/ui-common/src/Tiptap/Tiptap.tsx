@@ -12,8 +12,6 @@ import { MentionSuggestion, TipTapCustomImage } from './extensions';
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'isomorphic-dompurify';
-import { CloseIcon, ExpandIcon } from '../Icons';
-import { ArrowsExpandIcon, XIcon } from '@heroicons/react/solid';
 
 export type TiptapProps = {
   content?: string | null;
@@ -111,18 +109,6 @@ function Tiptap({
   });
 
   useEffect(() => {
-    const editorContent = tiptapEditor?.getHTML();
-    if (
-      tiptapEditor &&
-      !tiptapEditor.isDestroyed &&
-      editorContent !== content
-    ) {
-      console.log('clearing');
-      tiptapEditor.commands.clearContent(true);
-    }
-  }, [content, tiptapEditor]);
-
-  useEffect(() => {
     return () => {
       if (tiptapEditor && !tiptapEditor.isDestroyed) {
         tiptapEditor.destroy();
@@ -162,7 +148,7 @@ function TipTapContent({
     <div className="flex w-full flex-col">
       <div
         className={classNames(
-          ' ProseMirror w-full my-2 overflow-y-auto',
+          '  w-full my-2 overflow-y-auto',
           grow ? 'max-h-max' : 'h-min max-h-32',
           className,
         )}

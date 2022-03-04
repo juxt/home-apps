@@ -175,7 +175,7 @@ export function WorkflowStateContainer({
   const hiddenColumnIds = new Set(colIds);
   return (
     <div
-      className="flex sm:flex-row flex-col max-w-full h-fit"
+      className="flex sm:flex-row flex-col max-w-full h-column-height"
       {...provided.droppableProps}
       ref={provided.innerRef}>
       <Tippy

@@ -393,7 +393,7 @@ export function Table({
                         // we can add them into the header props
                         <th
                           scope="col"
-                          {...(isMobile ? {} : column.getHeaderProps())}
+                          {...(isMobile ? null : column.getHeaderProps())}
                           className="border-r-2 w-1 sm:w-auto border-gray-200 group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div
                             className="flex items-center justify-between"
