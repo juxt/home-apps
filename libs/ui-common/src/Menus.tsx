@@ -1,18 +1,19 @@
 import { Fragment, ReactElement } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { DotsVerticalIcon } from '@heroicons/react/solid';
-
-export type MenuOption = {
-  label: string | ReactElement;
-  props: React.HTMLProps<HTMLButtonElement>;
-  ActiveIcon: (props: React.HTMLAttributes<HTMLOrSVGElement>) => ReactElement;
-  Icon: (props: React.HTMLAttributes<HTMLOrSVGElement>) => ReactElement;
-  hidden?: boolean;
-  id: string;
-};
+import classNames from 'classnames';
 
 type OptionsProps = {
-  options: MenuOption[];
+  options: {
+    label: string | ReactElement;
+    props: React.HTMLProps<HTMLButtonElement>;
+    ActiveIcon?: (
+      props: React.HTMLAttributes<HTMLOrSVGElement>,
+    ) => ReactElement;
+    Icon: (props: React.HTMLAttributes<HTMLOrSVGElement>) => ReactElement;
+    hidden?: boolean;
+    id: string;
+  }[];
 };
 
 export function OptionsMenu({ options }: OptionsProps) {
@@ -30,37 +31,41 @@ export function OptionsMenu({ options }: OptionsProps) {
         leave="transition ease-in duration-75"
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95">
-        <Menu.Items className="z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
+        <Menu.Items className="z-10 mx-3 origin-top-right absolute right-10 top-3 w-max mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
           {options
             .filter((option) => !option.hidden)
-            .map(({ label, props, id, Icon, ActiveIcon }) => (
-              <div key={id} className="py-1 cursor-pointer">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-violet-500 text-white' : 'text-gray-900'
-                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                      {...props}
-                      type="button">
-                      {active && (
-                        <ActiveIcon
-                          className="w-5 h-5 text-violet-300 mr-2"
-                          aria-hidden
-                        />
-                      )}
-                      {!active && (
-                        <Icon
-                          className="w-5 h-5 text-violet-500 mr-2"
-                          aria-hidden
-                        />
-                      )}
-                      {label}
-                    </button>
-                  )}
-                </Menu.Item>
-              </div>
-            ))}
+            .map(({ label, props, id, Icon, ...rest }) => {
+              const ActiveIcon = rest.ActiveIcon || Icon;
+              const activeClass = rest.ActiveIcon ? '' : 'text-violet-50';
+              return (
+                <div key={id} className="py-1 cursor-pointer">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        className={`${
+                          active ? 'bg-violet-500 text-white' : 'text-gray-900'
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                        {...props}
+                        type="button">
+                        {active && (
+                          <ActiveIcon
+                            className={classNames(activeClass, 'w-5 h-5 mr-2')}
+                            aria-hidden
+                          />
+                        )}
+                        {!active && (
+                          <Icon
+                            className="w-5 h-5 text-violet-500 mr-2"
+                            aria-hidden
+                          />
+                        )}
+                        {label}
+                      </button>
+                    )}
+                  </Menu.Item>
+                </div>
+              );
+            })}
         </Menu.Items>
       </Transition>
     </Menu>

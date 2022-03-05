@@ -36,7 +36,7 @@ import { useAtom } from 'jotai';
 
 function processWorkflow(
   workflow: TWorkflow,
-  workflowProjectId: string | undefined,
+  workflowProjectIds: string[] | undefined,
   searchString: string,
 ) {
   const workflowStates = workflow?.workflowStates.filter(notEmpty) || [];
@@ -46,7 +46,7 @@ function processWorkflow(
       ...c,
       cards: filteredCards(
         c.cards?.filter(notEmpty),
-        workflowProjectId,
+        workflowProjectIds,
         searchString,
       ),
     })),
@@ -56,11 +56,11 @@ function processWorkflow(
 export function Workflow({ workflow }: { workflow: TWorkflow }) {
   const search = useSearch<LocationGenerics>();
   const navigate = useNavigate<LocationGenerics>();
-  const { workflowProjectId, devMode } = search;
+  const { workflowProjectIds, devMode } = search;
   const [searchString] = useAtom(searchAtom);
   const data = useMemo(
-    () => processWorkflow(workflow, workflowProjectId, searchString),
-    [workflow, workflowProjectId, searchString],
+    () => processWorkflow(workflow, workflowProjectIds, searchString),
+    [workflow, workflowProjectIds, searchString],
   );
   const [filteredState, setState] = useState<TWorkflow | null>();
   const unfilteredWorkflow = useKanbanDataQuery({
@@ -241,7 +241,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
                   )?.cards?.[destination.index - 1]?.id;
             if (!startCol || !endCol) return;
 
-            if (!workflowProjectId && newFilteredState) {
+            if (!workflowProjectIds && newFilteredState) {
               // if there are no filters, just use the local state in the mutation
               updateServerCards(
                 newFilteredState,

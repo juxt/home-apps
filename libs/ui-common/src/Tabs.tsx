@@ -1,11 +1,12 @@
-import { SearchIcon } from '@heroicons/react/solid';
-import { LocationGenerics } from '@juxt-home/site';
-import { useMobileDetect } from '@juxt-home/utils';
+import { AnnotationIcon, EyeIcon, SearchIcon } from '@heroicons/react/solid';
+import { LocationGenerics, useModalForm } from '@juxt-home/site';
+import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import classNames from 'classnames';
 import { useCallback } from 'react';
 import { useNavigate, useSearch } from 'react-location';
 import Select from 'react-select';
 import { Option, useGlobalSearch } from './Forms';
+import { OptionsMenu } from './Menus';
 
 type Tab = {
   id: string;
@@ -20,24 +21,29 @@ type TabProps = {
   navName: keyof LocationGenerics['Search'];
 };
 
-export function NavTabs({ tabs, navName }: TabProps) {
-  const options = tabs.map((tab) => ({
-    value: tab.id,
-    label: tab.name,
-  }));
-
+export function NavTabs({ tabs }: TabProps) {
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
-  const currentId = search[navName];
-  const currentOption: Option | undefined = options.find(
-    (option) => option.value === currentId,
-  );
-  const onTabClick = (id?: string) => {
+  const currentIds = search['workflowProjectIds'];
+  const [, setViewComments] = useModalForm({
+    formModalType: 'viewComments',
+  });
+  const handleFilterMyCards = () => {
     navigate({
+      replace: true,
       search: (search) => ({
         ...search,
-        [navName]: id,
+        showMyCards: !search?.showMyCards,
       }),
+    });
+  };
+  const onTabClick = (id?: string, multi?: boolean) => {
+    const newIds = multi ? [...(currentIds || []), id] : [id];
+    navigate({
+      search: {
+        ...search,
+        workflowProjectIds: id ? newIds.filter(notEmpty) : undefined,
+      },
     });
   };
 
@@ -45,21 +51,6 @@ export function NavTabs({ tabs, navName }: TabProps) {
 
   return (
     <div className="mb-2">
-      <div className="sm:hidden">
-        <label htmlFor="tabs" className="sr-only">
-          Select a tab
-        </label>
-        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-        <Select
-          className="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-          id="tabs"
-          name="tabs"
-          value={currentOption}
-          onChange={(e) => e && onTabClick(e.value)}
-          placeholder="Select a Project"
-          options={options}
-        />
-      </div>
       <div className="hidden sm:block">
         <div className="border-b border-gray-200">
           <nav
@@ -94,14 +85,18 @@ export function NavTabs({ tabs, navName }: TabProps) {
                 </div>
               </div>
             </div>
-            <div className="flex flex-row">
+            <div className="flex flex-row items-center">
               {tabs.map((tab) => {
-                const isCurrent = tab.id === currentId;
+                const isCurrent = currentIds
+                  ? currentIds?.includes(tab.id)
+                  : !tab.id;
                 return (
                   <button
                     type="button"
                     key={tab.id + tab.name}
-                    onClick={() => onTabClick(tab.id)}
+                    onClick={(e) => {
+                      onTabClick(tab.id, e.shiftKey);
+                    }}
                     className={classNames(
                       isCurrent
                         ? 'border-indigo-500 text-indigo-600'
@@ -124,6 +119,30 @@ export function NavTabs({ tabs, navName }: TabProps) {
                   </button>
                 );
               })}
+              <div className="border-b-2 border-transparent">
+                <OptionsMenu
+                  options={[
+                    {
+                      label: 'View comments',
+                      id: 'viewComments',
+                      Icon: AnnotationIcon,
+                      props: {
+                        onClick: () => setViewComments(true),
+                      },
+                    },
+                    {
+                      label: 'Show cards owned by me',
+                      id: 'myCards',
+                      Icon: EyeIcon,
+                      props: {
+                        title:
+                          'Click to filter the board to only show cards where you are an owner',
+                        onClick: handleFilterMyCards,
+                      },
+                    },
+                  ]}
+                />
+              </div>
             </div>
 
             <div className="hidden lg:block lg:w-60" />

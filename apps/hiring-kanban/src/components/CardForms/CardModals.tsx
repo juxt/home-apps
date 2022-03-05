@@ -24,13 +24,13 @@ export function AddHiringCardModalWrapper({
   isOpen,
   handleClose,
 }: AddHiringCardModalProps) {
-  const { workflowProjectId } = useSearch<LocationGenerics>();
+  const { workflowProjectIds } = useSearch<LocationGenerics>();
   const [{ data: cols }, stateOptions] = useStatesOptions({ workflowId });
   const projectOptions = useProjectOptions(workflowId);
 
   const defaultValues: Partial<AddHiringCardInput> = {
     project:
-      projectOptions.find((p) => p.value === workflowProjectId) ||
+      projectOptions.find((p) => workflowProjectIds?.includes(p.value)) ||
       projectOptions[0],
     workflowStateId: stateOptions?.[0]?.value,
     workflowState: stateOptions?.[0],

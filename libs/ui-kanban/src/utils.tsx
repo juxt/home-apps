@@ -27,14 +27,15 @@ export function filteredCols({
 
 export function filteredCards(
   cards: TCard[] | undefined,
-  workflowProjectId: string | undefined,
+  workflowProjectIds: string[] | undefined,
   searchTerm: string,
 ) {
   return (
     cards?.filter(
       (card) =>
-        ((workflowProjectId === '' && card?.project) ||
-          (card?.project?.name && card.project?.id === workflowProjectId)) &&
+        ((!workflowProjectIds && card?.project) ||
+          (card?.project?.name &&
+            workflowProjectIds?.includes(card.project?.id))) &&
         card.title.toLowerCase().includes(searchTerm.toLowerCase()),
     ) ?? []
   );

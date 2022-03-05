@@ -106,14 +106,14 @@ export function useProjectOptions(workflowId: string) {
 }
 
 export function useCurrentProject(workflowId: string) {
-  const workflowProjectId = useSearch<LocationGenerics>().workflowProjectId;
+  const workflowProjectIds = useSearch<LocationGenerics>().workflowProjectIds;
   const projectQuery = useKanbanDataQuery(
     { id: workflowId },
     {
       select: (data) =>
         data?.allWorkflowProjects
           ?.filter(notEmpty)
-          .find((p) => p.id === workflowProjectId),
+          .find((p) => workflowProjectIds?.includes(p.id)),
     },
   );
   return projectQuery;

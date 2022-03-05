@@ -90,7 +90,7 @@ export function App() {
         handleClose={() => setIsEditProject(false)}
       />
       <NavTabs
-        navName="workflowProjectId"
+        navName="workflowProjectIds"
         tabs={[...projects, { id: '', name: 'All' }]
           .filter(notEmpty)
           .map((project) => ({
