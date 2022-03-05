@@ -1,6 +1,12 @@
-import { AnnotationIcon, EyeIcon, SearchIcon } from '@heroicons/react/solid';
+import {
+  AnnotationIcon,
+  EyeIcon,
+  EyeOffIcon,
+  SearchIcon,
+} from '@heroicons/react/solid';
 import { LocationGenerics, useModalForm } from '@juxt-home/site';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
+import Tippy, { useSingleton } from '@tippyjs/react';
 import classNames from 'classnames';
 import { useCallback } from 'react';
 import { useNavigate, useSearch } from 'react-location';
@@ -47,12 +53,27 @@ export function NavTabs({ tabs }: TabProps) {
     });
   };
 
+  const hideEmptyStates = search.hideEmptyStates;
+  const handleToggleEmptyStates = () => {
+    navigate({
+      search: (search) => ({
+        ...search,
+        hideEmptyStates: !search?.hideEmptyStates,
+      }),
+    });
+  };
+
   const showMyCards = search?.showMyCards;
 
   const [searchVal, setSearchVal] = useGlobalSearch();
-
+  const [source, target] = useSingleton();
   return (
     <div className="mb-2">
+      <Tippy
+        singleton={source}
+        delay={[500, 100]}
+        moveTransition="transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)"
+      />
       <div className="hidden sm:block">
         <div className="border-b border-gray-200">
           <nav
@@ -93,32 +114,45 @@ export function NavTabs({ tabs }: TabProps) {
                   ? currentIds?.includes(tab.id)
                   : !tab.id;
                 return (
-                  <button
-                    type="button"
-                    key={tab.id + tab.name}
-                    onClick={(e) => {
-                      onTabClick(tab.id, e.shiftKey);
-                    }}
-                    className={classNames(
-                      isCurrent
-                        ? 'border-indigo-500 text-indigo-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
-                      'whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm',
-                    )}
-                    aria-current={isCurrent ? 'page' : undefined}>
-                    {tab.name}
-                    {typeof tab.count === 'number' ? (
-                      <span
-                        className={classNames(
-                          isCurrent
-                            ? 'bg-indigo-100 text-indigo-600'
-                            : 'bg-gray-100 text-gray-900',
-                          'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block',
-                        )}>
-                        {tab.count}
-                      </span>
-                    ) : null}
-                  </button>
+                  <Tippy
+                    singleton={target}
+                    delay={[100, 500]}
+                    className=" bg-slate-800 text-white text-center relative rounded text-sm whitespace-normal outline-none transition-all p-2"
+                    content={
+                      <div className="text-sm">
+                        <p>
+                          Click to show only {tab.name} cards, or shift+click to
+                          select multiple filters
+                        </p>
+                      </div>
+                    }>
+                    <button
+                      type="button"
+                      key={tab.id + tab.name}
+                      onClick={(e) => {
+                        onTabClick(tab.id, e.shiftKey);
+                      }}
+                      className={classNames(
+                        isCurrent
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
+                        'whitespace-nowrap cursor-pointer flex py-4 px-1 border-b-2 font-medium text-sm',
+                      )}
+                      aria-current={isCurrent ? 'page' : undefined}>
+                      {tab.name}
+                      {typeof tab.count === 'number' ? (
+                        <span
+                          className={classNames(
+                            isCurrent
+                              ? 'bg-indigo-100 text-indigo-600'
+                              : 'bg-gray-100 text-gray-900',
+                            'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block',
+                          )}>
+                          {tab.count}
+                        </span>
+                      ) : null}
+                    </button>
+                  </Tippy>
                 );
               })}
               <div className="border-b-2 border-transparent">
@@ -133,11 +167,23 @@ export function NavTabs({ tabs }: TabProps) {
                       },
                     },
                     {
+                      label: hideEmptyStates
+                        ? 'Show empty columns'
+                        : 'Hide empty columns',
+                      id: 'toggleEmptyStates',
+                      Icon: hideEmptyStates ? EyeIcon : EyeOffIcon,
+                      openOnSelect: true,
+                      props: {
+                        onClick: handleToggleEmptyStates,
+                      },
+                    },
+                    {
                       label: showMyCards
-                        ? 'Highlight cards owned by me'
-                        : "Don't highlight cards owned by me",
+                        ? "Don't highlight cards owned by me"
+                        : 'Highlight cards owned by me',
                       id: 'myCards',
-                      Icon: EyeIcon,
+                      Icon: showMyCards ? EyeOffIcon : EyeIcon,
+                      openOnSelect: true,
                       props: {
                         title:
                           'Click to filter the board to only show cards where you are an owner',

@@ -1,4 +1,4 @@
-import { Fragment, ReactElement } from 'react';
+import { Fragment, ReactElement, useRef } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { DotsVerticalIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
@@ -12,14 +12,19 @@ type OptionsProps = {
     ) => ReactElement;
     Icon: (props: React.HTMLAttributes<HTMLOrSVGElement>) => ReactElement;
     hidden?: boolean;
+    openOnSelect?: boolean;
     id: string;
   }[];
+  openOnSelect?: boolean;
 };
 
-export function OptionsMenu({ options }: OptionsProps) {
+export function OptionsMenu({ options, openOnSelect }: OptionsProps) {
+  const ref = useRef<HTMLButtonElement | null>(null);
   return (
     <Menu as="div" className="relative flex-shrink-0 pr-2">
-      <Menu.Button className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500">
+      <Menu.Button
+        ref={ref}
+        className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500">
         <span className="sr-only">Open options</span>
         <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />
       </Menu.Button>
@@ -46,6 +51,16 @@ export function OptionsMenu({ options }: OptionsProps) {
                           active ? 'bg-violet-500 text-white' : 'text-gray-900'
                         } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                         {...props}
+                        onClick={(e) => {
+                          // horrible but the only way to do this for now
+                          // https://github.com/tailwindlabs/headlessui/discussions/1122
+                          setTimeout(() => {
+                            if (openOnSelect || rest.openOnSelect) {
+                              ref.current?.click();
+                            }
+                          }, 0);
+                          props.onClick?.(e);
+                        }}
                         type="button">
                         {active && (
                           <ActiveIcon

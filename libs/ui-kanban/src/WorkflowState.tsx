@@ -177,7 +177,7 @@ export function WorkflowStateContainer({
   const [source, target] = useSingleton();
   const search = useSearch<LocationGenerics>();
   const colIds = search?.filters?.colIds ?? search?.filters?.roleFilters ?? [];
-
+  const hideEmptyStates = search?.hideEmptyStates;
   const hiddenColumnIds = new Set(colIds);
   return (
     <div
@@ -191,6 +191,9 @@ export function WorkflowStateContainer({
       />
       {cols
         .filter((col) => !hiddenColumnIds.has(col.id))
+        .filter((col) =>
+          hideEmptyStates ? col.cards && col.cards.length > 0 : true,
+        )
         .map((col) => {
           return (
             <WorkflowState

@@ -40,6 +40,7 @@ export type LocationGenerics = MakeGenerics<{
       isEditing?: boolean;
     };
     interviewCardId?: string;
+    hideEmptyStates?: boolean;
     workflowProjectIds?: Array<string>;
     showMyCards?: boolean;
     cardModalView?: string;
