@@ -10,6 +10,7 @@ import {
   TWorkflowState,
   LocationGenerics,
   useModalForm,
+  useUser,
 } from '@juxt-home/site';
 import { memo } from 'react';
 
@@ -28,6 +29,10 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
     )?.id,
   });
   const search = useSearch<LocationGenerics>();
+  const showMyCards = search?.showMyCards;
+  const { id: username } = useUser();
+  const isMyCard =
+    showMyCards && username && card?.currentOwnerUsernames?.includes(username);
 
   return (
     <Draggable draggableId={card.id} index={index}>
@@ -36,6 +41,7 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
         const cardStyles = classNames(
           'text-left bg-white card-width rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400',
           isDragging && 'bg-blue-50 border-blue-400 shadow-lg',
+          isMyCard && 'border-green-400',
           !card?.project && 'border-red-500 bg-red-50',
         );
         return (

@@ -47,6 +47,8 @@ export function NavTabs({ tabs }: TabProps) {
     });
   };
 
+  const showMyCards = search?.showMyCards;
+
   const [searchVal, setSearchVal] = useGlobalSearch();
 
   return (
@@ -131,7 +133,9 @@ export function NavTabs({ tabs }: TabProps) {
                       },
                     },
                     {
-                      label: 'Show cards owned by me',
+                      label: showMyCards
+                        ? 'Highlight cards owned by me'
+                        : "Don't highlight cards owned by me",
                       id: 'myCards',
                       Icon: EyeIcon,
                       props: {

@@ -4,6 +4,7 @@ fragment CardFields on Card {
     title
     _siteValidTime
     createdAt
+    currentOwnerUsernames
     project {
       id
       name

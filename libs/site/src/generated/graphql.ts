@@ -415,7 +415,7 @@ export type AllProjectsQuery = { __typename?: 'Query', allWorkflowProjects?: Arr
 
 export type CardDetailsFragment = { __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null };
 
-export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null };
+export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, currentOwnerUsernames?: Array<string | null> | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null };
 
 export type CardHistoryQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -531,7 +531,7 @@ export type KanbanDataQueryVariables = Exact<{
 }>;
 
 
-export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null, workflow?: { __typename?: 'Workflow', description?: string | null, id: string, name: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, roles?: Array<string | null> | null, tasks?: Array<string | null> | null, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null } | null> } | null };
+export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null, workflow?: { __typename?: 'Workflow', description?: string | null, id: string, name: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, roles?: Array<string | null> | null, tasks?: Array<string | null> | null, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, currentOwnerUsernames?: Array<string | null> | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null } | null> } | null };
 
 export type WorkflowProjectFieldsFragment = { __typename?: 'WorkflowProject', id: string, name: string, description?: string | null };
 
@@ -602,7 +602,7 @@ export type CreateWorkflowProjectMutationVariables = Exact<{
 
 export type CreateWorkflowProjectMutation = { __typename?: 'Mutation', createWorkflowProject?: { __typename?: 'WorkflowProject', id: string } | null };
 
-export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, roles?: Array<string | null> | null, tasks?: Array<string | null> | null, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null };
+export type WorkflowStateFieldsFragment = { __typename?: 'WorkflowState', id: string, name: string, description?: string | null, roles?: Array<string | null> | null, tasks?: Array<string | null> | null, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, currentOwnerUsernames?: Array<string | null> | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null };
 
 export const CardDetailsFragmentDoc = `
     fragment CardDetails on Card {
@@ -656,6 +656,7 @@ export const CardFieldsFragmentDoc = `
     title
     _siteValidTime
     createdAt
+    currentOwnerUsernames
     project {
       id
       name
