@@ -146,6 +146,12 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         Filter: SelectColumnFilter,
       },
       {
+        id: 'project',
+        Header: 'Project',
+        accessor: 'project.name',
+        Filter: SelectColumnFilter,
+      },
+      {
         id: 'created',
         Header: 'Created',
         accessor: 'createdAt',
