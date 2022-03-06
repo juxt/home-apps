@@ -99,7 +99,7 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                     <div className="flex">
                       {take(owners, 3).map((o) => (
                         <Tippy
-                          key={o.id}
+                          key={o.avatar}
                           theme="light"
                           content={o.name}
                           placement="top">
@@ -174,9 +174,16 @@ const WorkflowState = memo(
                   className=" bg-slate-800 text-white text-center relative rounded text-sm whitespace-normal outline-none transition-all p-2"
                   content={
                     <div className="text-sm">
-                      <p>{workflowState?.description}</p>
-                      <br />
-                      <p>Click to edit</p>
+                      {workflowState?.description && (
+                        <>
+                          <p>{workflowState?.description}</p>
+                          <br />
+                        </>
+                      )}
+                      <p>
+                        Click to edit column name, description and default
+                        roles/tasks
+                      </p>
                     </div>
                   }>
                   <div className="card-width flex items-center justify-between my-2">

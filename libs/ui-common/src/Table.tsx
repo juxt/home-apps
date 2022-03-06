@@ -23,7 +23,8 @@ import classNames from 'classnames';
 import { useEffect, useMemo, useState, Fragment } from 'react';
 import { useNavigate, useSearch } from 'react-location';
 import { LocationGenerics } from '@juxt-home/site';
-import { useMobileDetect } from '@juxt-home/utils';
+import { notEmpty, useMobileDetect } from '@juxt-home/utils';
+import { isArray } from 'lodash';
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -85,7 +86,15 @@ export function SelectColumnFilter({
   const options = useMemo(() => {
     const options = new Set();
     preFilteredRows.forEach((row) => {
-      options.add(row.values[id]);
+      if (isArray(row.values[id])) {
+        if (row.values[id].length > 0) {
+          row.values[id].forEach((value) => {
+            options.add(value);
+          });
+        }
+      } else if (row.values[id] !== undefined) {
+        options.add(row.values[id]);
+      }
     });
     return [...options.values()] as string[];
   }, [id, preFilteredRows]);
@@ -93,35 +102,33 @@ export function SelectColumnFilter({
 
   const navigate = useNavigate<LocationGenerics>();
 
-  return (
-    <>
-      <FilterLabel label={render('Header')} />
-      <select
-        className="w-full md:w-10/12 box-border mr-2 rounded-md text-xs border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        name={id}
-        id={id}
-        value={filterValue || ''}
-        onChange={(e) => {
-          navigate({
-            search: (search) => ({
-              ...search,
-              filters: {
-                ...search.filters,
-                [id]: e.target.value,
-              },
-            }),
-          });
-          setFilter(e.target.value || undefined);
-        }}>
-        <option value="">All</option>
-        {options.map((option, i) => (
-          <option key={i} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </>
-  );
+  <>
+    <FilterLabel label={render('Header')} />
+    <select
+      className="w-full md:w-10/12 box-border mr-2 rounded-md text-xs border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+      name={id}
+      id={id}
+      value={filterValue || ''}
+      onChange={(e) => {
+        navigate({
+          search: (search) => ({
+            ...search,
+            filters: {
+              ...search.filters,
+              [id]: e.target.value,
+            },
+          }),
+        });
+        setFilter(e.target.value || undefined);
+      }}>
+      <option value="">All</option>
+      {options.map((option, i) => (
+        <option key={i} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
+  </>;
 }
 export function DateFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },
@@ -173,7 +180,7 @@ export function DateFilter({
     if (filter) {
       setFilter(filter);
     }
-  }, [filter]);
+  }, [filter, setFilter]);
 
   return (
     <>
@@ -267,7 +274,7 @@ export function DateFilterFn(
 }
 
 export const FilterLabelContainer: FC = ({ children }) => (
-  <div className="flex gap-x-2 items-baseline first:mt-0 mt-2 md:mt-0">
+  <div className="flex w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/6 gap-x-2 items-baseline first:mt-0 mt-2 md:mt-0">
     {children}
   </div>
 );
@@ -335,7 +342,7 @@ export function Table({
   return (
     <>
       <div className="flex justify-between flex-wrap sm:flex-nowrap w-full my-1 p-3 items-center bg-slate-300 border-b border-gray-200 sm:rounded-lg">
-        <div className="flex flex-col md:flex-row">
+        <div className="flex flex-col flex-wrap md:flex-row w-full">
           <FilterLabelContainer>
             <GlobalFilter
               preGlobalFilteredRows={preGlobalFilteredRows}

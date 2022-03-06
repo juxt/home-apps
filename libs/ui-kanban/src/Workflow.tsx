@@ -152,6 +152,15 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         Filter: SelectColumnFilter,
       },
       {
+        id: 'assignees',
+        Header: 'Assignees',
+        accessor: 'currentOwnerUsernames',
+        Cell: ({ value }) => {
+          return <p className="text-gray-500 text-xs">{value.join(', ')}</p>;
+        },
+        Filter: SelectColumnFilter,
+      },
+      {
         id: 'created',
         Header: 'Created',
         accessor: 'createdAt',
