@@ -3,6 +3,7 @@ import { notEmpty } from '@juxt-home/utils';
 import { useSearch } from 'react-location';
 import {
   LocationGenerics,
+  useCardByIdsQuery,
   useKanbanDataQuery,
   useModalForm,
 } from '@juxt-home/site';
@@ -19,17 +20,42 @@ import {
   EditHiringCardModal as HiringCardModal,
 } from './components/CardForms';
 import { workflowId } from './constants';
+import { useQueryClient } from 'react-query';
+import { useCallback, useEffect } from 'react';
 
 export function App() {
   const search = useSearch<LocationGenerics>();
-
-  const refetch = search.modalState?.formModalType ? false : 3000;
+  const isDev = process.env.NODE_ENV === 'development';
+  const refetch = search.modalState?.formModalType
+    ? false
+    : isDev
+    ? 5000
+    : 1000;
+  const queryClient = useQueryClient();
   const kanbanQueryResult = useKanbanDataQuery(
     { id: workflowId },
     {
       refetchInterval: refetch,
     },
   );
+  const cardIds = kanbanQueryResult.data?.workflow?.workflowStates
+    ?.flatMap((ws) => ws?.cards?.map((card) => card?.id))
+    .filter(notEmpty);
+
+  const prefetchCardDetails = useCallback(() => {
+    cardIds?.forEach((cardId, idx) => {
+      if (cardId && !isDev) {
+        setTimeout(() => {
+          queryClient.prefetchQuery(
+            ['cardById', { ids: [cardId] }],
+            useCardByIdsQuery.fetcher({ ids: [cardId] }),
+          );
+        }, idx * 20);
+      }
+    });
+  }, [cardIds, queryClient, isDev]);
+
+  useEffect(() => prefetchCardDetails(), []);
 
   const workflow = kanbanQueryResult.data?.workflow;
   const [isModalOpen, setIsModalOpen] = useModalForm({

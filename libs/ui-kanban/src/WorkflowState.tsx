@@ -1,6 +1,7 @@
-import { notEmpty } from '@juxt-home/utils';
+import { notEmpty, take } from '@juxt-home/utils';
 import { Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import Tippy, { useSingleton, TippyProps } from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css'; // optional
 import classNames from 'classnames';
 import { useSearch } from 'react-location';
 import NaturalDragAnimation from './lib/react-dnd-animation';
@@ -11,8 +12,12 @@ import {
   LocationGenerics,
   useModalForm,
   useUser,
+  useUpdateWorkflowStateMutation,
+  useDeleteCardFromColumnMutation,
+  juxters,
 } from '@juxt-home/site';
 import { memo } from 'react';
+import { ArchiveActiveIcon } from '@juxt-home/ui-common';
 
 type CardProps = {
   card: TCard;
@@ -21,28 +26,42 @@ type CardProps = {
 };
 
 const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
+  const workflowState = workflow?.workflowStates.find((state) =>
+    state?.cards?.find((c) => c?.id === card.id),
+  );
   const [, setIsOpen] = useModalForm({
     formModalType: 'editCard',
     cardId: card.id,
-    workflowStateId: workflow?.workflowStates.find((state) =>
-      state?.cards?.find((c) => c?.id === card.id),
-    )?.id,
+    workflowStateId: workflowState?.id,
   });
   const search = useSearch<LocationGenerics>();
   const showMyCards = search?.showMyCards;
   const { id: username } = useUser();
   const isMyCard =
     showMyCards && username && card?.currentOwnerUsernames?.includes(username);
+  const updateState = useDeleteCardFromColumnMutation();
+  const handleDeleteCard = (cardId: string) => {
+    const id = workflowState?.id;
+    if (id && workflowState.cards) {
+      updateState.mutate({
+        cardId,
+        workflowStateId: id,
+      });
+    }
+  };
 
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided, snapshot) => {
         const isDragging = snapshot.isDragging && !snapshot.isDropAnimating;
         const cardStyles = classNames(
-          'text-left bg-white card-width rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400',
+          'text-left relative bg-white card-width rounded border-2 mb-2 p-2 border-gray-500 hover:border-blue-400',
           isDragging && 'bg-blue-50 border-blue-400 shadow-lg',
           isMyCard && 'border-green-400',
           !card?.project && 'border-red-500 bg-red-50',
+        );
+        const owners = juxters.filter((j) =>
+          card?.currentOwnerUsernames?.includes(j.staffRecord.juxtcode),
         );
         return (
           <NaturalDragAnimation
@@ -62,9 +81,39 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                 onClick={() => workflow?.id && setIsOpen(true)}
                 ref={provided.innerRef}>
                 {search?.devMode && <pre className="truncate">{card.id}</pre>}
-                <p className="uppercase text-gray-800 font-extralight text-sm">
-                  {card.project?.name}
-                </p>
+                {search?.devMode && (
+                  <ArchiveActiveIcon
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDeleteCard(card.id);
+                    }}
+                    className="w-5 h-5 absolute top-0 right-0"
+                  />
+                )}
+                <div className="flex justify-between">
+                  <p className="uppercase text-gray-800 font-extralight text-sm">
+                    {card.project?.name}
+                  </p>
+                  {owners.length > 0 && (
+                    <div className="flex">
+                      {take(owners, 3).map((o) => (
+                        <Tippy
+                          key={o.id}
+                          theme="light"
+                          content={o.name}
+                          placement="top">
+                          <img
+                            className={classNames('w-6 h-6 rounded-full mr-2')}
+                            src={o.avatar}
+                            alt="card owner"
+                          />
+                        </Tippy>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <p className="prose lg:prose-xl">{card.title}</p>
               </div>
             )}
@@ -181,7 +230,7 @@ export function WorkflowStateContainer({
   const hiddenColumnIds = new Set(colIds);
   return (
     <div
-      className="flex sm:flex-row flex-col max-w-full h-column-height"
+      className="flex sm:flex-row flex-col max-w-full h-column-height-sm lg:h-column-height-lg"
       {...provided.droppableProps}
       ref={provided.innerRef}>
       <Tippy

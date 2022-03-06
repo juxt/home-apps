@@ -1,0 +1,13 @@
+# GraphCDN configuration. Learn more at https://docs.graphcdn.io/docs/cli
+injectHeaders: false
+enablePlayground: false
+schema: schema.graphql
+rules:
+  - types:
+      - Query
+    maxAge: 9000
+    swr: 9000
+    scope: PUBLIC
+    description: Cache everything (default)
+name: kanban
+originUrl: https://alexd.uk/kanban/graphql

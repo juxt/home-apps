@@ -167,6 +167,7 @@ export type Mutation = {
   createWorkflowProjects?: Maybe<Array<Maybe<WorkflowProject>>>;
   createWorkflowState?: Maybe<WorkflowState>;
   createWorkflowStates?: Maybe<Array<Maybe<WorkflowState>>>;
+  deleteCardFromColumn?: Maybe<Card>;
   deleteComment?: Maybe<Comment>;
   deleteHiringCard?: Maybe<HiringCard>;
   deleteWorkflow?: Maybe<Workflow>;
@@ -174,7 +175,7 @@ export type Mutation = {
   deleteWorkflowState?: Maybe<WorkflowState>;
   moveCard?: Maybe<Card>;
   rollbackCard?: Maybe<HiringCard>;
-  updateHiringCard?: Maybe<HiringCard>;
+  updateHiringCard?: Maybe<Card>;
   updateWorkflow?: Maybe<Workflow>;
   updateWorkflowProject?: Maybe<WorkflowProject>;
   updateWorkflowState?: Maybe<WorkflowState>;
@@ -222,6 +223,12 @@ export type MutationCreateWorkflowStateArgs = {
 
 export type MutationCreateWorkflowStatesArgs = {
   workflowStates?: InputMaybe<Array<InputMaybe<WorkflowStateInput>>>;
+};
+
+
+export type MutationDeleteCardFromColumnArgs = {
+  cardId: Scalars['ID'];
+  workflowStateId: Scalars['ID'];
 };
 
 
@@ -413,7 +420,7 @@ export type AllProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type AllProjectsQuery = { __typename?: 'Query', allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null };
 
-export type CardDetailsFragment = { __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null };
+export type CardDetailsFragment = { __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null };
 
 export type CardFieldsFragment = { __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, currentOwnerUsernames?: Array<string | null> | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null };
 
@@ -423,7 +430,7 @@ export type CardHistoryQueryVariables = Exact<{
 }>;
 
 
-export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, cvPdf?: { __typename?: 'File', base64: string, name: string, type: string } | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null } | null> | null };
+export type CardHistoryQuery = { __typename?: 'Query', cardHistory?: Array<{ __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null } | null> | null };
 
 export type CardByIdsQueryVariables = Exact<{
   ids: Array<InputMaybe<Scalars['ID']>> | InputMaybe<Scalars['ID']>;
@@ -488,6 +495,14 @@ export type CreateWorkflowStateMutationVariables = Exact<{
 
 
 export type CreateWorkflowStateMutation = { __typename?: 'Mutation', updateWorkflowState?: { __typename?: 'WorkflowState', id: string } | null, updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
+
+export type DeleteCardFromColumnMutationVariables = Exact<{
+  cardId: Scalars['ID'];
+  workflowStateId: Scalars['ID'];
+}>;
+
+
+export type DeleteCardFromColumnMutation = { __typename?: 'Mutation', deleteCardFromColumn?: { __typename?: 'HiringCard', id: string } | null };
 
 export type DeleteCommentMutationVariables = Exact<{
   commentId: Scalars['ID'];
@@ -616,11 +631,6 @@ export const CardDetailsFragmentDoc = `
     location
     currentOwnerUsernames
     taskHtml
-    cvPdf {
-      base64
-      name
-      type
-    }
     files {
       base64
       name
@@ -732,6 +742,13 @@ export const CardByIdsDocument = `
     query cardByIds($ids: [ID]!) {
   cardsByIds(ids: $ids) {
     ...CardDetails
+    ... on HiringCard {
+      cvPdf {
+        base64
+        name
+        type
+      }
+    }
   }
 }
     ${CardDetailsFragmentDoc}`;
@@ -861,7 +878,9 @@ useCommentsForCardQuery.fetcher = (variables: CommentsForCardQueryVariables) => 
 export const CreateHiringCardDocument = `
     mutation createHiringCard($card: HiringCardInput!, $cardId: ID!, $workflowStateId: ID!, $workflowState: WorkflowStateInput!) {
   updateHiringCard(id: $cardId, Card: $card) {
-    id
+    ... on HiringCard {
+      id
+    }
   }
   updateWorkflowState(id: $workflowStateId, workflowState: $workflowState) {
     id
@@ -939,6 +958,25 @@ export const useCreateWorkflowStateMutation = <
       options
     );
 useCreateWorkflowStateMutation.fetcher = (variables: CreateWorkflowStateMutationVariables) => fetcher<CreateWorkflowStateMutation, CreateWorkflowStateMutationVariables>(CreateWorkflowStateDocument, variables);
+export const DeleteCardFromColumnDocument = `
+    mutation deleteCardFromColumn($cardId: ID!, $workflowStateId: ID!) {
+  deleteCardFromColumn(cardId: $cardId, workflowStateId: $workflowStateId) {
+    ... on HiringCard {
+      id
+    }
+  }
+}
+    `;
+export const useDeleteCardFromColumnMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteCardFromColumnMutation, TError, DeleteCardFromColumnMutationVariables, TContext>) =>
+    useMutation<DeleteCardFromColumnMutation, TError, DeleteCardFromColumnMutationVariables, TContext>(
+      ['deleteCardFromColumn'],
+      (variables?: DeleteCardFromColumnMutationVariables) => fetcher<DeleteCardFromColumnMutation, DeleteCardFromColumnMutationVariables>(DeleteCardFromColumnDocument, variables)(),
+      options
+    );
+useDeleteCardFromColumnMutation.fetcher = (variables: DeleteCardFromColumnMutationVariables) => fetcher<DeleteCardFromColumnMutation, DeleteCardFromColumnMutationVariables>(DeleteCardFromColumnDocument, variables);
 export const DeleteCommentDocument = `
     mutation deleteComment($commentId: ID!) {
   deleteComment(id: $commentId) {
@@ -1133,7 +1171,9 @@ useRollbackCardMutation.fetcher = (variables: RollbackCardMutationVariables) => 
 export const UpdateHiringCardDocument = `
     mutation updateHiringCard($card: HiringCardInput!, $cardId: ID!) {
   updateHiringCard(id: $cardId, Card: $card) {
-    id
+    ... on HiringCard {
+      id
+    }
   }
 }
     `;

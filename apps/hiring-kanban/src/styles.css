@@ -21,14 +21,6 @@
     --header-height: 70px;
   }
 }
-@media screen(sm) {
-  .juxt-kanban-cols-container {
-    height: calc(
-      100vh - 38px - var(--nav-height) - var(--header-height) -
-        var(--col-header-height)
-    );
-  }
-}
 
 .card-width {
   @apply w-full sm:w-52 lg:w-64;

@@ -9,11 +9,6 @@ fragment CardDetails on Card {
     location
     currentOwnerUsernames
     taskHtml
-    cvPdf {
-      base64
-      name
-      type
-    }
     files {
       base64
       name

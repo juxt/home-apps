@@ -116,6 +116,7 @@ export function NavTabs({ tabs }: TabProps) {
                 return (
                   <Tippy
                     singleton={target}
+                    key={tab.id + tab.name}
                     delay={[100, 500]}
                     className=" bg-slate-800 text-white text-center relative rounded text-sm whitespace-normal outline-none transition-all p-2"
                     content={
@@ -128,7 +129,6 @@ export function NavTabs({ tabs }: TabProps) {
                     }>
                     <button
                       type="button"
-                      key={tab.id + tab.name}
                       onClick={(e) => {
                         onTabClick(tab.id, e.shiftKey);
                       }}

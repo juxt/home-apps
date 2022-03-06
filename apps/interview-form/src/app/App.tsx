@@ -423,7 +423,7 @@ function InterviewForm({
     defaultValues: {
       interviewFeedback: initialFeedback.questions?.[0]
         ? initialFeedback
-        : defaultFeedbackData(card.id, username),
+        : defaultFeedbackData(card.id, username || 'nouser'),
     },
   });
 

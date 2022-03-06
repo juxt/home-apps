@@ -96,7 +96,7 @@ export function Heading({
       replace: true,
       search: (search) => ({
         ...search,
-        workflowProjectId: undefined,
+        workflowProjectIds: undefined,
       }),
     });
   };

@@ -41,16 +41,20 @@ type Mutation {
   deleteWorkflow(id: ID!): Workflow @site(mutation: "delete")
   createWorkflowState(WorkflowState: WorkflowStateInput): WorkflowState
   createWorkflowStates(workflowStates: [WorkflowStateInput]): [WorkflowState]
+
   moveCard(cardId: ID!, workflowStateId: ID!, previousCard: ID): Card
     @site(resolver: "kanban.resolvers/move-card")
+  deleteCardFromColumn(cardId: ID!, workflowStateId: ID!): Card
+    @site(resolver: "kanban.resolvers/delete-card-from-column")
+
   updateWorkflowState(
     id: ID!
     workflowState: WorkflowStateInput
   ): WorkflowState @site(mutation: "update")
   deleteWorkflowState(id: ID!): WorkflowState @site(mutation: "delete")
   createHiringCard(Card: HiringCardInput): HiringCard
-  updateHiringCard(id: ID!, Card: HiringCardInput): HiringCard
-    @site(mutation: "update")
+  updateHiringCard(id: ID!, Card: HiringCardInput): Card
+    @site(mutation: "update", objectType: "HiringCard")
   deleteHiringCard(id: ID!): HiringCard @site(mutation: "delete")
   rollbackCard(id: ID!, asOf: String!): HiringCard @site(mutation: "rollback")
   createWorkflowProject(workflowProject: WorkflowProjectInput): WorkflowProject
