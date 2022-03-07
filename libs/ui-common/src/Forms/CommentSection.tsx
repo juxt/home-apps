@@ -14,6 +14,7 @@ import {
   useModalForm,
   userAvatar,
   asOfAtom,
+  purgeQueries,
 } from '@juxt-home/site';
 import { useCallback, BaseSyntheticEvent, useEffect, useState } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
@@ -27,7 +28,6 @@ import { TipTapContent } from '../Tiptap/Tiptap';
 import { Button } from '../Buttons';
 import splitbee from '@splitbee/web';
 import { useAtom } from 'jotai';
-import { purgeAllLists, purgeQueries } from '@juxt-home/ui-kanban';
 
 function CommentForm({
   userProfileImg,

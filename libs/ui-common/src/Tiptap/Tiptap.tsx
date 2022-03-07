@@ -96,7 +96,7 @@ function Tiptap({
           : classNames(
               className,
               'prose-sm sm:prose focus:outline-none whitespace-pre-wrap',
-              'h-20 sm:h-56 w-full max-w-none rounded leading-none text-gray-700 bg-white border border-gray-300 p-3 text-base',
+              'h-20 sm:h-56 w-full !max-w-none rounded !leading-5 text-gray-700 bg-white border border-gray-300 p-3 text-base',
               'overflow-y-auto focus:outline-none',
               editable &&
                 'transition-colors ease-in-out placeholder-gray-500 hover:border-blue-400 focus:outline-none focus:border-blue-400 focus:ring-blue-400 focus:ring-4 focus:ring-opacity-30',

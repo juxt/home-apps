@@ -5,6 +5,7 @@ import {
   useKanbanDataQuery,
   TWorkflow,
   TCard,
+  purgeAllLists,
 } from '@juxt-home/site';
 import { notEmpty } from '@juxt-home/utils';
 
@@ -170,42 +171,6 @@ function moveCard(
       return reorderedCardsOnDestinationWorkflowState;
     return workflowState;
   });
-}
-
-export async function purgeQueries(queries: string[]) {
-  const isDev = process.env.NODE_ENV === 'development';
-  if (!isDev) {
-    const res = await fetch('https://admin.graphcdn.io/kanban', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'graphcdn-token':
-          'b70c77f7c5eff9dd0ec598eb2043277499295c34989d459a862ef77ea3c843e4',
-      },
-      body: JSON.stringify({
-        query: `mutation purgeCols { _purgeQuery(queries: ${JSON.stringify(
-          queries,
-        )}) }`,
-      }),
-    });
-    console.log('purge', res);
-  } else {
-    console.log('not purging in dev');
-  }
-}
-
-export async function purgeAllLists() {
-  purgeQueries([
-    'allComments',
-    'allWorkflows',
-    'allHiringCards',
-    'allWorkflowStates',
-    'allWorkflowProjects',
-    'workflow',
-    'cardsForProject',
-    'commentsForEntity',
-    'feedbackForCard',
-  ]);
 }
 
 const defaultMutationProps = (

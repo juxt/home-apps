@@ -11,6 +11,7 @@ import {
   TCard,
   UpdateHiringCardMutationVariables,
   TDetailedCard,
+  purgeAllLists,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
@@ -21,7 +22,7 @@ import {
   useDirty,
   RenderField,
 } from '@juxt-home/ui-common';
-import { defaultMutationProps, purgeAllLists } from '@juxt-home/ui-kanban';
+import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import splitbee from '@splitbee/web';
 import _ from 'lodash';

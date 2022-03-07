@@ -14,9 +14,9 @@ import {
   useCardHistoryQuery,
   CardHistoryQuery,
   useAsOf,
+  purgeAllLists,
 } from '@juxt-home/site';
 import { Modal, Table } from '@juxt-home/ui-common';
-import { purgeAllLists } from '@juxt-home/ui-kanban';
 import { notEmpty } from '@juxt-home/utils';
 import { useMemo, useState } from 'react';
 import { useSearch } from 'react-location';

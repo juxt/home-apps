@@ -1,4 +1,8 @@
-import { TWorkflowState, useCreateHiringCardMutation } from '@juxt-home/site';
+import {
+  purgeQueries,
+  TWorkflowState,
+  useCreateHiringCardMutation,
+} from '@juxt-home/site';
 import { ModalForm, Option } from '@juxt-home/ui-common';
 import { defaultMutationProps } from '@juxt-home/ui-kanban';
 import { notEmpty } from '@juxt-home/utils';
@@ -30,6 +34,7 @@ export function AddHiringCardModal({
   const AddHiringCardMutation = useCreateHiringCardMutation({
     ...defaultMutationProps(queryClient, workflowId),
     onSuccess: (data) => {
+      purgeQueries(['workflow']);
       splitbee.track('Add Hiring Card', {
         data: JSON.stringify(data),
       });

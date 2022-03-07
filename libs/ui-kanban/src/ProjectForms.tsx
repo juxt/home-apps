@@ -10,9 +10,10 @@ import {
   UpdateWorkflowProjectMutationVariables,
   useUpdateWorkflowProjectMutation,
   useCurrentProject,
+  purgeAllLists,
 } from '@juxt-home/site';
 import { ModalStateProps, ModalForm, Form, Modal } from '@juxt-home/ui-common';
-import { defaultMutationProps, purgeAllLists } from './utils';
+import { defaultMutationProps } from './utils';
 import splitbee from '@splitbee/web';
 
 type AddProjectInput = CreateWorkflowProjectMutationVariables;
