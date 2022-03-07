@@ -8,6 +8,7 @@ import {
   InterviewFeedback,
   InterviewFeedbackInput,
   LocationGenerics,
+  purgeQueries,
   TDetailedCard,
   UpdateHiringCardMutationVariables,
   useCardById,
@@ -49,7 +50,6 @@ import splitbee from '@splitbee/web';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
-import { purgeAllLists } from '@juxt-home/ui-kanban';
 
 const PdfViewer = lazy(() => import('../components/PdfViewer'));
 
@@ -439,7 +439,7 @@ function InterviewForm({
       toast.success('Card updated!');
       const id = data.updateHiringCard?.id;
       if (id) {
-        purgeAllLists();
+        purgeQueries(['workflow']);
         queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       }
     },
@@ -470,10 +470,10 @@ function InterviewForm({
       toast.success('Card updated!');
       const id = data.createInterviewFeedback?.id;
       if (id) {
-        purgeAllLists();
+        purgeQueries(['feedbackForCard']);
         queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       }
-    },
+    }j
     onError: (error) => {
       toast.error(`Error updating card ${error.message}`);
     },

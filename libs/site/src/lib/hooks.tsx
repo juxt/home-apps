@@ -15,7 +15,6 @@ import {
   CommentsForCardQuery,
   TWorkflow,
   TWorkflowState,
-  useUpdateCardPositionMutation,
   useMoveCardMutation,
   userAvatar,
 } from '..';
@@ -193,9 +192,6 @@ export function useUser() {
 }
 
 export function useMoveCard({ handleSuccess }: { handleSuccess: () => void }) {
-  const updateCardPosMutation = useUpdateCardPositionMutation({
-    onSuccess: handleSuccess,
-  });
   const moveCardMutation = useMoveCardMutation({
     onSuccess: handleSuccess,
   });
@@ -249,7 +245,7 @@ export function useAsOf({
 }
 
 export async function purgeQueries(queries: string[]) {
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env['NODE_ENV'] === 'development';
   if (!isDev) {
     const res = await fetch('https://admin.graphcdn.io/kanban', {
       method: 'POST',
@@ -259,9 +255,7 @@ export async function purgeQueries(queries: string[]) {
           'b70c77f7c5eff9dd0ec598eb2043277499295c34989d459a862ef77ea3c843e4',
       },
       body: JSON.stringify({
-        query: `mutation purgeCols { _purgeQuery(queries: ${JSON.stringify(
-          queries,
-        )}) }`,
+        query: `mutation purgeCols { _purgeQuery(queries: [${queries}]) }`,
       }),
     });
     console.log('purge', res);

@@ -1,4 +1,4 @@
-import { FeedbackForCardQuery, useFeedbackForCardQuery } from '@juxt-home/site';
+import { FeedbackForCardQuery } from '@juxt-home/site';
 import {
   Button,
   Modal,

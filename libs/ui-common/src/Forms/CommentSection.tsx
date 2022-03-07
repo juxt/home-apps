@@ -194,6 +194,7 @@ function CommentOptionsMenu({
 export function RenderComment({
   comment,
   isNotLast,
+  userId,
   userProfileImg,
   linkToCard = false,
   deleteComment,
@@ -209,7 +210,6 @@ export function RenderComment({
     formModalType: 'editCard',
     cardId: comment.card?.id,
   });
-  const userId = '';
   return (
     <li className="text-left">
       <div className="relative pb-8">
