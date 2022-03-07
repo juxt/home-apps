@@ -8,10 +8,11 @@ import { LocationGenerics, useModalForm } from '@juxt-home/site';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import Tippy, { useSingleton } from '@tippyjs/react';
 import classNames from 'classnames';
+import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useNavigate, useSearch } from 'react-location';
 import Select from 'react-select';
-import { Option, useGlobalSearch } from './Forms';
+import { dirtyAtom, Option, useGlobalSearch } from './Forms';
 import { OptionsMenu } from './Menus';
 
 type Tab = {
@@ -207,15 +208,25 @@ export function ModalTabs({ tabs, navName }: TabProps) {
   const navigate = useNavigate<LocationGenerics>();
   const search = useSearch<LocationGenerics>();
   const currentId = search[navName];
+  const [isDirty, setDirty] = useAtom(dirtyAtom);
 
   const onTabClick = (id?: string) => {
-    navigate({
-      replace: true,
-      search: (search) => ({
-        ...search,
-        [navName]: id,
-      }),
-    });
+    const confirmed =
+      !isDirty ||
+      confirm(
+        'You have unsaved changes. Are you sure you want to navigate away?',
+      );
+
+    if (confirmed) {
+      setDirty(false);
+      navigate({
+        replace: true,
+        search: (search) => ({
+          ...search,
+          [navName]: id,
+        }),
+      });
+    }
   };
 
   return (
