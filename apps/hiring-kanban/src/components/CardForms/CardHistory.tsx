@@ -206,11 +206,16 @@ export function CardHistory() {
           <Modal
             isOpen={isOpen}
             handleClose={handleClose}
-            hasPrevAndNextBtn
-            previousDisabled={previousDisabled}
-            nextDisabled={nextDisabled}
-            updatePrev={() => setShowPreviewModal(+showPreviewModal + 1)}
-            updateNext={() => setShowPreviewModal(+showPreviewModal - 1)}>
+            updatePrev={
+              previousDisabled
+                ? undefined
+                : () => setShowPreviewModal(+showPreviewModal + 1)
+            }
+            updateNext={
+              nextDisabled
+                ? undefined
+                : () => setShowPreviewModal(+showPreviewModal - 1)
+            }>
             {typeof showPreviewModal === 'number' &&
               history?.[showPreviewModal] && (
                 <CardView card={history[showPreviewModal]!} />

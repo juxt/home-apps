@@ -51,21 +51,17 @@ export function Modal({
   noScroll,
   className,
   children,
-  hasPrevAndNextBtn,
+
   updatePrev,
   updateNext,
-  previousDisabled,
-  nextDisabled,
 }: ModalStateProps & {
   children: React.ReactNode;
   fullWidth?: boolean;
   className?: string;
   noScroll?: boolean;
-  hasPrevAndNextBtn?: boolean;
+
   updatePrev?: () => void;
   updateNext?: () => void;
-  previousDisabled?: boolean;
-  nextDisabled?: boolean;
 }) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -115,32 +111,23 @@ export function Modal({
               <div className="h-full flex flex-col justify-between">
                 {children}
               </div>
-              {hasPrevAndNextBtn ? (
-                <>
-                  <button
-                    type="button"
-                    title="Previous"
-                    onClick={updatePrev}
-                    disabled={previousDisabled}
-                    className="disabled:opacity-0">
-                    <ChevronDoubleLeftIcon
-                      className="prevAndNext-icons -left-2 sm:-left-10"
-                      aria-hidden="true"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    title="Next"
-                    onClick={updateNext}
-                    disabled={nextDisabled}
-                    className="disabled:opacity-0">
-                    <ChevronDoubleRightIcon
-                      className="prevAndNext-icons -right-2 sm:-right-10"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </>
-              ) : null}
+
+              {updatePrev && (
+                <button type="button" title="Previous" onClick={updatePrev}>
+                  <ChevronDoubleLeftIcon
+                    className="prevAndNext-icons -left-2 sm:-left-10"
+                    aria-hidden="true"
+                  />
+                </button>
+              )}
+              {updateNext && (
+                <button type="button" title="Next" onClick={updateNext}>
+                  <ChevronDoubleRightIcon
+                    className="prevAndNext-icons -right-2 sm:-right-10"
+                    aria-hidden="true"
+                  />
+                </button>
+              )}
             </div>
           </Transition.Child>
         </div>
