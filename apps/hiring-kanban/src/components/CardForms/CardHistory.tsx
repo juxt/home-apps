@@ -16,6 +16,7 @@ import {
   useAsOf,
 } from '@juxt-home/site';
 import { Modal, Table } from '@juxt-home/ui-common';
+import { purgeAllLists } from '@juxt-home/ui-kanban';
 import { notEmpty } from '@juxt-home/utils';
 import { useMemo, useState } from 'react';
 import { useSearch } from 'react-location';
@@ -57,6 +58,7 @@ export function CardHistory() {
       queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       queryClient.refetchQueries(useKanbanDataQuery.getKey({ id: workflowId }));
       queryClient.refetchQueries(useCardHistoryQuery.getKey({ id }));
+      purgeAllLists();
     },
   });
   const handleRollback = async (card: TCardHistoryCard) => {

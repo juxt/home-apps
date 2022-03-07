@@ -21,7 +21,7 @@ import {
   useDirty,
   RenderField,
 } from '@juxt-home/ui-common';
-import { defaultMutationProps } from '@juxt-home/ui-kanban';
+import { defaultMutationProps, purgeAllLists } from '@juxt-home/ui-kanban';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import splitbee from '@splitbee/web';
 import _ from 'lodash';
@@ -34,6 +34,16 @@ import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';
 import { UpdateHiringCardInput } from './types';
 
+function onHiringCardUpdate(
+  id: string | undefined,
+  callback: (cardId: string) => void,
+) {
+  if (id) {
+    purgeAllLists();
+    callback(id);
+  }
+}
+
 export function UpdateHiringCardForm({
   handleClose,
 }: {
@@ -45,9 +55,9 @@ export function UpdateHiringCardForm({
   const UpdateHiringCardMutation = useUpdateHiringCardMutation({
     onSuccess: (data) => {
       const id = data.updateHiringCard?.id;
-      if (id) {
-        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
-      }
+      onHiringCardUpdate(id, (cId) =>
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [cId] })),
+      );
     },
   });
   const moveCardMutation = useMoveCardMutation({
@@ -287,9 +297,9 @@ export function QuickEditCard({
     onSuccess: (data) => {
       toast.success('Card updated!');
       const id = data.updateHiringCard?.id;
-      if (id) {
-        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
-      }
+      onHiringCardUpdate(id, (cardId: string) =>
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [cardId] })),
+      );
     },
     onError: (error) => {
       toast.error(`Error updating card ${error.message}`);

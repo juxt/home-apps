@@ -260,6 +260,7 @@ export type MutationDeleteWorkflowStateArgs = {
 export type MutationMoveCardArgs = {
   cardId: Scalars['ID'];
   previousCard?: InputMaybe<Scalars['ID']>;
+  sameColMove?: InputMaybe<Scalars['Boolean']>;
   workflowStateId: Scalars['ID'];
 };
 
@@ -554,6 +555,7 @@ export type MoveCardMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
   cardId: Scalars['ID'];
   previousCard?: InputMaybe<Scalars['ID']>;
+  sameColMove?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
@@ -1127,11 +1129,12 @@ useKanbanDataQuery.getKey = (variables: KanbanDataQueryVariables) => ['kanbanDat
 
 useKanbanDataQuery.fetcher = (variables: KanbanDataQueryVariables) => fetcher<KanbanDataQuery, KanbanDataQueryVariables>(KanbanDataDocument, variables);
 export const MoveCardDocument = `
-    mutation moveCard($workflowStateId: ID!, $cardId: ID!, $previousCard: ID) {
+    mutation moveCard($workflowStateId: ID!, $cardId: ID!, $previousCard: ID, $sameColMove: Boolean) {
   moveCard(
     cardId: $cardId
     workflowStateId: $workflowStateId
     previousCard: $previousCard
+    sameColMove: $sameColMove
   ) {
     ... on HiringCard {
       id

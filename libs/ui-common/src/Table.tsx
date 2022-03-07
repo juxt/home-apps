@@ -96,39 +96,41 @@ export function SelectColumnFilter({
         options.add(row.values[id]);
       }
     });
-    return [...options.values()] as string[];
+    return [...(options.values() || [])] as string[];
   }, [id, preFilteredRows]);
   // Render a multi-select box
 
   const navigate = useNavigate<LocationGenerics>();
 
-  <>
-    <FilterLabel label={render('Header')} />
-    <select
-      className="w-full md:w-10/12 box-border mr-2 rounded-md text-xs border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      name={id}
-      id={id}
-      value={filterValue || ''}
-      onChange={(e) => {
-        navigate({
-          search: (search) => ({
-            ...search,
-            filters: {
-              ...search.filters,
-              [id]: e.target.value,
-            },
-          }),
-        });
-        setFilter(e.target.value || undefined);
-      }}>
-      <option value="">All</option>
-      {options.map((option, i) => (
-        <option key={i} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
-  </>;
+  return (
+    <>
+      <FilterLabel label={render('Header')} />
+      <select
+        className="w-full md:w-10/12 box-border mr-2 rounded-md text-xs border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        name={id}
+        id={id}
+        value={filterValue || ''}
+        onChange={(e) => {
+          navigate({
+            search: (search) => ({
+              ...search,
+              filters: {
+                ...search.filters,
+                [id]: e.target.value,
+              },
+            }),
+          });
+          setFilter(e.target.value || undefined);
+        }}>
+        <option value="">All</option>
+        {options?.map((option, i) => (
+          <option key={i} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </>
+  );
 }
 export function DateFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },

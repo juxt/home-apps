@@ -49,6 +49,7 @@ import splitbee from '@splitbee/web';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
+import { purgeAllLists } from '@juxt-home/ui-kanban';
 
 const PdfViewer = lazy(() => import('../components/PdfViewer'));
 
@@ -438,6 +439,7 @@ function InterviewForm({
       toast.success('Card updated!');
       const id = data.updateHiringCard?.id;
       if (id) {
+        purgeAllLists();
         queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       }
     },
@@ -468,6 +470,7 @@ function InterviewForm({
       toast.success('Card updated!');
       const id = data.createInterviewFeedback?.id;
       if (id) {
+        purgeAllLists();
         queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       }
     },

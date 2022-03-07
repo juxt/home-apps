@@ -12,7 +12,7 @@ import {
   useCurrentProject,
 } from '@juxt-home/site';
 import { ModalStateProps, ModalForm, Form, Modal } from '@juxt-home/ui-common';
-import { defaultMutationProps } from './utils';
+import { defaultMutationProps, purgeAllLists } from './utils';
 import splitbee from '@splitbee/web';
 
 type AddProjectInput = CreateWorkflowProjectMutationVariables;
@@ -31,7 +31,7 @@ export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
 
   const addProject = (input: AddProjectInput) => {
     handleClose();
-
+    purgeAllLists();
     toast.promise(addProjectMutation.mutateAsync(input), {
       pending: 'Creating project...',
       success: 'Project created!',

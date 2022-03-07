@@ -14,7 +14,6 @@ export function useDirty({
   useEffect(() => {
     setDirty(isDirty);
     if (isDirty) {
-      console.log('setting');
       window.onbeforeunload = () => message;
     }
     return () => {

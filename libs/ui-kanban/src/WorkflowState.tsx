@@ -12,7 +12,6 @@ import {
   LocationGenerics,
   useModalForm,
   useUser,
-  useUpdateWorkflowStateMutation,
   useDeleteCardFromColumnMutation,
   juxters,
 } from '@juxt-home/site';

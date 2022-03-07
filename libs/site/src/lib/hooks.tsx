@@ -210,17 +210,11 @@ export function useMoveCard({ handleSuccess }: { handleSuccess: () => void }) {
     prevCardId?: string | false,
   ) => {
     if (startCol === endCol) {
-      const cardsInSourceCol =
-        state?.workflowStates
-          .filter(notEmpty)
-          .find((c) => c.id === source.droppableId)
-          ?.cards?.filter(notEmpty)
-          .map((c) => c.id) || [];
-      updateCardPosMutation.mutate({
-        workflowStateId: startCol?.id,
-        workflowState: {
-          cardIds: cardsInSourceCol,
-        },
+      moveCardMutation.mutate({
+        workflowStateId: startCol.id,
+        sameColMove: true,
+        cardId: draggableId,
+        previousCard: prevCardId || 'start',
       });
     } else if (endCol) {
       updateCardMutation.mutate({

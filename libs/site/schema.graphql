@@ -42,8 +42,12 @@ type Mutation {
   createWorkflowState(WorkflowState: WorkflowStateInput): WorkflowState
   createWorkflowStates(workflowStates: [WorkflowStateInput]): [WorkflowState]
 
-  moveCard(cardId: ID!, workflowStateId: ID!, previousCard: ID): Card
-    @site(resolver: "kanban.resolvers/move-card")
+  moveCard(
+    cardId: ID!
+    workflowStateId: ID!
+    previousCard: ID
+    sameColMove: Boolean
+  ): Card @site(resolver: "kanban.resolvers/move-card")
   deleteCardFromColumn(cardId: ID!, workflowStateId: ID!): Card
     @site(resolver: "kanban.resolvers/delete-card-from-column")
 

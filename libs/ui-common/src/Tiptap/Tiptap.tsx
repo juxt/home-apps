@@ -109,6 +109,23 @@ function Tiptap({
   });
 
   useEffect(() => {
+    if (
+      tiptapEditor &&
+      content &&
+      content.length > 0 &&
+      content !== '<p></p>' &&
+      !tiptapEditor.isFocused &&
+      !tiptapEditor.isDestroyed
+    ) {
+      tiptapEditor.commands.setContent('');
+      tiptapEditor.commands.setContent(content);
+    }
+    if (tiptapEditor && (content === '' || content === '<p></p>')) {
+      tiptapEditor.commands.clearContent();
+    }
+  }, [content, tiptapEditor]);
+
+  useEffect(() => {
     return () => {
       if (tiptapEditor && !tiptapEditor.isDestroyed) {
         tiptapEditor.destroy();

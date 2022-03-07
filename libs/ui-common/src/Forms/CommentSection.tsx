@@ -27,6 +27,7 @@ import { TipTapContent } from '../Tiptap/Tiptap';
 import { Button } from '../Buttons';
 import splitbee from '@splitbee/web';
 import { useAtom } from 'jotai';
+import { purgeAllLists, purgeQueries } from '@juxt-home/ui-kanban';
 
 function CommentForm({
   userProfileImg,
@@ -99,6 +100,22 @@ function CommentForm({
     onSubmit: submitComment,
   };
   const error = formHooks.formState.errors.Comment?.text;
+
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      if (
+        (event.code === 'Enter' || event.code === 'NumpadEnter') &&
+        (event.ctrlKey || event.metaKey)
+      ) {
+        submitComment();
+      }
+    };
+    document.addEventListener('keydown', listener);
+    return () => {
+      document.removeEventListener('keydown', listener);
+    };
+  }, [submitComment]);
+
   return (
     <div className="mt-10">
       <div className="flex space-x-3">
@@ -126,7 +143,6 @@ function CommentForm({
                   id: 'commentText',
                   path: 'Comment.text',
                   placeholder: 'Type a comment (ctrl+enter to send)',
-                  // why this slow
                   type: 'tiptap',
                 }}
                 props={commentFormProps}
@@ -299,6 +315,7 @@ export function CommentSection({ eId }: { eId: string }) {
   const commentMutationProps = {
     onSettled: () => {
       queryClient.refetchQueries(useCommentsForCardQuery.getKey({ id: eId }));
+      purgeQueries(['commentsForEntity']);
     },
   };
   const deleteCommentMutation = useDeleteCommentMutation(commentMutationProps);
