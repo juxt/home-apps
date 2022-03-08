@@ -20,6 +20,7 @@
     "baseUrl": ".",
     "paths": {
       "@juxt-home/site": ["libs/site/src/index.ts"],
+      "@juxt-home/site-public": ["libs/site-public/src/index.ts"],
       "@juxt-home/ui-common": ["libs/ui-common/src/index.ts"],
       "@juxt-home/ui-kanban": ["libs/ui-kanban/src/index.ts"],
       "@juxt-home/utils": ["libs/utils/src/index.ts"]
