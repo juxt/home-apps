@@ -8,10 +8,12 @@ import {
   useProjectOptions,
   juxters,
   TWorkflowState,
-  TCard,
   UpdateHiringCardMutationVariables,
   TDetailedCard,
   purgeAllLists,
+  useClientOptions,
+  useCreateClientMutation,
+  purgeQueries,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
@@ -28,12 +30,38 @@ import splitbee from '@splitbee/web';
 import _ from 'lodash';
 import { BaseSyntheticEvent, useCallback, useEffect } from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { useForm, UseFormReturn, useFormState } from 'react-hook-form';
+import { useForm, useFormState } from 'react-hook-form';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';
 import { UpdateHiringCardInput } from './types';
+
+function useAddClientTags(): (tag: string) => void {
+  const createTagMutation = useCreateClientMutation({
+    onSuccess: () => {
+      purgeQueries(['allClients']);
+      toast.success('Tag created');
+    },
+  });
+  const addTag = (tag: string) => {
+    const tagStr = tag.toLocaleLowerCase().trim();
+    const id = `Client-${tagStr}`;
+    if (tagStr) {
+      createTagMutation.mutate({
+        client: {
+          id,
+          name: tagStr,
+        },
+      });
+    }
+    return {
+      label: tagStr,
+      value: id,
+    };
+  };
+  return addTag;
+}
 
 function onHiringCardUpdate(
   id: string | undefined,
@@ -276,19 +304,37 @@ export function UpdateHiringCardForm({
 
 export function QuickEditCard({
   card,
+  clientOptions,
   usernameOptions,
   projectOptions,
   stateOptions,
-  formHooks,
+  cardClientIds,
   cols,
 }: {
-  card: TCard;
+  card: TDetailedCard;
+  clientOptions: Option[];
   usernameOptions: Option[];
   projectOptions: Option[];
   stateOptions: Option[];
-  formHooks: UseFormReturn<UpdateHiringCardInput, object>;
+  cardClientIds?: string[];
   cols: TWorkflowState[];
 }) {
+  const formHooks = useForm<UpdateHiringCardInput>({
+    defaultValues: {
+      card,
+      cardId: card?.id,
+      potentialClients: clientOptions.filter((client) =>
+        cardClientIds?.includes(client.value),
+      ),
+      owners: usernameOptions.filter((user) =>
+        card?.currentOwnerUsernames?.includes(user.value),
+      ),
+      project: projectOptions?.find((p) => p.value === card?.project?.id),
+      workflowState: stateOptions?.find(
+        (s) => s.value === card?.workflowState?.id,
+      ),
+    },
+  });
   const reset = () => {
     formHooks.reset();
   };
@@ -316,12 +362,16 @@ export function QuickEditCard({
   });
 
   const UpdateHiringCard = (input: UpdateHiringCardInput) => {
-    const { workflowState, project, owners, ...cardInput } = input;
+    const { workflowState, project, owners, potentialClients, ...cardInput } =
+      input;
     const cardData: UpdateHiringCardMutationVariables = {
       card: {
         ...cardInput.card,
         workflowProjectId: project?.value,
         currentOwnerUsernames: owners?.map((o) => o.value),
+        potentialClientIds: input.potentialClients?.map(
+          (client) => client.value,
+        ),
       },
       cardId: input.cardId,
     };
@@ -381,6 +431,8 @@ export function QuickEditCard({
   }, [onSubmit]);
 
   const title = 'Quick Edit Card';
+
+  const handleCreateClient = useAddClientTags();
   return (
     <div className="relative h-full w-full text-left">
       {isEditing && (
@@ -417,6 +469,15 @@ export function QuickEditCard({
             type: 'multiselect',
             options: usernameOptions,
             path: 'owners',
+          },
+          {
+            id: 'potential clients',
+            label: 'Potential Clients',
+            type: 'multiselect',
+            options: clientOptions,
+            onCreateOption: handleCreateClient,
+            isCreatable: true,
+            path: 'potentialClients',
           },
           {
             id: 'CardProject',
@@ -478,29 +539,21 @@ export function QuickEditCardWrapper({ cardId }: { cardId: string }) {
     label: user.name,
     value: user.staffRecord.juxtcode,
   }));
-  const formHooks = useForm<UpdateHiringCardInput>({
-    defaultValues: {
-      card,
-      cardId: card?.id,
-      owners: usernameOptions.filter((user) =>
-        card?.currentOwnerUsernames?.includes(user.value),
-      ),
-      project: projectOptions?.find((p) => p.value === card?.project?.id),
-      workflowState: stateOptions?.find(
-        (s) => s.value === card?.workflowState?.id,
-      ),
-    },
-  });
+  const { data: clientOptions } = useClientOptions();
+  const cardClientIds = card?.potentialClients
+    ?.map((c) => c?.id)
+    .filter(notEmpty);
 
   return (
     <>
-      {card && (
+      {card && clientOptions && (
         <QuickEditCard
           card={card}
+          clientOptions={clientOptions}
           usernameOptions={usernameOptions}
           projectOptions={projectOptions}
           stateOptions={stateOptions}
-          formHooks={formHooks}
+          cardClientIds={cardClientIds}
           cols={cols}
         />
       )}

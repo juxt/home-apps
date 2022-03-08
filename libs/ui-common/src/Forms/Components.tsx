@@ -361,7 +361,6 @@ export function RenderField<T>({
             const { onChange, name } = controlProps.field;
             const value = controlProps.field.value as Option[];
             const { isCreatable, onCreateOption, options } = field;
-            console.log('fi', value);
             return (
               <MultiSelect
                 onChange={onChange}

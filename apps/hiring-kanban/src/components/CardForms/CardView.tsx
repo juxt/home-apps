@@ -92,6 +92,14 @@ function CardInfo({
                   value: card.project?.name,
                 },
                 {
+                  label: 'Owners',
+                  value: card?.currentOwnerUsernames?.join(', '),
+                },
+                {
+                  label: 'Potential Clients',
+                  value: card?.potentialClients?.map((c) => c?.name).join(', '),
+                },
+                {
                   label: 'Source:',
                   value: card.agent,
                 },

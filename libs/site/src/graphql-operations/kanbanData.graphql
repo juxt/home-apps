@@ -22,3 +22,16 @@ fragment WorkflowProjectFields on WorkflowProject {
     count
   }
 }
+
+query allClients {
+  allClients {
+    name
+    id
+  }
+}
+
+mutation createClient($client: ClientInput!) {
+  createClient(client: $client) {
+    id
+  }
+}

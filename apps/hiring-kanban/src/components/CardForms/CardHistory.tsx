@@ -14,6 +14,7 @@ import {
   useCardHistoryQuery,
   CardHistoryQuery,
   useAsOf,
+  purgeAllLists,
 } from '@juxt-home/site';
 import { Modal, Table } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';

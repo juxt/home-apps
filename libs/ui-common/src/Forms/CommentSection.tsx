@@ -310,9 +310,11 @@ export function CommentSection({ eId }: { eId: string }) {
 
   const queryClient = useQueryClient();
   const commentMutationProps = {
-    onSettled: () => {
-      queryClient.refetchQueries(useCommentsForCardQuery.getKey({ id: eId }));
-      purgeQueries(['commentsForEntity']);
+    onSettled: async () => {
+      await purgeQueries(['commentsForEntity']);
+      setTimeout(() => {
+        queryClient.refetchQueries(useCommentsForCardQuery.getKey({ id: eId }));
+      }, 100);
     },
   };
   const deleteCommentMutation = useDeleteCommentMutation(commentMutationProps);

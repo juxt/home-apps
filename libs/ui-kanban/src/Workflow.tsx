@@ -27,6 +27,7 @@ import {
   DateFilter,
   DateFilterFn,
   searchAtom,
+  Option,
 } from '@juxt-home/ui-common';
 import { Heading } from './Headings';
 import { WorkflowStateContainer } from './WorkflowState';
@@ -128,7 +129,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         ]),
     ];
   }, [cols]);
-  const gridColumns: Array<Column> = useMemo(
+  const gridColumns: Array<Column<any>> = useMemo(
     () => [
       {
         Header: 'id',
@@ -144,6 +145,15 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         Header: 'State',
         accessor: 'state',
         Filter: SelectColumnFilter,
+      },
+      {
+        id: 'clients',
+        Header: 'Clients',
+        accessor: (row) =>
+          row.potentialClients
+            ?.filter(notEmpty)
+            .map(({ name }: { name: string }) => name)
+            .join(', '),
       },
       {
         id: 'project',

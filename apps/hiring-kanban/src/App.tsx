@@ -6,6 +6,7 @@ import {
   useCardByIdsQuery,
   useKanbanDataQuery,
   useModalForm,
+  useUser,
 } from '@juxt-home/site';
 import {
   AddProjectModal,
@@ -41,18 +42,21 @@ export function App() {
   const cardIds = kanbanQueryResult.data?.workflow?.workflowStates
     ?.flatMap((ws) => ws?.cards?.map((card) => card?.id))
     .filter(notEmpty);
+  const { id: username } = useUser();
 
   const prefetchCardDetails = useCallback(() => {
-    cardIds?.forEach((cardId, idx) => {
-      if (cardId && !isDev) {
-        setTimeout(() => {
-          queryClient.prefetchQuery(
-            ['cardById', { ids: [cardId] }],
-            useCardByIdsQuery.fetcher({ ids: [cardId] }),
-          );
-        }, idx * 20);
-      }
-    });
+    if (username === 'alx') {
+      cardIds?.forEach((cardId, idx) => {
+        if (cardId && !isDev) {
+          setTimeout(() => {
+            queryClient.prefetchQuery(
+              ['cardById', { ids: [cardId] }],
+              useCardByIdsQuery.fetcher({ ids: [cardId] }),
+            );
+          }, idx * 20);
+        }
+      });
+    }
   }, [cardIds, queryClient, isDev]);
 
   useEffect(() => prefetchCardDetails(), []);

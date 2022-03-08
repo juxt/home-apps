@@ -23,6 +23,7 @@ type Query {
   allComments(limit: Int): [Comment]
   cardsForProject(id: ID!): [Card] @site(itemForId: "workflowProjectId")
   feedbackForCard(id: ID!): [InterviewFeedback] @site(itemForId: "cardId")
+  allClients: [Client]
 }
 
 type Mutation {
@@ -81,6 +82,7 @@ type Mutation {
     @site(mutation: "update")
   createGrowTag(growTag: GrowTagInput): GrowTag
   deleteGrowResource(id: ID!): GrowResource @site(mutation: "delete")
+  createClient(client: ClientInput): Client
 }
 
 input HiringQuestionInput {
@@ -146,6 +148,7 @@ input HiringCardInput {
   workflowProjectId: ID
   currentOwnerUsernames: [String]
   createdAt: String
+  potentialClientIds: [ID]
   stateStr: String
   taskHtml: String
   workflowId: ID
@@ -201,6 +204,16 @@ type File {
   base64: String!
 }
 
+input ClientInput {
+  name: String!
+  id: ID
+}
+
+type Client {
+  name: String!
+  id: ID!
+}
+
 type HiringCard {
   id: ID!
   title: String!
@@ -208,6 +221,7 @@ type HiringCard {
   _siteSubject: ID
   agent: String
   currentOwnerUsernames: [String]
+  potentialClients: [Client] @site(each: "potentialClientIds")
   project: WorkflowProject @site(ref: "workflowProjectId")
   taskHtml: String
   description: String

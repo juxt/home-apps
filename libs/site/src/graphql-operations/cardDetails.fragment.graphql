@@ -1,25 +1,16 @@
 fragment CardDetails on Card {
+  ...CardFields
   ... on HiringCard {
-    id
     description
     agent
-    createdAt
-    _siteValidTime
     _siteSubject
     location
-    currentOwnerUsernames
     taskHtml
     files {
       base64
       name
       type
     }
-    project {
-      description
-      id
-      name
-    }
-    title
     workflowState {
       id
       name

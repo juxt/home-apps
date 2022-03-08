@@ -5,6 +5,10 @@ fragment CardFields on Card {
     _siteValidTime
     createdAt
     currentOwnerUsernames
+    potentialClients {
+      id
+      name
+    }
     project {
       id
       name

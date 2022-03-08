@@ -19,6 +19,7 @@ import {
   userAvatar,
   useUpdateHiringCardMutation,
 } from '..';
+import { useAllClientsQuery } from '../generated/graphql';
 
 type ModalState = LocationGenerics['Search']['modalState'];
 
@@ -102,6 +103,17 @@ export function useProjectOptions(workflowId: string) {
       value: p.id,
     })) ?? []
   );
+}
+
+export function useClientOptions() {
+  const clients = useAllClientsQuery(undefined, {
+    select: (data) =>
+      data?.allClients?.filter(notEmpty).map((client) => ({
+        label: client.name,
+        value: client.id,
+      })) ?? [],
+  });
+  return clients;
 }
 
 export function useCurrentProject(workflowId: string) {
@@ -258,7 +270,6 @@ export async function purgeQueries(queries: string[]) {
         query: `mutation purgeCols { _purgeQuery(queries: [${queries}]) }`,
       }),
     });
-    console.log('purge', res);
   } else {
     console.log('not purging in dev');
   }
