@@ -9,7 +9,7 @@ import {
 } from '@juxt-home/site';
 import {
   AddProjectModal,
-  UpdateWorkflowProjectModal,
+  UpdateWorkflowProjectModalWrapper,
   Workflow,
   AddWorkflowStateModal,
   UpdateWorkflowStateModalWrapper,
@@ -110,7 +110,7 @@ export function App() {
         isOpen={isViewComments}
         handleClose={() => setIsViewComments(false)}
       />
-      <UpdateWorkflowProjectModal
+      <UpdateWorkflowProjectModalWrapper
         isOpen={isEditProject}
         workflowId={workflowId}
         handleClose={() => setIsEditProject(false)}

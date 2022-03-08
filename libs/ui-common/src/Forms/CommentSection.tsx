@@ -44,10 +44,6 @@ function CommentForm({
   const addComment = useCallback(
     (input: CreateCommentMutationVariables) => {
       if (input.Comment.text !== '' && input.Comment.text !== '<p></p>') {
-        splitbee.track('comment', {
-          entityId: eId,
-          commentText: input.Comment.text,
-        });
         toast.promise(
           addCommentMutation.mutateAsync({
             Comment: {
@@ -67,6 +63,7 @@ function CommentForm({
     },
     [addCommentMutation, eId],
   );
+
   const schema = yup.object({ Comment: CommentInputSchema() });
   const formHooks = useForm<CreateCommentMutationVariables>({
     resolver: yupResolver(schema),

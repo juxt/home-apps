@@ -41,7 +41,7 @@ export type ISelectProps = {
   defaultIsOpen?: boolean;
   isOpen?: boolean;
   isCreatable?: boolean;
-  onCreateOption?: (option: Option) => void;
+  onCreateOption?: (option: string) => void;
 };
 
 type WithIdAndType<

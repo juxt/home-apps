@@ -234,7 +234,7 @@ export function UpdateHiringCardForm({
             path: 'card.description',
           },
           {
-            label: 'Agent',
+            label: 'Source',
             id: 'Agent',
             type: 'text',
             path: 'card.agent',

@@ -122,15 +122,15 @@ export function RenderField<T>({
   const registerProps = register(field.path, field.rules);
   const defaultProps = {
     ...registerProps,
-    className: inputClass,
+    className: classNames(inputClass, props?.className),
     type: field.type,
   };
 
   switch (field.type) {
     case 'text':
-      return <input {...defaultProps} />;
+      return <input {...defaultProps} placeholder={field?.placeholder} />;
     case 'number':
-      return <input {...defaultProps} />;
+      return <input {...defaultProps} placeholder={field?.placeholder} />;
     case 'checkbox':
       return <input {...defaultProps} checked={!!field.value} />;
     case 'file':
@@ -358,15 +358,23 @@ export function RenderField<T>({
           name={field.path}
           control={control}
           render={(controlProps) => {
-            const { value, onChange, name } = controlProps.field;
+            const { onChange, name } = controlProps.field;
+            const value = controlProps.field.value as Option[];
+            const { isCreatable, onCreateOption, options } = field;
+            console.log('fi', value);
             return (
               <MultiSelect
                 onChange={onChange}
-                value={(value as Option[]) || []}
+                isCreatable={isCreatable}
+                onCreateOption={onCreateOption}
+                options={options}
+                value={value?.[0]?.label ? value : []}
                 valueRenderer={(selected) =>
-                  selected.map((option) => option.label).join(', ')
+                  selected
+                    .filter((o) => o?.label)
+                    .map((option) => option.label)
+                    .join(', ')
                 }
-                options={field.options}
                 labelledBy={name}
               />
             );
@@ -489,7 +497,11 @@ export function Form<T extends FieldValues = FieldValues>(props: FormProps<T>) {
                         {label}
                       </label>
                       <div className="mt-1 sm:mt-0 sm:col-span-2">
-                        <RenderField field={field} props={props} />
+                        {field.type === 'custom' ? (
+                          field.component
+                        ) : (
+                          <RenderField field={field} props={props} />
+                        )}
                       </div>
                       {error && (
                         <p className="text-red-500">

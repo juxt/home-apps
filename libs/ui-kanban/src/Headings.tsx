@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   EyeIcon,
   FolderAddIcon,
+  InformationCircleIcon,
   PencilIcon,
   PlusIcon,
   TableIcon,
@@ -19,8 +20,9 @@ import {
   useModalForm,
   useWorkflowStates,
 } from '@juxt-home/site';
-import { useMobileDetect } from '@juxt-home/utils';
+import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import { MultiSelect } from 'react-multi-select-component';
+import Tippy from '@tippyjs/react';
 
 export function Heading({
   workflow,
@@ -101,6 +103,14 @@ export function Heading({
     });
   };
 
+  const totalRolesForProject =
+    (currentProject &&
+      currentProject.openRoles?.reduce(
+        (acc, role) => acc + (role?.count || 0),
+        0,
+      )) ||
+    0;
+
   return (
     <div className="lg:flex lg:items-center lg:justify-between z-20 pb-4">
       <div className="flex-1 min-w-0">
@@ -128,16 +138,30 @@ export function Heading({
             </li>
           </ol>
         </nav>
-        <h2 className="capitalize mt-2 text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-          {workflow?.name}
-        </h2>
-        {workflow?.description && (
-          <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
-            <div className="mt-2 flex items-center text-sm text-gray-500">
-              {workflow.description}
-            </div>
-          </div>
-        )}
+        <div className="flex items-center">
+          <h2 className="capitalize mt-2 text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            {workflow?.name}
+          </h2>
+          {hasProject && (
+            <Tippy
+              content={currentProject?.openRoles
+                ?.filter(notEmpty)
+                .map((role) => (
+                  <p key={role.name} className="text-sm font-medium text-white">
+                    {`${role.name} (${role.count})`}
+                  </p>
+                ))}>
+              <button
+                onClick={() => setProjectFormOpen(true)}
+                className="cursor-pointer flex">
+                <h3 className="text-2xl mt-2 ml-4">
+                  {`${totalRolesForProject} ${currentProject.name} positions to fill`}
+                </h3>
+                <InformationCircleIcon className="w-4 h-4" />
+              </button>
+            </Tippy>
+          )}
+        </div>
       </div>
       <div className="mt-5 flex lg:mt-0 lg:ml-4">
         <span className="hidden sm:block">

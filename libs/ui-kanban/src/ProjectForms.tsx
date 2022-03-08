@@ -1,6 +1,11 @@
-import { useForm } from 'react-hook-form';
+import {
+  FieldArrayWithId,
+  useFieldArray,
+  useForm,
+  UseFormReturn,
+} from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import {
@@ -11,10 +16,22 @@ import {
   useUpdateWorkflowProjectMutation,
   useCurrentProject,
   purgeAllLists,
+  TProject,
+  Exact,
+  WorkflowProjectInput,
 } from '@juxt-home/site';
-import { ModalStateProps, ModalForm, Form, Modal } from '@juxt-home/ui-common';
+import {
+  ModalStateProps,
+  ModalForm,
+  Form,
+  Modal,
+  Button,
+  DeleteActiveIcon,
+  RenderField,
+} from '@juxt-home/ui-common';
 import { defaultMutationProps } from './utils';
 import splitbee from '@splitbee/web';
+import { notEmpty } from '@juxt-home/utils';
 
 type AddProjectInput = CreateWorkflowProjectMutationVariables;
 
@@ -72,15 +89,97 @@ export function AddProjectModal({ isOpen, handleClose }: AddProjectModalProps) {
   );
 }
 
+function OpenRolesForm({
+  formHooks,
+  openRoleIndex,
+  onRemove,
+}: {
+  formHooks: UseFormReturn<UpdateWorkflowProjectMutationVariables, object>;
+  openRoleIndex: number;
+  onRemove: () => void;
+}) {
+  return (
+    <>
+      <div className="flex items-center mb-2 first:mt-0 mt-2">
+        <p>Role {openRoleIndex + 1}</p>
+        <button
+          onClick={onRemove}
+          type="button"
+          title="Remove Question"
+          className="cursor-pointer">
+          <DeleteActiveIcon
+            fill="pink"
+            stroke="red"
+            className="ml-2 w-5 h-5 opacity-80 hover:opacity-100"
+          />
+        </button>
+      </div>
+      <RenderField
+        field={{
+          id: 'RoleCount',
+          path: `workflowProject.openRoles.${openRoleIndex}.count`,
+          placeholder: 'Number of currently open positions',
+          type: 'number',
+        }}
+        props={{
+          className: 'mt-2',
+          formHooks,
+        }}
+      />
+      <RenderField
+        field={{
+          id: 'RoleName',
+          placeholder: 'Role Name',
+          path: `workflowProject.openRoles.${openRoleIndex}.name`,
+          type: 'text',
+        }}
+        props={{
+          className: 'mt-2',
+          formHooks,
+        }}
+      />
+    </>
+  );
+}
+
+function OpenRolesArray({
+  formHooks,
+}: {
+  formHooks: UseFormReturn<UpdateWorkflowProjectMutationVariables, object>;
+}) {
+  const { control } = formHooks;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'workflowProject.openRoles',
+  });
+  return (
+    <div className="py-2">
+      {fields.map((field, i) => (
+        <OpenRolesForm
+          key={field.id}
+          formHooks={formHooks}
+          openRoleIndex={i}
+          onRemove={() => remove(i)}
+        />
+      ))}
+      <Button primary noMargin className="mt-2 p-0" onClick={() => append({})}>
+        Add Open Role
+      </Button>
+    </div>
+  );
+}
+
 type UpdateWorkflowProjectInput = UpdateWorkflowProjectMutationVariables;
 
 type UpdateWorkflowProjectModalProps = ModalStateProps & {
   workflowId: string;
+  project: TProject;
 };
 
-export function UpdateWorkflowProjectModal({
+function UpdateWorkflowProjectModal({
   isOpen,
   handleClose,
+  project,
   workflowId,
 }: UpdateWorkflowProjectModalProps) {
   const { modalState } = useSearch<LocationGenerics>();
@@ -99,50 +198,58 @@ export function UpdateWorkflowProjectModal({
     handleClose();
     UpdateWorkflowProjectMutation.mutate({ ...input });
   };
-
-  const project = useCurrentProject(workflowId).data;
+  const defaultValues = useMemo(
+    () => ({
+      workflowProjectId,
+      workflowProject: {
+        ...project,
+        openRoles: project.openRoles?.filter(notEmpty) ?? [],
+      },
+    }),
+    [workflowProjectId, project],
+  );
 
   const formHooks = useForm<UpdateWorkflowProjectInput>({
-    defaultValues: {
-      workflowProjectId,
-    },
+    defaultValues,
   });
 
   useEffect(() => {
-    if (project) {
-      formHooks.setValue('workflowProject', { ...project });
-    }
-  }, [formHooks, project]);
+    formHooks.reset({ ...defaultValues });
+  }, [defaultValues, formHooks, project]);
 
   const title = 'Update Project';
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose}>
-      <div>
-        <Form
-          title={title}
-          formHooks={formHooks}
-          fields={[
-            {
-              id: 'ProjectName',
-              placeholder: 'Project Name',
-              type: 'text',
-              rules: {
-                required: true,
-              },
-              path: 'workflowProject.name',
-              label: 'Name',
+    <Modal key={project.name} isOpen={isOpen} handleClose={handleClose}>
+      <Form
+        title={title}
+        formHooks={formHooks}
+        fields={[
+          {
+            id: 'ProjectName',
+            placeholder: 'Project Name',
+            type: 'text',
+            rules: {
+              required: true,
             },
-            {
-              id: 'ProjectDescription',
-              label: 'Project Description',
-              placeholder: 'Project Description',
-              type: 'text',
-              path: 'workflowProject.description',
-            },
-          ]}
-          onSubmit={formHooks.handleSubmit(UpdateWorkflowProject, console.warn)}
-        />
-      </div>
+            path: 'workflowProject.name',
+            label: 'Name',
+          },
+          {
+            id: 'ProjectDescription',
+            label: 'Project Description',
+            placeholder: 'Project Description',
+            type: 'text',
+            path: 'workflowProject.description',
+          },
+          {
+            type: 'custom',
+            component: <OpenRolesArray formHooks={formHooks} />,
+            label: 'Open Roles',
+            path: 'workflowProject.openRoles',
+          },
+        ]}
+        onSubmit={formHooks.handleSubmit(UpdateWorkflowProject, console.warn)}
+      />
       <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
         <button
           type="submit"
@@ -158,5 +265,23 @@ export function UpdateWorkflowProjectModal({
         </button>
       </div>
     </Modal>
+  );
+}
+
+export function UpdateWorkflowProjectModalWrapper({
+  isOpen,
+  handleClose,
+  workflowId,
+}: Omit<UpdateWorkflowProjectModalProps, 'project'>) {
+  const { data: project, isLoading } = useCurrentProject(workflowId);
+  return (
+    <>
+      {isLoading && <div>Loading...</div>}
+      {project && (
+        <UpdateWorkflowProjectModal
+          {...{ isOpen, handleClose, project, workflowId }}
+        />
+      )}
+    </>
   );
 }

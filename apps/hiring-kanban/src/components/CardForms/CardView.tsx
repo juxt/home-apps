@@ -92,7 +92,7 @@ function CardInfo({
                   value: card.project?.name,
                 },
                 {
-                  label: 'Agent:',
+                  label: 'Source:',
                   value: card.agent,
                 },
                 {
@@ -172,7 +172,8 @@ function CardInfo({
                                   );
                                   toast.success('Copied to clipboard');
                                 }}>
-                                Copy Interview Link
+                                Copy Interview Link (send this to whoever will
+                                be performing the interview)
                               </button>
                               {averageScore ? (
                                 <button

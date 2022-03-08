@@ -473,7 +473,7 @@ function InterviewForm({
         purgeQueries(['feedbackForCard']);
         queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       }
-    }j
+    }
     onError: (error) => {
       toast.error(`Error updating card ${error.message}`);
     },

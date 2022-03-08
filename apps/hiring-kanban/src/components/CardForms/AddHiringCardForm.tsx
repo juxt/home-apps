@@ -124,7 +124,7 @@ export function AddHiringCardModal({
           path: 'card.description',
         },
         {
-          label: 'Agent',
+          label: 'Source',
           id: 'Agent',
           type: 'text',
           path: 'card.agent',
