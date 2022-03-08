@@ -16,6 +16,9 @@ export type TWorkflowState = WorkflowStateFieldsFragment;
 export type TComment = NonNullable<
   NonNullable<RecentCommentsQuery['allComments']>[0]
 >;
+export type TProject = NonNullable<
+  NonNullable<KanbanDataQuery['allWorkflowProjects']>[0]
+>;
 
 export type WorkflowFormModalTypes =
   | 'addCard'

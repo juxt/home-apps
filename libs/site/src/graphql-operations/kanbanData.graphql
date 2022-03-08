@@ -17,4 +17,8 @@ fragment WorkflowProjectFields on WorkflowProject {
   id
   name
   description
+  openRoles {
+    name
+    count
+  }
 }

@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { CommentInput, FileInput, HiringCardInput, HiringQuestionInput, HiringScoreCardInput, InterviewFeedbackInput, WorkflowProjectInput, WorkflowStateInput, WorkflowStateType } from './graphql'
+import { CommentInput, FileInput, GrowResourceInput, GrowTagInput, HiringCardInput, HiringQuestionInput, HiringScoreCardInput, InterviewFeedbackInput, OpenRoleInput, WorkflowProjectInput, WorkflowStateInput, WorkflowStateType } from './graphql'
 
 export function CommentInputSchema(): yup.SchemaOf<CommentInput> {
   return yup.object({
@@ -14,6 +14,27 @@ export function FileInputSchema(): yup.SchemaOf<FileInput> {
     base64: yup.string().required(),
     name: yup.string().required(),
     type: yup.string().required()
+  })
+}
+
+export function GrowResourceInputSchema(): yup.SchemaOf<GrowResourceInput> {
+  return yup.object({
+    category: yup.string(),
+    description: yup.string(),
+    descriptionHTML: yup.string(),
+    foo: yup.string(),
+    id: yup.string(),
+    name: yup.string(),
+    tagIds: yup.array().of(yup.string()).optional(),
+    type: yup.string(),
+    url: yup.string()
+  })
+}
+
+export function GrowTagInputSchema(): yup.SchemaOf<GrowTagInput> {
+  return yup.object({
+    id: yup.string().required(),
+    name: yup.string().required()
   })
 }
 
@@ -65,11 +86,19 @@ export function InterviewFeedbackInputSchema(): yup.SchemaOf<InterviewFeedbackIn
   })
 }
 
+export function OpenRoleInputSchema(): yup.SchemaOf<OpenRoleInput> {
+  return yup.object({
+    count: yup.number().defined(),
+    name: yup.string().required()
+  })
+}
+
 export function WorkflowProjectInputSchema(): yup.SchemaOf<WorkflowProjectInput> {
   return yup.object({
     description: yup.string(),
     id: yup.string(),
-    name: yup.string().required()
+    name: yup.string().required(),
+    openRoles: yup.array().of(yup.lazy(() => OpenRoleInputSchema()) as never).optional()
   })
 }
 

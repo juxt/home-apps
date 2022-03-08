@@ -17,8 +17,8 @@ import {
   TWorkflowState,
   useMoveCardMutation,
   userAvatar,
+  useUpdateHiringCardMutation,
 } from '..';
-import { useUpdateHiringCardMutation } from '../generated/graphql';
 
 type ModalState = LocationGenerics['Search']['modalState'];
 

@@ -1,0 +1,25 @@
+schema @site(type: "kanban/prod") {
+  query: Query
+}
+
+type Query {
+  allGrowResources: [GrowResource]
+  allGrowTags: [GrowTag]
+}
+
+type GrowTag {
+  id: ID!
+  name: String!
+}
+
+type GrowResource {
+  id: ID!
+  name: String!
+  description: String
+  descriptionHTML: String
+  url: String
+  category: String
+  tags: [GrowTag] @site(each: "tagIds")
+  _siteSubject: String
+  _siteValidTime: String!
+}

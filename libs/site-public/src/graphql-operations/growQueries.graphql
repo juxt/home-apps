@@ -1,0 +1,23 @@
+query allGrowResources {
+  allGrowResources {
+    category
+    description
+    descriptionHTML
+    _siteSubject
+    _siteValidTime
+    id
+    name
+    tags {
+      name
+      id
+    }
+    url
+  }
+}
+
+query allGrowTags {
+  allGrowTags {
+    id
+    name
+  }
+}

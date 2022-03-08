@@ -77,6 +77,10 @@ type Mutation {
   createInterviewFeedback(
     interviewFeedback: InterviewFeedbackInput!
   ): InterviewFeedback
+  upsertGrowResource(growResource: GrowResourceInput): GrowResource
+    @site(mutation: "update")
+  createGrowTag(growTag: GrowTagInput): GrowTag
+  deleteGrowResource(id: ID!): GrowResource @site(mutation: "delete")
 }
 
 input HiringQuestionInput {
@@ -109,8 +113,14 @@ input CommentInput {
   cardId: ID!
 }
 
+input OpenRoleInput {
+  name: String!
+  count: Int!
+}
+
 input WorkflowProjectInput {
   name: String!
+  openRoles: [OpenRoleInput]
   description: String
   id: ID
 }
@@ -172,10 +182,16 @@ type WorkflowState {
   cards: [Card] @site(each: "cardIds")
 }
 
+type OpenRole {
+  name: String!
+  count: Int!
+}
+
 type WorkflowProject {
   id: ID!
   name: String!
   description: String
+  openRoles: [OpenRole] @onObject
   hiringCard: HiringCard @site(ref: "workflowProjectId")
 }
 
@@ -252,4 +268,38 @@ type Comment {
   card: Card @site(ref: "cardId")
   children: [Comment] @site(ref: "parentId")
   _siteQuery: String
+}
+
+input GrowTagInput {
+  id: ID!
+  name: String!
+}
+
+input GrowResourceInput {
+  id: ID
+  name: String
+  description: String
+  descriptionHTML: String
+  category: String
+  url: String
+  foo: String
+  type: String
+  tagIds: [ID]
+}
+
+type GrowTag {
+  id: ID!
+  name: String!
+}
+
+type GrowResource {
+  id: ID!
+  name: String!
+  description: String
+  descriptionHTML: String
+  url: String
+  category: String
+  tags: [GrowTag] @site(each: "tagIds")
+  _siteSubject: String
+  _siteValidTime: String!
 }

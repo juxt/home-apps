@@ -7,7 +7,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch("https://graphcdn.alexd.uk", {
+    const res = await fetch("http://localhost:5509/kanban/graphql", {
     method: "POST",
     ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
@@ -65,6 +65,42 @@ export type FileInput = {
   base64: Scalars['String'];
   name: Scalars['String'];
   type: Scalars['String'];
+};
+
+export type GrowResource = {
+  __typename?: 'GrowResource';
+  _siteSubject?: Maybe<Scalars['String']>;
+  _siteValidTime: Scalars['String'];
+  category?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  descriptionHTML?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  tags?: Maybe<Array<Maybe<GrowTag>>>;
+  url?: Maybe<Scalars['String']>;
+};
+
+export type GrowResourceInput = {
+  category?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  descriptionHTML?: InputMaybe<Scalars['String']>;
+  foo?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
+  name?: InputMaybe<Scalars['String']>;
+  tagIds?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  type?: InputMaybe<Scalars['String']>;
+  url?: InputMaybe<Scalars['String']>;
+};
+
+export type GrowTag = {
+  __typename?: 'GrowTag';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
+
+export type GrowTagInput = {
+  id: Scalars['ID'];
+  name: Scalars['String'];
 };
 
 export type HiringCard = {
@@ -160,6 +196,7 @@ export type InterviewFeedbackInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   createComment?: Maybe<Comment>;
+  createGrowTag?: Maybe<GrowTag>;
   createHiringCard?: Maybe<HiringCard>;
   createInterviewFeedback?: Maybe<InterviewFeedback>;
   createWorkflow?: Maybe<Workflow>;
@@ -169,6 +206,7 @@ export type Mutation = {
   createWorkflowStates?: Maybe<Array<Maybe<WorkflowState>>>;
   deleteCardFromColumn?: Maybe<Card>;
   deleteComment?: Maybe<Comment>;
+  deleteGrowResource?: Maybe<GrowResource>;
   deleteHiringCard?: Maybe<HiringCard>;
   deleteWorkflow?: Maybe<Workflow>;
   deleteWorkflowProject?: Maybe<WorkflowProject>;
@@ -180,11 +218,17 @@ export type Mutation = {
   updateWorkflowProject?: Maybe<WorkflowProject>;
   updateWorkflowState?: Maybe<WorkflowState>;
   updatecomment?: Maybe<Comment>;
+  upsertGrowResource?: Maybe<GrowResource>;
 };
 
 
 export type MutationCreateCommentArgs = {
   Comment?: InputMaybe<CommentInput>;
+};
+
+
+export type MutationCreateGrowTagArgs = {
+  growTag?: InputMaybe<GrowTagInput>;
 };
 
 
@@ -233,6 +277,11 @@ export type MutationDeleteCardFromColumnArgs = {
 
 
 export type MutationDeleteCommentArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteGrowResourceArgs = {
   id: Scalars['ID'];
 };
 
@@ -300,6 +349,22 @@ export type MutationUpdateWorkflowStateArgs = {
 export type MutationUpdatecommentArgs = {
   Comment?: InputMaybe<CommentInput>;
   id: Scalars['ID'];
+};
+
+
+export type MutationUpsertGrowResourceArgs = {
+  growResource?: InputMaybe<GrowResourceInput>;
+};
+
+export type OpenRole = {
+  __typename?: 'OpenRole';
+  count: Scalars['Int'];
+  name: Scalars['String'];
+};
+
+export type OpenRoleInput = {
+  count: Scalars['Int'];
+  name: Scalars['String'];
 };
 
 export type Query = {
@@ -380,12 +445,14 @@ export type WorkflowProject = {
   hiringCard?: Maybe<HiringCard>;
   id: Scalars['ID'];
   name: Scalars['String'];
+  openRoles?: Maybe<Array<Maybe<OpenRole>>>;
 };
 
 export type WorkflowProjectInput = {
   description?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
   name: Scalars['String'];
+  openRoles?: InputMaybe<Array<InputMaybe<OpenRoleInput>>>;
 };
 
 export type WorkflowState = {
@@ -419,7 +486,7 @@ export enum WorkflowStateType {
 export type AllProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllProjectsQuery = { __typename?: 'Query', allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null };
+export type AllProjectsQuery = { __typename?: 'Query', allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null, openRoles?: Array<{ __typename?: 'OpenRole', name: string, count: number } | null> | null } | null> | null };
 
 export type CardDetailsFragment = { __typename?: 'HiringCard', id: string, description?: string | null, agent?: string | null, createdAt?: string | null, _siteValidTime: string, _siteSubject?: string | null, location?: string | null, currentOwnerUsernames?: Array<string | null> | null, taskHtml?: string | null, title: string, stateStr?: string | null, files?: Array<{ __typename?: 'File', base64: string, name: string, type: string } | null> | null, project?: { __typename?: 'WorkflowProject', description?: string | null, id: string, name: string } | null, workflowState?: { __typename?: 'WorkflowState', id: string, name: string, tasks?: Array<string | null> | null, roles?: Array<string | null> | null } | null };
 
@@ -528,6 +595,27 @@ export type DeleteWorkflowStateMutationVariables = Exact<{
 
 export type DeleteWorkflowStateMutation = { __typename?: 'Mutation', deleteWorkflowState?: { __typename?: 'WorkflowState', id: string } | null, updateWorkflow?: { __typename?: 'Workflow', id: string } | null };
 
+export type CreateGrowTagMutationVariables = Exact<{
+  growTag: GrowTagInput;
+}>;
+
+
+export type CreateGrowTagMutation = { __typename?: 'Mutation', createGrowTag?: { __typename?: 'GrowTag', id: string } | null };
+
+export type UpsertGrowResourceMutationVariables = Exact<{
+  growResource: GrowResourceInput;
+}>;
+
+
+export type UpsertGrowResourceMutation = { __typename?: 'Mutation', upsertGrowResource?: { __typename?: 'GrowResource', id: string } | null };
+
+export type DeleteGrowResourceMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type DeleteGrowResourceMutation = { __typename?: 'Mutation', deleteGrowResource?: { __typename?: 'GrowResource', id: string } | null };
+
 export type CreateInterviewFeedbackMutationVariables = Exact<{
   interviewFeedback: InterviewFeedbackInput;
 }>;
@@ -547,9 +635,9 @@ export type KanbanDataQueryVariables = Exact<{
 }>;
 
 
-export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null } | null> | null, workflow?: { __typename?: 'Workflow', description?: string | null, id: string, name: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, roles?: Array<string | null> | null, tasks?: Array<string | null> | null, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, currentOwnerUsernames?: Array<string | null> | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null } | null> } | null };
+export type KanbanDataQuery = { __typename?: 'Query', myJuxtcode?: string | null, allWorkflowProjects?: Array<{ __typename?: 'WorkflowProject', id: string, name: string, description?: string | null, openRoles?: Array<{ __typename?: 'OpenRole', name: string, count: number } | null> | null } | null> | null, workflow?: { __typename?: 'Workflow', description?: string | null, id: string, name: string, workflowStates: Array<{ __typename?: 'WorkflowState', id: string, name: string, description?: string | null, roles?: Array<string | null> | null, tasks?: Array<string | null> | null, cards?: Array<{ __typename?: 'HiringCard', id: string, title: string, _siteValidTime: string, createdAt?: string | null, currentOwnerUsernames?: Array<string | null> | null, project?: { __typename?: 'WorkflowProject', id: string, name: string } | null } | null> | null } | null> } | null };
 
-export type WorkflowProjectFieldsFragment = { __typename?: 'WorkflowProject', id: string, name: string, description?: string | null };
+export type WorkflowProjectFieldsFragment = { __typename?: 'WorkflowProject', id: string, name: string, description?: string | null, openRoles?: Array<{ __typename?: 'OpenRole', name: string, count: number } | null> | null };
 
 export type MoveCardMutationVariables = Exact<{
   workflowStateId: Scalars['ID'];
@@ -659,6 +747,10 @@ export const WorkflowProjectFieldsFragmentDoc = `
   id
   name
   description
+  openRoles {
+    name
+    count
+  }
 }
     `;
 export const CardFieldsFragmentDoc = `
@@ -1033,6 +1125,57 @@ export const useDeleteWorkflowStateMutation = <
       options
     );
 useDeleteWorkflowStateMutation.fetcher = (variables: DeleteWorkflowStateMutationVariables) => fetcher<DeleteWorkflowStateMutation, DeleteWorkflowStateMutationVariables>(DeleteWorkflowStateDocument, variables);
+export const CreateGrowTagDocument = `
+    mutation createGrowTag($growTag: GrowTagInput!) {
+  createGrowTag(growTag: $growTag) {
+    id
+  }
+}
+    `;
+export const useCreateGrowTagMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateGrowTagMutation, TError, CreateGrowTagMutationVariables, TContext>) =>
+    useMutation<CreateGrowTagMutation, TError, CreateGrowTagMutationVariables, TContext>(
+      ['createGrowTag'],
+      (variables?: CreateGrowTagMutationVariables) => fetcher<CreateGrowTagMutation, CreateGrowTagMutationVariables>(CreateGrowTagDocument, variables)(),
+      options
+    );
+useCreateGrowTagMutation.fetcher = (variables: CreateGrowTagMutationVariables) => fetcher<CreateGrowTagMutation, CreateGrowTagMutationVariables>(CreateGrowTagDocument, variables);
+export const UpsertGrowResourceDocument = `
+    mutation upsertGrowResource($growResource: GrowResourceInput!) {
+  upsertGrowResource(growResource: $growResource) {
+    id
+  }
+}
+    `;
+export const useUpsertGrowResourceMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<UpsertGrowResourceMutation, TError, UpsertGrowResourceMutationVariables, TContext>) =>
+    useMutation<UpsertGrowResourceMutation, TError, UpsertGrowResourceMutationVariables, TContext>(
+      ['upsertGrowResource'],
+      (variables?: UpsertGrowResourceMutationVariables) => fetcher<UpsertGrowResourceMutation, UpsertGrowResourceMutationVariables>(UpsertGrowResourceDocument, variables)(),
+      options
+    );
+useUpsertGrowResourceMutation.fetcher = (variables: UpsertGrowResourceMutationVariables) => fetcher<UpsertGrowResourceMutation, UpsertGrowResourceMutationVariables>(UpsertGrowResourceDocument, variables);
+export const DeleteGrowResourceDocument = `
+    mutation deleteGrowResource($id: ID!) {
+  deleteGrowResource(id: $id) {
+    id
+  }
+}
+    `;
+export const useDeleteGrowResourceMutation = <
+      TError = Error,
+      TContext = unknown
+    >(options?: UseMutationOptions<DeleteGrowResourceMutation, TError, DeleteGrowResourceMutationVariables, TContext>) =>
+    useMutation<DeleteGrowResourceMutation, TError, DeleteGrowResourceMutationVariables, TContext>(
+      ['deleteGrowResource'],
+      (variables?: DeleteGrowResourceMutationVariables) => fetcher<DeleteGrowResourceMutation, DeleteGrowResourceMutationVariables>(DeleteGrowResourceDocument, variables)(),
+      options
+    );
+useDeleteGrowResourceMutation.fetcher = (variables: DeleteGrowResourceMutationVariables) => fetcher<DeleteGrowResourceMutation, DeleteGrowResourceMutationVariables>(DeleteGrowResourceDocument, variables);
 export const CreateInterviewFeedbackDocument = `
     mutation createInterviewFeedback($interviewFeedback: InterviewFeedbackInput!) {
   createInterviewFeedback(interviewFeedback: $interviewFeedback) {
