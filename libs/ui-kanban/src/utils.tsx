@@ -32,13 +32,17 @@ export function filteredCards(
   searchTerm: string,
 ) {
   return (
-    cards?.filter(
-      (card) =>
-        ((!workflowProjectIds && card?.project) ||
+    cards
+      ?.filter((c) => c?.title)
+      .filter((card) => {
+        const hasProject =
+          (!workflowProjectIds && card?.project) ||
           (card?.project?.name &&
-            workflowProjectIds?.includes(card.project?.id))) &&
-        card.title.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) ?? []
+            workflowProjectIds?.includes(card.project?.id));
+        return searchTerm.length < 2
+          ? hasProject
+          : card.title.toLowerCase().includes(searchTerm.toLowerCase());
+      }) ?? []
   );
 }
 

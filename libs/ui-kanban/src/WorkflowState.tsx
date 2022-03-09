@@ -16,7 +16,8 @@ import {
   juxters,
 } from '@juxt-home/site';
 import { memo } from 'react';
-import { ArchiveActiveIcon } from '@juxt-home/ui-common';
+import { ArchiveActiveIcon, searchAtom } from '@juxt-home/ui-common';
+import { useAtom } from 'jotai';
 
 type CardProps = {
   card: TCard;
@@ -231,7 +232,10 @@ export function WorkflowStateContainer({
 }) {
   const [source, target] = useSingleton();
   const search = useSearch<LocationGenerics>();
-  const colIds = search?.filters?.colIds ?? search?.filters?.roleFilters ?? [];
+  const [globalSearch] = useAtom(searchAtom);
+  const columnFilters =
+    search?.filters?.colIds ?? search?.filters?.roleFilters ?? [];
+  const colIds = globalSearch ? [] : columnFilters;
   const hideEmptyStates = search?.hideEmptyStates;
   const hiddenColumnIds = new Set(colIds);
   return (
