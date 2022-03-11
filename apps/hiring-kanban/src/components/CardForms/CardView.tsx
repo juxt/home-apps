@@ -1,4 +1,3 @@
-import SplitPane from '@andrewray/react-split-pane';
 import { Disclosure } from '@headlessui/react';
 import {
   CardDetailsFragment,
@@ -11,27 +10,19 @@ import {
   CloseIcon,
   FilePreview,
   CommentSection,
-  PdfViewer,
   TipTapContent,
   MetadataGrid,
   IconForScore,
 } from '@juxt-home/ui-common';
-import { notEmpty, useMobileDetect } from '@juxt-home/utils';
+import { notEmpty } from '@juxt-home/utils';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useSearch } from 'react-location';
 import { toast } from 'react-toastify';
-import { useThrottleFn } from 'react-use';
 import { InterviewModal } from './InterviewForms';
 import { QuickEditCardWrapper, TaskListForState } from './UpdateHiringCardForm';
 
-function CardInfo({
-  card,
-  resetSplit,
-}: {
-  card?: CardDetailsFragment;
-  resetSplit?: () => void;
-}) {
+function CardInfo({ card }: { card?: CardDetailsFragment }) {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   const accordionButtonClass = classNames(
@@ -70,15 +61,7 @@ function CardInfo({
             show={showFeedbackModal}
             handleClose={() => setShowFeedbackModal(false)}
           />
-          <div className="h-full overflow-y-auto flex flex-col items-center">
-            {resetSplit && (
-              <button
-                type="button"
-                className="lg:hidden absolute top-0 z-20 bg-white left-0 mr-4 mt-4 cursor-pointer"
-                onClick={resetSplit}>
-                Reset Split
-              </button>
-            )}
+          <div className="sm:h-full overflow-y-auto sm:overflow-hidden flex flex-col sm:flex-row justify-center">
             <MetadataGrid
               title={card.title}
               metadata={[
@@ -94,6 +77,14 @@ function CardInfo({
                 {
                   label: 'Owners',
                   value: card?.currentOwnerUsernames?.join(', '),
+                },
+                {
+                  label: 'Remote.com?',
+                  value: card.hasRemoteFee ? 'Yes' : 'No',
+                },
+                {
+                  label: 'Fast Tracked?',
+                  value: card.isFastTrack ? 'Yes' : 'No',
                 },
                 {
                   label: 'Potential Clients',
@@ -142,9 +133,9 @@ function CardInfo({
                 />
               )}
             </MetadataGrid>
-            <div className="max-w-4xl w-full h-full mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+            <div className="max-w-4xl w-full h-full sm:overflow-y-auto lg:overflow-hidden mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
               <div className="w-full lg:h-full lg:overflow-y-auto m-4">
-                <Disclosure as="div" className="mt-2 w-full">
+                <Disclosure defaultOpen as="div" className="mt-2 w-full">
                   {({ open }) => (
                     <>
                       <Disclosure.Button className={accordionButtonClass}>
@@ -166,7 +157,7 @@ function CardInfo({
                       return (
                         <>
                           <Disclosure.Button className={accordionButtonClass}>
-                            <span>Interview 1 Feedback</span>
+                            <span>Interview Feedback</span>
                             {CloseIcon(open)}
                           </Disclosure.Button>
                           <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
@@ -246,54 +237,11 @@ function CardInfo({
 }
 
 export function CardView({ card }: { card: TDetailedCard }) {
-  const screen = useMobileDetect();
-  const isMobile = screen.isMobile();
-
-  const [splitSize, setSplitSize] = useState(
-    parseInt(localStorage.getItem('vsplitPos') || '900', 10),
-  );
-  const [splitKey, setSplitKey] = useState(splitSize);
-  const handleResize = (size?: number) => {
-    if (size) {
-      localStorage.setItem('vsplitPos', size.toString());
-    }
-  };
-  useThrottleFn(handleResize, 500, [splitSize]);
-  const resetSplit = () => {
-    setSplitSize(400);
-    setSplitKey(splitSize);
-    localStorage.removeItem('vsplitPos');
-  };
-
-  const pdfData = false;
   return (
     <div className="flex h-full flex-col lg:flex-row justify-around items-center lg:items-start ">
-      {isMobile || !pdfData ? (
-        <div className="w-full h-full overflow-y-scroll">
-          {card && <CardInfo card={card} />}
-        </div>
-      ) : (
-        <SplitPane
-          pane2Style={{
-            overflowY: 'auto',
-          }}
-          paneStyle={{
-            height: '100%',
-          }}
-          key={splitKey}
-          split="vertical"
-          defaultSize={splitSize}
-          onChange={setSplitSize}>
-          <CardInfo
-            resetSplit={splitSize > 400 ? resetSplit : undefined}
-            card={card}
-          />
-          <div className="block overflow-y-auto">
-            {/* passing splitSize as a key forces the viewer to rerender when split is changed */}
-            <PdfViewer key={splitSize} pdfString={pdfData} />
-          </div>
-        </SplitPane>
-      )}
+      <div className="w-full h-full overflow-y-scroll">
+        {card && <CardInfo card={card} />}
+      </div>
     </div>
   );
 }
