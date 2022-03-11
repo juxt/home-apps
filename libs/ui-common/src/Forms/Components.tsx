@@ -132,7 +132,7 @@ export function RenderField<T>({
     case 'number':
       return <input {...defaultProps} placeholder={field?.placeholder} />;
     case 'checkbox':
-      return <input {...defaultProps} checked={!!field.value} />;
+      return <input {...defaultProps} className="" />;
     case 'file':
       return (
         <Controller

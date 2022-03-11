@@ -129,7 +129,7 @@ function CardInfo({
               {card?.workflowState && card.workflowState.tasks?.[0] && (
                 <div className="bg-red-50 prose-sm sm:prose mb-2 p-2">
                   <h2>
-                    Action Needed From {card.workflowState.roles?.join(' / ')}
+                    Action needed from {card.workflowState.roles?.join(' / ')}
                   </h2>
                   <TaskListForState card={card} />
                 </div>
@@ -180,7 +180,7 @@ function CardInfo({
                                   );
                                   toast.success('Copied to clipboard');
                                 }}>
-                                Copy Interview Link (send this to whoever will
+                                Copy interview link (send this to whoever will
                                 be performing the interview)
                               </button>
                               {averageScore ? (

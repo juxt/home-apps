@@ -5,6 +5,7 @@ fragment CardDetails on Card {
     agent
     _siteSubject
     location
+    hasRemoteFee
     taskHtml
     files {
       base64

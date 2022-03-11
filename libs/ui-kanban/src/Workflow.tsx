@@ -154,6 +154,7 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
             ?.filter(notEmpty)
             .map(({ name }: { name: string }) => name)
             .join(', '),
+        Filter: SelectColumnFilter,
       },
       {
         id: 'project',
@@ -164,10 +165,8 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
       {
         id: 'assignees',
         Header: 'Assignees',
-        accessor: 'currentOwnerUsernames',
-        Cell: ({ value }) => {
-          return <p className="text-gray-500 text-xs">{value.join(', ')}</p>;
-        },
+        accessor: (row) =>
+          row.currentOwnerUsernames?.filter(notEmpty).join(', '),
         Filter: SelectColumnFilter,
       },
       {

@@ -268,6 +268,12 @@ export function UpdateHiringCardForm({
             path: 'card.agent',
           },
           {
+            label: 'Has Remote.com fee',
+            id: 'HasRemoteFee',
+            type: 'checkbox',
+            path: 'card.hasRemoteFee',
+          },
+          {
             label: 'Location',
             id: 'Location',
             type: 'text',

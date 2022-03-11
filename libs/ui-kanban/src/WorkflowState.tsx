@@ -95,6 +95,11 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                   <p className="uppercase text-gray-800 font-extralight text-sm">
                     {card.project?.name}
                   </p>
+                  {card.hasRemoteFee && (
+                    <p className="text-red-800 font-extralight text-sm">
+                      Remote
+                    </p>
+                  )}
                   {owners.length > 0 && (
                     <div className="flex">
                       {take(owners, 3).map((o) => (
@@ -174,12 +179,14 @@ const WorkflowState = memo(
                   className=" bg-slate-800 text-white text-center relative rounded text-sm whitespace-normal outline-none transition-all p-2"
                   content={
                     <div className="text-sm">
+                      <strong>{workflowState.name}</strong>
                       {workflowState?.description && (
                         <>
                           <p>{workflowState?.description}</p>
                           <br />
                         </>
                       )}
+                      <br />
                       <p>
                         Click to edit column name, description and default
                         roles/tasks
@@ -187,7 +194,7 @@ const WorkflowState = memo(
                     </div>
                   }>
                   <div className="card-width flex items-center justify-between my-2">
-                    <h3 className="m-0 text-left truncate">
+                    <h3 className="m-0 text-left truncate capitalize">
                       {workflowState.name}
                     </h3>
                     <span className="px-2 bg-blue-50 text-gray-500 font-extralight rounded-md ">
