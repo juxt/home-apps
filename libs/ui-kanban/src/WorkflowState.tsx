@@ -18,6 +18,7 @@ import {
 import { memo } from 'react';
 import { ArchiveActiveIcon, searchAtom } from '@juxt-home/ui-common';
 import { useAtom } from 'jotai';
+import { FastForwardIcon } from '@heroicons/react/solid';
 
 type CardProps = {
   card: TCard;
@@ -120,6 +121,11 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                 </div>
 
                 <p className="prose lg:prose-xl">{card.title}</p>
+                {card.isFastTrack && (
+                  <p className="text-blue-800 flex items-center font-extralight text-sm">
+                    <FastForwardIcon className="h-4 w-4 mr-2" /> Fast Track
+                  </p>
+                )}
               </div>
             )}
           </NaturalDragAnimation>

@@ -136,6 +136,18 @@ export function AddHiringCardModal({
           path: 'card.location',
         },
         {
+          label: 'Has Remote.com fee',
+          id: 'HasRemoteFee',
+          type: 'checkbox',
+          path: 'card.hasRemoteFee',
+        },
+        {
+          label: 'Fast Tracked',
+          id: 'FastTracked',
+          type: 'checkbox',
+          path: 'card.isFastTrack',
+        },
+        {
           label: 'Files',
           accept: 'image/jpeg, image/png, image/gif, application/pdf',
           id: 'CardFiles',

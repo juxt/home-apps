@@ -6,6 +6,7 @@ fragment CardFields on Card {
     createdAt
     currentOwnerUsernames
     hasRemoteFee
+    isFastTrack
     potentialClients {
       id
       name

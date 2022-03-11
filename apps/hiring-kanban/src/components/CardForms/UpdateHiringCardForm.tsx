@@ -274,6 +274,12 @@ export function UpdateHiringCardForm({
             path: 'card.hasRemoteFee',
           },
           {
+            label: 'Fast Tracked',
+            id: 'FastTracked',
+            type: 'checkbox',
+            path: 'card.isFastTrack',
+          },
+          {
             label: 'Location',
             id: 'Location',
             type: 'text',
@@ -521,10 +527,16 @@ export function QuickEditCard({
             path: 'card.location',
           },
           {
-            label: 'Description',
-            id: 'desc',
-            type: 'tiptap',
-            path: 'card.description',
+            label: 'Has Remote.com fee',
+            id: 'HasRemoteFee',
+            type: 'checkbox',
+            path: 'card.hasRemoteFee',
+          },
+          {
+            label: 'Fast Tracked',
+            id: 'FastTracked',
+            type: 'checkbox',
+            path: 'card.isFastTrack',
           },
         ]}
         className="overflow-y-auto fixed-form-height"

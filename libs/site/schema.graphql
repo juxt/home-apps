@@ -148,6 +148,7 @@ input HiringCardInput {
   workflowProjectId: ID
   currentOwnerUsernames: [String]
   createdAt: String
+  isFastTrack: Boolean
   hasRemoteFee: Boolean
   potentialClientIds: [ID]
   stateStr: String
@@ -223,6 +224,7 @@ type HiringCard {
   _siteQuery: String
   agent: String
   hasRemoteFee: Boolean
+  isFastTrack: Boolean
   currentOwnerUsernames: [String]
   potentialClients: [Client] @site(each: "potentialClientIds")
   project: WorkflowProject @site(ref: "workflowProjectId")
