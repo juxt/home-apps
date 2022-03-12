@@ -230,7 +230,7 @@ export function ModalTabs({ tabs, navName }: TabProps) {
   };
 
   return (
-    <div className="border-b border-gray-200  overflow-x-auto">
+    <div className="border-b border-gray-200  overflow-x-auto sm:overflow-hidden">
       <nav
         className="-mb-px flex space-x-4 sm:space-x-8 justify-center"
         aria-label="Tabs">

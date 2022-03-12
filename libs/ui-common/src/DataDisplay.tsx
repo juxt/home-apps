@@ -23,7 +23,7 @@ export function MetadataGrid({
   );
   const metadataClass = classNames('text-sm font-medium text-gray-700');
   return (
-    <div className="mx-4 flex flex-col isolate min-w-min sm:overflow-y-auto">
+    <div className="px-4 flex flex-col isolate min-w-min sm:overflow-y-auto">
       <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
         {title}
       </h2>

@@ -139,7 +139,8 @@ function CommentForm({
                 field={{
                   id: 'commentText',
                   path: 'Comment.text',
-                  placeholder: 'Type a comment (ctrl+enter to send)',
+                  placeholder:
+                    'Type a comment (ctrl+enter to send, drag+drop or paste images)',
                   type: 'tiptap',
                 }}
                 props={commentFormProps}

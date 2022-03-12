@@ -144,6 +144,7 @@ export function Heading({
           </h2>
           {hasProject && (
             <Tippy
+              disabled={totalRolesForProject === 0}
               content={currentProject?.openRoles
                 ?.filter(notEmpty)
                 .map((role) => (

@@ -93,14 +93,17 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                   />
                 )}
                 <div className="flex justify-between">
-                  <p className="uppercase text-gray-800 font-extralight text-sm">
-                    {card.project?.name}
-                  </p>
-                  {card.hasRemoteFee && (
-                    <p className="text-red-800 font-extralight text-sm">
-                      Remote
+                  <div className="flex space-x-2">
+                    <p className="uppercase text-gray-800 font-extralight text-sm">
+                      {card.project?.name}
                     </p>
-                  )}
+                    {card.hasRemoteFee && (
+                      <p className="text-red-800 font-extralight text-sm">
+                        Remote
+                      </p>
+                    )}
+                  </div>
+
                   {owners.length > 0 && (
                     <div className="flex">
                       {take(owners, 3).map((o) => (

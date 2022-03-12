@@ -127,14 +127,14 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
               )}
               {card?.description && (
                 <TipTapContent
-                  className="p-2 prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full"
+                  className="p-2 prose-sm sm:prose text-left py-0 bg-slate-50 shadow-lg w-full md:max-h-max"
                   growButton
                   htmlString={card.description}
                 />
               )}
             </MetadataGrid>
-            <div className="max-w-4xl w-full h-full sm:overflow-y-auto lg:overflow-hidden mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
-              <div className="w-full lg:h-full lg:overflow-y-auto m-4">
+            <div className="w-full h-full sm:overflow-y-auto lg:overflow-hidden mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
+              <div className="w-full lg:h-full lg:overflow-y-auto m-4 lg:m-0">
                 <Disclosure defaultOpen as="div" className="mt-2 w-full">
                   {({ open }) => (
                     <>
