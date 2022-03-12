@@ -153,7 +153,7 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                 {true && (
                   <Disclosure defaultOpen as="div" className="mt-2 w-full">
                     {({ open }) => {
-                      const interviewFeedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback))`;
+                      const interviewFeedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback~-pdf))`;
                       return (
                         <>
                           <Disclosure.Button className={accordionButtonClass}>

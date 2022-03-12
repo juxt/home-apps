@@ -9,6 +9,7 @@ query feedbackForCard($cardId: ID!) {
     id
     overallScore
     summary
+    stateStr
     questions {
       question
       response

@@ -228,7 +228,7 @@ export function useMoveCard({ handleSuccess }: { handleSuccess: () => void }) {
       updateCardMutation.mutate({
         cardId: draggableId,
         card: {
-          stateStr: endCol.name,
+          stateStr: endCol.id,
         },
       });
 

@@ -104,6 +104,7 @@ input HiringScoreCardInput {
 input InterviewFeedbackInput {
   id: ID!
   overallScore: Int!
+  stateStr: String!
   summary: String!
   questions: [HiringQuestionInput!]!
   cardId: ID!
@@ -266,6 +267,7 @@ type HiringQuestion {
 type InterviewFeedback {
   id: ID!
   overallScore: Int!
+  stateStr: String!
   summary: String!
   questions: [HiringQuestion!]! @onObject
   _siteSubject: String

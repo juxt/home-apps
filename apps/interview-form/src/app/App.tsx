@@ -50,6 +50,11 @@ import splitbee from '@splitbee/web';
 import { useSearch } from 'react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
+import {
+  defaultPPFeedbackData,
+  defaultStage1FeedbackData,
+  defaultTakeHomeFeedbackData,
+} from '../data';
 
 const PdfViewer = lazy(() => import('../components/PdfViewer'));
 
@@ -245,7 +250,7 @@ function QuestionForm({
   return (
     <div>
       <div className="flex items-center">
-        <p>Question {questionIndex + 1}</p>
+        <p>Item {questionIndex + 1}</p>
         <button
           onClick={onRemove}
           type="button"
@@ -276,7 +281,7 @@ function QuestionForm({
             <Tiptap
               onChange={onChange}
               content={value as string}
-              placeholder="Enter the candidates response as accurately as possible"
+              placeholder="Enter your summary, trying to keep it unopiniated and unbiased"
               withTypographyExtension
               withPlaceholderExtension
             />
@@ -339,60 +344,31 @@ function QuestionArray({
   );
 }
 
-const defaultFeedbackData = (cardId: string, username: string) => ({
-  cardId: cardId,
-  id: `${cardId}${username}stage1feedback`,
-  summary: '<p></p>',
-  questions: [
-    {
-      question: 'Tell us about yourself',
-      response: '<p></p>',
-      description: 'looking for x y z',
-      preSet: true,
-      scoreCardsLabel: 'First Impression',
-      scoreCards: [
-        {
-          text: 'Communication skills',
-          description:
-            'Will they communicate well with clients and colleagues?',
-          preSet: true,
-        },
-        {
-          text: 'Evidence of passion',
-          description: 'Do they have passion for their work?',
-          preSet: true,
-        },
-      ],
-    },
-    {
-      question:
-        'Describe the type of work environment in which you are most productive.',
-      response: '<p></p>',
-      description:
-        'See if they are ok with remote, also use this to guage consulting vs t1',
-      preSet: true,
-      scoreCardsLabel: 'Soft Skills',
-      scoreCards: [
-        {
-          text: 'Collaborative',
-          preSet: true,
-        },
-        {
-          text: 'Takes ownership',
-          preSet: true,
-        },
-        {
-          text: 'Passion',
-          preSet: true,
-        },
-      ],
-    },
-  ],
-});
-
 type InterviewCardFormFields = UpdateHiringCardMutationVariables & {
   project: Option;
 };
+
+const IVStages = [
+  {
+    id: 'WorkflowStateAwaitStage1IV',
+    data: defaultStage1FeedbackData,
+  },
+  {
+    id: 'WorkflowStateTakeHomeReview',
+    data: defaultTakeHomeFeedbackData,
+  },
+  {
+    id: 'WorkflowStatePP',
+    data: defaultPPFeedbackData,
+  },
+] as const;
+
+function defaultFeedbackData(card: TDetailedCard, username: string) {
+  const data = IVStages.find(({ id }) => id === card.stateStr)?.data;
+  return data
+    ? data(card.id, username)
+    : defaultStage1FeedbackData(card.id, username);
+}
 
 function InterviewForm({
   card,
@@ -413,9 +389,10 @@ function InterviewForm({
   });
 
   const { id: username } = useUser();
-  const myFeedback = feedbackData.feedbackForCard?.find(
-    (feedback) => feedback?._siteSubject === username,
-  );
+
+  const myFeedback = feedbackData.feedbackForCard
+    ?.filter((f) => f && f.stateStr === card.stateStr)
+    ?.find((feedback) => feedback?._siteSubject === username);
   const initialFeedback = {
     ...myFeedback,
     questions: myFeedback?.questions?.filter(notEmpty) ?? [],
@@ -424,7 +401,7 @@ function InterviewForm({
     defaultValues: {
       interviewFeedback: initialFeedback.questions?.[0]
         ? initialFeedback
-        : defaultFeedbackData(card.id, username || 'nouser'),
+        : defaultFeedbackData(card, username || 'nouser'),
     },
   });
 
@@ -436,7 +413,9 @@ function InterviewForm({
   const queryClient = useQueryClient();
   const UpdateHiringCardMutation = useUpdateHiringCardMutation({
     onSuccess: (data) => {
-      toast.success('Card updated!');
+      toast.success(
+        'Submission received! Thank you for your service, 100 juxtcoins have been deposited in your account',
+      );
       const id = data.updateHiringCard?.id;
       if (id) {
         purgeQueries(['workflow']);
@@ -473,14 +452,17 @@ function InterviewForm({
         purgeQueries(['feedbackForCard']);
         queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [id] }));
       }
-    }
+    },
     onError: (error) => {
       toast.error(`Error updating card ${error.message}`);
     },
   });
   const AddFeedback = (input: CreateInterviewFeedbackMutationVariables) => {
     AddFeedbackMutation.mutate({
-      ...input,
+      interviewFeedback: {
+        ...input.interviewFeedback,
+        stateStr: card.stateStr || 'WorkflowStateAwaitStage1IV',
+      },
     });
     feedbackFormHooks.reset(input);
   };
@@ -533,7 +515,7 @@ function InterviewForm({
                 {
                   type: 'custom',
                   component: <QuestionArray formHooks={feedbackFormHooks} />,
-                  label: 'Questions Asked',
+                  label: 'Feedback record',
                   path: 'interviewFeedback.questions',
                 },
                 {

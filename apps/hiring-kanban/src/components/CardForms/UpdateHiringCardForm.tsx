@@ -380,6 +380,7 @@ export function QuickEditCard({
       card: {
         ...cardInput.card,
         workflowProjectId: project?.value,
+        stateStr: workflowState?.value,
         currentOwnerUsernames: owners?.map((o) => o.value),
         potentialClientIds: input.potentialClients?.map(
           (client) => client.value,
