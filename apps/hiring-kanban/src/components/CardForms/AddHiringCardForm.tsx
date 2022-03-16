@@ -1,6 +1,7 @@
 import {
   purgeQueries,
   TWorkflowState,
+  useAddClientTags,
   useCreateHiringCardMutation,
 } from '@juxt-home/site';
 import { ModalForm, Option } from '@juxt-home/ui-common';
@@ -18,11 +19,15 @@ export function AddHiringCardModal({
   handleClose,
   defaultValues,
   cols,
+  clientOptions,
+  usernameOptions,
   projectOptions,
   stateOptions,
 }: AddHiringCardModalProps & {
   defaultValues: Partial<AddHiringCardInput>;
   cols: TWorkflowState[];
+  clientOptions: Option[];
+  usernameOptions: Option[];
   projectOptions: Option[];
   stateOptions: Option[];
 }) {
@@ -30,6 +35,7 @@ export function AddHiringCardModal({
     defaultValues,
   });
 
+  const handleCreateClient = useAddClientTags();
   const queryClient = useQueryClient();
   const AddHiringCardMutation = useCreateHiringCardMutation({
     ...defaultMutationProps(queryClient, workflowId),
@@ -51,14 +57,14 @@ export function AddHiringCardModal({
     toast.promise(
       AddHiringCardMutation.mutateAsync({
         cardId: newId,
-        workflowStateId: workflowState?.value || cols[0].id,
+        workflowStateId: workflowState?.value || 'WorkflowStateAwaitScreen',
         workflowState: {
           cardIds: [
+            newId,
             ...(cols
               .find((c) => c.id === workflowState?.value)
               ?.cards?.filter(notEmpty)
               .map((c) => c.id) || []),
-            newId,
           ],
         },
         card: {
@@ -99,6 +105,22 @@ export function AddHiringCardModal({
           path: 'project',
         },
         {
+          id: 'owners',
+          label: 'Owners (people responsible for this card)',
+          type: 'multiselect',
+          options: usernameOptions,
+          path: 'owners',
+        },
+        {
+          id: 'potential clients',
+          label: 'Potential Clients',
+          type: 'multiselect',
+          options: clientOptions,
+          onCreateOption: handleCreateClient,
+          isCreatable: true,
+          path: 'potentialClients',
+        },
+        {
           label: 'CV PDF',
           id: 'CVPDF',
           type: 'file',
@@ -108,7 +130,7 @@ export function AddHiringCardModal({
         },
         {
           id: 'CardName',
-          placeholder: 'Card Name',
+          placeholder: 'Candidate Name',
           label: 'Name',
           type: 'text',
           rules: {
@@ -119,7 +141,7 @@ export function AddHiringCardModal({
         {
           id: 'CardDescription',
           label: 'Description',
-          placeholder: 'Card Description',
+          placeholder: 'Cover letter/initial email',
           type: 'tiptap',
           path: 'card.description',
         },

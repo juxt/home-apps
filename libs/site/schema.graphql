@@ -24,6 +24,8 @@ type Query {
   cardsForProject(id: ID!): [Card] @site(itemForId: "workflowProjectId")
   feedbackForCard(id: ID!): [InterviewFeedback] @site(itemForId: "cardId")
   allClients: [Client]
+  allProgressItems: [ProgressItem]
+  progressHistory(id: ID!): [ProgressItem] @site(history: "desc")
 }
 
 type Mutation {
@@ -83,6 +85,10 @@ type Mutation {
   createGrowTag(growTag: GrowTagInput): GrowTag
   deleteGrowResource(id: ID!): GrowResource @site(mutation: "delete")
   createClient(client: ClientInput): Client
+  createProgressItem(progressItem: ProgressItemInput): ProgressItem
+  updateProgressItem(id: ID!, progressItem: ProgressItemInput): ProgressItem
+    @site(mutation: "update")
+  deleteProgressItem(id: ID!): ProgressItem @site(mutation: "delete")
 }
 
 input HiringQuestionInput {
@@ -106,7 +112,7 @@ input InterviewFeedbackInput {
   overallScore: Int!
   stateStr: String!
   summary: String!
-  questions: [HiringQuestionInput!]!
+  questions: [HiringQuestionInput]
   cardId: ID!
 }
 
@@ -232,6 +238,7 @@ type HiringCard {
   taskHtml: String
   description: String
   languages: [String]
+  interviewFeedback: InterviewFeedback @site(ref: "cardId")
   location: String
   createdAt: String
   files: [File] @onObject
@@ -269,7 +276,7 @@ type InterviewFeedback {
   overallScore: Int!
   stateStr: String!
   summary: String!
-  questions: [HiringQuestion!]! @onObject
+  questions: [HiringQuestion] @onObject
   _siteSubject: String
   _siteValidTime: String!
   _siteCreatedAt: String!
@@ -324,4 +331,21 @@ type GrowResource {
   _siteQuery: String
   _siteSubject: String
   _siteValidTime: String!
+}
+
+input ProgressItemInput {
+  id: ID!
+  name: String!
+  descriptionHTML: String
+  currentScore: String!
+}
+
+type ProgressItem {
+  id: ID!
+  name: String!
+  descriptionHTML: String
+  currentScore: String!
+  _siteSubject: String
+  _siteValidTime: String!
+  _siteCreatedAt: String!
 }

@@ -5,6 +5,7 @@ import {
   TipTapContent,
   IconForScore,
 } from '@juxt-home/ui-common';
+import { notEmpty } from '@juxt-home/utils';
 import { useState, useRef, useEffect } from 'react';
 
 export function InterviewModal({
@@ -75,7 +76,7 @@ export function InterviewModal({
                 </p>
               </div>
             </div>
-            {questions.map((q) => (
+            {questions.filter(notEmpty).map((q) => (
               <div key={q.question} className="mt-8">
                 <h2 className="text-xl font-extrabold text-gray-900 sm:text-2xl">
                   {q.question}

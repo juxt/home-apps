@@ -28,6 +28,7 @@ import {
   DateFilterFn,
   searchAtom,
   Option,
+  IconForScore,
 } from '@juxt-home/ui-common';
 import { Heading } from './Headings';
 import { WorkflowStateContainer } from './WorkflowState';
@@ -145,6 +146,14 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         Header: 'State',
         accessor: 'state',
         Filter: SelectColumnFilter,
+      },
+      {
+        id: 'feedbackscore',
+        Header: 'Feedback Score',
+        accessor: 'interviewFeedback.overallScore',
+        Cell: ({ value }) => {
+          return <IconForScore score={value} />;
+        },
       },
       {
         id: 'clients',

@@ -6,23 +6,27 @@ mutation createInterviewFeedback($interviewFeedback: InterviewFeedbackInput!) {
 
 query feedbackForCard($cardId: ID!) {
   feedbackForCard(id: $cardId) {
-    id
-    overallScore
-    summary
-    stateStr
-    questions {
-      question
-      response
-      description
-      scoreCardsLabel
-      scoreCards {
-        text
-        description
-        score
-      }
-    }
-    _siteSubject
-    _siteValidTime
-    _siteCreatedAt
+    ...feedbackFields
   }
+}
+
+fragment feedbackFields on InterviewFeedback {
+  id
+  overallScore
+  summary
+  stateStr
+  questions {
+    question
+    response
+    description
+    scoreCardsLabel
+    scoreCards {
+      text
+      description
+      score
+    }
+  }
+  _siteSubject
+  _siteValidTime
+  _siteCreatedAt
 }

@@ -1,5 +1,8 @@
 fragment CardFields on Card {
   ... on HiringCard {
+    interviewFeedback {
+      ...feedbackFields
+    }
     id
     title
     _siteValidTime

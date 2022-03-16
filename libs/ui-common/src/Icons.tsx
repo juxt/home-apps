@@ -281,13 +281,20 @@ export function IconForScore({
   score,
   fill,
   withLabel,
+  size = 'md',
 }: {
   score?: number;
   fill?: string;
   withLabel?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }) {
   const defaultProps = {
-    className: 'w-6 h-6 mr-2 inline-block',
+    className: classNames(
+      'mr-2 inline-block',
+      size === 'sm' && 'w-4 h-4',
+      size === 'md' && 'w-6 h-6',
+      size === 'lg' && 'w-8 h-8',
+    ),
   };
   const data = [
     {
@@ -323,6 +330,7 @@ export function IconForScore({
         title={item.label}
         fill={item?.defaultFill || fill}
       />
+
       {withLabel && <span className="text-xs">{item.label}</span>}
     </>
   ) : null;

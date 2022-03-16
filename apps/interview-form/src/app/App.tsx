@@ -1,4 +1,5 @@
 import './App.css';
+import * as yup from 'yup';
 import isEqual from 'lodash-es/isEqual';
 import {
   CreateInterviewFeedbackMutationVariables,
@@ -7,6 +8,7 @@ import {
   hiringWorkflowId,
   InterviewFeedback,
   InterviewFeedbackInput,
+  InterviewFeedbackInputSchema,
   LocationGenerics,
   purgeQueries,
   TDetailedCard,
@@ -55,6 +57,9 @@ import {
   defaultStage1FeedbackData,
   defaultTakeHomeFeedbackData,
 } from '../data';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+const handleGenericError = (data: object) => toast.error(Object.keys(data));
 
 const PdfViewer = lazy(() => import('../components/PdfViewer'));
 
@@ -365,6 +370,7 @@ const IVStages = [
 
 function defaultFeedbackData(card: TDetailedCard, username: string) {
   const data = IVStages.find(({ id }) => id === card.stateStr)?.data;
+
   return data
     ? data(card.id, username)
     : defaultStage1FeedbackData(card.id, username);
@@ -393,13 +399,22 @@ function InterviewForm({
   const myFeedback = feedbackData.feedbackForCard
     ?.filter((f) => f && f.stateStr === card.stateStr)
     ?.find((feedback) => feedback?._siteSubject === username);
+
   const initialFeedback = {
     ...myFeedback,
-    questions: myFeedback?.questions?.filter(notEmpty) ?? [],
+    cardId: card.id,
+    questions: myFeedback
+      ? myFeedback?.questions?.filter(notEmpty) ?? []
+      : undefined,
   };
+
+  const schema = yup.object({
+    interviewFeedback: InterviewFeedbackInputSchema(),
+  });
   const feedbackFormHooks = useForm<CreateInterviewFeedbackMutationVariables>({
+    resolver: yupResolver(schema),
     defaultValues: {
-      interviewFeedback: initialFeedback.questions?.[0]
+      interviewFeedback: initialFeedback.questions
         ? initialFeedback
         : defaultFeedbackData(card, username || 'nouser'),
     },
@@ -457,6 +472,7 @@ function InterviewForm({
       toast.error(`Error updating card ${error.message}`);
     },
   });
+
   const AddFeedback = (input: CreateInterviewFeedbackMutationVariables) => {
     AddFeedbackMutation.mutate({
       interviewFeedback: {
@@ -473,7 +489,10 @@ function InterviewForm({
           {showDetails && (
             <StandaloneForm
               handleSubmit={() =>
-                cardFormHooks.handleSubmit(UpdateHiringCard, console.log)()
+                cardFormHooks.handleSubmit(
+                  UpdateHiringCard,
+                  handleGenericError,
+                )()
               }
               formHooks={cardFormHooks}
               title="Candidate details"
@@ -506,7 +525,10 @@ function InterviewForm({
           {showFeedback && (
             <StandaloneForm
               handleSubmit={() => {
-                feedbackFormHooks.handleSubmit(AddFeedback, console.log)();
+                feedbackFormHooks.handleSubmit(
+                  AddFeedback,
+                  handleGenericError,
+                )();
               }}
               formHooks={feedbackFormHooks}
               title={`${username}'s feedback`}
@@ -539,8 +561,8 @@ function InterviewForm({
                       message: 'Please enter an overall score',
                     },
                     max: {
-                      value: 10,
-                      message: 'Please enter a score between 0 and 10',
+                      value: 5,
+                      message: 'Please enter a score between 0 and 5',
                     },
                     min: {
                       value: 0,
@@ -552,6 +574,12 @@ function InterviewForm({
                 {
                   path: 'interviewFeedback.summary',
                   label: 'Summary',
+                  rules: {
+                    required: {
+                      value: true,
+                      message: 'Please enter a summary',
+                    },
+                  },
                   description:
                     'Overall summary of the interview, what did the candidate do well?',
                   type: 'tiptap',

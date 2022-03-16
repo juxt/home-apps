@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { DraggableLocation } from 'react-beautiful-dnd';
 import { useNavigate, useSearch } from 'react-location';
 import { UseQueryOptions } from 'react-query';
+import { toast } from 'react-toastify';
 import {
   useKanbanDataQuery,
   CardByIdsQuery,
@@ -19,7 +20,10 @@ import {
   userAvatar,
   useUpdateHiringCardMutation,
 } from '..';
-import { useAllClientsQuery } from '../generated/graphql';
+import {
+  useAllClientsQuery,
+  useCreateClientMutation,
+} from '../generated/graphql';
 
 type ModalState = LocationGenerics['Search']['modalState'];
 
@@ -287,4 +291,30 @@ export async function purgeAllLists() {
     'commentsForEntity',
     'feedbackForCard',
   ]);
+}
+
+export function useAddClientTags(): (tag: string) => void {
+  const createTagMutation = useCreateClientMutation({
+    onSuccess: () => {
+      purgeQueries(['allClients']);
+      toast.success('Tag created');
+    },
+  });
+  const addTag = (tag: string) => {
+    const tagStr = tag.toLocaleLowerCase().trim();
+    const id = `Client-${tagStr}`;
+    if (tagStr) {
+      createTagMutation.mutate({
+        client: {
+          id,
+          name: tagStr,
+        },
+      });
+    }
+    return {
+      label: tagStr,
+      value: id,
+    };
+  };
+  return addTag;
 }

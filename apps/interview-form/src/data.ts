@@ -190,44 +190,19 @@ export const defaultPPFeedbackData = (cardId: string, username: string) => ({
   summary: '<p></p>',
   questions: [
     {
-      question: 'Tell us about yourself',
+      question: 'Explain the code you wrote for the take home',
       response: '<p></p>',
-      description: 'looking for x y z',
       preSet: true,
-      scoreCardsLabel: 'First Impression',
+      scoreCardsLabel: 'Scores',
       scoreCards: [
         {
-          text: 'Communication skills',
+          text: 'Do you feel like they actually wrote the code',
           description:
-            'Will they communicate well with clients and colleagues?',
+            'look for signs they copied from the internet or got someone else to write it',
           preSet: true,
         },
         {
-          text: 'Evidence of passion',
-          description: 'Do they have passion for their work?',
-          preSet: true,
-        },
-      ],
-    },
-    {
-      question:
-        'Describe the type of work environment in which you are most productive.',
-      response: '<p></p>',
-      description:
-        'See if they are ok with remote, also use this to guage consulting vs t1',
-      preSet: true,
-      scoreCardsLabel: 'Soft Skills',
-      scoreCards: [
-        {
-          text: 'Collaborative',
-          preSet: true,
-        },
-        {
-          text: 'Takes ownership',
-          preSet: true,
-        },
-        {
-          text: 'Passion',
+          text: 'Can they identify their own mistakes',
           preSet: true,
         },
       ],

@@ -1,6 +1,7 @@
 import { Disclosure } from '@headlessui/react';
 import {
   CardDetailsFragment,
+  cardIVStage,
   LocationGenerics,
   TDetailedCard,
   useCardById,
@@ -15,6 +16,7 @@ import {
   IconForScore,
 } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
+import Tippy from '@tippyjs/react';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useSearch } from 'react-location';
@@ -45,6 +47,7 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
     ?.reduce((acc, curr) => acc + curr || 0, 0);
   const averageScore =
     totalScores && totalFeedbacks && Math.floor(totalScores / totalFeedbacks);
+  const interviewStage = card && cardIVStage(card);
   return (
     <>
       {!card && (
@@ -150,7 +153,7 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                     </>
                   )}
                 </Disclosure>
-                {true && (
+                {card && (
                   <Disclosure defaultOpen as="div" className="mt-2 w-full">
                     {({ open }) => {
                       const interviewFeedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback~-pdf))`;
@@ -162,18 +165,30 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                           </Disclosure.Button>
                           <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
                             <div className="flex flex-col items-center">
-                              <button
-                                type="button"
-                                className="bg-slate-200 rounded-lg text-primary-800 p-4"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(
-                                    interviewFeedbackUrl,
-                                  );
-                                  toast.success('Copied to clipboard');
-                                }}>
-                                Copy interview link (send this to whoever will
-                                be performing the interview)
-                              </button>
+                              <Tippy
+                                disabled={!!interviewStage}
+                                content={
+                                  <p>
+                                    The card must be in an active interview
+                                    state (e.g not awaiting or decision)
+                                  </p>
+                                }>
+                                <div>
+                                  <button
+                                    type="button"
+                                    className="bg-slate-200 rounded-lg text-primary-800 p-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={!interviewStage}
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        interviewFeedbackUrl,
+                                      );
+                                      toast.success('Copied to clipboard');
+                                    }}>
+                                    Copy interview link (send this to whoever
+                                    will be performing the interview)
+                                  </button>
+                                </div>
+                              </Tippy>
                               {averageScore ? (
                                 <button
                                   type="button"

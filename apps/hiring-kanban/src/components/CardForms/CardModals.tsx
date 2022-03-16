@@ -4,8 +4,11 @@ import {
   useProjectOptions,
   useCardById,
   useStatesOptions,
+  juxters,
+  useClientOptions,
 } from '@juxt-home/site';
 import { ModalTabs, Modal, PdfViewer, dirtyAtom } from '@juxt-home/ui-common';
+import { notEmpty } from '@juxt-home/utils';
 import { useAtom } from 'jotai';
 import * as _ from 'lodash';
 import { useNavigate, useSearch } from 'react-location';
@@ -27,6 +30,11 @@ export function AddHiringCardModalWrapper({
   const { workflowProjectIds } = useSearch<LocationGenerics>();
   const [{ data: cols }, stateOptions] = useStatesOptions({ workflowId });
   const projectOptions = useProjectOptions(workflowId);
+  const usernameOptions = juxters.map((user) => ({
+    label: user.name,
+    value: user.staffRecord.juxtcode,
+  }));
+  const { data: clientOptions } = useClientOptions();
 
   const defaultValues: Partial<AddHiringCardInput> = {
     project:
@@ -38,11 +46,13 @@ export function AddHiringCardModalWrapper({
 
   return (
     <>
-      {_.isEmpty(stateOptions) || !cols ? (
+      {_.isEmpty(stateOptions) || !cols || !clientOptions ? (
         <div>Loading workflow states...</div>
       ) : (
         <AddHiringCardModal
           isOpen={isOpen}
+          clientOptions={clientOptions}
+          usernameOptions={usernameOptions}
           handleClose={handleClose}
           defaultValues={defaultValues}
           projectOptions={projectOptions}

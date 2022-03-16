@@ -16,7 +16,11 @@ import {
   juxters,
 } from '@juxt-home/site';
 import { memo } from 'react';
-import { ArchiveActiveIcon, searchAtom } from '@juxt-home/ui-common';
+import {
+  ArchiveActiveIcon,
+  IconForScore,
+  searchAtom,
+} from '@juxt-home/ui-common';
 import { useAtom } from 'jotai';
 import { FastForwardIcon } from '@heroicons/react/solid';
 
@@ -101,6 +105,12 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                       <p className="text-red-800 font-extralight text-sm">
                         Remote
                       </p>
+                    )}
+                    {card?.interviewFeedback?.overallScore && (
+                      <IconForScore
+                        size="sm"
+                        score={card.interviewFeedback.overallScore}
+                      />
                     )}
                   </div>
 

@@ -6,6 +6,8 @@ import { ModalStateProps, Option } from '@juxt-home/ui-common';
 
 export type AddHiringCardInput = CreateHiringCardMutationVariables & {
   project: Option;
+  potentialClients?: Option[] | null;
+  owners?: Option[] | null;
   workflowState: Option;
 };
 

@@ -12,8 +12,7 @@ import {
   TDetailedCard,
   purgeAllLists,
   useClientOptions,
-  useCreateClientMutation,
-  purgeQueries,
+  useAddClientTags,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
@@ -36,32 +35,6 @@ import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';
 import { UpdateHiringCardInput } from './types';
-
-function useAddClientTags(): (tag: string) => void {
-  const createTagMutation = useCreateClientMutation({
-    onSuccess: () => {
-      purgeQueries(['allClients']);
-      toast.success('Tag created');
-    },
-  });
-  const addTag = (tag: string) => {
-    const tagStr = tag.toLocaleLowerCase().trim();
-    const id = `Client-${tagStr}`;
-    if (tagStr) {
-      createTagMutation.mutate({
-        client: {
-          id,
-          name: tagStr,
-        },
-      });
-    }
-    return {
-      label: tagStr,
-      value: id,
-    };
-  };
-  return addTag;
-}
 
 function onHiringCardUpdate(
   id: string | undefined,
