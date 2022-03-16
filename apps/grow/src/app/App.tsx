@@ -6,10 +6,13 @@ import {
 import { StandaloneForm, TipTapContent, useDirty } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-location';
 import { useQueryClient } from 'react-query';
 import './App.css';
 
 export function App() {
+  console.log('App');
+
   const { data, error, isError, isLoading, isLoadingError } =
     useAllProgressQuery();
   const queryClient = useQueryClient();
@@ -75,7 +78,9 @@ export function App() {
           .map(({ id, currentScore, name, descriptionHTML }) => (
             <div key={id}>
               <p>Name</p>
-              <p>{name}</p>
+              <Link className="underline text-blue-500" to={`/item/${name}`}>
+                {name}
+              </Link>
               {descriptionHTML && (
                 <>
                   <p>Description</p>

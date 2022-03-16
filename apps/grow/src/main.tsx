@@ -8,6 +8,7 @@ import { Outlet, ReactLocation, Router } from 'react-location';
 import { parseSearch, stringifySearch } from '@tanstack/react-location-jsurl';
 import splitbee from '@splitbee/web';
 import { StrictMode } from 'react';
+import Item from './item/Item';
 
 const location = new ReactLocation({
   parseSearch,
@@ -30,6 +31,15 @@ ReactDOM.render(
           {
             path: '/',
             element: <App />,
+          },
+          {
+            path: 'item',
+            children: [
+              {
+                path: ':item',
+                element: <Item />,
+              },
+            ],
           },
           {
             path: '/*',
