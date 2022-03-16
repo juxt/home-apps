@@ -52,7 +52,7 @@ export function AddHiringCardModal({
       return;
     }
     handleClose();
-    const newId = `card-${Date.now()}`;
+    const newId = `hiring-card-${card.card.title}-${Date.now()}`;
     const { project, workflowState, ...cardInput } = card;
     const colId = workflowState?.value || 'WorkflowStateAwaitScreen';
     toast.promise(
@@ -70,7 +70,6 @@ export function AddHiringCardModal({
         },
         card: {
           ...cardInput.card,
-          stateStr: colId,
           workflowProjectId: project?.value,
         },
       }),
