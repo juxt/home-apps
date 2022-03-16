@@ -54,10 +54,11 @@ export function AddHiringCardModal({
     handleClose();
     const newId = `card-${Date.now()}`;
     const { project, workflowState, ...cardInput } = card;
+    const colId = workflowState?.value || 'WorkflowStateAwaitScreen';
     toast.promise(
       AddHiringCardMutation.mutateAsync({
         cardId: newId,
-        workflowStateId: workflowState?.value || 'WorkflowStateAwaitScreen',
+        workflowStateId: colId,
         workflowState: {
           cardIds: [
             newId,
@@ -69,6 +70,7 @@ export function AddHiringCardModal({
         },
         card: {
           ...cardInput.card,
+          stateStr: colId,
           workflowProjectId: project?.value,
         },
       }),
