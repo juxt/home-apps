@@ -241,6 +241,12 @@ export function UpdateHiringCardForm({
             path: 'card.agent',
           },
           {
+            label: 'Take Home Test Language',
+            id: 'TakeHomeTestLanguage',
+            type: 'text',
+            path: 'card.takeHomeLanguage',
+          },
+          {
             label: 'Has Remote.com fee',
             id: 'HasRemoteFee',
             type: 'checkbox',
@@ -499,6 +505,12 @@ export function QuickEditCard({
             id: 'Location',
             type: 'text',
             path: 'card.location',
+          },
+          {
+            label: 'Take Home Test Language',
+            id: 'TakeHomeTestLanguage',
+            type: 'text',
+            path: 'card.takeHomeLanguage',
           },
           {
             label: 'Has Remote.com fee',

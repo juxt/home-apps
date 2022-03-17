@@ -152,6 +152,7 @@ input FileInput {
 input HiringCardInput {
   title: String
   description: String
+  takeHomeLanguage: String
   workflowProjectId: ID
   currentOwnerUsernames: [String]
   createdAt: String
@@ -236,9 +237,10 @@ type HiringCard {
   potentialClients: [Client] @site(each: "potentialClientIds")
   project: WorkflowProject @site(ref: "workflowProjectId")
   taskHtml: String
+  takeHomeLanguage: String
   description: String
   languages: [String]
-  interviewFeedback: InterviewFeedback @site(ref: "cardId")
+  interviewFeedback: [InterviewFeedback] @site(ref: "cardId")
   location: String
   createdAt: String
   files: [File] @onObject

@@ -8,6 +8,7 @@ fragment CardFields on Card {
     _siteValidTime
     createdAt
     currentOwnerUsernames
+    takeHomeLanguage
     hasRemoteFee
     isFastTrack
     potentialClients {

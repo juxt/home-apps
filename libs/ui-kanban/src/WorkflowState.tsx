@@ -68,6 +68,17 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
         const owners = juxters.filter((j) =>
           card?.currentOwnerUsernames?.includes(j.staffRecord.juxtcode),
         );
+
+        const totalFeedbacks = card.interviewFeedback?.length || 0;
+        const totalScores = card.interviewFeedback
+          ?.filter(notEmpty)
+          ?.map((f) => f.overallScore)
+          ?.reduce((acc, curr) => acc + curr || 0, 0);
+        const averageScore =
+          totalScores && totalFeedbacks
+            ? Math.floor(totalScores / totalFeedbacks)
+            : undefined;
+
         return (
           <NaturalDragAnimation
             style={provided.draggableProps.style}
@@ -106,11 +117,8 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                         Remote
                       </p>
                     )}
-                    {card?.interviewFeedback?.overallScore && (
-                      <IconForScore
-                        size="sm"
-                        score={card.interviewFeedback.overallScore}
-                      />
+                    {averageScore && (
+                      <IconForScore size="sm" score={averageScore} />
                     )}
                   </div>
 
@@ -132,6 +140,11 @@ const DraggableCard = memo(({ card, index, workflow }: CardProps) => {
                     </div>
                   )}
                 </div>
+                {card?.takeHomeLanguage && (
+                  <p className="text-gray-800 font-extralight text-sm">
+                    Take Home language - {card.takeHomeLanguage}
+                  </p>
+                )}
 
                 <p className="prose lg:prose-xl">{card.title}</p>
                 {card.isFastTrack && (

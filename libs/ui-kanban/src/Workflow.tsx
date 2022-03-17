@@ -156,6 +156,12 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         },
       },
       {
+        id: 'takeHomeLanguage',
+        Header: 'Take Home Language',
+        accessor: 'takeHomeLanguage',
+        Filter: SelectColumnFilter,
+      },
+      {
         id: 'clients',
         Header: 'Clients',
         accessor: (row) =>
