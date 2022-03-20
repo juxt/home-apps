@@ -40,6 +40,7 @@
     "isomorphic-dompurify": "^0.18.0",
     "jotai": "^1.6.0",
     "lodash-es": "^4.17.21",
+    "logrocket": "^2.2.0",
     "marked": "^4.0.12",
     "overlayscrollbars": "^1.13.1",
     "overlayscrollbars-react": "^0.2.3",
