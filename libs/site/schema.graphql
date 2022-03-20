@@ -26,6 +26,9 @@ type Query {
   allClients: [Client]
   allProgressItems: [ProgressItem]
   progressHistory(id: ID!): [ProgressItem] @site(history: "desc")
+
+  allTVFilmReviews: [TVFilmReview]
+  tvFilmReviewById(id: ID!): TVFilmReview
 }
 
 type Mutation {
@@ -77,9 +80,11 @@ type Mutation {
   updatecomment(id: ID!, Comment: CommentInput): Comment
     @site(mutation: "update")
   deleteComment(id: ID!): Comment @site(mutation: "delete")
+
   createInterviewFeedback(
     interviewFeedback: InterviewFeedbackInput!
   ): InterviewFeedback
+
   upsertGrowResource(growResource: GrowResourceInput): GrowResource
     @site(mutation: "update")
   createGrowTag(growTag: GrowTagInput): GrowTag
@@ -89,6 +94,9 @@ type Mutation {
   updateProgressItem(id: ID!, progressItem: ProgressItemInput): ProgressItem
     @site(mutation: "update")
   deleteProgressItem(id: ID!): ProgressItem @site(mutation: "delete")
+
+  createTVFilmReview(TVFilmReview: TVFilmReviewInput): TVFilmReview
+  deleteTVFilmReview(id: ID!): TVFilmReview @site(mutation: "delete")
 }
 
 input HiringQuestionInput {
@@ -347,6 +355,24 @@ type ProgressItem {
   name: String!
   descriptionHTML: String
   currentScore: String!
+  _siteSubject: String
+  _siteValidTime: String!
+  _siteCreatedAt: String!
+}
+
+input TVFilmReviewInput {
+  id: ID!
+  IMDB_ID: String!
+  reviewHTML: String
+  score: Int!
+}
+
+type TVFilmReview {
+  id: ID!
+  IMDB_ID: ID!
+  reviewHTML: String
+  score: Int!
+  _siteQuery: String
   _siteSubject: String
   _siteValidTime: String!
   _siteCreatedAt: String!
