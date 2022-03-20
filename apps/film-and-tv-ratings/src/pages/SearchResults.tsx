@@ -1,7 +1,15 @@
-import { Text } from '@mantine/core';
-import { Link, Outlet, useMatch, useNavigate, useSearch } from 'react-location';
+import {
+  Link,
+  Outlet,
+  useMatch,
+  useNavigate,
+  useSearch,
+} from '@tanstack/react-location';
+import { useAtom } from 'jotai';
 import { useQuery } from 'react-query';
 import { api_key, client } from '../common';
+import { TMDBError } from '../components/Errors';
+import { searchAtom } from '../components/Search';
 import {
   NavStructure,
   AxiosTMDBError,
@@ -15,7 +23,7 @@ async function searchQuery(
   page = 1,
 ) {
   const response = await client.get<TSearchResults>(
-    `https://api.themoviedb.org/3/search/${searchType}?api_key=${api_key}&language=en-US&query=${searchTerm}&page=${page}&include_adult=false`,
+    `/3/search/${searchType}?api_key=${api_key}&language=en-US&query=${searchTerm}&page=${page}&include_adult=false`,
   );
   return response.data;
 }
@@ -39,9 +47,10 @@ export function SearchResults() {
   const {
     params: { searchType },
   } = useMatch<NavStructure>();
-  const { query, page } = useSearch<NavStructure>();
+  const { page } = useSearch<NavStructure>();
+  const [search] = useAtom(searchAtom);
 
-  const response = useSearchResults(query, searchType, page);
+  const response = useSearchResults(search, searchType, page);
   const handleChangePage = (page: number) => {
     navigate({
       search: (old) => ({
@@ -53,21 +62,13 @@ export function SearchResults() {
 
   return (
     <div>
-      {query && (
+      {search && (
         <>
           <h1>SearchResults page</h1>
           <p>current type is {searchType}</p>
-          <p>current query is {query}</p>
+          <p>current search is {search}</p>
           {response.isLoading && <p>loading...</p>}
-          {response.isError && (
-            <Text color="red">
-              <p>{response.error.response?.data.status_message}</p>
-              {response.error.response?.data?.errors?.map((error) => (
-                <p>{error}</p>
-              ))}
-              <p>{response.error.message}</p>
-            </Text>
-          )}
+          {response.isError && <TMDBError error={response.error} />}
           {response.isSuccess && (
             <>
               <p>current page {response.data.page}</p>
@@ -81,9 +82,7 @@ export function SearchResults() {
               <ul>
                 {response.data.results?.map((result) => (
                   <li key={result.id}>
-                    <Link
-                      to={`/search/${searchType}/${result.id}`}
-                      search={(old) => ({ ...old, query: query })}>
+                    <Link to={`/search/${searchType}/${result.id}`}>
                       {result?.title || result?.name}
                     </Link>
                   </li>

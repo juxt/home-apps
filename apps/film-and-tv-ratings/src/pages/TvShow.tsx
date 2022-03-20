@@ -4,7 +4,7 @@ import { AxiosTMDBError, TTVShow } from '../types';
 
 async function fetchTvShowById(id: string) {
   const response = await client.get<TTVShow>(
-    `https://api.themoviedb.org/3/tv/${id}?api_key=${api_key}&language=en-US`,
+    `/3/tv/${id}?api_key=${api_key}&language=en-US`,
   );
   return response.data;
 }

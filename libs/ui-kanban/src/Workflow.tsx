@@ -3,7 +3,7 @@ import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import isEqual from 'lodash-es/isEqual';
 import { useEffect, useMemo, useState } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { useSearch, useNavigate } from 'react-location';
+import { useSearch, useNavigate } from '@tanstack/react-location';
 import { Column } from 'react-table';
 import {
   defaultMutationProps,

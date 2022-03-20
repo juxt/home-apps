@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import { useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import { useQueryClient } from 'react-query';
 import { defaultMutationProps } from './utils';
 import {

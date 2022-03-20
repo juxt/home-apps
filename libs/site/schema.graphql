@@ -28,7 +28,7 @@ type Query {
   progressHistory(id: ID!): [ProgressItem] @site(history: "desc")
 
   allTVFilmReviews: [TVFilmReview]
-  tvFilmReviewById(id: ID!): TVFilmReview
+  tvFilmReviewsById(id: ID!): [TVFilmReview] @site(itemForId: "imdb_id")
 }
 
 type Mutation {
@@ -362,14 +362,14 @@ type ProgressItem {
 
 input TVFilmReviewInput {
   id: ID!
-  IMDB_ID: String!
+  imdb_id: String!
   reviewHTML: String
   score: Int!
 }
 
 type TVFilmReview {
   id: ID!
-  IMDB_ID: ID!
+  imdb_id: ID!
   reviewHTML: String
   score: Int!
   _siteQuery: String

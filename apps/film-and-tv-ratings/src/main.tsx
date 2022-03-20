@@ -4,19 +4,20 @@ import { Home } from './pages/Home';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
-import { Outlet, ReactLocation, Router } from 'react-location';
-import { parseSearch, stringifySearch } from '@tanstack/react-location-jsurl';
+import { Outlet, Router } from '@tanstack/react-location';
 import splitbee from '@splitbee/web';
 import { StrictMode } from 'react';
 import { SearchResults } from './pages/SearchResults';
 import { NavStructure } from './types';
 import { Movie } from './pages/Movie';
 import { TvShow } from './pages/TvShow';
+import { Box } from '@mantine/core';
+import 'regenerator-runtime/runtime.js';
+import { RecentReviews } from './pages/RecentReviews';
+import { newReactLocation } from '@juxt-home/utils';
 
-const location = new ReactLocation({
-  parseSearch,
-  stringifySearch,
-});
+const reactLocation = newReactLocation();
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -36,8 +37,12 @@ ReactDOM.render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <Router<NavStructure>
-        location={location}
+        location={reactLocation}
         routes={[
+          {
+            path: '/',
+            element: <RecentReviews />,
+          },
           {
             path: '/search/:searchType',
             element: <SearchResults />,
@@ -70,10 +75,10 @@ ReactDOM.render(
             element: <p> not found </p>,
           },
         ]}>
-        <>
+        <Box sx={{ margin: '3em' }}>
           <Home />
           <Outlet />
-        </>
+        </Box>
       </Router>
       <ToastContainer
         position="bottom-center"

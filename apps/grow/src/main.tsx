@@ -4,15 +4,13 @@ import { App } from './app/App';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
-import { Outlet, ReactLocation, Router } from 'react-location';
-import { parseSearch, stringifySearch } from '@tanstack/react-location-jsurl';
+import { Outlet, Router } from '@tanstack/react-location';
 import splitbee from '@splitbee/web';
 import { StrictMode } from 'react';
+import { newReactLocation } from '@juxt-home/utils';
 
-const location = new ReactLocation({
-  parseSearch,
-  stringifySearch,
-});
+const location = newReactLocation();
+
 const queryClient = new QueryClient();
 const rootElement = document.getElementById('root');
 if (window.location.hostname !== 'localhost') {

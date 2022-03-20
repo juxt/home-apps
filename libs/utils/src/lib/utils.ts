@@ -1,10 +1,12 @@
 import Resizer from 'react-image-file-resizer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
-
-export function utils(): string {
-  return 'utils';
-}
+import {
+  ReactLocation,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/react-location';
+import { stringify, parse } from 'zipson';
 
 export function take<T>(
   input: T[],
@@ -51,6 +53,17 @@ export function indexById<T extends { id: string }>(
     };
   }, initialValue);
 }
+
+export const groupBy = <T, K extends keyof any>(
+  list: T[],
+  getKey: (item: T) => K,
+) =>
+  list.reduce((previous, currentItem) => {
+    const group = getKey(currentItem);
+    if (!previous[group]) previous[group] = [];
+    previous[group].push(currentItem);
+    return previous;
+  }, {} as Record<K, T[]>);
 
 export function compressImage(file: File): Promise<string> {
   return new Promise((resolve) => {
@@ -180,4 +193,54 @@ export function useWindowSize(): Size {
     return () => window.removeEventListener('resize', handleResize);
   }, []); // Empty array ensures that effect is only run on mount
   return windowSize;
+}
+
+export function useSubmitOnEnter(handleSubmit: () => void) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const ref = inputRef.current;
+    if (ref) {
+      const handleKeyDown = (ev: KeyboardEvent) => {
+        if (ev.key === 'Enter') {
+          handleSubmit();
+        }
+      };
+      ref.addEventListener('keydown', handleKeyDown);
+      return () => {
+        ref.removeEventListener('keydown', handleKeyDown);
+      };
+    } else {
+      return () => null;
+    }
+  }, [inputRef, handleSubmit]);
+
+  return inputRef;
+}
+export function encodeToBinary(str: string): string {
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      return String.fromCharCode(parseInt(p1, 16));
+    }),
+  );
+}
+export function decodeFromBinary(str: string): string {
+  return decodeURIComponent(
+    Array.prototype.map
+      .call(atob(str), function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join(''),
+  );
+}
+export function newReactLocation() {
+  const reactLocation = new ReactLocation({
+    parseSearch: parseSearchWith((value) =>
+      parse(decodeURIComponent(atob(value))),
+    ),
+    stringifySearch: stringifySearchWith((value) =>
+      btoa(encodeURIComponent(stringify(value))),
+    ),
+  });
+  return reactLocation;
 }

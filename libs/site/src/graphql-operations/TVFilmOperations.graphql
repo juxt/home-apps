@@ -5,23 +5,29 @@ query allReviews {
 }
 
 query reviewById($imdb_id: ID!) {
-  tvFilmReviewById(id: $imdb_id) {
+  tvFilmReviewsById(id: $imdb_id) {
     ...reviewFields
   }
 }
 
 mutation upsertReview($TVFilmReview: TVFilmReviewInput!) {
   createTVFilmReview(TVFilmReview: $TVFilmReview) {
-    ...reviewFields
+    id
+  }
+}
+
+mutation deleteReview($id: ID!) {
+  deleteTVFilmReview(id: $id) {
+    id
   }
 }
 
 fragment reviewFields on TVFilmReview {
-  IMDB_ID
   _siteCreatedAt
   _siteSubject
   _siteValidTime
   id
+  imdb_id
   reviewHTML
   score
 }

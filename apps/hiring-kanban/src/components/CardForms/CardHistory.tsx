@@ -19,7 +19,7 @@ import {
 import { Modal, Table } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
 import { useMemo, useState } from 'react';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import { useQueryClient } from 'react-query';
 import { CellProps } from 'react-table';
 import { toast } from 'react-toastify';

@@ -1,4 +1,4 @@
-import { MakeGenerics } from 'react-location';
+import { MakeGenerics } from '@tanstack/react-location';
 import {
   KanbanDataQuery,
   CardFieldsFragment,

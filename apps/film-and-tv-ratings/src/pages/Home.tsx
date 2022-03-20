@@ -1,32 +1,42 @@
-import { useEffect, useState } from 'react';
-import { useMatch, useNavigate, useSearch } from 'react-location';
-import { SearchBar } from '../components/Search';
-import { NavStructure, TSearchType } from '../types';
+import { notEmpty } from '@juxt-home/utils';
+import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-location';
+import { SearchBar, useSearchQuery } from '../components/Search';
+import { NavStructure, TSearchResults, TSearchType } from '../types';
+import { api_key, client } from '../common';
+import { useQuery } from 'react-query';
+
+async function fetchSuggestions(query: string) {
+  const response = await client.get<TSearchResults>(
+    `/3/search/trending?query=${query}&api_key=${api_key}`,
+  );
+  return response.data;
+}
+
+function useSuggestions(query = '') {
+  return (
+    useQuery(['suggestions', query], () => fetchSuggestions(query), {
+      staleTime: 1000 * 60 * 60,
+    })
+      ?.data?.results.map((result) => result?.name || result?.title)
+      .filter(notEmpty) ?? []
+  );
+}
 
 export function Home() {
   const navigate = useNavigate<NavStructure>();
-  const { query } = useSearch<NavStructure>();
   const [searchType, setSearchType] = useState('movie');
+
   const handleChangeType = (type: TSearchType) => {
     setSearchType(type);
-    navigate({ to: `/search/${type}`, search: (old) => ({ ...old }) });
+    navigate({ to: `/search/${type}` });
   };
-  const [search, setSearch] = useState('');
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    console.log('submit', search, searchType);
+  const handleSubmit = () => {
     navigate({
       to: `/search/${searchType}`,
-      search: { query: search },
     });
   };
-
-  // ensure search bar is filled with query from url incase of page refresh
-  useEffect(() => {
-    if (query) {
-      setSearch(query);
-    }
-  }, [query]);
+  const [search, setSearch] = useSearchQuery();
 
   return (
     <>
@@ -36,12 +46,11 @@ export function Home() {
       <SearchBar
         textProps={{
           value: search,
-          onChange: (e) => setSearch(e.target.value),
+          data: [],
+          onChange: setSearch,
           placeholder: `Searching for type: ${searchType}`,
         }}
-        formProps={{
-          onSubmit: handleSubmit,
-        }}
+        handleSubmit={handleSubmit}
       />
     </>
   );

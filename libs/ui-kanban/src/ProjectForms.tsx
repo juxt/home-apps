@@ -6,7 +6,7 @@ import {
 } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { useEffect, useMemo } from 'react';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import { useQueryClient } from 'react-query';
 import {
   CreateWorkflowProjectMutationVariables,

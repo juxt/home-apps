@@ -1,4 +1,5 @@
-import { MakeGenerics } from 'react-location';
+import { ReviewFieldsFragment } from '@juxt-home/site';
+import { MakeGenerics } from '@tanstack/react-location';
 
 export type TSearchResult = {
   // TODO: make union of all possible search result types, e.g. people
@@ -133,14 +134,21 @@ export type AxiosTMDBError = Error & {
   };
 };
 
-export type TSearchResults = {
+export type TSearchResults<T = TSearchResult> = {
   page: number;
-  results: TSearchResult[];
+  results: T[];
   total_pages: number;
   total_results: number;
 };
 
+export type TMDBItemResponse = {
+  movie_results: TMovie[];
+  tv_results: TTVShow[];
+};
+
 export type TSearchType = 'movie' | 'tv';
+
+export type TReview = ReviewFieldsFragment;
 
 export type NavStructure = MakeGenerics<{
   Search: {

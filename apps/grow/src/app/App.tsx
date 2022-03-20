@@ -6,7 +6,7 @@ import {
 import { StandaloneForm, TipTapContent, useDirty } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-location';
+import { Link } from '@tanstack/react-location';
 import { useQueryClient } from 'react-query';
 import './App.css';
 

@@ -18,7 +18,7 @@ import { notEmpty } from '@juxt-home/utils';
 import Tippy from '@tippyjs/react';
 import classNames from 'classnames';
 import { useState } from 'react';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import { toast } from 'react-toastify';
 import { InterviewModal } from './InterviewForms';
 import { QuickEditCardWrapper, TaskListForState } from './UpdateHiringCardForm';
