@@ -70,6 +70,14 @@ const juxterData = [
     },
   },
   {
+    id: 'https://home.juxt.site/home/people/613744a5-edd5-436d-8cc6-d778205ef61df0',
+    name: 'Tara El Kashef',
+    github: 'T4r4',
+    staffRecord: {
+      juxtcode: 'tek',
+    },
+  },
+  {
     id: 'https://home.juxt.site/home/people/613744a5-edd5-436d-8cc6-d778205ef600',
     name: 'Eirini Chatzidaki',
     github: 'Nionions',
