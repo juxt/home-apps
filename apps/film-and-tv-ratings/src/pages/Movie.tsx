@@ -1,4 +1,11 @@
-import { useQuery } from 'react-query';
+import {
+  UpsertReviewMutationVariables,
+  useReviewByIdQuery,
+  useUpsertReviewMutation,
+} from '@juxt-home/site';
+import { StandaloneForm } from '@juxt-home/ui-common';
+import { useForm } from 'react-hook-form';
+import { useQuery, useQueryClient } from 'react-query';
 import { api_key } from '../common';
 import { TMovie } from '../types';
 
@@ -17,22 +24,68 @@ function useMovieById(id = '') {
 }
 
 export function Movie({ itemId }: { itemId: string }) {
-  const { data, isLoading, error } = useMovieById(itemId);
+  const movieResponse = useMovieById(itemId);
+  const { data: movieData } = movieResponse;
+  const imdb_id = movieData?.imdb_id || '';
+
+  const reviewResponse = useReviewByIdQuery({ imdb_id });
+
+  const queryClient = useQueryClient();
+
+  const { mutate } = useUpsertReviewMutation({
+    onSuccess: (data) => {
+      if (imdb_id) {
+        queryClient.setQueryData(useReviewByIdQuery.getKey({ imdb_id }), data);
+      }
+    },
+  });
+
+  const formHooks = useForm<UpsertReviewMutationVariables>();
+
+  const handleSubmit = async (values: UpsertReviewMutationVariables) => {
+    if (imdb_id) {
+      console.log('submit', values);
+      formHooks.reset();
+      mutate({
+        TVFilmReview: {
+          ...values.TVFilmReview,
+          id: `imdb_id:${imdb_id}`,
+        },
+      });
+    }
+  };
+
   return (
     <div>
       <h1>Movie page</h1>
-      {isLoading && <p>loading...</p>}
-      {error && <p>error: {error.message}</p>}
-      {data && (
+      {movieResponse.isLoading && <p>loading...</p>}
+      {movieResponse.isError && <p>error: {movieResponse.error.message}</p>}
+      {movieData && (
         <ul>
           <li>
-            <p>{data.title}</p>
+            <p>{movieData.title}</p>
           </li>
           <li>
-            <p>{data.overview}</p>
+            <p>{movieData.overview}</p>
           </li>
         </ul>
       )}
+      <StandaloneForm
+        formHooks={formHooks}
+        handleSubmit={formHooks.handleSubmit(handleSubmit)}
+        fields={[
+          {
+            label: 'Review',
+            type: 'tiptap',
+            path: 'TVFilmReview.reviewHTML',
+          },
+          {
+            label: 'Rating',
+            type: 'number',
+            path: 'TVFilmReview.score',
+          },
+        ]}
+      />
     </div>
   );
 }
