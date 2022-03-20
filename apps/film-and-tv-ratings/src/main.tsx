@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { App } from './app/App';
+import { Home } from './pages/Home';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
@@ -8,12 +8,23 @@ import { Outlet, ReactLocation, Router } from 'react-location';
 import { parseSearch, stringifySearch } from '@tanstack/react-location-jsurl';
 import splitbee from '@splitbee/web';
 import { StrictMode } from 'react';
+import { SearchResults } from './pages/SearchResults';
+import { NavStructure } from './types';
+import { Movie } from './pages/Movie';
+import { TvShow } from './pages/TvShow';
 
 const location = new ReactLocation({
   parseSearch,
   stringifySearch,
 });
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      keepPreviousData: true,
+    },
+  },
+});
 const rootElement = document.getElementById('root');
 if (window.location.hostname !== 'localhost') {
   splitbee.init({
@@ -24,19 +35,45 @@ if (window.location.hostname !== 'localhost') {
 ReactDOM.render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <Router
+      <Router<NavStructure>
         location={location}
         routes={[
           {
-            path: '/',
-            element: <App />,
+            path: '/search/:searchType',
+            element: <SearchResults />,
+            children: [
+              {
+                path: '/:itemId',
+                element: async ({ params: { searchType, itemId } }) => {
+                  if (itemId) {
+                    switch (searchType) {
+                      case 'movie':
+                        return <Movie itemId={itemId} />;
+                      case 'tv':
+                        return <TvShow />;
+                      default:
+                        return <Movie itemId={itemId} />;
+                    }
+                  } else {
+                    return null;
+                  }
+                },
+              },
+            ],
+          },
+          {
+            path: 'tv',
+            element: <h1>TV page</h1>,
           },
           {
             path: '/*',
-            element: <App />,
+            element: <p> not found </p>,
           },
         ]}>
-        <Outlet />
+        <>
+          <Home />
+          <Outlet />
+        </>
       </Router>
       <ToastContainer
         position="bottom-center"
