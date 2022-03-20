@@ -359,7 +359,7 @@ const IVStages = [
     data: defaultStage1FeedbackData,
   },
   {
-    id: 'WorkflowStateTakeHomeReview',
+    id: 'TakeHome',
     data: defaultTakeHomeFeedbackData,
   },
   {
@@ -369,7 +369,7 @@ const IVStages = [
 ] as const;
 
 function defaultFeedbackData(card: TDetailedCard, username: string) {
-  const data = IVStages.find(({ id }) => id === card.stateStr)?.data;
+  const data = IVStages.find(({ id }) => card.stateStr?.includes(id))?.data;
 
   return data
     ? data(card.id, username)
