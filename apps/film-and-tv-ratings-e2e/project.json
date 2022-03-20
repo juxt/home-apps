@@ -1,0 +1,28 @@
+{
+  "root": "apps/film-and-tv-ratings-e2e",
+  "sourceRoot": "apps/film-and-tv-ratings-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/film-and-tv-ratings-e2e/cypress.json",
+        "devServerTarget": "film-and-tv-ratings:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "film-and-tv-ratings:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/film-and-tv-ratings-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["film-and-tv-ratings"]
+}

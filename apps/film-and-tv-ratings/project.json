@@ -1,0 +1,65 @@
+{
+  "root": "apps/film-and-tv-ratings",
+  "sourceRoot": "apps/film-and-tv-ratings/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/film-and-tv-ratings",
+        "index": "apps/film-and-tv-ratings/src/index.html",
+        "baseHref": "/",
+        "main": "apps/film-and-tv-ratings/src/main.tsx",
+        "polyfills": "apps/film-and-tv-ratings/src/polyfills.ts",
+        "tsConfig": "apps/film-and-tv-ratings/tsconfig.app.json",
+        "assets": [
+          "apps/film-and-tv-ratings/src/favicon.ico",
+          "apps/film-and-tv-ratings/src/assets"
+        ],
+        "styles": ["apps/film-and-tv-ratings/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/film-and-tv-ratings/src/environments/environment.ts",
+              "with": "apps/film-and-tv-ratings/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "film-and-tv-ratings:build",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "film-and-tv-ratings:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/film-and-tv-ratings/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}
