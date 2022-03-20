@@ -1,4 +1,4 @@
-{:xt/id "{{base-uri}}/kanban/graphql"
+{:xt/id "{{base-uri}}/pairing/graphql"
  :juxt.http.alpha/content-type "text/plain;charset=utf-8"
  :juxt.http.alpha/methods #{:get :head :post :put :options}
  :juxt.http.alpha/acceptable-on-put "application/graphql"
