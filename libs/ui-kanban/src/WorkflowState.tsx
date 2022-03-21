@@ -3,7 +3,7 @@ import { Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import Tippy, { useSingleton, TippyProps } from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css'; // optional
 import classNames from 'classnames';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import NaturalDragAnimation from './lib/react-dnd-animation';
 import {
   TCard,

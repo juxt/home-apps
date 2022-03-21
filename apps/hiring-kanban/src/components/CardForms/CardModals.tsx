@@ -11,7 +11,7 @@ import { ModalTabs, Modal, PdfViewer, dirtyAtom } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
 import { useAtom } from 'jotai';
 import * as _ from 'lodash';
-import { useNavigate, useSearch } from 'react-location';
+import { useNavigate, useSearch } from '@tanstack/react-location';
 import { workflowId } from '../../constants';
 import { AddHiringCardModal } from './AddHiringCardForm';
 import { CardHistory } from './CardHistory';

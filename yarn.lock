@@ -1045,6 +1045,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.7.6":
+  version "7.17.8"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.17.8.tgz#3e56e4aff81befa55ac3ac6a0967349fd1c5bca2"
+  integrity sha512-dQpEpK0O9o6lj6oPu0gRDbbnk+4LeHlNcBpspf6Olzt3GIX4P1lWF1gS+pHLDFlaJvbR6q7jCfQ08zA4QJBnmA==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/template@^7.16.7", "@babel/template@^7.3.3":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.16.7.tgz#8d126c8701fde4d66b264b3eba3d96f07666d155"
@@ -2948,13 +2955,21 @@
     lodash.isplainobject "^4.0.6"
     lodash.merge "^4.6.2"
 
-"@tanstack/react-location-jsurl@^3.4.4":
-  version "3.4.4"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-location-jsurl/-/react-location-jsurl-3.4.4.tgz#3c1e41240b09c2b76b8b6fc5783f6bd4dd77dd98"
-  integrity sha512-7Ff2uSC4F4P+MPqIbISkJHwyRiG0yTREATxASRYRmkhcPzNenhXmC/VoTWRjRdtTuYfGmipfWx0P92qJ0JTdrg==
+"@tanstack/react-location-jsurl@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-location-jsurl/-/react-location-jsurl-3.7.0.tgz#b03fc436deb0582d56a665e9fdff30a17c5ce241"
+  integrity sha512-T/2VdoYLnH1PE4kVLNVlK/UIYFio5M7PoOqQw1a455yTDplHiBrdWeGOm4VDhfa1GKot+Eq3Rjr4aQOuL+WZrQ==
   dependencies:
     jsurl "^0.1.5"
     qss "^2.0.3"
+
+"@tanstack/react-location@^3.7.4":
+  version "3.7.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-location/-/react-location-3.7.4.tgz#0125ba5685805d232429b8df70d20cb6c2a56cec"
+  integrity sha512-6rH2vNHGr0uyeUz5ZHvWMYjeYKGgIKFzvs5749QtnS9f+FU7t7fQE0hKZAzltBZk82LT7iYbcHBRyUg2lW13VA==
+  dependencies:
+    "@babel/runtime" "^7.16.7"
+    history "^5.2.0"
 
 "@testing-library/dom@^8.0.0":
   version "8.11.3"
@@ -3484,6 +3499,11 @@
   integrity sha512-zm6xBQpFDIDM6o9r6HSgDeIcLy82TKWctCXEPbJJcXb5AKmi5BNNdLXneixK4lplX3PqIVcwLBCGE/kAGnlD4A==
   dependencies:
     "@types/node" "*"
+
+"@types/jsurl@^1.2.30":
+  version "1.2.30"
+  resolved "https://registry.yarnpkg.com/@types/jsurl/-/jsurl-1.2.30.tgz#ee8e45afc4f931918e87c30fb642d5838ca2a6a2"
+  integrity sha512-m5MDbdywrIH9A/WRPkkoTpHRaROkVq9jEpQp+n1SfgtFFs0eEeDGiDWYcD1592vxiFmM5m8uEewDIUqYFQrNzA==
 
 "@types/lodash-es@4.17.6":
   version "4.17.6"
@@ -7875,6 +7895,13 @@ header-case@^2.0.4:
     capital-case "^1.0.4"
     tslib "^2.0.3"
 
+history@^5.2.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/history/-/history-5.3.0.tgz#1548abaa245ba47992f063a0783db91ef201c73b"
+  integrity sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==
+  dependencies:
+    "@babel/runtime" "^7.7.6"
+
 hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.1, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
@@ -11499,13 +11526,6 @@ react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
-
-react-location@^3.3.4:
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/react-location/-/react-location-3.3.4.tgz#d8c1c4de09aec1c3008282a3a4ec4b79d3fc4274"
-  integrity sha512-XA1FLPh8qAO1aMmw80nY+QvLiPnQ1E2nXEWCpTTlqk1kQ+s9LsixMInGgzt/6AC6NnHW6PavpwnCZjs3e/ezow==
-  dependencies:
-    "@babel/runtime" "^7.16.7"
 
 react-multi-select-component@^4.2.3:
   version "4.2.3"

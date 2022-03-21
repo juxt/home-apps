@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/solid';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
-import { useNavigate, useSearch } from 'react-location';
+import { useNavigate, useSearch } from '@tanstack/react-location';
 import {
   TWorkflow,
   LocationGenerics,

@@ -49,7 +49,7 @@ import {
 } from 'react-hook-form';
 import classNames from 'classnames';
 import splitbee from '@splitbee/web';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import {

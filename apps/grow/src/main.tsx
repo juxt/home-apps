@@ -4,7 +4,7 @@ import { App } from './app/App';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
-import { Outlet, ReactLocation, Router } from 'react-location';
+import { Outlet, ReactLocation, Router } from '@tanstack/react-location';
 import { parseSearch, stringifySearch } from '@tanstack/react-location-jsurl';
 import splitbee from '@splitbee/web';
 import { StrictMode } from 'react';

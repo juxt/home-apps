@@ -21,7 +21,7 @@ import { Button, PageButton } from './Buttons';
 import { SortIcon, SortUpIcon, SortDownIcon } from './Icons';
 import classNames from 'classnames';
 import { useEffect, useMemo, useState, Fragment } from 'react';
-import { useNavigate, useSearch } from 'react-location';
+import { useNavigate, useSearch } from '@tanstack/react-location';
 import { LocationGenerics } from '@juxt-home/site';
 import { notEmpty, useMobileDetect } from '@juxt-home/utils';
 import { isArray } from 'lodash';

@@ -10,7 +10,7 @@ import Tippy, { useSingleton } from '@tippyjs/react';
 import classNames from 'classnames';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
-import { useNavigate, useSearch } from 'react-location';
+import { useNavigate, useSearch } from '@tanstack/react-location';
 import Select from 'react-select';
 import { dirtyAtom, Option, useGlobalSearch } from './Forms';
 import { OptionsMenu } from './Menus';

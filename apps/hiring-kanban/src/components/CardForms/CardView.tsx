@@ -13,15 +13,17 @@ import {
   TipTapContent,
   MetadataGrid,
   IconForScore,
+  Modal,
 } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
 import Tippy from '@tippyjs/react';
 import classNames from 'classnames';
 import { useState } from 'react';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import { toast } from 'react-toastify';
-import { InterviewModal } from './InterviewForms';
+import { InterviewFeedback } from './InterviewForms';
 import { QuickEditCardWrapper, TaskListForState } from './UpdateHiringCardForm';
+import { ArrowsExpandIcon, ClipboardCopyIcon } from '@heroicons/react/solid';
 
 function CardInfo({ card }: { card?: CardDetailsFragment }) {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -57,11 +59,13 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
       )}
       {card && (
         <>
-          <InterviewModal
-            feedbackForCard={cardFeedbackData?.feedbackForCard}
-            show={showFeedbackModal}
-            handleClose={() => setShowFeedbackModal(false)}
-          />
+          <Modal
+            isOpen={showFeedbackModal}
+            handleClose={() => setShowFeedbackModal(false)}>
+            <InterviewFeedback
+              feedbackForCard={cardFeedbackData?.feedbackForCard}
+            />
+          </Modal>
           <div className="sm:h-full overflow-y-auto sm:overflow-hidden flex flex-col sm:flex-row justify-center">
             <MetadataGrid
               title={card.title}
@@ -153,66 +157,17 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                 </Disclosure>
                 {card && (
                   <Disclosure defaultOpen as="div" className="mt-2 w-full">
-                    {({ open }) => {
-                      const interviewFeedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback~-pdf))`;
-                      return (
-                        <>
-                          <Disclosure.Button className={accordionButtonClass}>
-                            <span>Interview Feedback</span>
-                            {CloseIcon(open)}
-                          </Disclosure.Button>
-                          <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
-                            <div className="flex flex-col items-center">
-                              <Tippy
-                                content={
-                                  <>
-                                    <p>
-                                      Send this to the person who will be doing
-                                      the interview.
-                                    </p>
-                                    <p>
-                                      Their feedback will appear below when they
-                                      have completed it.
-                                    </p>
-                                  </>
-                                }>
-                                <div>
-                                  <button
-                                    type="button"
-                                    className="bg-slate-200 rounded-lg text-primary-800 p-4"
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        interviewFeedbackUrl,
-                                      );
-                                      toast.success('Copied to clipboard');
-                                    }}>
-                                    Copy interview link
-                                  </button>
-                                </div>
-                              </Tippy>
-                              {averageScore ? (
-                                <button
-                                  type="button"
-                                  onClick={() => setShowFeedbackModal(true)}
-                                  className="bg-stone-200 mt-2 rounded-lg text-primary-800 p-4">
-                                  Show Feedback ({totalFeedbacks} collected so
-                                  far)
-                                </button>
-                              ) : null}
-                              {averageScore ? (
-                                <div className="flex space-x-4 my-4">
-                                  <strong>Average Score</strong>
-                                  <IconForScore
-                                    score={averageScore}
-                                    withLabel
-                                  />
-                                </div>
-                              ) : null}
-                            </div>
-                          </Disclosure.Panel>
-                        </>
-                      );
-                    }}
+                    {({ open }) => (
+                      <>
+                        <Disclosure.Button className={accordionButtonClass}>
+                          <span>Comments</span>
+                          {CloseIcon(open)}
+                        </Disclosure.Button>
+                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-muted">
+                          <CommentSection eId={card.id} />
+                        </Disclosure.Panel>
+                      </>
+                    )}
                   </Disclosure>
                 )}
                 {card?.files && card?.files.length > 0 && (
@@ -242,7 +197,58 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                 )}
               </div>
               <div className="w-full px-4 sm:h-full lg:overflow-y-auto">
-                <CommentSection eId={card.id} />
+                <div className="flex flex-col items-center">
+                  <div className="flex space-x-2">
+                    <Tippy
+                      content={
+                        <>
+                          <p>
+                            Send this to the person who will be doing the
+                            interview.
+                          </p>
+                          <p>
+                            Their feedback will appear below when they have
+                            completed it.
+                          </p>
+                        </>
+                      }>
+                      <div>
+                        <button
+                          type="button"
+                          className="flex items-center pr-2 bg-slate-200 rounded-lg text-primary-800 p-2"
+                          onClick={() => {
+                            const interviewFeedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback~-pdf))`;
+                            navigator.clipboard.writeText(interviewFeedbackUrl);
+                            toast.success('Copied to clipboard');
+                          }}>
+                          <ClipboardCopyIcon className="w-4 h-4" />
+                          Copy interview link
+                        </button>
+                      </div>
+                    </Tippy>
+                    {averageScore ? (
+                      <Tippy content="Open feedback in full-screen">
+                        <button
+                          type="button"
+                          onClick={() => setShowFeedbackModal(true)}
+                          className="flex items-center pr-2 bg-slate-200 rounded-lg text-primary-800 p-2">
+                          <ArrowsExpandIcon className="w-4 h-4" />
+                        </button>
+                      </Tippy>
+                    ) : null}
+                  </div>
+                  {averageScore ? (
+                    <InterviewFeedback
+                      feedbackForCard={card.interviewFeedback}
+                    />
+                  ) : null}
+                  {averageScore ? (
+                    <div className="flex space-x-4 my-4">
+                      <strong>Average Score</strong>
+                      <IconForScore score={averageScore} withLabel />
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

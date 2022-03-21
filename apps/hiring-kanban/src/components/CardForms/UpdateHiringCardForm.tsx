@@ -30,7 +30,7 @@ import _ from 'lodash';
 import { BaseSyntheticEvent, useCallback, useEffect } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { useForm, useFormState } from 'react-hook-form';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { workflowId } from '../../constants';

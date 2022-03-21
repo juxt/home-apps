@@ -1,6 +1,6 @@
 import { NavTabs } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
-import { useSearch } from 'react-location';
+import { useSearch } from '@tanstack/react-location';
 import {
   LocationGenerics,
   useCardByIdsQuery,

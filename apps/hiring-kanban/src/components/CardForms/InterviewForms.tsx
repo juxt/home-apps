@@ -1,21 +1,12 @@
 import { FeedbackForCardQuery } from '@juxt-home/site';
-import {
-  Button,
-  Modal,
-  TipTapContent,
-  IconForScore,
-} from '@juxt-home/ui-common';
+import { Button, TipTapContent, IconForScore } from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
 import { useState, useRef, useEffect } from 'react';
 
-export function InterviewModal({
-  handleClose,
+export function InterviewFeedback({
   feedbackForCard,
-  show,
 }: {
-  show: boolean;
   feedbackForCard: FeedbackForCardQuery['feedbackForCard'];
-  handleClose: () => void;
 }) {
   const [questionNumber, setQuestionNumber] = useState(0);
 
@@ -41,11 +32,11 @@ export function InterviewModal({
   };
   useEffect(() => {
     setTimeout(() => ref.current?.scrollTo({ top: 0 }), 50);
-  }, [show]);
+  }, [questionNumber]);
 
   return (
-    <Modal className="h-screen-80" isOpen={show} handleClose={handleClose}>
-      <div ref={ref} className="relative py-16 bg-white overflow-auto">
+    <>
+      <div ref={ref} className="relative py-2 bg-white overflow-auto">
         <div className="relative px-4 sm:px-6 lg:px-8">
           <div className="text-lg max-w-prose mx-auto flex flex-col">
             {' '}
@@ -146,6 +137,6 @@ export function InterviewModal({
           </Button>
         </div>
       </nav>
-    </Modal>
+    </>
   );
 }

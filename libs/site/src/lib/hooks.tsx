@@ -2,7 +2,7 @@ import { notEmpty } from '@juxt-home/utils';
 import { atom, useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { DraggableLocation } from 'react-beautiful-dnd';
-import { useNavigate, useSearch } from 'react-location';
+import { useNavigate, useSearch } from '@tanstack/react-location';
 import { UseQueryOptions } from 'react-query';
 import { toast } from 'react-toastify';
 import {
