@@ -36,7 +36,7 @@ export function InterviewFeedback({
 
   return (
     <>
-      <div ref={ref} className="relative py-2 bg-white overflow-auto">
+      <div ref={ref} className="relative py-2 bg-white overflow-auto text-left">
         <div className="relative px-4 sm:px-6 lg:px-8">
           <div className="text-lg max-w-prose mx-auto flex flex-col">
             {' '}

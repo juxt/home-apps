@@ -239,7 +239,7 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                   </div>
                   {averageScore ? (
                     <InterviewFeedback
-                      feedbackForCard={card.interviewFeedback}
+                      feedbackForCard={cardFeedbackData?.feedbackForCard}
                     />
                   ) : null}
                   {averageScore ? (
