@@ -5,12 +5,15 @@ import {
   useUser,
 } from '@juxt-home/site';
 import { notEmpty } from '@juxt-home/utils';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
 import { api_key, client } from '../common';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
+import { RichTextEditor } from '@mantine/rte';
+import { useState } from 'react';
+import { Button, Card, Group, Modal, NumberInput } from '@mantine/core';
 
 async function fetchMovieById(id: string) {
   const response = await client.get<TMovie>(
@@ -26,6 +29,10 @@ function useMovieById(id = '') {
 }
 
 export function Movie({ itemId }: { itemId: string }) {
+  const [review, setReview] = useState('review');
+  const [opened, setOpened] = useState(false);
+  const [value, onChange] = useState('');
+
   const movieResponse = useMovieById(itemId);
   const { data: movieData } = movieResponse;
   const imdb_id = movieData?.imdb_id;
@@ -42,7 +49,7 @@ export function Movie({ itemId }: { itemId: string }) {
     },
   });
 
-  const { register, handleSubmit, reset } =
+  const { register, handleSubmit, reset, control } =
     useForm<UpsertReviewMutationVariables>();
 
   const { id: username } = useUser();
@@ -59,9 +66,13 @@ export function Movie({ itemId }: { itemId: string }) {
           id: `user:${username},imdb_id:${imdb_id}`,
         },
       });
+
+      // setReview('review');
     }
   };
   // console.log('errors', errors);
+  console.log(review);
+  console.log(value);
 
   return (
     <div>
@@ -95,46 +106,70 @@ export function Movie({ itemId }: { itemId: string }) {
         </div>
       )}
       {/* form */}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label htmlFor="score">Score (out of 10):</label>
-        <input
-          type="number"
-          {...register('TVFilmReview.score')}
-          id="score"
-          min="1"
-          max="10"
-        />
-        <br />
-        <label htmlFor="reviewHTML">Review:</label>
-        <textarea
+      <Modal opened={opened} onClose={() => setOpened(false)} title="Review">
+        <Card shadow="sm" p="lg">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Card.Section>
+              <label htmlFor="score">Score (out of 10):</label>
+              <input
+                type="number"
+                {...register('TVFilmReview.score')}
+                id="score"
+                min="1"
+                max="10"
+              />
+            </Card.Section>
+
+            <Card.Section>
+              <label htmlFor="reviewHTML">Review:</label>
+              {/* <textarea
           {...register('TVFilmReview.reviewHTML')}
           id="review"
           placeholder="Write your review here..."
-        />
-        <br />
-        <input type="submit" value="Submit Review" />
-      </form>
+        /> */}
+              <br />
+              <RichTextEditor
+                id="review"
+                placeholder="Write your review here..."
+                {...register('TVFilmReview.reviewHTML')}
+                value={review}
+                onChange={(val) => {
+                  setReview(val);
+                }}
+              />
+              {/* <RichTextEditor
+          {...register('TVFilmReview.reviewHTML')}
+          id="review"
+          onChange={onChange}
+          value={value}
+          placeholder="Type here"
+        /> */}
+            </Card.Section>
+            <Button
+              type="submit"
+              variant="gradient"
+              gradient={{ from: 'green', to: 'blue', deg: 70 }}>
+              Submit
+            </Button>
+            {/* <input type="submit" value="Submit Review" /> */}
+          </form>
+        </Card>
+      </Modal>
+
+      <Group position="center">
+        <Button
+          variant="gradient"
+          gradient={{ from: 'green', to: 'blue', deg: 70 }}
+          onClick={() => setOpened(true)}>
+          Add Review
+        </Button>
+      </Group>
     </div>
   );
 }
 
 // {
-// min: {
-//   value: 1,
-//   message: 'Your rating must be between 1 and 10.',
-// },
-// max: {
-//   value: 10,
-//   message: 'Your rating must be between 1 and 10.',
-// },
-// required: {
-//   value: true,
-//   message: 'This field is required',
-// },
-// })}
-
-{
-  /* <form onSubmit={handleSubmit(onSubmit)}>
+/* <form onSubmit={handleSubmit(onSubmit)}>
   <label htmlFor="review">Review</label>
   <textarea
     {...register('TVFilmReview.reviewHTML', { required: true })}
@@ -150,11 +185,26 @@ export function Movie({ itemId }: { itemId: string }) {
     id="score"
     min="1"
     max="10"
-    {...register('TVFilmReview.score')}
+    {...register('TVFilmReview.score'), 
+    // {
+// min: {
+//   value: 1,
+//   message: 'Your rating must be between 1 and 10.',
+// },
+// max: {
+//   value: 10,
+//   message: 'Your rating must be between 1 and 10.',
+// },
+// required: {
+//   value: true,
+//   message: 'This field is required',
+// },
+// })}
+}
   />
   {errors.TVFilmReview?.score && <p>{errors.TVFilmReview.score?.message}</p>}
 
   <br />
   <input type="submit" />
 </form>; */
-}
+// }
