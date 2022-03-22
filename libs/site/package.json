@@ -5,8 +5,8 @@
   "scripts": {
     "watch-generate-hooks": "cross-env-shell GRAPHQL_API_URL='${GRAPHQL_URI}' \"yarn graphql-codegen --config ./codegen.js --watch\"",
     "watch-schema-upload": " cross-env-shell \"ls schema.graphql resources.edn | entr -s './deploy'\"",
-    "test-generate": "cross-env-shell SITE_BASE_URI=https://alexd.uk GRAPHQL_PATH=/pairing/graphql GRAPHQL_URI='https://alexd.uk/pairing/graphql' concurrently \"yarn:watch-*\"",
-    "dev-generate": "cross-env-shell SITE_BASE_URI=http://localhost:5509 GRAPHQL_PATH=/pairing/graphql GRAPHQL_URI='http://localhost:5509/pairing/graphql' concurrently \"yarn:watch-*\"",
+    "test-generate": "concurrently \"yarn:watch-*\"",
+    "dev-generate": "concurrently \"yarn:watch-*\"",
     "serve": "yarn prod-generate"
   },
   "license": "ISC",
