@@ -11,6 +11,8 @@ import { api_key, client } from '../common';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
+import { RichTextEditor } from '@mantine/rte';
+import { useState } from 'react';
 
 async function fetchMovieById(id: string) {
   const response = await client.get<TMovie>(
@@ -26,9 +28,14 @@ function useMovieById(id = '') {
 }
 
 export function Movie({ itemId }: { itemId: string }) {
+
+  // will remove this later, just trying to do a smooth transition
+  const [value, onChange] = useState('Write your review here');
+
   const movieResponse = useMovieById(itemId);
   const { data: movieData } = movieResponse;
   const imdb_id = movieData?.imdb_id;
+  // console.log(movieData);
 
   const reviewResponse = useReviews(imdb_id);
 
@@ -87,6 +94,7 @@ export function Movie({ itemId }: { itemId: string }) {
               <div key={review.id}>
                 <strong>Review by {review._siteSubject || 'admin'}</strong>
                 {review.reviewHTML && <p>{review.reviewHTML}</p>}
+                {/* <RichTextEditor readOnly value={value} onChange={onChange} /> */}
                 <p>{review.score}</p>
               </div>
             ))}
@@ -101,14 +109,17 @@ export function Movie({ itemId }: { itemId: string }) {
             type="number"
             id="score"
             min="1" max="10"
+            required
           />
           <br />
           <label htmlFor="reviewHTML">Review:</label>
-          <textarea
+          {/* <textarea
             {...register('TVFilmReview.reviewHTML')}
             id="review"
             placeholder="Write your review here..."
           />
+          <br /> */}
+          <RichTextEditor {...register('TVFilmReview.reviewHTML')} value="Can this be the value" id="review" onChange={onChange} />
           <br />
           <input type="submit" value="Submit Review" />
         </form>
