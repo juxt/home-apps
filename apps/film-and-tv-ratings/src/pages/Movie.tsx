@@ -43,11 +43,19 @@ export function Movie({ itemId }: { itemId: string }) {
   });
 
   const { id: username } = useUser();
-  const formHooks = useForm<UpsertReviewMutationVariables>();
-  const handleSubmit = async (values: UpsertReviewMutationVariables) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UpsertReviewMutationVariables>();
+  // const formHooks = useForm<UpsertReviewMutationVariables>();
+
+  const onSubmit = async (values: UpsertReviewMutationVariables) => {
     if (imdb_id) {
       console.log('submit', values);
-      formHooks.reset();
+      // formHooks.reset();
+      reset();
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
@@ -57,6 +65,7 @@ export function Movie({ itemId }: { itemId: string }) {
       });
     }
   };
+  console.log('errors', errors);
 
   return (
     <div>
@@ -90,6 +99,39 @@ export function Movie({ itemId }: { itemId: string }) {
         </div>
       )}
       {/* form */}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <label>Review</label>
+        <textarea
+          placeholder="Write you review..."
+          {...register('TVFilmReview.reviewHTML', { required: true })}
+          className="block"
+        />
+        {errors.TVFilmReview?.reviewHTML && <p>This field is required.</p>}
+
+        <label>Rating</label>
+        <input
+          type="number"
+          {...register('TVFilmReview.score', {
+            min: {
+              value: 1,
+              message: 'Your rating must be between 1 and 10.',
+            },
+            max: {
+              value: 10,
+              message: 'Your rating must be between 1 and 10.',
+            },
+            required: {
+              value: true,
+              message: 'This field is required',
+            },
+          })}
+          className="block"
+        />
+        {errors.TVFilmReview?.score && (
+          <p>{errors.TVFilmReview.score?.message}</p>
+        )}
+        <input type="submit" />
+      </form>
     </div>
   );
 }
