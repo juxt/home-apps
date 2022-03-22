@@ -42,16 +42,15 @@ export function Movie({ itemId }: { itemId: string }) {
     },
   });
 
-  const { register, handleSubmit } = useForm<UpsertReviewMutationVariables>();
+  const { register, handleSubmit, reset } = useForm<UpsertReviewMutationVariables>();
   // const onSubmit = (data: any) => console.log(data);
 
   const { id: username } = useUser();
-  const formHooks = useForm<UpsertReviewMutationVariables>();
 
   const onSubmit = async (values: UpsertReviewMutationVariables) => {
     if (imdb_id) {
       console.log('submit', values);
-      formHooks.reset();
+      reset();
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
@@ -100,7 +99,6 @@ export function Movie({ itemId }: { itemId: string }) {
           <input
             {...register('TVFilmReview.score')}
             type="number"
-            name="score"
             id="score"
             min="1" max="10"
           />
@@ -108,7 +106,6 @@ export function Movie({ itemId }: { itemId: string }) {
           <label htmlFor="reviewHTML">Review:</label>
           <textarea
             {...register('TVFilmReview.reviewHTML')}
-            name="review"
             id="review"
             placeholder="Write your review here..."
           />
