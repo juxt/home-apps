@@ -80,7 +80,7 @@ export function Movie({ itemId }: { itemId: string }) {
         <div>
           <Title order={2}>{movieData.title}</Title>
           <Image
-            src={`https://image.tmdb.org/t/p/original/${movieData.backdrop_path}`}
+            src={`https://image.tmdb.org/t/p/original/${movieData.poster_path}`}
             width={400}
             alt="Movie poster"
           />

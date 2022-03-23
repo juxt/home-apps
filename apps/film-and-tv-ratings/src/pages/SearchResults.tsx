@@ -88,7 +88,7 @@ export function SearchResults() {
                       // target="_blank"
                       >
                       <Card.Section>
-                        <Image src={`https://image.tmdb.org/t/p/original/${result.backdrop_path}`} height={160} alt="Movie poster" />
+                        <Image src={`https://image.tmdb.org/t/p/original/${result.poster_path}`} height={160} alt="Movie poster" />
                       </Card.Section>
 
                       <Text weight={500} size="lg">
