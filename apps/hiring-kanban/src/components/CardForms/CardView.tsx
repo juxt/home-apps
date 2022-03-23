@@ -41,13 +41,14 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
       enabled: notEmpty(card?.id),
     },
   );
-  const totalFeedbacks = cardFeedbackData?.feedbackForCard?.length || 0;
-  const totalScores = cardFeedbackData?.feedbackForCard
-    ?.filter(notEmpty)
+  const feedbacks = cardFeedbackData?.feedbackForCard?.filter(notEmpty);
+  const totalFeedbacks = feedbacks?.length || 0;
+  const totalScores = feedbacks
     ?.map((f) => f.overallScore)
     ?.reduce((acc, curr) => acc + curr || 0, 0);
   const averageScore =
     totalScores && totalFeedbacks && Math.floor(totalScores / totalFeedbacks);
+
   return (
     <>
       {!card && (

@@ -181,3 +181,10 @@ export function useWindowSize(): Size {
   }, []); // Empty array ensures that effect is only run on mount
   return windowSize;
 }
+
+export function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'full',
+    timeStyle: 'long',
+  }).format(date);
+}

@@ -1,6 +1,6 @@
-import { FeedbackForCardQuery } from '@juxt-home/site';
+import { cardIVStage, FeedbackForCardQuery } from '@juxt-home/site';
 import { Button, TipTapContent, IconForScore } from '@juxt-home/ui-common';
-import { notEmpty } from '@juxt-home/utils';
+import { formatDate, notEmpty } from '@juxt-home/utils';
 import { useState, useRef, useEffect } from 'react';
 
 export function InterviewFeedback({
@@ -34,6 +34,11 @@ export function InterviewFeedback({
     setTimeout(() => ref.current?.scrollTo({ top: 0 }), 50);
   }, [questionNumber]);
 
+  const IVStage = question && cardIVStage(question);
+  const feedbackDate =
+    question?._siteValidTime && new Date(question._siteValidTime);
+  const formattedFeedbackDate = feedbackDate && formatDate(feedbackDate);
+
   return (
     <>
       <div ref={ref} className="relative py-2 bg-white overflow-auto text-left">
@@ -44,6 +49,16 @@ export function InterviewFeedback({
               <span className="block text-base text-center text-indigo-600 font-semibold tracking-wide uppercase">
                 Feedback by {question?._siteSubject}
               </span>
+              {formattedFeedbackDate && (
+                <span className="block text-sm text-center text-gray-400 font-semibold tracking-wide uppercase">
+                  On {formattedFeedbackDate}
+                </span>
+              )}
+              {IVStage && (
+                <span className="block text-sm text-center text-gray-600 font-semibold tracking-wide uppercase">
+                  {IVStage.name}
+                </span>
+              )}
               <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
                 Summary
               </span>
