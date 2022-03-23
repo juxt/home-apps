@@ -1,3 +1,5 @@
+import { random } from 'lodash';
+
 const juxterData = [
   {
     id: 'https://home.juxt.site/home/people/7f8503eb-ba07-4939-8e39-8b53a581d845',
@@ -5,6 +7,30 @@ const juxterData = [
     name: 'Matthew Butler-Williams',
     staffRecord: {
       juxtcode: 'mat',
+    },
+  },
+  {
+    id: `random${random(1, 10000)}`,
+    github: 'asljuxt',
+    name: 'Asel Kitulagoda',
+    staffRecord: {
+      juxtcode: 'asl',
+    },
+  },
+  {
+    id: `random${random(1, 10000)}`,
+    github: 'chopptimus',
+    name: 'Hugo Young',
+    staffRecord: {
+      juxtcode: 'hjy',
+    },
+  },
+  {
+    id: `random${random(1, 10000)}`,
+    github: 'MaxGW',
+    name: 'Max Grant-Walker',
+    staffRecord: {
+      juxtcode: 'max',
     },
   },
   {
