@@ -29,7 +29,6 @@ function useMovieById(id = '') {
 }
 
 export function Movie({ itemId }: { itemId: string }) {
-  const [review, setReview] = useState('review');
   const [value, onChange] = useState('');
   const [opened, setOpened] = useState(false);
 
@@ -70,12 +69,9 @@ export function Movie({ itemId }: { itemId: string }) {
           id: `user:${username},imdb_id:${imdb_id}`,
         },
       });
-
-      // setReview('review');
     }
   };
 
-  // console.log(review);
   console.log(value);
 
   return (
@@ -139,6 +135,7 @@ export function Movie({ itemId }: { itemId: string }) {
                 id="score"
               />
             </Card.Section>
+
             {errors.TVFilmReview?.score && (
               <p>{errors.TVFilmReview.score?.message}</p>
             )}
@@ -148,14 +145,18 @@ export function Movie({ itemId }: { itemId: string }) {
               <RichTextEditor
                 id="review"
                 placeholder="Write your review here..."
-                {...register('TVFilmReview.reviewHTML')}
+                {...register('TVFilmReview.reviewHTML', {
+                  required: {
+                    value: true,
+                    message: 'This field is required',
+                  },
+                })}
                 onChange={onChange}
                 value={value}
-                // value={review}
-                // onChange={(val) => {
-                //   setReview(val);
-                // }}
               />
+              {errors.TVFilmReview?.reviewHTML && (
+                <p>{errors.TVFilmReview.reviewHTML.message}</p>
+              )}
               {/* <textarea
                 {...register('TVFilmReview.reviewHTML')}
                 id="review"
@@ -186,44 +187,3 @@ export function Movie({ itemId }: { itemId: string }) {
     </div>
   );
 }
-
-// {
-/* <form onSubmit={handleSubmit(onSubmit)}>
-  <label htmlFor="review">Review</label>
-  <textarea
-    {...register('TVFilmReview.reviewHTML', { required: true })}
-    id="review"
-    placeholder="Write you review..."
-  />
-  {errors.TVFilmReview?.reviewHTML && <p>This field is required.</p>}
-
-  <br />
-  <label htmlFor="score">Rating</label>
-  <input
-    type="number"
-    id="score"
-    min="1"
-    max="10"
-    {...register('TVFilmReview.score'), 
-    // {
-// min: {
-//   value: 1,
-//   message: 'Your rating must be between 1 and 10.',
-// },
-// max: {
-//   value: 10,
-//   message: 'Your rating must be between 1 and 10.',
-// },
-// required: {
-//   value: true,
-//   message: 'This field is required',
-// },
-// })}
-}
-  />
-  {errors.TVFilmReview?.score && <p>{errors.TVFilmReview.score?.message}</p>}
-
-  <br />
-  <input type="submit" />
-</form>; */
-// }
