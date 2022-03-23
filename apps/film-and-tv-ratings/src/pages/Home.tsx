@@ -41,8 +41,8 @@ export function Home() {
   return (
     <>
       <h1>Welcome to the film app</h1>
-      <button onClick={() => handleChangeType('tv')}>tv</button>
-      <button onClick={() => handleChangeType('movie')}>movie</button>
+      <button onClick={() => handleChangeType('tv')}>TV</button>
+      <button onClick={() => handleChangeType('movie')}>Movie</button>
       <SearchBar
         textProps={{
           value: search,

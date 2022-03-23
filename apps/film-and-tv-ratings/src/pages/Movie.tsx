@@ -12,6 +12,7 @@ import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
 import { RichTextEditor } from '@mantine/rte';
+// import { Card, Image, Text } from '@mantine/core';
 import { useState } from 'react';
 
 async function fetchMovieById(id: string) {

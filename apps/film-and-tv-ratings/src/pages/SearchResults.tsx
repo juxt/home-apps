@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-location';
 import { useAtom } from 'jotai';
 import { useQuery } from 'react-query';
-import { api_key, client } from '../common';
+import { api_key, client, poster_img } from '../common';
 import { TMDBError } from '../components/Errors';
 import { searchAtom } from '../components/Search';
 import {
@@ -16,6 +16,7 @@ import {
   TSearchResults,
   TSearchType,
 } from '../types';
+import { Card, Image, Text, SimpleGrid, Pagination } from '@mantine/core';
 
 async function searchQuery(
   searchTerm: string,
@@ -64,30 +65,50 @@ export function SearchResults() {
     <div>
       {search && (
         <>
-          <h1>SearchResults page</h1>
-          <p>current type is {searchType}</p>
-          <p>current search is {search}</p>
+          <h1>Search Results</h1>
+          <p>You are searching in {searchType}</p>
+          <p>Showing results for "{search}"</p>
           {response.isLoading && <p>loading...</p>}
           {response.isError && <TMDBError error={response.error} />}
           {response.isSuccess && (
             <>
-              <p>current page {response.data.page}</p>
+              {/* <p>current page {response.data.page}</p>
               <button onClick={() => handleChangePage(response.data.page - 1)}>
                 prev page
               </button>
               <button onClick={() => handleChangePage(response.data.page + 1)}>
                 next page
-              </button>
-
-              <ul>
+              </button> */}
+              <Pagination total={10} color="orange" size="sm" radius="xs" onChange={handleChangePage}/>
+              <SimpleGrid cols={3}>
                 {response.data.results?.map((result) => (
-                  <li key={result.id}>
+                  <div key={result.id}>
                     <Link to={`/search/${searchType}/${result.id}`}>
+                      {/* {result?.title || result?.name} */}
+                      <Card
+                      shadow="sm"
+                      p="xl"
+                      // component="a"
+                      // href={`/search/${searchType}/${result.id}`}
+                      // target="_blank"
+                      >
+                      <Card.Section>
+                        <Image src="https://s.studiobinder.com/wp-content/uploads/2017/12/Movie-Poster-Template-Dark-with-Image.jpg?x81279" height={160} alt="No way!" />
+                      </Card.Section>
+
+                      <Text weight={500} size="lg">
                       {result?.title || result?.name}
+                      </Text>
+
+                      {/* <Text size="sm">
+                        Please click anywhere on this card to claim your reward,
+                        this is not a fraud, trust us
+                      </Text> */}
+                    </Card>
                     </Link>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </SimpleGrid>
             </>
           )}
           {/* 'Outlet' renders the remaining route matches from the router.

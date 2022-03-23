@@ -20,5 +20,5 @@ function useTvById(id = '') {
 }
 
 export function TvShow() {
-  return <h1>TvShow page</h1>;
+  return <h1>TV Show page</h1>;
 }
