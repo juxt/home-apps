@@ -5,6 +5,7 @@ import { SearchBar, useSearchQuery } from '../components/Search';
 import { NavStructure, TSearchResults, TSearchType } from '../types';
 import { api_key, client } from '../common';
 import { useQuery } from 'react-query';
+import { Title, Button } from '@mantine/core';
 
 async function fetchSuggestions(query: string) {
   const response = await client.get<TSearchResults>(
@@ -39,10 +40,10 @@ export function Home() {
   const [search, setSearch] = useSearchQuery();
 
   return (
-    <>
-      <h1>Welcome to the film app</h1>
-      <button onClick={() => handleChangeType('tv')}>TV</button>
-      <button onClick={() => handleChangeType('movie')}>Movie</button>
+    <div>
+      <Title order={1}>Welcome to the film app</Title>
+      <Button color="orange" variant="light" onClick={() => handleChangeType('tv')}>TV</Button>
+      <Button color="orange" variant="light" onClick={() => handleChangeType('movie')}>Movie</Button>
       <SearchBar
         textProps={{
           value: search,
@@ -52,7 +53,7 @@ export function Home() {
         }}
         handleSubmit={handleSubmit}
       />
-    </>
+    </div>
   );
 }
 

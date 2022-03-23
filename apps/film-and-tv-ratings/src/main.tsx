@@ -15,6 +15,7 @@ import { Box } from '@mantine/core';
 import 'regenerator-runtime/runtime.js';
 import { RecentReviews } from './pages/RecentReviews';
 import { newReactLocation } from '@juxt-home/utils';
+import { Group } from '@mantine/core';
 
 const reactLocation = newReactLocation();
 
@@ -76,10 +77,13 @@ ReactDOM.render(
           },
         ]}>
         <Box sx={{ margin: '3em' }}>
-          <Home />
+          <Group>
+            <Home />
+          </Group>
           <Outlet />
         </Box>
       </Router>
+
       <ToastContainer
         position="bottom-center"
         autoClose={3000}

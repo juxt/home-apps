@@ -9,6 +9,7 @@ import { api_key, client } from '../common';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMDBItemResponse, TReview } from '../types';
+import { Title } from '@mantine/core';
 
 async function fetchItemById(id: string) {
   const response = await client.get<TMDBItemResponse>(
@@ -87,7 +88,7 @@ export function RecentReviews() {
   const { data } = response;
   return (
     <div>
-      <h1>Recent Reviews</h1>
+      <Title order={2}>Recent Reviews</Title>
       <ul>
         {response.isLoading && <p>loading...</p>}
         {response.isError && <p>error: {response.error.message}</p>}

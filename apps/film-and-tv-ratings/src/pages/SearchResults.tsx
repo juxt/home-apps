@@ -16,7 +16,7 @@ import {
   TSearchResults,
   TSearchType,
 } from '../types';
-import { Card, Image, Text, SimpleGrid, Pagination } from '@mantine/core';
+import { Card, Image, Text, SimpleGrid, Pagination, Title } from '@mantine/core';
 
 async function searchQuery(
   searchTerm: string,
@@ -61,30 +61,25 @@ export function SearchResults() {
     });
   };
 
+  console.log(response.data?.results);
+  
   return (
     <div>
       {search && (
-        <>
-          <h1>Search Results</h1>
-          <p>You are searching in {searchType}</p>
-          <p>Showing results for "{search}"</p>
+        <SimpleGrid cols={2}>
+          <div>
+          <Title order={1}>Search Results</Title>
+          <Text color="gray">You are searching in {searchType}</Text>
+          <Text color="gray">Showing results for "{search}"</Text>
           {response.isLoading && <p>loading...</p>}
           {response.isError && <TMDBError error={response.error} />}
           {response.isSuccess && (
             <>
-              {/* <p>current page {response.data.page}</p>
-              <button onClick={() => handleChangePage(response.data.page - 1)}>
-                prev page
-              </button>
-              <button onClick={() => handleChangePage(response.data.page + 1)}>
-                next page
-              </button> */}
               <Pagination total={10} color="orange" size="sm" radius="xs" onChange={handleChangePage}/>
-              <SimpleGrid cols={3}>
+              <SimpleGrid cols={4}>
                 {response.data.results?.map((result) => (
                   <div key={result.id}>
                     <Link to={`/search/${searchType}/${result.id}`}>
-                      {/* {result?.title || result?.name} */}
                       <Card
                       shadow="sm"
                       p="xl"
@@ -93,7 +88,7 @@ export function SearchResults() {
                       // target="_blank"
                       >
                       <Card.Section>
-                        <Image src="https://s.studiobinder.com/wp-content/uploads/2017/12/Movie-Poster-Template-Dark-with-Image.jpg?x81279" height={160} alt="No way!" />
+                        <Image src={`https://image.tmdb.org/t/p/original/${result.backdrop_path}`} height={160} alt="Movie poster" />
                       </Card.Section>
 
                       <Text weight={500} size="lg">
@@ -111,10 +106,11 @@ export function SearchResults() {
               </SimpleGrid>
             </>
           )}
+          </div>
           {/* 'Outlet' renders the remaining route matches from the router.
        In this case it will be where the /:itemId route is rendered */}
           <Outlet />
-        </>
+        </SimpleGrid>
       )}
     </div>
   );
