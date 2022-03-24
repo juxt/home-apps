@@ -1,6 +1,6 @@
 import { notEmpty } from '@juxt-home/utils';
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-location';
+import { Link, useNavigate } from '@tanstack/react-location';
 import { SearchBar, useSearchQuery } from '../components/Search';
 import { NavStructure, TSearchResults, TSearchType } from '../types';
 import { api_key, client } from '../common';
@@ -41,9 +41,28 @@ export function Home() {
 
   return (
     <div>
-      <Title order={1}>Welcome to the film app</Title>
-      <Button color="orange" variant="light" onClick={() => handleChangeType('tv')}>TV</Button>
-      <Button color="orange" variant="light" onClick={() => handleChangeType('movie')}>Movie</Button>
+      <Link to={'/'}>
+        <Title
+          order={1}
+          sx={(theme) => ({
+            backgroundColor: theme.colors.orange[0],
+            color: 'black',
+          })}>
+          WELCOME TO THE FILM APP
+        </Title>
+      </Link>
+      <Button
+        color="orange"
+        variant="light"
+        onClick={() => handleChangeType('tv')}>
+        TV
+      </Button>
+      <Button
+        color="orange"
+        variant="light"
+        onClick={() => handleChangeType('movie')}>
+        Movie
+      </Button>
       <SearchBar
         textProps={{
           value: search,

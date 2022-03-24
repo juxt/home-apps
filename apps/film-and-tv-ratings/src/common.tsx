@@ -12,7 +12,7 @@ export function PosterImage({
 }) {
   return (
     <Image
-      height={160}
+      width={100}
       {...imageProps}
       src={`https://image.tmdb.org/t/p/original/${posterPath}`}
       alt="Movie poster"

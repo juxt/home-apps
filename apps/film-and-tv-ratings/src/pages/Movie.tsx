@@ -7,7 +7,7 @@ import {
 import { notEmpty } from '@juxt-home/utils';
 import { useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client } from '../common';
+import { api_key, client, PosterImage } from '../common';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
@@ -31,8 +31,6 @@ function useMovieById(id = '') {
 export function Movie({ itemId }: { itemId: string }) {
   // will remove this later, just trying to do a smooth transition
   const [value, onChange] = useState('Write your review here');
-
-  const [opened, setOpened] = useState(false);
 
   const movieResponse = useMovieById(itemId);
   const { data: movieData } = movieResponse;
@@ -79,10 +77,9 @@ export function Movie({ itemId }: { itemId: string }) {
       {movieData && (
         <div>
           <Title order={2}>{movieData.title}</Title>
-          <Image
-            src={`https://image.tmdb.org/t/p/original/${movieData.poster_path}`}
-            width={400}
-            alt="Movie poster"
+          <PosterImage
+            posterPath={movieData.poster_path}
+            imageProps={{ width: 400 }}
           />
           <Text>{movieData.overview}</Text>
         </div>
@@ -139,7 +136,9 @@ export function Movie({ itemId }: { itemId: string }) {
             onChange={onChange}
           />
           <br />
-          <Button color="orange" variant="light" type="submit">Submit Review</Button>
+          <Button color="orange" variant="light" type="submit">
+            Submit Review
+          </Button>
         </form>
       </div>
     </div>
