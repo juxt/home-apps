@@ -64,7 +64,7 @@ export const defaultTakeHomeFeedbackData = (
           preSet: true,
         },
         {
-          text: 'Is the program over-engineered?',
+          text: 'Is the program appropriatly simple? Answer no if it suffers from over-engineering',
           description:
             'see https://www.pullrequest.com/blog/signs-what-youre-building-is-over-engineered/',
           preSet: true,
