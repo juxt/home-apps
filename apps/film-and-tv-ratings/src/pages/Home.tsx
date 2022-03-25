@@ -45,16 +45,20 @@ export function Home() {
         <Title
           order={1}
           sx={(theme) => ({
-            backgroundColor: theme.colors.orange[0],
-            color: 'black',
+            // backgroundColor: 'black',
+            color: 'orange',
+            marginBottom: 30,
           })}>
-          WELCOME TO THE FILM APP
+          JUXT FILM APP
         </Title>
       </Link>
       <Button
         color="orange"
         variant="light"
-        onClick={() => handleChangeType('tv')}>
+        onClick={() => handleChangeType('tv')}
+        sx={(theme) => ({
+          margin: '0 10px 10px 0',
+        })}>
         TV
       </Button>
       <Button

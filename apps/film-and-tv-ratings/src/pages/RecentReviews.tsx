@@ -9,7 +9,7 @@ import { api_key, client } from '../common';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMDBItemResponse, TReview } from '../types';
-import { Title } from '@mantine/core';
+import { Button, Card, Title, Text, Paper } from '@mantine/core';
 
 async function fetchItemById(id: string) {
   const response = await client.get<TMDBItemResponse>(
@@ -48,20 +48,57 @@ function Review({ imdb_id, reviews }: { imdb_id: string; reviews: TReview[] }) {
     <div>
       {result && (
         <>
-          <h2>{result.title}</h2>
-          <p>{result.overview}</p>
-          <p>Reviews:</p>
+          <Title
+            order={2}
+            sx={(theme) => ({
+              marginTop: 20,
+            })}>
+            {result.title}
+          </Title>
+          <Text
+            sx={(theme) => ({
+              margin: '10px 0',
+            })}>
+            {result.overview}
+          </Text>
+          <Title
+            order={4}
+            sx={(theme) => ({
+              marginBottom: 20,
+            })}>
+            Reviews:
+          </Title>
           <ul>
             {reviews.map((review) => (
               <div key={review.id}>
-                {(devMode || review._siteSubject === username) && (
-                  <button onClick={() => handleDelete(review.id)}>
-                    delete
-                  </button>
-                )}
-                <li>{review._siteSubject}</li>
-                <li>{review.reviewHTML}</li>
-                <li>{review.score}</li>
+                <Card
+                  shadow="sm"
+                  p="xl"
+                  sx={(theme) => ({
+                    backgroundColor: 'lightgray',
+                  })}>
+                  <Text>{review._siteSubject}</Text>
+                  <Paper
+                    shadow="xs"
+                    p="md"
+                    sx={(theme) => ({
+                      marginBottom: 10,
+                    })}>
+                    <Text>{review.reviewHTML}</Text>
+                  </Paper>
+                  <Text>Score: {review.score}</Text>
+                  {(devMode || review._siteSubject === username) && (
+                    <Button
+                      color="orange"
+                      variant="light"
+                      onClick={() => handleDelete(review.id)}
+                      sx={(theme) => ({
+                        marginTop: 10,
+                      })}>
+                      Delete
+                    </Button>
+                  )}
+                </Card>
               </div>
             ))}
           </ul>
@@ -88,7 +125,13 @@ export function RecentReviews() {
   const { data } = response;
   return (
     <div>
-      <Title order={2}>Recent Reviews</Title>
+      <Title
+        order={2}
+        sx={(theme) => ({
+          marginTop: 15,
+        })}>
+        Recent Reviews
+      </Title>
       <ul>
         {response.isLoading && <p>loading...</p>}
         {response.isError && <p>error: {response.error.message}</p>}

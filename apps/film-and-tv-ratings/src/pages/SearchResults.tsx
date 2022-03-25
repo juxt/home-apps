@@ -92,8 +92,20 @@ export function SearchResults() {
       ) : (
         <SimpleGrid cols={2}>
           <div>
-            <Title order={1}>Search Results</Title>
-            <Text color="gray">You are searching in {searchType}</Text>
+            {/* <Title
+              order={1}
+              sx={(theme) => ({
+                margin: '20px 0 20px 0',
+              })}>
+              Search Results
+            </Title> */}
+            <Text
+              color="gray"
+              sx={(theme) => ({
+                marginTop: 20,
+              })}>
+              You are searching in the {searchType} category
+            </Text>
             <Text color="gray">Showing results for "{search}"</Text>
             {response.isLoading && <p>loading...</p>}
             {response.isError && <TMDBError error={response.error} />}
@@ -106,23 +118,26 @@ export function SearchResults() {
                   radius="xs"
                   page={page}
                   onChange={handleChangePage}
+                  sx={(theme) => ({
+                    margin: '20px 0 25px 0',
+                  })}
                 />
                 <SimpleGrid cols={4}>
                   {response.data.results?.map((result) => (
                     <div key={result.id}>
                       <Link to={`/search/${searchType}/${result.id}`}>
-                        <Card
-                          shadow="sm"
-                          p="xl"
-                          // component="a"
-                          // href={`/search/${searchType}/${result.id}`}
-                          // target="_blank"
-                        >
+                        <Card shadow="sm" p="xl">
                           <Card.Section>
                             <PosterImage posterPath={result.poster_path} />
                           </Card.Section>
 
-                          <Text weight={500} size="lg">
+                          <Text
+                            weight={500}
+                            size="sm"
+                            // sx={(theme) => ({
+                            //   padding: 10,
+                            // })}
+                          >
                             {result?.title || result?.name}
                           </Text>
 

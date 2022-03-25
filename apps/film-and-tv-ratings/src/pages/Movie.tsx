@@ -12,7 +12,16 @@ import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
 import { RichTextEditor } from '@mantine/rte';
-import { Modal, Button, Text, Title, Paper, Image } from '@mantine/core';
+import {
+  Modal,
+  Button,
+  Text,
+  Title,
+  Paper,
+  Image,
+  Card,
+  Textarea,
+} from '@mantine/core';
 import { useState } from 'react';
 
 async function fetchMovieById(id: string) {
@@ -30,7 +39,7 @@ function useMovieById(id = '') {
 
 export function Movie({ itemId }: { itemId: string }) {
   // will remove this later, just trying to do a smooth transition
-  const [value, onChange] = useState('Write your review here');
+  // const [value, onChange] = useState('Write your review here');
 
   const movieResponse = useMovieById(itemId);
   const { data: movieData } = movieResponse;
@@ -76,42 +85,98 @@ export function Movie({ itemId }: { itemId: string }) {
       {movieResponse.isError && <TMDBError error={movieResponse.error} />}
       {movieData && (
         <div>
-          <Title order={2}>{movieData.title}</Title>
+          <Card
+            shadow="sm"
+            p="xl"
+            sx={(theme) => ({
+              backgroundColor: 'lightgray',
+            })}>
+            <Title order={2}>{movieData.title}</Title>
+
+            <Card.Section
+              sx={(theme) => ({
+                margin: '10px 0 20px 0',
+              })}>
+              <PosterImage
+                posterPath={movieData.poster_path}
+                imageProps={{ width: 420 }}
+              />
+            </Card.Section>
+
+            <Text size="sm">{movieData.overview}</Text>
+          </Card>
+
+          {/* <Title order={2}>{movieData.title}</Title>
           <PosterImage
             posterPath={movieData.poster_path}
             imageProps={{ width: 400 }}
           />
-          <Text>{movieData.overview}</Text>
+          <Text size="sm">{movieData.overview}</Text> */}
         </div>
       )}
       {reviewResponse.isLoading && <p>loading reviews...</p>}
       {reviewResponse.isError && <p>error: {reviewResponse.error.message}</p>}
       {reviewResponse.data && (
         <div>
-          <Title order={2}>Reviews</Title>
+          <Title
+            order={2}
+            sx={(theme) => ({
+              margin: '20px 0',
+            })}>
+            Reviews
+          </Title>
           {reviewResponse.data.tvFilmReviewsById
             ?.filter(notEmpty)
             .map((review) => (
               <div key={review.id}>
-                <Text weight={700}>
-                  Review by {review._siteSubject || 'admin'}
-                </Text>
-                {review.reviewHTML && (
-                  <Paper shadow="xs" p="md">
-                    <Text>{review.reviewHTML}</Text>
-                  </Paper>
-                )}
-                {/* <RichTextEditor readOnly value={value} onChange={onChange} /> */}
-                <Text>Score: {review.score}</Text>
+                <Card
+                  shadow="sm"
+                  p="xl"
+                  sx={(theme) => ({
+                    backgroundColor: 'lightgray',
+                  })}>
+                  <Text
+                    weight={700}
+                    sx={(theme) => ({
+                      margin: '15px 0 10px 0',
+                    })}>
+                    Review by {review._siteSubject || 'admin'}:
+                  </Text>
+                  {review.reviewHTML && (
+                    <Paper
+                      shadow="xs"
+                      p="md"
+                      sx={(theme) => ({
+                        marginBottom: 10,
+                      })}>
+                      <Text>{review.reviewHTML}</Text>
+                    </Paper>
+                  )}
+                  {/* <RichTextEditor readOnly value={value} onChange={onChange} /> */}
+                  <Text>Score: {review.score}</Text>
+                </Card>
               </div>
             ))}
         </div>
       )}
       <div>
-        <Title order={2}>New Review</Title>
+        <Title
+          order={2}
+          sx={(theme) => ({
+            margin: '20px 0',
+          })}>
+          New Review
+        </Title>
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* <label htmlFor="score">Score (out of 10):</label> */}
-          <Text weight={500}>Score (out of 10):</Text>
+          <Text
+            weight={500}
+            size={'sm'}
+            sx={(theme) => ({
+              marginBottom: 5,
+            })}>
+            Score (out of 10):
+          </Text>
           <input
             {...register('TVFilmReview.score')}
             type="number"
@@ -122,19 +187,23 @@ export function Movie({ itemId }: { itemId: string }) {
           />
           <br />
           {/* <label htmlFor="reviewHTML">Review:</label> */}
-          <Text weight={500}>Review:</Text>
-          {/* <textarea
+          {/* <Text weight={500}>Review:</Text> */}
+          <Textarea
             {...register('TVFilmReview.reviewHTML')}
             id="review"
             placeholder="Write your review here..."
+            label="Review:"
+            required
+            sx={(theme) => ({
+              margin: '15px 0 10px 0',
+            })}
           />
-          <br /> */}
-          <RichTextEditor
+          {/* <RichTextEditor
             {...register('TVFilmReview.reviewHTML')}
             value={value}
             id="review"
             onChange={onChange}
-          />
+          /> */}
           <br />
           <Button color="orange" variant="light" type="submit">
             Submit Review
