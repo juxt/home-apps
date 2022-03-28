@@ -5,7 +5,7 @@ import {
 } from '@juxt-home/site';
 import { groupBy, notEmpty } from '@juxt-home/utils';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client } from '../common';
+import { api_key, client, ReviewCard } from '../common';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMDBItemResponse, TReview } from '../types';
@@ -36,14 +36,17 @@ function Review({ imdb_id, reviews }: { imdb_id: string; reviews: TReview[] }) {
       queryClient.refetchQueries(useAllReviewsQuery.getKey());
     },
   });
+
   const handleDelete = async (id: string) => {
     mutate({
       id,
     });
   };
+
   const result = itemInfo.data?.movie_results[0];
   const { id: username } = useUser();
   const devMode = true;
+
   return (
     <div>
       {result && (
@@ -71,7 +74,16 @@ function Review({ imdb_id, reviews }: { imdb_id: string; reviews: TReview[] }) {
           <ul>
             {reviews.map((review) => (
               <div key={review.id}>
-                <Card
+                <ReviewCard
+                  siteSubject={review._siteSubject}
+                  reviewHTML={review.reviewHTML}
+                  devMode={devMode}
+                  score={review.score}
+                  username={username}
+                  id={review.id}
+                  handleDeleteFunction={handleDelete}
+                />
+                {/* <Card
                   shadow="sm"
                   p="xl"
                   sx={(theme) => ({
@@ -98,7 +110,7 @@ function Review({ imdb_id, reviews }: { imdb_id: string; reviews: TReview[] }) {
                       Delete
                     </Button>
                   )}
-                </Card>
+                </Card> */}
               </div>
             ))}
           </ul>

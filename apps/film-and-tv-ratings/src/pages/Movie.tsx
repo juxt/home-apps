@@ -7,7 +7,7 @@ import {
 import { notEmpty } from '@juxt-home/utils';
 import { useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client, PosterImage } from '../common';
+import { api_key, client, PosterImage, ReviewCard } from '../common';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
@@ -129,7 +129,16 @@ export function Movie({ itemId }: { itemId: string }) {
             ?.filter(notEmpty)
             .map((review) => (
               <div key={review.id}>
-                <Card
+                <ReviewCard
+                  siteSubject={review._siteSubject}
+                  reviewHTML={review.reviewHTML}
+                  // devMode={devMode}
+                  score={review.score}
+                  username={username}
+                  id={review.id}
+                  // handleDeleteFunction={handleDelete}
+                />
+                {/* <Card
                   shadow="sm"
                   p="xl"
                   sx={(theme) => ({
@@ -152,9 +161,8 @@ export function Movie({ itemId }: { itemId: string }) {
                       <Text>{review.reviewHTML}</Text>
                     </Paper>
                   )}
-                  {/* <RichTextEditor readOnly value={value} onChange={onChange} /> */}
                   <Text>Score: {review.score}</Text>
-                </Card>
+                </Card> */}
               </div>
             ))}
         </div>
