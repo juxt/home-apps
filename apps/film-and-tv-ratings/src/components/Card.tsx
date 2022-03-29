@@ -50,22 +50,14 @@ export function ReviewCard({
   handleDeleteFunction?: (id: string) => Promise<void>;
 }) {
   return (
-    <Card
-      shadow="sm"
-      p="xl"
-      sx={(theme) => ({
-        backgroundColor: 'lightgray',
-      })}>
-      <Text
-        weight={700}
-        sx={(theme) => ({
-          margin: '15px 0 10px 0',
-        })}>
+    <Card shadow="sm" p="xl" color="lightgray">
+      <Text weight={700} my="md">
         Review by {siteSubject || 'admin'}:
       </Text>
       {reviewHTML && (
         <RichTextEditor
           readOnly
+          my="md"
           value={reviewHTML}
           id="review"
           onChange={() => null}
@@ -73,13 +65,7 @@ export function ReviewCard({
       )}
       <Text>Score: {score}</Text>
       {(devMode || siteSubject === username) && handleDeleteFunction && (
-        <Button
-          color="orange"
-          variant="light"
-          onClick={() => handleDeleteFunction(id)}
-          sx={(theme) => ({
-            marginTop: 10,
-          })}>
+        <Button color="orange" variant="light" mt="sm">
           Delete
         </Button>
       )}
