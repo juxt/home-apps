@@ -34,8 +34,10 @@ async function searchQuery(
   searchType: TSearchType,
   page = 1,
 ) {
+  const searchUrl = `/3/search/${searchType}?api_key=${api_key}&language=en-US&query=${searchTerm}&page=${page}&include_adult=false`;
+  const popularUrl = `/3/${searchType}/popular?api_key=${api_key}&language=en-US&page=${page}`;
   const response = await client.get<TSearchResults>(
-    `/3/search/${searchType}?api_key=${api_key}&language=en-US&query=${searchTerm}&page=${page}&include_adult=false`,
+    searchTerm.length > 1 ? searchUrl : popularUrl,
   );
   return response.data;
 }
@@ -48,9 +50,6 @@ function useSearchResults(
   return useQuery<TSearchResults, AxiosTMDBError>(
     [searchType, searchTerm, page],
     () => searchQuery(searchTerm, searchType, page),
-    {
-      enabled: searchTerm.length > 2,
-    },
   );
 }
 
@@ -99,14 +98,20 @@ export function SearchResults() {
               })}>
               Search Results
             </Title> */}
-            <Text
-              color="gray"
-              sx={(theme) => ({
-                marginTop: 20,
-              })}>
-              You are searching in the {searchType} category
-            </Text>
-            <Text color="gray">Showing results for "{search}"</Text>
+            {search ? (
+              <>
+                <Text
+                  color="gray"
+                  sx={(theme) => ({
+                    marginTop: 20,
+                  })}>
+                  You are searching in the {searchType} category
+                </Text>
+                <Text color="gray">Showing results for "{search}"</Text>
+              </>
+            ) : (
+              <Text color="gray">Showing popular results</Text>
+            )}
             {response.isLoading && <p>loading...</p>}
             {response.isError && <TMDBError error={response.error} />}
             {response.isSuccess && (
