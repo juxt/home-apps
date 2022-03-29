@@ -1,7 +1,36 @@
-import { Card, Button, Text } from '@mantine/core';
-import RichTextEditor from '@mantine/rte';
+import { Card, Button, Text, Title } from '@mantine/core';
+import { RichTextEditor } from '@mantine/rte';
+import { PosterImage } from '../common';
 
-// export function TvFilmCard() {}
+export function TvFilmCard({
+  title,
+  posterPath,
+  overview,
+}: {
+  title: string | null;
+  posterPath: string | null;
+  overview: string | null;
+}) {
+  return (
+    <Card
+      shadow="sm"
+      p="xl"
+      sx={(theme) => ({
+        backgroundColor: 'lightgray',
+      })}>
+      <Title order={2}>{title}</Title>
+
+      <Card.Section
+        sx={(theme) => ({
+          margin: '10px 0 20px 0',
+        })}>
+        <PosterImage posterPath={posterPath} imageProps={{ width: 420 }} />
+      </Card.Section>
+
+      <Text size="sm">{overview}</Text>
+    </Card>
+  );
+}
 
 export function ReviewCard({
   siteSubject,

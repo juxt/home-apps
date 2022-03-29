@@ -8,7 +8,7 @@ export function PosterImage({
   posterPath,
   imageProps,
 }: {
-  posterPath: string | null;
+  posterPath?: string | null;
   imageProps?: ImageProps;
 }) {
   return (

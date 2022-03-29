@@ -12,7 +12,7 @@ import { AxiosTMDBError, TTVShow } from '../types';
 import { toast } from 'react-toastify';
 import { TMDBError } from '../components/Errors';
 import { Card, Title, Text, Button } from '@mantine/core';
-import { ReviewCard } from '../components/Card';
+import { ReviewCard, TvFilmCard } from '../components/Card';
 import RichTextEditor from '@mantine/rte';
 import { notEmpty } from '@juxt-home/utils';
 
@@ -82,26 +82,11 @@ export function TvShow({ itemId }: { itemId: string }) {
       {movieResponse.isError && <TMDBError error={movieResponse.error} />}
       {movieData && (
         <div>
-          <Card
-            shadow="sm"
-            p="xl"
-            sx={(theme) => ({
-              backgroundColor: 'lightgray',
-            })}>
-            <Title order={2}>{movieData.name}</Title>
-
-            <Card.Section
-              sx={(theme) => ({
-                margin: '10px 0 20px 0',
-              })}>
-              <PosterImage
-                posterPath={movieData.poster_path}
-                imageProps={{ width: 420 }}
-              />
-            </Card.Section>
-
-            <Text size="sm">{movieData.overview}</Text>
-          </Card>
+          <TvFilmCard
+            title={movieData.name}
+            posterPath={movieData.poster_path}
+            overview={movieData.overview}
+          />
         </div>
       )}
       {reviewResponse.isLoading && <p>loading reviews...</p>}
