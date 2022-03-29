@@ -1,4 +1,5 @@
 import { Card, Image, ImageProps, Text, Paper, Button } from '@mantine/core';
+import RichTextEditor from '@mantine/rte';
 import axios from 'axios';
 
 export const api_key = '99fdc21a0b0ef55c0cbc002c0ae96fd6';
@@ -31,12 +32,11 @@ export function ReviewCard({
 }: {
   siteSubject?: string | null;
   reviewHTML?: string | null;
-  devMode?: boolean | null;
-  score: number | null;
+  devMode?: boolean;
+  score: number;
   username?: string | null;
-  id: string | null;
-  // CHANGE THIS
-  handleDeleteFunction?: any;
+  id: string;
+  handleDeleteFunction?: (id: string) => Promise<void>;
 }) {
   return (
     <Card
@@ -53,17 +53,15 @@ export function ReviewCard({
         Review by {siteSubject || 'admin'}:
       </Text>
       {reviewHTML && (
-        <Paper
-          shadow="xs"
-          p="md"
-          sx={(theme) => ({
-            marginBottom: 10,
-          })}>
-          <Text>{reviewHTML}</Text>
-        </Paper>
+        <RichTextEditor
+          readOnly
+          value={reviewHTML}
+          id="review"
+          onChange={() => null}
+        />
       )}
       <Text>Score: {score}</Text>
-      {(devMode || siteSubject === username) && (
+      {(devMode || siteSubject === username) && handleDeleteFunction && (
         <Button
           color="orange"
           variant="light"

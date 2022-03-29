@@ -5,7 +5,7 @@ import {
   useUser,
 } from '@juxt-home/site';
 import { notEmpty } from '@juxt-home/utils';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
 import { api_key, client, PosterImage, ReviewCard } from '../common';
 import { TMDBError } from '../components/Errors';
@@ -23,6 +23,7 @@ import {
   Textarea,
 } from '@mantine/core';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 async function fetchMovieById(id: string) {
   const response = await client.get<TMovie>(
@@ -58,14 +59,18 @@ export function Movie({ itemId }: { itemId: string }) {
     },
   });
 
-  const { register, handleSubmit, reset } =
+  const { register, handleSubmit, reset, control } =
     useForm<UpsertReviewMutationVariables>();
   // const onSubmit = (data: any) => console.log(data);
 
   const { id: username } = useUser();
 
   const onSubmit = async (values: UpsertReviewMutationVariables) => {
-    if (imdb_id) {
+    if (!values.TVFilmReview.reviewHTML) {
+      toast.error('Please write a review', {
+        autoClose: 1000,
+      });
+    } else if (imdb_id) {
       console.log('submit', values);
       reset();
       mutate({
@@ -136,33 +141,8 @@ export function Movie({ itemId }: { itemId: string }) {
                   score={review.score}
                   username={username}
                   id={review.id}
-                  // handleDeleteFunction={handleDelete}
+                  //handleDeleteFunction={handleDelete}
                 />
-                {/* <Card
-                  shadow="sm"
-                  p="xl"
-                  sx={(theme) => ({
-                    backgroundColor: 'lightgray',
-                  })}>
-                  <Text
-                    weight={700}
-                    sx={(theme) => ({
-                      margin: '15px 0 10px 0',
-                    })}>
-                    Review by {review._siteSubject || 'admin'}:
-                  </Text>
-                  {review.reviewHTML && (
-                    <Paper
-                      shadow="xs"
-                      p="md"
-                      sx={(theme) => ({
-                        marginBottom: 10,
-                      })}>
-                      <Text>{review.reviewHTML}</Text>
-                    </Paper>
-                  )}
-                  <Text>Score: {review.score}</Text>
-                </Card> */}
               </div>
             ))}
         </div>
@@ -194,24 +174,22 @@ export function Movie({ itemId }: { itemId: string }) {
             required
           />
           <br />
-          {/* <label htmlFor="reviewHTML">Review:</label> */}
-          {/* <Text weight={500}>Review:</Text> */}
-          <Textarea
-            {...register('TVFilmReview.reviewHTML')}
-            id="review"
-            placeholder="Write your review here..."
-            label="Review:"
-            required
-            sx={(theme) => ({
-              margin: '15px 0 10px 0',
-            })}
+          <Controller
+            control={control}
+            name="TVFilmReview.reviewHTML"
+            render={({
+              field: { onChange, onBlur, value, name, ref },
+              fieldState: { invalid, isTouched, isDirty, error },
+              formState,
+            }) => (
+              <RichTextEditor
+                value={value || ''}
+                id="review"
+                onChange={onChange}
+              />
+            )}
           />
-          {/* <RichTextEditor
-            {...register('TVFilmReview.reviewHTML')}
-            value={value}
-            id="review"
-            onChange={onChange}
-          /> */}
+
           <br />
           <Button color="orange" variant="light" type="submit">
             Submit Review
