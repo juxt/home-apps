@@ -7,7 +7,8 @@ import {
 import { notEmpty } from '@juxt-home/utils';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client, PosterImage, ReviewCard } from '../common';
+import { api_key, client, PosterImage } from '../common';
+import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
@@ -39,13 +40,9 @@ function useMovieById(id = '') {
 }
 
 export function Movie({ itemId }: { itemId: string }) {
-  // will remove this later, just trying to do a smooth transition
-  // const [value, onChange] = useState('Write your review here');
-
   const movieResponse = useMovieById(itemId);
   const { data: movieData } = movieResponse;
   const imdb_id = movieData?.imdb_id;
-  // console.log(movieData);
 
   const reviewResponse = useReviews(imdb_id);
 
@@ -61,7 +58,6 @@ export function Movie({ itemId }: { itemId: string }) {
 
   const { register, handleSubmit, reset, control } =
     useForm<UpsertReviewMutationVariables>();
-  // const onSubmit = (data: any) => console.log(data);
 
   const { id: username } = useUser();
 
@@ -85,7 +81,6 @@ export function Movie({ itemId }: { itemId: string }) {
 
   return (
     <div>
-      {/* <Title order={1}>Movie page</Title> */}
       {movieResponse.isLoading && <p>loading...</p>}
       {movieResponse.isError && <TMDBError error={movieResponse.error} />}
       {movieData && (
@@ -110,13 +105,6 @@ export function Movie({ itemId }: { itemId: string }) {
 
             <Text size="sm">{movieData.overview}</Text>
           </Card>
-
-          {/* <Title order={2}>{movieData.title}</Title>
-          <PosterImage
-            posterPath={movieData.poster_path}
-            imageProps={{ width: 400 }}
-          />
-          <Text size="sm">{movieData.overview}</Text> */}
         </div>
       )}
       {reviewResponse.isLoading && <p>loading reviews...</p>}
@@ -156,7 +144,6 @@ export function Movie({ itemId }: { itemId: string }) {
           New Review
         </Title>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* <label htmlFor="score">Score (out of 10):</label> */}
           <Text
             weight={500}
             size={'sm'}
@@ -174,6 +161,14 @@ export function Movie({ itemId }: { itemId: string }) {
             required
           />
           <br />
+          <Text
+            weight={500}
+            size={'sm'}
+            sx={(theme) => ({
+              marginBottom: 5,
+            })}>
+            Review:
+          </Text>
           <Controller
             control={control}
             name="TVFilmReview.reviewHTML"
@@ -189,7 +184,6 @@ export function Movie({ itemId }: { itemId: string }) {
               />
             )}
           />
-
           <br />
           <Button color="orange" variant="light" type="submit">
             Submit Review

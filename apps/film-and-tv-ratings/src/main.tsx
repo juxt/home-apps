@@ -56,7 +56,7 @@ ReactDOM.render(
                       case 'movie':
                         return <Movie itemId={itemId} />;
                       case 'tv':
-                        return <TvShow />;
+                        return <TvShow itemId={itemId} />;
                       default:
                         return <Movie itemId={itemId} />;
                     }

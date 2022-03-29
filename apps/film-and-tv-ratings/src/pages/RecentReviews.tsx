@@ -5,7 +5,8 @@ import {
 } from '@juxt-home/site';
 import { groupBy, notEmpty } from '@juxt-home/utils';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client, ReviewCard } from '../common';
+import { api_key, client } from '../common';
+import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMDBItemResponse, TReview } from '../types';
@@ -83,34 +84,6 @@ function Review({ imdb_id, reviews }: { imdb_id: string; reviews: TReview[] }) {
                   id={review.id}
                   handleDeleteFunction={handleDelete}
                 />
-                {/* <Card
-                  shadow="sm"
-                  p="xl"
-                  sx={(theme) => ({
-                    backgroundColor: 'lightgray',
-                  })}>
-                  <Text>{review._siteSubject}</Text>
-                  <Paper
-                    shadow="xs"
-                    p="md"
-                    sx={(theme) => ({
-                      marginBottom: 10,
-                    })}>
-                    <Text>{review.reviewHTML}</Text>
-                  </Paper>
-                  <Text>Score: {review.score}</Text>
-                  {(devMode || review._siteSubject === username) && (
-                    <Button
-                      color="orange"
-                      variant="light"
-                      onClick={() => handleDelete(review.id)}
-                      sx={(theme) => ({
-                        marginTop: 10,
-                      })}>
-                      Delete
-                    </Button>
-                  )}
-                </Card> */}
               </div>
             ))}
           </ul>

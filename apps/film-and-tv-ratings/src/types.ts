@@ -87,7 +87,7 @@ export type TCompany = {
 };
 
 export type TTVShow = {
-  id: number;
+  id: string;
   backdrop_path: string | null;
   created_by: {
     id: number;
