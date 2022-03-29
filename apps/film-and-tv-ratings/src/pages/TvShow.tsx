@@ -37,18 +37,18 @@ export function TvShow({ itemId }: { itemId: string }) {
   const movieResponse = useTvById(itemId);
   const { data: movieData } = movieResponse;
 
-  // tried naming this something else but an <Exact> that was expecting imdb_id gave issues
+  // tried naming this something else but an <Exact> that was expecting tmdb_id gave issues
   // but I think having it with the same name might also be an issue
-  const imdb_id = movieData?.id;
+  const tmdb_id = movieData?.id;
 
-  const reviewResponse = useReviews(imdb_id);
+  const reviewResponse = useReviews(tmdb_id);
 
   const queryClient = useQueryClient();
 
   const { mutate } = useUpsertReviewMutation({
     onSuccess: () => {
-      if (imdb_id) {
-        queryClient.refetchQueries(useReviewByIdQuery.getKey({ imdb_id }));
+      if (tmdb_id) {
+        queryClient.refetchQueries(useReviewByIdQuery.getKey({ tmdb_id }));
       }
     },
   });
@@ -63,14 +63,14 @@ export function TvShow({ itemId }: { itemId: string }) {
       toast.error('Please write a review', {
         autoClose: 1000,
       });
-    } else if (imdb_id) {
+    } else if (tmdb_id) {
       console.log('submit', values);
       reset();
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
-          imdb_id,
-          id: `user:${username},imdb_id:${imdb_id}`,
+          tmdb_id,
+          id: `user:${username},tmdb_id:${tmdb_id}`,
         },
       });
     }

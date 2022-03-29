@@ -8,13 +8,12 @@ import { useQuery, useQueryClient } from 'react-query';
 import { api_key, client } from '../common';
 import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
-import { useReviews } from '../hooks';
 import { TMDBItemResponse, TReview } from '../types';
-import { Button, Card, Title, Text, Paper } from '@mantine/core';
+import { Title, Text } from '@mantine/core';
 
 async function fetchItemById(id: string) {
   const response = await client.get<TMDBItemResponse>(
-    `/3/find/${id}?api_key=${api_key}&language=en-GB&external_source=imdb_id`,
+    `/3/find/${id}?api_key=${api_key}&language=en-GB&external_source=tmdb_id`,
   );
   return response.data;
 }
@@ -29,8 +28,8 @@ function useItemById(id = '') {
   );
 }
 
-function Review({ imdb_id, reviews }: { imdb_id: string; reviews: TReview[] }) {
-  const itemInfo = useItemById(imdb_id);
+function Review({ tmdb_id, reviews }: { tmdb_id: string; reviews: TReview[] }) {
+  const itemInfo = useItemById(tmdb_id);
   const queryClient = useQueryClient();
   const { mutate } = useDeleteReviewMutation({
     onSuccess: () => {
@@ -99,7 +98,7 @@ function useAllReviews() {
   return useAllReviewsQuery(undefined, {
     select: (data) => {
       const reviews = data.allTVFilmReviews?.filter(notEmpty);
-      const reviewsById = reviews && groupBy(reviews, (r) => r.imdb_id);
+      const reviewsById = reviews && groupBy(reviews, (r) => r.tmdb_id);
       return reviewsById;
     },
   });
@@ -122,7 +121,7 @@ export function RecentReviews() {
         {response.isError && <p>error: {response.error.message}</p>}
         {data &&
           Object.keys(data).map((id: keyof typeof data) => (
-            <Review imdb_id={id} reviews={data[id]} key={id} />
+            <Review tmdb_id={id} reviews={data[id]} key={id} />
           ))}
       </ul>
     </div>

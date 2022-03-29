@@ -4,8 +4,8 @@ query allReviews {
   }
 }
 
-query reviewById($imdb_id: ID!) {
-  tvFilmReviewsById(id: $imdb_id) {
+query reviewById($tmdb_id: ID!) {
+  tvFilmReviewsById(id: $tmdb_id) {
     ...reviewFields
   }
 }
@@ -27,7 +27,7 @@ fragment reviewFields on TVFilmReview {
   _siteSubject
   _siteValidTime
   id
-  imdb_id
+  tmdb_id
   reviewHTML
   score
 }

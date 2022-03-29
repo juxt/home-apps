@@ -36,22 +36,23 @@ async function fetchMovieById(id: string) {
 function useMovieById(id = '') {
   return useQuery<TMovie, Error>(['movie', id], () => fetchMovieById(id), {
     enabled: !!id,
+    select: (data) => ({ ...data, id: id.toString() }),
   });
 }
 
 export function Movie({ itemId }: { itemId: string }) {
   const movieResponse = useMovieById(itemId);
   const { data: movieData } = movieResponse;
-  const imdb_id = movieData?.imdb_id;
+  const tmdb_id = movieData?.id;
 
-  const reviewResponse = useReviews(imdb_id);
+  const reviewResponse = useReviews(tmdb_id);
 
   const queryClient = useQueryClient();
 
   const { mutate } = useUpsertReviewMutation({
     onSuccess: () => {
-      if (imdb_id) {
-        queryClient.refetchQueries(useReviewByIdQuery.getKey({ imdb_id }));
+      if (tmdb_id) {
+        queryClient.refetchQueries(useReviewByIdQuery.getKey({ tmdb_id }));
       }
     },
   });
@@ -66,14 +67,14 @@ export function Movie({ itemId }: { itemId: string }) {
       toast.error('Please write a review', {
         autoClose: 1000,
       });
-    } else if (imdb_id) {
+    } else if (tmdb_id) {
       console.log('submit', values);
       reset();
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
-          imdb_id,
-          id: `user:${username},imdb_id:${imdb_id}`,
+          tmdb_id,
+          id: `user:${username},tmdb_id:${tmdb_id}`,
         },
       });
     }
