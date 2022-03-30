@@ -12,19 +12,16 @@ export function TvFilmCard({
   overview: string | null;
 }) {
   return (
-    <Card
-      shadow="sm"
-      p="xl"
-      sx={(theme) => ({
-        backgroundColor: 'lightgray',
-      })}>
+    <Card shadow="sm" p="xl" my="md">
       <Title order={2}>{title}</Title>
 
       <Card.Section
         sx={(theme) => ({
           margin: '10px 0 20px 0',
-        })}>
-        <PosterImage posterPath={posterPath} imageProps={{ width: 420 }} />
+        })}
+        // my="md"
+      >
+        <PosterImage posterPath={posterPath} imageProps={{ height: 650 }} />
       </Card.Section>
 
       <Text size="sm">{overview}</Text>

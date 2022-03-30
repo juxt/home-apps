@@ -26,6 +26,7 @@ import {
   Pagination,
   Title,
   Button,
+  ScrollArea,
 } from '@mantine/core';
 import { useMobileDetect } from '@juxt-home/utils';
 
@@ -91,13 +92,6 @@ export function SearchResults() {
       ) : (
         <SimpleGrid cols={2}>
           <div>
-            {/* <Title
-              order={1}
-              sx={(theme) => ({
-                margin: '20px 0 20px 0',
-              })}>
-              Search Results
-            </Title> */}
             {search ? (
               <>
                 <Text
@@ -127,34 +121,25 @@ export function SearchResults() {
                     margin: '20px 0 25px 0',
                   })}
                 />
-                <SimpleGrid cols={4}>
-                  {response.data.results?.map((result) => (
-                    <div key={result.id}>
-                      <Link to={`/search/${searchType}/${result.id}`}>
-                        <Card shadow="sm" p="xl">
-                          <Card.Section>
-                            <PosterImage posterPath={result.poster_path} />
-                          </Card.Section>
+                <ScrollArea style={{ height: 600 }}>
+                  <SimpleGrid cols={4} p="xl">
+                    {response.data.results?.map((result) => (
+                      <div key={result.id}>
+                        <Link to={`/search/${searchType}/${result.id}`}>
+                          <Card shadow="sm" p="xl">
+                            <Card.Section>
+                              <PosterImage posterPath={result.poster_path} />
+                            </Card.Section>
 
-                          <Text
-                            weight={500}
-                            size="sm"
-                            // sx={(theme) => ({
-                            //   padding: 10,
-                            // })}
-                          >
-                            {result?.title || result?.name}
-                          </Text>
-
-                          {/* <Text size="sm">
-                        Please click anywhere on this card to claim your reward,
-                        this is not a fraud, trust us
-                      </Text> */}
-                        </Card>
-                      </Link>
-                    </div>
-                  ))}
-                </SimpleGrid>
+                            <Text weight={500} size="sm">
+                              {result?.title || result?.name}
+                            </Text>
+                          </Card>
+                        </Link>
+                      </div>
+                    ))}
+                  </SimpleGrid>
+                </ScrollArea>
               </>
             )}
           </div>

@@ -22,6 +22,8 @@ import {
   Image,
   Card,
   Textarea,
+  ScrollArea,
+  Container,
 } from '@mantine/core';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -81,101 +83,103 @@ export function Movie({ itemId }: { itemId: string }) {
   };
 
   return (
-    <div>
-      {movieResponse.isLoading && <p>loading...</p>}
-      {movieResponse.isError && <TMDBError error={movieResponse.error} />}
-      {movieData && (
-        <div>
-          <TvFilmCard
-            title={movieData.title}
-            posterPath={movieData.poster_path}
-            overview={movieData.overview}
-          />
-        </div>
-      )}
-      {reviewResponse.isLoading && <p>loading reviews...</p>}
-      {reviewResponse.isError && <p>error: {reviewResponse.error.message}</p>}
-      {reviewResponse.data && (
+    <ScrollArea style={{ height: 600 }}>
+      <Container>
+        {movieResponse.isLoading && <p>loading...</p>}
+        {movieResponse.isError && <TMDBError error={movieResponse.error} />}
+        {movieData && (
+          <div>
+            <TvFilmCard
+              title={movieData.title}
+              posterPath={movieData.poster_path}
+              overview={movieData.overview}
+            />
+          </div>
+        )}
+        {reviewResponse.isLoading && <p>loading reviews...</p>}
+        {reviewResponse.isError && <p>error: {reviewResponse.error.message}</p>}
+        {reviewResponse.data && (
+          <div>
+            <Title
+              order={2}
+              sx={(theme) => ({
+                margin: '20px 0',
+              })}>
+              Reviews
+            </Title>
+            {reviewResponse.data.tvFilmReviewsById
+              ?.filter(notEmpty)
+              .map((review) => (
+                <div key={review.id}>
+                  <ReviewCard
+                    siteSubject={review._siteSubject}
+                    reviewHTML={review.reviewHTML}
+                    // devMode={devMode}
+                    score={review.score}
+                    username={username}
+                    id={review.id}
+                    //handleDeleteFunction={handleDelete}
+                  />
+                </div>
+              ))}
+          </div>
+        )}
         <div>
           <Title
             order={2}
             sx={(theme) => ({
               margin: '20px 0',
             })}>
-            Reviews
+            New Review
           </Title>
-          {reviewResponse.data.tvFilmReviewsById
-            ?.filter(notEmpty)
-            .map((review) => (
-              <div key={review.id}>
-                <ReviewCard
-                  siteSubject={review._siteSubject}
-                  reviewHTML={review.reviewHTML}
-                  // devMode={devMode}
-                  score={review.score}
-                  username={username}
-                  id={review.id}
-                  //handleDeleteFunction={handleDelete}
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Text
+              weight={500}
+              size={'sm'}
+              sx={(theme) => ({
+                marginBottom: 5,
+              })}>
+              Score (out of 10):
+            </Text>
+            <input
+              {...register('TVFilmReview.score')}
+              type="number"
+              id="score"
+              min="1"
+              max="10"
+              required
+            />
+            <br />
+            <Text
+              weight={500}
+              size={'sm'}
+              sx={(theme) => ({
+                marginBottom: 5,
+              })}>
+              Review:
+            </Text>
+            <Controller
+              control={control}
+              name="TVFilmReview.reviewHTML"
+              render={({
+                field: { onChange, onBlur, value, name, ref },
+                fieldState: { invalid, isTouched, isDirty, error },
+                formState,
+              }) => (
+                <RichTextEditor
+                  value={value || ''}
+                  id="review"
+                  onChange={onChange}
                 />
-              </div>
-            ))}
+              )}
+            />
+            <br />
+            <Button color="orange" variant="light" type="submit">
+              Submit Review
+            </Button>
+          </form>
         </div>
-      )}
-      <div>
-        <Title
-          order={2}
-          sx={(theme) => ({
-            margin: '20px 0',
-          })}>
-          New Review
-        </Title>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Text
-            weight={500}
-            size={'sm'}
-            sx={(theme) => ({
-              marginBottom: 5,
-            })}>
-            Score (out of 10):
-          </Text>
-          <input
-            {...register('TVFilmReview.score')}
-            type="number"
-            id="score"
-            min="1"
-            max="10"
-            required
-          />
-          <br />
-          <Text
-            weight={500}
-            size={'sm'}
-            sx={(theme) => ({
-              marginBottom: 5,
-            })}>
-            Review:
-          </Text>
-          <Controller
-            control={control}
-            name="TVFilmReview.reviewHTML"
-            render={({
-              field: { onChange, onBlur, value, name, ref },
-              fieldState: { invalid, isTouched, isDirty, error },
-              formState,
-            }) => (
-              <RichTextEditor
-                value={value || ''}
-                id="review"
-                onChange={onChange}
-              />
-            )}
-          />
-          <br />
-          <Button color="orange" variant="light" type="submit">
-            Submit Review
-          </Button>
-        </form>
-      </div>
-    </div>
+      </Container>
+    </ScrollArea>
   );
 }

@@ -77,9 +77,9 @@ ReactDOM.render(
           },
         ]}>
         <Box sx={{ margin: '3em' }}>
-          <Group>
+          <div style={{ position: 'sticky' }}>
             <Home />
-          </Group>
+          </div>
           <Outlet />
         </Box>
       </Router>
