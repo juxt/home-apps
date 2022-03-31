@@ -94,6 +94,22 @@ export function TvShow({ itemId }: { itemId: string }) {
               title={movieData.name}
               posterPath={movieData.poster_path}
               overview={movieData.overview}
+              badge1={`${movieData.first_air_date
+                .split('-')
+                .filter((e) => {
+                  return e.length > 3;
+                })
+                .join('')}-${
+                movieData.last_air_date &&
+                movieData.last_air_date
+                  .split('-')
+                  .filter((e) => {
+                    return e.length > 3;
+                  })
+                  .join('')
+              }`}
+              badge2={`${movieData.number_of_seasons} seasons`}
+              badge3={`IMDb rating: ${movieData.vote_average}`}
             />
           </div>
         )}

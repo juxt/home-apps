@@ -1,4 +1,4 @@
-import { Card, Button, Text, Title } from '@mantine/core';
+import { Card, Button, Text, Title, Group, Badge } from '@mantine/core';
 import { RichTextEditor } from '@mantine/rte';
 import { PosterImage } from '../common';
 
@@ -6,10 +6,16 @@ export function TvFilmCard({
   title,
   posterPath,
   overview,
+  badge1,
+  badge2,
+  badge3,
 }: {
   title: string | null;
   posterPath: string | null;
   overview: string | null;
+  badge1?: string | number | null;
+  badge2?: string | number | null;
+  badge3?: string | number | null;
 }) {
   return (
     <Card shadow="sm" p="xl" my="md">
@@ -25,6 +31,23 @@ export function TvFilmCard({
       </Card.Section>
 
       <Text size="sm">{overview}</Text>
+
+      <Group
+        style={{
+          marginTop: 15,
+          borderTop: '0.5px solid lightgray',
+          paddingTop: 20,
+        }}>
+        <Badge color="orange" variant="light">
+          {badge1}
+        </Badge>
+        <Badge color="orange" variant="light">
+          {badge2}
+        </Badge>
+        <Badge color="orange" variant="light">
+          {badge3}
+        </Badge>
+      </Group>
     </Card>
   );
 }

@@ -93,6 +93,14 @@ export function Movie({ itemId }: { itemId: string }) {
               title={movieData.title}
               posterPath={movieData.poster_path}
               overview={movieData.overview}
+              badge1={movieData.release_date
+                .split('-')
+                .filter((e) => {
+                  return e.length > 3;
+                })
+                .join('')}
+              badge2={`${movieData.runtime} min`}
+              badge3={`IMDb rating: ${movieData.vote_average}`}
             />
           </div>
         )}

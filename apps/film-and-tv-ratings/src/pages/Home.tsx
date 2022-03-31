@@ -66,7 +66,7 @@ export function Home() {
     <div>
       <Header height={100} className={classes.header} mb={120}>
         <div className={classes.inner}>
-          <Image height={80} src={'../assets/images/film-app-logo.png'} />
+          <Image height={100} src={'../assets/images/film-app-logo.png'} />
           <Group>
             <Button
               color="orange"
