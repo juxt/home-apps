@@ -5,7 +5,14 @@ import { SearchBar, useSearchQuery } from '../components/Search';
 import { NavStructure, TSearchResults, TSearchType } from '../types';
 import { api_key, client } from '../common';
 import { useQuery } from 'react-query';
-import { Title, Button } from '@mantine/core';
+import {
+  Title,
+  Button,
+  createStyles,
+  Header,
+  Group,
+  Image,
+} from '@mantine/core';
 
 async function fetchSuggestions(query: string) {
   const response = await client.get<TSearchResults>(
@@ -24,7 +31,23 @@ function useSuggestions(query = '') {
   );
 }
 
+const useStyles = createStyles((theme) => ({
+  header: {
+    paddingLeft: theme.spacing.md,
+    paddingRight: theme.spacing.md,
+  },
+
+  inner: {
+    height: 60,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+}));
+
 export function Home() {
+  const { classes } = useStyles();
+
   const navigate = useNavigate<NavStructure>();
   const [searchType, setSearchType] = useState('movie');
 
@@ -41,41 +64,35 @@ export function Home() {
 
   return (
     <div>
-      <Link to={'/'}>
-        <Title
-          order={1}
-          sx={(theme) => ({
-            // backgroundColor: 'black',
-            color: 'orange',
-            marginBottom: 30,
-          })}>
-          JUXT FILM APP
-        </Title>
-      </Link>
-      <Button
-        color="orange"
-        variant="light"
-        onClick={() => handleChangeType('tv')}
-        sx={(theme) => ({
-          margin: '0 10px 10px 0',
-        })}>
-        TV
-      </Button>
-      <Button
-        color="orange"
-        variant="light"
-        onClick={() => handleChangeType('movie')}>
-        Movie
-      </Button>
-      <SearchBar
-        textProps={{
-          value: search,
-          data: [],
-          onChange: setSearch,
-          placeholder: `Searching for type: ${searchType}`,
-        }}
-        handleSubmit={handleSubmit}
-      />
+      <Header height={100} className={classes.header} mb={120}>
+        <div className={classes.inner}>
+          <Image height={80} src={'../assets/images/film-app-logo.png'} />
+          <Group>
+            <Button
+              color="orange"
+              variant="light"
+              onClick={() => handleChangeType('tv')}>
+              TV
+            </Button>
+            <Button
+              color="orange"
+              variant="light"
+              onClick={() => handleChangeType('movie')}>
+              Movie
+            </Button>
+            <SearchBar
+              textProps={{
+                value: search,
+                data: [],
+                onChange: setSearch,
+                placeholder: `Searching for type: ${searchType}`,
+              }}
+              buttonProps={{ color: 'orange' }}
+              handleSubmit={handleSubmit}
+            />
+          </Group>
+        </div>
+      </Header>
     </div>
   );
 }
