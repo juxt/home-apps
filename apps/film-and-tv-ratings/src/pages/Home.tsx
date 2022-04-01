@@ -35,10 +35,11 @@ const useStyles = createStyles((theme) => ({
   header: {
     paddingLeft: theme.spacing.md,
     paddingRight: theme.spacing.md,
+    position: 'fixed',
   },
 
   inner: {
-    height: 60,
+    height: 120,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -64,7 +65,7 @@ export function Home() {
 
   return (
     <div>
-      <Header height={100} className={classes.header} mb={120}>
+      <Header height={120} className={classes.header} mb={120}>
         <div className={classes.inner}>
           <Image height={100} src={'../assets/images/film-app-logo.png'} />
           <Group>

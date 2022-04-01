@@ -76,11 +76,11 @@ ReactDOM.render(
             element: <p> not found </p>,
           },
         ]}>
-        <Box sx={{ margin: '3em' }}>
-          <div style={{ position: 'sticky' }}>
-            <Home />
-          </div>
-          <Outlet />
+        <Box sx={{ marginTop: '3em' }}>
+          <Home />
+          <Box sx={{ margin: '8.5em 3em' }}>
+            <Outlet />
+          </Box>
         </Box>
       </Router>
 
