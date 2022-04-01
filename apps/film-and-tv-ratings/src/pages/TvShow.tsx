@@ -18,10 +18,15 @@ import {
   Button,
   ScrollArea,
   Container,
+  Group,
+  ActionIcon,
+  NumberInput,
+  NumberInputHandlers,
 } from '@mantine/core';
 import { ReviewCard, TvFilmCard } from '../components/Card';
 import RichTextEditor from '@mantine/rte';
 import { notEmpty } from '@juxt-home/utils';
+import { useRef } from 'react';
 
 async function fetchTvShowById(id: string) {
   const response = await client.get<TTVShow>(
@@ -44,8 +49,8 @@ export function TvShow({ itemId }: { itemId: string }) {
   const movieResponse = useTvById(itemId);
   const { data: movieData } = movieResponse;
 
-  // tried naming this something else but an <Exact> that was expecting tmdb_id gave issues
-  // but I think having it with the same name might also be an issue
+  const handlers = useRef<NumberInputHandlers>();
+
   const tmdb_id = movieData?.id;
 
   const reviewResponse = useReviews(tmdb_id);
@@ -84,7 +89,7 @@ export function TvShow({ itemId }: { itemId: string }) {
   };
 
   return (
-    <ScrollArea style={{ height: '100vh' }}>
+    <ScrollArea style={{ height: '100%' }}>
       <Container>
         {movieResponse.isLoading && <p>loading...</p>}
         {movieResponse.isError && <TMDBError error={movieResponse.error} />}
@@ -94,7 +99,7 @@ export function TvShow({ itemId }: { itemId: string }) {
               title={movieData.name}
               posterPath={movieData.poster_path}
               overview={movieData.overview}
-              badge1={`${movieData.first_air_date
+              badge1={`${movieData?.first_air_date
                 .split('-')
                 .filter((e) => {
                   return e.length > 3;
@@ -150,22 +155,53 @@ export function TvShow({ itemId }: { itemId: string }) {
             New Review
           </Title>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Text
-              weight={500}
-              size={'sm'}
-              sx={(theme) => ({
-                marginBottom: 5,
-              })}>
-              Score (out of 10):
-            </Text>
-            <input
-              {...register('TVFilmReview.score')}
-              type="number"
-              id="score"
-              min="1"
-              max="10"
-              required
-            />
+            <Group>
+              <Text
+                weight={500}
+                size={'sm'}
+                sx={(theme) => ({
+                  marginBottom: 5,
+                })}>
+                Score (out of 10):
+              </Text>
+              <Controller
+                control={control}
+                name="TVFilmReview.score"
+                render={({
+                  field: { onChange, onBlur, value, name, ref },
+                  fieldState: { invalid, isTouched, isDirty, error },
+                  formState,
+                }) => (
+                  <Group spacing={5}>
+                    <ActionIcon
+                      size={36}
+                      variant="default"
+                      onClick={() => handlers.current?.decrement()}>
+                      –
+                    </ActionIcon>
+
+                    <NumberInput
+                      hideControls
+                      value={value}
+                      onChange={onChange}
+                      handlersRef={handlers}
+                      max={10}
+                      min={1}
+                      step={1}
+                      placeholder={'?'}
+                      styles={{ input: { width: 54, textAlign: 'center' } }}
+                    />
+
+                    <ActionIcon
+                      size={36}
+                      variant="default"
+                      onClick={() => handlers.current?.increment()}>
+                      +
+                    </ActionIcon>
+                  </Group>
+                )}
+              />
+            </Group>
             <br />
             <Text
               weight={500}

@@ -24,8 +24,12 @@ import {
   Textarea,
   ScrollArea,
   Container,
+  Group,
+  ActionIcon,
+  NumberInput,
+  NumberInputHandlers,
 } from '@mantine/core';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
 async function fetchMovieById(id: string) {
@@ -51,6 +55,8 @@ export function Movie({ itemId }: { itemId: string }) {
 
   const queryClient = useQueryClient();
 
+  const handlers = useRef<NumberInputHandlers>();
+
   const { mutate } = useUpsertReviewMutation({
     onSuccess: () => {
       if (tmdb_id) {
@@ -65,8 +71,8 @@ export function Movie({ itemId }: { itemId: string }) {
   const { id: username } = useUser();
 
   const onSubmit = async (values: UpsertReviewMutationVariables) => {
-    if (!values.TVFilmReview.reviewHTML) {
-      toast.error('Please write a review', {
+    if (!values.TVFilmReview.reviewHTML || !values.TVFilmReview.score) {
+      toast.error('Please add a review and a score', {
         autoClose: 1000,
       });
     } else if (tmdb_id) {
@@ -83,7 +89,7 @@ export function Movie({ itemId }: { itemId: string }) {
   };
 
   return (
-    <ScrollArea style={{ height: 600 }}>
+    <ScrollArea style={{ height: '100%' }}>
       <Container>
         {movieResponse.isLoading && <p>loading...</p>}
         {movieResponse.isError && <TMDBError error={movieResponse.error} />}
@@ -141,22 +147,53 @@ export function Movie({ itemId }: { itemId: string }) {
             New Review
           </Title>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Text
-              weight={500}
-              size={'sm'}
-              sx={(theme) => ({
-                marginBottom: 5,
-              })}>
-              Score (out of 10):
-            </Text>
-            <input
-              {...register('TVFilmReview.score')}
-              type="number"
-              id="score"
-              min="1"
-              max="10"
-              required
-            />
+            <Group>
+              <Text
+                weight={500}
+                size={'sm'}
+                sx={(theme) => ({
+                  marginBottom: 5,
+                })}>
+                Score (out of 10):
+              </Text>
+              <Controller
+                control={control}
+                name="TVFilmReview.score"
+                render={({
+                  field: { onChange, onBlur, value, name, ref },
+                  fieldState: { invalid, isTouched, isDirty, error },
+                  formState,
+                }) => (
+                  <Group spacing={5}>
+                    <ActionIcon
+                      size={36}
+                      variant="default"
+                      onClick={() => handlers.current?.decrement()}>
+                      –
+                    </ActionIcon>
+
+                    <NumberInput
+                      hideControls
+                      value={value}
+                      onChange={onChange}
+                      handlersRef={handlers}
+                      max={10}
+                      min={1}
+                      step={1}
+                      placeholder={'?'}
+                      styles={{ input: { width: 54, textAlign: 'center' } }}
+                    />
+
+                    <ActionIcon
+                      size={36}
+                      variant="default"
+                      onClick={() => handlers.current?.increment()}>
+                      +
+                    </ActionIcon>
+                  </Group>
+                )}
+              />
+            </Group>
             <br />
             <Text
               weight={500}
@@ -178,6 +215,7 @@ export function Movie({ itemId }: { itemId: string }) {
                   value={value || ''}
                   id="review"
                   onChange={onChange}
+                  placeholder={'Write your review here...'}
                 />
               )}
             />

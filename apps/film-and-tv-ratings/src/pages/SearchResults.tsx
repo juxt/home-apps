@@ -90,7 +90,11 @@ export function SearchResults() {
           <Outlet />
         </>
       ) : (
-        <SimpleGrid cols={2}>
+        <SimpleGrid
+          cols={2}
+          sx={(theme) => ({
+            height: '100%',
+          })}>
           <div>
             {search ? (
               <>
@@ -121,12 +125,18 @@ export function SearchResults() {
                     margin: '20px 0 25px 0',
                   })}
                 />
-                <ScrollArea style={{ height: 600 }}>
+                <ScrollArea style={{ height: '100%' }}>
                   <SimpleGrid cols={4} p="xl">
                     {response.data.results?.map((result) => (
                       <div key={result.id}>
                         <Link to={`/search/${searchType}/${result.id}`}>
-                          <Card shadow="sm" p="xl">
+                          <Card
+                            shadow="lg"
+                            p="xl"
+                            sx={(theme) => ({
+                              // backgroundColor: '#e7e8e7',
+                              border: '0.5px solid #e7e8e7',
+                            })}>
                             <Card.Section>
                               <PosterImage posterPath={result.poster_path} />
                             </Card.Section>

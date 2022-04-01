@@ -76,9 +76,9 @@ ReactDOM.render(
             element: <p> not found </p>,
           },
         ]}>
-        <Box sx={{ marginTop: '3em' }}>
+        <Box sx={{ marginTop: '3em', height: '100vh' }}>
           <Home />
-          <Box sx={{ margin: '8.5em 3em' }}>
+          <Box sx={{ margin: '8.5em 3em', height: '100vh' }}>
             <Outlet />
           </Box>
         </Box>

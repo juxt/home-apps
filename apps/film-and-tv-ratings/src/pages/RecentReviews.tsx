@@ -8,28 +8,25 @@ import { useQuery, useQueryClient } from 'react-query';
 import { api_key, client } from '../common';
 import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
-import { TMDBItemResponse, TReview } from '../types';
+import { TMDBItemResponse, TMovie, TReview } from '../types';
 import { Title, Text } from '@mantine/core';
 
 async function fetchItemById(id: string) {
-  const response = await client.get<TMDBItemResponse>(
-    `/3/find/${id}?api_key=${api_key}&language=en-GB&external_source=tmdb_id`,
+  const response = await client.get<TMovie>(
+    `/3/movie/${id}?api_key=${api_key}&language=en-GB`,
   );
   return response.data;
 }
 
 function useItemById(id = '') {
-  return useQuery<TMDBItemResponse, Error>(
-    ['finditem', id],
-    () => fetchItemById(id),
-    {
-      enabled: !!id,
-    },
-  );
+  return useQuery<TMovie, Error>(['finditem', id], () => fetchItemById(id), {
+    enabled: !!id,
+  });
 }
 
 function Review({ tmdb_id, reviews }: { tmdb_id: string; reviews: TReview[] }) {
   const itemInfo = useItemById(tmdb_id);
+
   const queryClient = useQueryClient();
   const { mutate } = useDeleteReviewMutation({
     onSuccess: () => {
@@ -43,7 +40,7 @@ function Review({ tmdb_id, reviews }: { tmdb_id: string; reviews: TReview[] }) {
     });
   };
 
-  const result = itemInfo.data?.movie_results[0];
+  const result = itemInfo.data;
   const { id: username } = useUser();
   const devMode = true;
 

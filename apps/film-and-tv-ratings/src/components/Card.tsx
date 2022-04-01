@@ -18,7 +18,14 @@ export function TvFilmCard({
   badge3?: string | number | null;
 }) {
   return (
-    <Card shadow="sm" p="xl" my="md">
+    <Card
+      shadow="lg"
+      p="xl"
+      my="md"
+      sx={(theme) => ({
+        // backgroundColor: '#e7e8e7',
+        border: '0.5px solid #e7e8e7',
+      })}>
       <Title order={2}>{title}</Title>
 
       <Card.Section
@@ -70,7 +77,13 @@ export function ReviewCard({
   handleDeleteFunction?: (id: string) => Promise<void>;
 }) {
   return (
-    <Card shadow="sm" p="xl" color="lightgray">
+    <Card
+      shadow="lg"
+      p="xl"
+      sx={(theme) => ({
+        // backgroundColor: '#e7e8e7',
+        border: '0.5px solid #e7e8e7',
+      })}>
       <Text weight={700} my="md">
         Review by {siteSubject || 'admin'}:
       </Text>
