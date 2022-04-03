@@ -15,7 +15,7 @@ import {
   IconForScore,
   Modal,
 } from '@juxt-home/ui-common';
-import { notEmpty } from '@juxt-home/utils';
+import { notEmpty, searchObjToUrl } from '@juxt-home/utils';
 import Tippy from '@tippyjs/react';
 import classNames from 'classnames';
 import { useState } from 'react';
@@ -218,8 +218,14 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                           type="button"
                           className="flex items-center pr-2 bg-slate-200 rounded-lg text-primary-800 p-2"
                           onClick={() => {
-                            const interviewFeedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback~-pdf))`;
-                            navigator.clipboard.writeText(interviewFeedbackUrl);
+                            const feedbackUrl = `${
+                              window.location.origin
+                            }/_apps/interview/index.html?interviewCardId=${searchObjToUrl(
+                              card.id,
+                            )}&filters=${searchObjToUrl({
+                              tabs: ['feedback', 'pdf'],
+                            })}`;
+                            navigator.clipboard.writeText(feedbackUrl);
                             toast.success('Copied to clipboard');
                           }}>
                           <ClipboardCopyIcon className="w-4 h-4" />

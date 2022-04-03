@@ -1,5 +1,11 @@
-import Resizer from 'react-image-file-resizer';
+import {
+  ReactLocation,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/react-location';
 import { useState, useEffect } from 'react';
+import Resizer from 'react-image-file-resizer';
+import { stringify, parse } from 'zipson';
 import { toast } from 'react-toastify';
 
 export function utils(): string {
@@ -14,7 +20,7 @@ export function take<T>(
   return input.slice(0, start).concat(input.slice(start + deleteCount));
 }
 
-export function mapKeys<T, K extends keyof T>(
+export function mapKeys<T extends object, K extends keyof T>(
   obj: T,
   mapper: (key: K) => K,
 ): { [P in K]: T[P] } {
@@ -187,4 +193,34 @@ export function formatDate(date: Date) {
     dateStyle: 'full',
     timeStyle: 'long',
   }).format(date);
+}
+
+export function searchObjToUrl(searchObj: unknown) {
+  return btoa(encodeURIComponent(stringify(searchObj)));
+}
+
+export function NewLocation() {
+  return new ReactLocation({
+    parseSearch: parseSearchWith((value) =>
+      parse(decodeURIComponent(atob(value))),
+    ),
+    stringifySearch: stringifySearchWith(searchObjToUrl),
+  });
+}
+
+export function encodeToBinary(str: string): string {
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      return String.fromCharCode(parseInt(p1, 16));
+    }),
+  );
+}
+export function decodeFromBinary(str: string): string {
+  return decodeURIComponent(
+    Array.prototype.map
+      .call(atob(str), function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join(''),
+  );
 }
