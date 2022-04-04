@@ -54,11 +54,11 @@ export function Home() {
 
   const handleChangeType = (type: TSearchType) => {
     setSearchType(type);
-    navigate({ to: `/search/${type}` });
+    navigate({ to: `search/${type}` });
   };
   const handleSubmit = () => {
     navigate({
-      to: `/search/${searchType}`,
+      to: `search/${searchType}`,
     });
   };
   const [search, setSearch] = useSearchQuery();
@@ -67,8 +67,8 @@ export function Home() {
     <div>
       <Header height={120} className={classes.header} mb={120}>
         <div className={classes.inner}>
-          <Link to={'/'}>
-            <Image height={100} src={'../assets/images/film-app-logo.png'} />
+          <Link to={'home'}>
+            <Image height={100} src={'./assets/images/film-app-logo.png'} />
           </Link>
           <Group>
             <Button

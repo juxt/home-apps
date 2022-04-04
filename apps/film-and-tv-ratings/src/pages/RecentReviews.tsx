@@ -10,6 +10,7 @@ import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
 import { TMDBItemResponse, TMovie, TReview, TTVShow } from '../types';
 import { Title, Text } from '@mantine/core';
+import { Link } from '@tanstack/react-location';
 
 type ItemDetails = Partial<TMovie & TTVShow>;
 
@@ -49,19 +50,22 @@ function Review({ reviews }: { id: string; reviews: Array<TReview | null> }) {
 
   const result = itemInfo.data;
   const { id: username } = useUser();
-  const devMode = true;
+  const devMode = false;
 
   return (
     <div>
       {result && (
         <>
-          <Title
-            order={2}
-            sx={(theme) => ({
-              marginTop: 20,
-            })}>
-            {result?.title || result.name}
-          </Title>
+          <Link to={`/search/${review?.type}/${review?.tmdb_id}`}>
+            <Title
+              order={2}
+              sx={(theme) => ({
+                marginTop: 20,
+              })}>
+              {result?.title || result.name}
+            </Title>
+          </Link>
+
           {result?.overview && (
             <Text
               sx={(theme) => ({

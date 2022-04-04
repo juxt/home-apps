@@ -4,8 +4,8 @@ query allReviews {
   }
 }
 
-query reviewById($tmdb_id: ID!) {
-  tvFilmReviewsById(id: $tmdb_id) {
+query reviewById($tmdb_id_unique: ID!) {
+  tvFilmReviewsById(id: $tmdb_id_unique) {
     ...reviewFields
   }
 }

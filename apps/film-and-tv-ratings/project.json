@@ -11,7 +11,7 @@
         "compiler": "babel",
         "outputPath": "dist/apps/film-and-tv-ratings",
         "index": "apps/film-and-tv-ratings/src/index.html",
-        "baseHref": "/",
+        "baseHref": "/_apps/film-and-tv-reviews/",
         "main": "apps/film-and-tv-ratings/src/main.tsx",
         "tsConfig": "apps/film-and-tv-ratings/tsconfig.app.json",
         "assets": [

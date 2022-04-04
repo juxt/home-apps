@@ -28,7 +28,7 @@ type Query {
   progressHistory(id: ID!): [ProgressItem] @site(history: "desc")
 
   allTVFilmReviews: [TVFilmReview]
-  tvFilmReviewsById(id: ID!): [TVFilmReview] @site(itemForId: "tmdb_id")
+  tvFilmReviewsById(id: ID!): [TVFilmReview] @site(itemForId: "tmdb_id_unique")
 }
 
 type Mutation {
@@ -363,6 +363,7 @@ type ProgressItem {
 input TVFilmReviewInput {
   id: ID!
   tmdb_id: String!
+  tmdb_id_unique: ID!
   reviewHTML: String
   type: String!
   score: Int!
@@ -370,7 +371,8 @@ input TVFilmReviewInput {
 
 type TVFilmReview {
   id: ID!
-  tmdb_id: ID!
+  tmdb_id: String!
+  tmdb_id_unique: ID!
   reviewHTML: String
   score: Int!
   type: String

@@ -3,6 +3,7 @@ import {
   useReviewByIdQuery,
   useUser,
   UpsertReviewMutationVariables,
+  useDeleteReviewMutation,
 } from '@juxt-home/site';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
@@ -52,18 +53,33 @@ export function TvShow({ itemId }: { itemId: string }) {
   const handlers = useRef<NumberInputHandlers>();
 
   const tmdb_id = movieData?.id;
+  const tmdb_id_unique = `${tmdb_id}-tv`;
 
-  const reviewResponse = useReviews(tmdb_id, 'tv');
+  const reviewResponse = useReviews(tmdb_id_unique, 'tv');
 
   const queryClient = useQueryClient();
+  const refetch = () =>
+    queryClient.refetchQueries(useReviewByIdQuery.getKey({ tmdb_id_unique }));
 
   const { mutate } = useUpsertReviewMutation({
     onSuccess: () => {
       if (tmdb_id) {
-        queryClient.refetchQueries(useReviewByIdQuery.getKey({ tmdb_id }));
+        refetch();
       }
     },
   });
+
+  const { mutate: deleteReview } = useDeleteReviewMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const handleDelete = async (id: string) => {
+    deleteReview({
+      id,
+    });
+  };
 
   const { register, handleSubmit, reset, control } =
     useForm<UpsertReviewMutationVariables>();
@@ -81,9 +97,10 @@ export function TvShow({ itemId }: { itemId: string }) {
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
-          tmdb_id: tmdb_id + '-tv',
+          tmdb_id_unique: `${tmdb_id}-tv`,
+          tmdb_id,
           type: 'tv',
-          id: `user:${username},tmdb_id:${tmdb_id}`,
+          id: `user:${username},tmdb_id:${tmdb_id}-tv`,
         },
       });
     }
@@ -137,11 +154,10 @@ export function TvShow({ itemId }: { itemId: string }) {
                   <ReviewCard
                     siteSubject={review._siteSubject}
                     reviewHTML={review.reviewHTML}
-                    // devMode={devMode}
                     score={review.score}
                     username={username}
                     id={review.id}
-                    //handleDeleteFunction={handleDelete}
+                    handleDeleteFunction={handleDelete}
                   />
                 </div>
               ))}

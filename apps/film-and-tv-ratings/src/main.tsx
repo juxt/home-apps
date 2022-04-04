@@ -39,13 +39,14 @@ ReactDOM.render(
     <QueryClientProvider client={queryClient}>
       <Router<NavStructure>
         location={reactLocation}
+        basepath="/_apps/film-and-tv-reviews/app"
         routes={[
           {
-            path: '/',
+            path: 'home',
             element: <RecentReviews />,
           },
           {
-            path: '/search/:searchType',
+            path: 'search/:searchType',
             element: <SearchResults />,
             children: [
               {
@@ -72,7 +73,7 @@ ReactDOM.render(
             element: <h1>TV page</h1>,
           },
           {
-            path: '/*',
+            path: '*',
             element: <p> not found </p>,
           },
         ]}>
