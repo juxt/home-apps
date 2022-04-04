@@ -51,7 +51,7 @@ export function Movie({ itemId }: { itemId: string }) {
   const { data: movieData } = movieResponse;
   const tmdb_id = movieData?.id;
 
-  const reviewResponse = useReviews(tmdb_id);
+  const reviewResponse = useReviews(tmdb_id, 'movie');
 
   const queryClient = useQueryClient();
 

@@ -53,7 +53,7 @@ export function TvShow({ itemId }: { itemId: string }) {
 
   const tmdb_id = movieData?.id;
 
-  const reviewResponse = useReviews(tmdb_id);
+  const reviewResponse = useReviews(tmdb_id, 'tv');
 
   const queryClient = useQueryClient();
 

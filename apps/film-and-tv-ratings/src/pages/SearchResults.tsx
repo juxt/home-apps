@@ -27,6 +27,8 @@ import {
   Title,
   Button,
   ScrollArea,
+  Grid,
+  Box,
 } from '@mantine/core';
 import { useMobileDetect } from '@juxt-home/utils';
 
@@ -74,9 +76,10 @@ export function SearchResults() {
 
   const isMobile = useMobileDetect().isMobile();
   const showBackButton = isMobile && itemId;
+
   return (
     <div>
-      {search && showBackButton ? (
+      {showBackButton ? (
         <>
           <Button
             onClick={() =>
@@ -91,7 +94,7 @@ export function SearchResults() {
         </>
       ) : (
         <SimpleGrid
-          cols={2}
+          cols={itemId ? 2 : 1}
           sx={(theme) => ({
             height: '100%',
           })}>
@@ -125,8 +128,13 @@ export function SearchResults() {
                     margin: '20px 0 25px 0',
                   })}
                 />
-                <ScrollArea style={{ height: '100%' }}>
-                  <SimpleGrid cols={4} p="xl">
+                <ScrollArea sx={{ height: '100%' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '5px',
+                    }}>
                     {response.data.results?.map((result) => (
                       <div key={result.id}>
                         <Link to={`/search/${searchType}/${result.id}`}>
@@ -135,10 +143,17 @@ export function SearchResults() {
                             p="xl"
                             sx={(theme) => ({
                               // backgroundColor: '#e7e8e7',
+                              height: '300px',
+                              width: '150px',
                               border: '0.5px solid #e7e8e7',
                             })}>
                             <Card.Section>
-                              <PosterImage posterPath={result.poster_path} />
+                              <PosterImage
+                                imageProps={{
+                                  height: '250px',
+                                }}
+                                posterPath={result.poster_path}
+                              />
                             </Card.Section>
 
                             <Text weight={500} size="sm">
@@ -148,7 +163,7 @@ export function SearchResults() {
                         </Link>
                       </div>
                     ))}
-                  </SimpleGrid>
+                  </Box>
                 </ScrollArea>
               </>
             )}

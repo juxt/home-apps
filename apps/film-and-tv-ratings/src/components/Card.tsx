@@ -98,7 +98,11 @@ export function ReviewCard({
       )}
       <Text>Score: {score}</Text>
       {(devMode || siteSubject === username) && handleDeleteFunction && (
-        <Button color="orange" variant="light" mt="sm">
+        <Button
+          onClick={() => handleDeleteFunction(id)}
+          color="orange"
+          variant="light"
+          mt="sm">
           Delete
         </Button>
       )}
