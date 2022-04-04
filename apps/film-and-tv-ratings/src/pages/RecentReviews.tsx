@@ -8,24 +8,31 @@ import { useQuery, useQueryClient } from 'react-query';
 import { api_key, client } from '../common';
 import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
-import { TMDBItemResponse, TMovie, TReview } from '../types';
+import { TMDBItemResponse, TMovie, TReview, TTVShow } from '../types';
 import { Title, Text } from '@mantine/core';
 
-async function fetchItemById(id: string) {
-  const response = await client.get<TMovie>(
-    `/3/movie/${id}?api_key=${api_key}&language=en-GB`,
+type ItemDetails = Partial<TMovie & TTVShow>;
+
+async function fetchItemById(id: string, type: string) {
+  const response = await client.get<ItemDetails>(
+    `/3/${type}/${id}?api_key=${api_key}&language=en-GB`,
   );
   return response.data;
 }
 
-function useItemById(id = '') {
-  return useQuery<TMovie, Error>(['finditem', id], () => fetchItemById(id), {
-    enabled: !!id,
-  });
+function useItemById(id = '', type: string) {
+  return useQuery<ItemDetails, Error>(
+    ['finditem', id],
+    () => fetchItemById(id, type),
+    {
+      enabled: !!id,
+    },
+  );
 }
 
-function Review({ tmdb_id, reviews }: { tmdb_id: string; reviews: TReview[] }) {
-  const itemInfo = useItemById(tmdb_id);
+function Review({ reviews }: { id: string; reviews: Array<TReview | null> }) {
+  const review = reviews[0];
+  const itemInfo = useItemById(review?.tmdb_id, review?.type || 'movie');
 
   const queryClient = useQueryClient();
   const { mutate } = useDeleteReviewMutation({
@@ -53,14 +60,16 @@ function Review({ tmdb_id, reviews }: { tmdb_id: string; reviews: TReview[] }) {
             sx={(theme) => ({
               marginTop: 20,
             })}>
-            {result.title}
+            {result?.title || result.name}
           </Title>
-          <Text
-            sx={(theme) => ({
-              margin: '10px 0',
-            })}>
-            {result.overview}
-          </Text>
+          {result?.overview && (
+            <Text
+              sx={(theme) => ({
+                margin: '10px 0',
+              })}>
+              {result.overview}
+            </Text>
+          )}
           <Title
             order={4}
             sx={(theme) => ({
@@ -69,7 +78,7 @@ function Review({ tmdb_id, reviews }: { tmdb_id: string; reviews: TReview[] }) {
             Reviews:
           </Title>
           <ul>
-            {reviews.map((review) => (
+            {reviews.filter(notEmpty).map((review) => (
               <div key={review.id}>
                 <ReviewCard
                   siteSubject={review._siteSubject}
@@ -118,7 +127,7 @@ export function RecentReviews() {
         {response.isError && <p>error: {response.error.message}</p>}
         {data &&
           Object.keys(data).map((id: keyof typeof data) => (
-            <Review tmdb_id={id} reviews={data[id]} key={id} />
+            <Review id={id} reviews={data[id]} key={id} />
           ))}
       </ul>
     </div>

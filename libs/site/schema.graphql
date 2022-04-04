@@ -364,6 +364,7 @@ input TVFilmReviewInput {
   id: ID!
   tmdb_id: String!
   reviewHTML: String
+  type: String!
   score: Int!
 }
 
@@ -372,6 +373,7 @@ type TVFilmReview {
   tmdb_id: ID!
   reviewHTML: String
   score: Int!
+  type: String
   _siteQuery: String
   _siteSubject: String
   _siteValidTime: String!

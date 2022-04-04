@@ -81,7 +81,8 @@ export function TvShow({ itemId }: { itemId: string }) {
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
-          tmdb_id,
+          tmdb_id: tmdb_id + '-tv',
+          type: 'tv',
           id: `user:${username},tmdb_id:${tmdb_id}`,
         },
       });

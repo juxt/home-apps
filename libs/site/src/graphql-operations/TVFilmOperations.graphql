@@ -27,6 +27,7 @@ fragment reviewFields on TVFilmReview {
   _siteSubject
   _siteValidTime
   id
+  type
   tmdb_id
   reviewHTML
   score
