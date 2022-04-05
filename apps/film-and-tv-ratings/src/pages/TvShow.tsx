@@ -7,13 +7,12 @@ import {
 } from '@juxt-home/site';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client, PosterImage } from '../common';
+import { api_key, client } from '../common';
 import { useReviews } from '../hooks';
 import { AxiosTMDBError, TTVShow } from '../types';
 import { toast } from 'react-toastify';
 import { TMDBError } from '../components/Errors';
 import {
-  Card,
   Title,
   Text,
   Button,
@@ -81,14 +80,14 @@ export function TvShow({ itemId }: { itemId: string }) {
     });
   };
 
-  const { register, handleSubmit, reset, control } =
+  const { handleSubmit, reset, control } =
     useForm<UpsertReviewMutationVariables>();
 
   const { id: username } = useUser();
 
   const onSubmit = async (values: UpsertReviewMutationVariables) => {
-    if (!values.TVFilmReview.reviewHTML) {
-      toast.error('Please write a review', {
+    if (!values.TVFilmReview.reviewHTML || !values.TVFilmReview.score) {
+      toast.error('Please add a review and a score', {
         autoClose: 1000,
       });
     } else if (tmdb_id) {

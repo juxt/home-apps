@@ -31,9 +31,7 @@ export function TvFilmCard({
       <Card.Section
         sx={(theme) => ({
           margin: '10px 0 20px 0',
-        })}
-        // my="md"
-      >
+        })}>
         <PosterImage posterPath={posterPath} imageProps={{ height: 650 }} />
       </Card.Section>
 
@@ -81,7 +79,6 @@ export function ReviewCard({
       shadow="lg"
       p="xl"
       sx={(theme) => ({
-        // backgroundColor: '#e7e8e7',
         border: '0.5px solid #e7e8e7',
       })}>
       <Text weight={700} my="md">

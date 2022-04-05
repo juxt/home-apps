@@ -1,10 +1,8 @@
 import {
   Link,
   Outlet,
-  useMatch,
   useMatches,
   useNavigate,
-  useRouter,
   useSearch,
 } from '@tanstack/react-location';
 import { useAtom } from 'jotai';
@@ -20,14 +18,11 @@ import {
 } from '../types';
 import {
   Card,
-  Image,
   Text,
   SimpleGrid,
   Pagination,
-  Title,
   Button,
   ScrollArea,
-  Grid,
   Box,
 } from '@mantine/core';
 import { useMobileDetect } from '@juxt-home/utils';
@@ -142,7 +137,6 @@ export function SearchResults() {
                             shadow="lg"
                             p="xl"
                             sx={(theme) => ({
-                              // backgroundColor: '#e7e8e7',
                               height: '300px',
                               width: '150px',
                               border: '0.5px solid #e7e8e7',

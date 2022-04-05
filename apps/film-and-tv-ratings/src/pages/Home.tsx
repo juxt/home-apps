@@ -5,14 +5,7 @@ import { SearchBar, useSearchQuery } from '../components/Search';
 import { NavStructure, TSearchResults, TSearchType } from '../types';
 import { api_key, client } from '../common';
 import { useQuery } from 'react-query';
-import {
-  Title,
-  Button,
-  createStyles,
-  Header,
-  Group,
-  Image,
-} from '@mantine/core';
+import { Button, createStyles, Header, Group, Image } from '@mantine/core';
 
 async function fetchSuggestions(query: string) {
   const response = await client.get<TSearchResults>(

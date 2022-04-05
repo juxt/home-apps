@@ -8,21 +8,16 @@ import {
 import { notEmpty } from '@juxt-home/utils';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client, PosterImage } from '../common';
+import { api_key, client } from '../common';
 import { ReviewCard, TvFilmCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
 import { useReviews } from '../hooks';
 import { TMovie } from '../types';
 import { RichTextEditor } from '@mantine/rte';
 import {
-  Modal,
   Button,
   Text,
   Title,
-  Paper,
-  Image,
-  Card,
-  Textarea,
   ScrollArea,
   Container,
   Group,
@@ -82,7 +77,7 @@ export function Movie({ itemId }: { itemId: string }) {
     });
   };
 
-  const { register, handleSubmit, reset, control } =
+  const { handleSubmit, reset, control } =
     useForm<UpsertReviewMutationVariables>();
 
   const { id: username } = useUser();
