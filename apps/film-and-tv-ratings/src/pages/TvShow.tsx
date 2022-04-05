@@ -105,6 +105,8 @@ export function TvShow({ itemId }: { itemId: string }) {
     }
   };
 
+  const devMode = true;
+
   return (
     <ScrollArea style={{ height: '100%' }}>
       <Container>
@@ -154,6 +156,7 @@ export function TvShow({ itemId }: { itemId: string }) {
                     siteSubject={review._siteSubject}
                     reviewHTML={review.reviewHTML}
                     score={review.score}
+                    devMode={devMode}
                     username={username}
                     id={review.id}
                     handleDeleteFunction={handleDelete}

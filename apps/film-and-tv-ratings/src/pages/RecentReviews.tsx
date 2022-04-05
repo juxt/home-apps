@@ -50,7 +50,7 @@ function Review({ reviews }: { id: string; reviews: Array<TReview | null> }) {
 
   const result = itemInfo.data;
   const { id: username } = useUser();
-  const devMode = false;
+  const devMode = true;
 
   return (
     <div>

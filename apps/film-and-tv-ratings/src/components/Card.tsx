@@ -23,7 +23,6 @@ export function TvFilmCard({
       p="xl"
       my="md"
       sx={(theme) => ({
-        // backgroundColor: '#e7e8e7',
         border: '0.5px solid #e7e8e7',
       })}>
       <Title order={2}>{title}</Title>
