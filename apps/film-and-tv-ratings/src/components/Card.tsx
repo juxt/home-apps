@@ -1,5 +1,6 @@
 import { Card, Button, Text, Title, Group, Badge } from '@mantine/core';
 import { RichTextEditor } from '@mantine/rte';
+import { Id } from 'react-toastify';
 import { PosterImage } from '../common';
 
 export function TvFilmCard({
@@ -64,6 +65,7 @@ export function ReviewCard({
   username,
   id,
   handleDeleteFunction,
+  handleEditFunction,
 }: {
   siteSubject?: string | null;
   reviewHTML?: string | null;
@@ -72,6 +74,7 @@ export function ReviewCard({
   username?: string | null;
   id: string;
   handleDeleteFunction?: (id: string) => Promise<void>;
+  handleEditFunction?: (id: string) => Promise<void>;
 }) {
   return (
     <Card
@@ -94,13 +97,24 @@ export function ReviewCard({
       )}
       <Text>Score: {score}</Text>
       {(devMode || siteSubject === username) && handleDeleteFunction && (
-        <Button
-          onClick={() => handleDeleteFunction(id)}
-          color="orange"
-          variant="light"
-          mt="sm">
-          Delete
-        </Button>
+        <Group position="right">
+          {handleEditFunction && (
+            <Button
+              onClick={() => handleEditFunction(id)}
+              color="orange"
+              variant="light"
+              mt="sm">
+              Edit
+            </Button>
+          )}
+          <Button
+            onClick={() => handleDeleteFunction(id)}
+            color="orange"
+            variant="light"
+            mt="sm">
+            Delete
+          </Button>
+        </Group>
       )}
     </Card>
   );

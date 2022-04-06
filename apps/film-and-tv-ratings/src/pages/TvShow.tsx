@@ -26,7 +26,7 @@ import {
 import { ReviewCard, TvFilmCard } from '../components/Card';
 import RichTextEditor from '@mantine/rte';
 import { notEmpty } from '@juxt-home/utils';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 async function fetchTvShowById(id: string) {
   const response = await client.get<TTVShow>(
@@ -50,6 +50,11 @@ export function TvShow({ itemId }: { itemId: string }) {
   const { data: movieData } = movieResponse;
 
   const handlers = useRef<NumberInputHandlers>();
+
+  const [submittedReview, setSubmittedReview] = useState('');
+  const [submittedScore, setSubmittedScore] = useState(0);
+  const [reviewInEdit, setReviewInEdit] = useState('');
+  const [scoreInEdit, setScoreInEdit] = useState(0);
 
   const tmdb_id = movieData?.id;
   const tmdb_id_unique = `${tmdb_id}-tv`;
@@ -80,6 +85,11 @@ export function TvShow({ itemId }: { itemId: string }) {
     });
   };
 
+  const handleEdit = async (id: string) => {
+    setReviewInEdit(submittedReview);
+    setScoreInEdit(submittedScore);
+  };
+
   const { handleSubmit, reset, control } =
     useForm<UpsertReviewMutationVariables>();
 
@@ -92,6 +102,8 @@ export function TvShow({ itemId }: { itemId: string }) {
       });
     } else if (tmdb_id) {
       console.log('submit', values);
+      setSubmittedReview(values.TVFilmReview.reviewHTML);
+      setSubmittedScore(values.TVFilmReview.score);
       reset();
       mutate({
         TVFilmReview: {
@@ -160,6 +172,7 @@ export function TvShow({ itemId }: { itemId: string }) {
                     username={username}
                     id={review.id}
                     handleDeleteFunction={handleDelete}
+                    handleEditFunction={handleEdit}
                   />
                 </div>
               ))}
@@ -201,7 +214,7 @@ export function TvShow({ itemId }: { itemId: string }) {
 
                     <NumberInput
                       hideControls
-                      value={value}
+                      value={scoreInEdit || value}
                       onChange={onChange}
                       handlersRef={handlers}
                       max={10}
@@ -239,9 +252,10 @@ export function TvShow({ itemId }: { itemId: string }) {
                 formState,
               }) => (
                 <RichTextEditor
-                  value={value || ''}
+                  value={reviewInEdit || value || ''}
                   id="review"
                   onChange={onChange}
+                  placeholder={reviewInEdit}
                 />
               )}
             />
