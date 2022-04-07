@@ -72,9 +72,10 @@ export function Movie({ itemId }: { itemId: string }) {
   });
 
   const handleDelete = async (id: string) => {
-    deleteReview({
-      id,
-    });
+    window.confirm('Are you sure you want to delete this review?') &&
+      deleteReview({
+        id,
+      });
   };
 
   const { handleSubmit, reset, control } =

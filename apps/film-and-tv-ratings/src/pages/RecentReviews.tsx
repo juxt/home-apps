@@ -43,9 +43,10 @@ function Review({ reviews }: { id: string; reviews: Array<TReview | null> }) {
   });
 
   const handleDelete = async (id: string) => {
-    mutate({
-      id,
-    });
+    window.confirm('Are you sure you want to delete this review?') &&
+      mutate({
+        id,
+      });
   };
 
   const result = itemInfo.data;
