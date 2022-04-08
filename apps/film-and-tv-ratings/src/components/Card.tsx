@@ -1,3 +1,7 @@
+import {
+  TvFilmReviewInput,
+  UpsertReviewMutationVariables,
+} from '@juxt-home/site';
 import { Card, Button, Text, Title, Group, Badge } from '@mantine/core';
 import { RichTextEditor } from '@mantine/rte';
 import { Id } from 'react-toastify';
@@ -70,11 +74,14 @@ export function ReviewCard({
   siteSubject?: string | null;
   reviewHTML?: string | null;
   devMode?: boolean;
-  score: number;
+  score?: number;
   username?: string | null;
   id: string;
   handleDeleteFunction?: (id: string) => Promise<void>;
-  handleEditFunction?: (id: string) => Promise<void>;
+  handleEditFunction?: ({
+    reviewHTML,
+    score,
+  }: Partial<TvFilmReviewInput>) => Promise<void>;
 }) {
   return (
     <Card
@@ -100,7 +107,7 @@ export function ReviewCard({
         <Group position="right">
           {handleEditFunction && (
             <Button
-              onClick={() => handleEditFunction(id)}
+              onClick={() => handleEditFunction({ reviewHTML, score })}
               color="orange"
               variant="light"
               mt="sm">

@@ -1,4 +1,5 @@
 import {
+  TvFilmReviewInput,
   UpsertReviewMutationVariables,
   useDeleteReviewMutation,
   useReviewByIdQuery,
@@ -25,7 +26,7 @@ import {
   NumberInput,
   NumberInputHandlers,
 } from '@mantine/core';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { toast } from 'react-toastify';
 
 async function fetchMovieById(id: string) {
@@ -38,6 +39,7 @@ async function fetchMovieById(id: string) {
 function useMovieById(id = '') {
   return useQuery<TMovie, Error>(['movie', id], () => fetchMovieById(id), {
     enabled: !!id,
+    // why is this line here but not in TV page?
     select: (data) => ({ ...data, id: id.toString() }),
   });
 }
@@ -45,14 +47,15 @@ function useMovieById(id = '') {
 export function Movie({ itemId }: { itemId: string }) {
   const movieResponse = useMovieById(itemId);
   const { data: movieData } = movieResponse;
+
   const tmdb_id = movieData?.id;
   const tmdb_id_unique = `${tmdb_id}-movie`;
 
   const reviewResponse = useReviews(tmdb_id_unique, 'movie');
 
-  const queryClient = useQueryClient();
-
   const handlers = useRef<NumberInputHandlers>();
+
+  const queryClient = useQueryClient();
 
   const refetch = () =>
     queryClient.refetchQueries(useReviewByIdQuery.getKey({ tmdb_id_unique }));
@@ -78,7 +81,15 @@ export function Movie({ itemId }: { itemId: string }) {
       });
   };
 
-  const { handleSubmit, reset, control } =
+  const handleEdit = async ({
+    reviewHTML,
+    score,
+  }: Partial<TvFilmReviewInput>) => {
+    setValue('TVFilmReview.reviewHTML', reviewHTML);
+    setValue('TVFilmReview.score', score);
+  };
+
+  const { handleSubmit, reset, control, setValue } =
     useForm<UpsertReviewMutationVariables>();
 
   const { id: username } = useUser();
@@ -149,6 +160,7 @@ export function Movie({ itemId }: { itemId: string }) {
                     username={username}
                     id={review.id}
                     handleDeleteFunction={handleDelete}
+                    handleEditFunction={handleEdit}
                   />
                 </div>
               ))}
@@ -231,7 +243,6 @@ export function Movie({ itemId }: { itemId: string }) {
                   value={value || ''}
                   id="review"
                   onChange={onChange}
-                  placeholder={'Write your review here...'}
                 />
               )}
             />

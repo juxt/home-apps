@@ -4,6 +4,7 @@ import {
   useUser,
   UpsertReviewMutationVariables,
   useDeleteReviewMutation,
+  TvFilmReviewInput,
 } from '@juxt-home/site';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
@@ -26,7 +27,7 @@ import {
 import { ReviewCard, TvFilmCard } from '../components/Card';
 import RichTextEditor from '@mantine/rte';
 import { notEmpty } from '@juxt-home/utils';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
 async function fetchTvShowById(id: string) {
   const response = await client.get<TTVShow>(
@@ -49,19 +50,15 @@ export function TvShow({ itemId }: { itemId: string }) {
   const movieResponse = useTvById(itemId);
   const { data: movieData } = movieResponse;
 
-  const handlers = useRef<NumberInputHandlers>();
-
-  const [submittedReview, setSubmittedReview] = useState('');
-  const [submittedScore, setSubmittedScore] = useState(0);
-  const [reviewInEdit, setReviewInEdit] = useState('');
-  const [scoreInEdit, setScoreInEdit] = useState(0);
-
   const tmdb_id = movieData?.id;
   const tmdb_id_unique = `${tmdb_id}-tv`;
 
   const reviewResponse = useReviews(tmdb_id_unique, 'tv');
 
+  const handlers = useRef<NumberInputHandlers>();
+
   const queryClient = useQueryClient();
+
   const refetch = () =>
     queryClient.refetchQueries(useReviewByIdQuery.getKey({ tmdb_id_unique }));
 
@@ -86,12 +83,15 @@ export function TvShow({ itemId }: { itemId: string }) {
       });
   };
 
-  const handleEdit = async (id: string) => {
-    setReviewInEdit(submittedReview);
-    setScoreInEdit(submittedScore);
+  const handleEdit = async ({
+    reviewHTML,
+    score,
+  }: Partial<TvFilmReviewInput>) => {
+    setValue('TVFilmReview.reviewHTML', reviewHTML);
+    setValue('TVFilmReview.score', score);
   };
 
-  const { handleSubmit, reset, control } =
+  const { handleSubmit, reset, control, setValue } =
     useForm<UpsertReviewMutationVariables>();
 
   const { id: username } = useUser();
@@ -103,8 +103,6 @@ export function TvShow({ itemId }: { itemId: string }) {
       });
     } else if (tmdb_id) {
       console.log('submit', values);
-      setSubmittedReview(values.TVFilmReview.reviewHTML);
-      setSubmittedScore(values.TVFilmReview.score);
       reset();
       mutate({
         TVFilmReview: {
@@ -215,7 +213,7 @@ export function TvShow({ itemId }: { itemId: string }) {
 
                     <NumberInput
                       hideControls
-                      value={scoreInEdit || value}
+                      value={value}
                       onChange={onChange}
                       handlersRef={handlers}
                       max={10}
@@ -253,10 +251,9 @@ export function TvShow({ itemId }: { itemId: string }) {
                 formState,
               }) => (
                 <RichTextEditor
-                  value={reviewInEdit || value || ''}
+                  value={value || ''}
                   id="review"
                   onChange={onChange}
-                  placeholder={reviewInEdit}
                 />
               )}
             />
