@@ -202,7 +202,7 @@ export function useUser() {
   );
   const userImg = userAvatar(data);
   return {
-    id: data,
+    id: data || 'admin',
     avatar: userImg || '',
   };
 }

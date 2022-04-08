@@ -21,7 +21,7 @@ export type TSearchResult = {
 };
 
 export type TMovie = {
-  id: number;
+  id: string;
   backdrop_path: string | null;
   budget: number;
   genres: {
@@ -29,7 +29,7 @@ export type TMovie = {
     name: string;
   }[];
   homepage: string;
-  imdb_id: string;
+  tmdb_id: string;
   original_language: string;
   original_title: string;
   overview: string;
@@ -58,7 +58,7 @@ export type TMovie = {
 export type TSeason = {
   air_date: string;
   episode_count: number;
-  id: number;
+  id: string;
   name: string;
   overview: string;
   poster_path: string | null;
@@ -68,7 +68,7 @@ export type TSeason = {
 export type TEpisode = {
   air_date: string;
   episode_number: number;
-  id: number;
+  id: string;
   name: string;
   overview: string;
   production_code: string;
@@ -81,13 +81,13 @@ export type TEpisode = {
 
 export type TCompany = {
   name: string;
-  id: number;
+  id: string;
   logo_path: string | null;
   origin_country: string;
 };
 
 export type TTVShow = {
-  id: number;
+  id: string;
   backdrop_path: string | null;
   created_by: {
     id: number;

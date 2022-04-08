@@ -6,61 +6,94 @@ import {
 import { groupBy, notEmpty } from '@juxt-home/utils';
 import { useQuery, useQueryClient } from 'react-query';
 import { api_key, client } from '../common';
+import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
-import { useReviews } from '../hooks';
-import { TMDBItemResponse, TReview } from '../types';
+import { TMDBItemResponse, TMovie, TReview, TTVShow } from '../types';
+import { Title, Text } from '@mantine/core';
+import { Link } from '@tanstack/react-location';
 
-async function fetchItemById(id: string) {
-  const response = await client.get<TMDBItemResponse>(
-    `/3/find/${id}?api_key=${api_key}&language=en-GB&external_source=imdb_id`,
+type ItemDetails = Partial<TMovie & TTVShow>;
+
+async function fetchItemById(id: string, type: string) {
+  const response = await client.get<ItemDetails>(
+    `/3/${type}/${id}?api_key=${api_key}&language=en-GB`,
   );
   return response.data;
 }
 
-function useItemById(id = '') {
-  return useQuery<TMDBItemResponse, Error>(
+function useItemById(id = '', type: string) {
+  return useQuery<ItemDetails, Error>(
     ['finditem', id],
-    () => fetchItemById(id),
+    () => fetchItemById(id, type),
     {
       enabled: !!id,
     },
   );
 }
 
-function Review({ imdb_id, reviews }: { imdb_id: string; reviews: TReview[] }) {
-  const itemInfo = useItemById(imdb_id);
+function Review({ reviews }: { id: string; reviews: Array<TReview | null> }) {
+  const review = reviews[0];
+  const itemInfo = useItemById(review?.tmdb_id, review?.type || 'movie');
+
   const queryClient = useQueryClient();
   const { mutate } = useDeleteReviewMutation({
     onSuccess: () => {
       queryClient.refetchQueries(useAllReviewsQuery.getKey());
     },
   });
+
   const handleDelete = async (id: string) => {
-    mutate({
-      id,
-    });
+    window.confirm('Are you sure you want to delete this review?') &&
+      mutate({
+        id,
+      });
   };
-  const result = itemInfo.data?.movie_results[0];
+
+  const result = itemInfo.data;
   const { id: username } = useUser();
   const devMode = true;
+
   return (
     <div>
       {result && (
         <>
-          <h2>{result.title}</h2>
-          <p>{result.overview}</p>
-          <p>Reviews:</p>
+          <Link to={`/search/${review?.type}/${review?.tmdb_id}`}>
+            <Title
+              order={2}
+              sx={(theme) => ({
+                marginTop: 20,
+              })}>
+              {result?.title || result.name}
+            </Title>
+          </Link>
+
+          {result?.overview && (
+            <Text
+              sx={(theme) => ({
+                margin: '10px 0',
+              })}>
+              {result.overview}
+            </Text>
+          )}
+          <Title
+            order={4}
+            sx={(theme) => ({
+              marginBottom: 20,
+            })}>
+            Reviews:
+          </Title>
           <ul>
-            {reviews.map((review) => (
+            {reviews.filter(notEmpty).map((review) => (
               <div key={review.id}>
-                {(devMode || review._siteSubject === username) && (
-                  <button onClick={() => handleDelete(review.id)}>
-                    delete
-                  </button>
-                )}
-                <li>{review._siteSubject}</li>
-                <li>{review.reviewHTML}</li>
-                <li>{review.score}</li>
+                <ReviewCard
+                  siteSubject={review._siteSubject}
+                  reviewHTML={review.reviewHTML}
+                  devMode={devMode}
+                  score={review.score}
+                  username={username}
+                  id={review.id}
+                  handleDeleteFunction={handleDelete}
+                />
               </div>
             ))}
           </ul>
@@ -76,7 +109,7 @@ function useAllReviews() {
   return useAllReviewsQuery(undefined, {
     select: (data) => {
       const reviews = data.allTVFilmReviews?.filter(notEmpty);
-      const reviewsById = reviews && groupBy(reviews, (r) => r.imdb_id);
+      const reviewsById = reviews && groupBy(reviews, (r) => r.tmdb_id);
       return reviewsById;
     },
   });
@@ -87,13 +120,19 @@ export function RecentReviews() {
   const { data } = response;
   return (
     <div>
-      <h1>Recent Reviews</h1>
+      <Title
+        order={2}
+        sx={(theme) => ({
+          marginTop: 15,
+        })}>
+        Recent Reviews
+      </Title>
       <ul>
         {response.isLoading && <p>loading...</p>}
         {response.isError && <p>error: {response.error.message}</p>}
         {data &&
           Object.keys(data).map((id: keyof typeof data) => (
-            <Review imdb_id={id} reviews={data[id]} key={id} />
+            <Review id={id} reviews={data[id]} key={id} />
           ))}
       </ul>
     </div>

@@ -15,6 +15,7 @@ import { Box } from '@mantine/core';
 import 'regenerator-runtime/runtime.js';
 import { RecentReviews } from './pages/RecentReviews';
 import { newReactLocation } from '@juxt-home/utils';
+import { Group } from '@mantine/core';
 
 const reactLocation = newReactLocation();
 
@@ -38,13 +39,14 @@ ReactDOM.render(
     <QueryClientProvider client={queryClient}>
       <Router<NavStructure>
         location={reactLocation}
+        basepath="/_apps/film-and-tv-reviews/app"
         routes={[
           {
-            path: '/',
+            path: 'home',
             element: <RecentReviews />,
           },
           {
-            path: '/search/:searchType',
+            path: 'search/:searchType',
             element: <SearchResults />,
             children: [
               {
@@ -55,7 +57,7 @@ ReactDOM.render(
                       case 'movie':
                         return <Movie itemId={itemId} />;
                       case 'tv':
-                        return <TvShow />;
+                        return <TvShow itemId={itemId} />;
                       default:
                         return <Movie itemId={itemId} />;
                     }
@@ -71,15 +73,18 @@ ReactDOM.render(
             element: <h1>TV page</h1>,
           },
           {
-            path: '/*',
+            path: '*',
             element: <p> not found </p>,
           },
         ]}>
-        <Box sx={{ margin: '3em' }}>
+        <Box sx={{ marginTop: '3em', height: '100vh' }}>
           <Home />
-          <Outlet />
+          <Box sx={{ margin: '8.5em 3em', height: '100vh' }}>
+            <Outlet />
+          </Box>
         </Box>
       </Router>
+
       <ToastContainer
         position="bottom-center"
         autoClose={3000}
