@@ -43,7 +43,7 @@
     "serve": {
       "executor": "@nrwl/web:dev-server",
       "options": {
-        "buildTarget": "hiring-kanban:build",
+        "buildTarget": "hiring-kanban:build:development",
         "hmr": true
       },
       "configurations": {
