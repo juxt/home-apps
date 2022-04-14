@@ -1,0 +1,14 @@
+query allPhotos {
+  allPhotos {
+    id
+    title
+    description
+    image
+  }
+}
+
+mutation createPhoto($input: CreatePhotoInput!) {
+  createPhoto(input: $input) {
+    id
+  }
+}

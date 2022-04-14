@@ -1,0 +1,26 @@
+schema @site(type: "photography-guild/prod") {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  allPhotos: [Photo]
+}
+
+type Mutation {
+  createPhoto(input: CreatePhotoInput): Photo
+}
+
+input CreatePhotoInput {
+  id: ID
+  title: String!
+  description: String!
+  image: String!
+}
+
+type Photo {
+  id: ID!
+  title: String!
+  description: String!
+  image: String!
+}
