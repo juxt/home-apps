@@ -29,3 +29,5 @@ export const client = axios.create({
     Accept: 'application/json',
   },
 });
+
+export const devMode = window.location.hostname === 'localhost';

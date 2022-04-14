@@ -6,6 +6,7 @@
     "watch-generate-hooks": "cross-env-shell GRAPHQL_API_URL='${GRAPHQL_URI}' \"yarn graphql-codegen --config ./codegen.js --watch\"",
     "watch-schema-upload": " cross-env-shell \"ls schema.graphql resources.edn | entr -s './deploy'\"",
     "test-generate": "concurrently \"yarn:watch-*\"",
+    "prod-generate": "yarn graphql-codegen --config codegen-prod.js",
     "dev-generate": "concurrently \"yarn:watch-*\"",
     "serve": "yarn prod-generate"
   },

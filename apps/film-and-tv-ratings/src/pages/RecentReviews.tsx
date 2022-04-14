@@ -5,7 +5,7 @@ import {
 } from '@juxt-home/site';
 import { groupBy, notEmpty } from '@juxt-home/utils';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client } from '../common';
+import { api_key, client, devMode } from '../common';
 import { ReviewCard } from '../components/Card';
 import { TMDBError } from '../components/Errors';
 import { TMDBItemResponse, TMovie, TReview, TTVShow } from '../types';
@@ -51,7 +51,6 @@ function Review({ reviews }: { id: string; reviews: Array<TReview | null> }) {
 
   const result = itemInfo.data;
   const { id: username } = useUser();
-  const devMode = true;
 
   return (
     <div>

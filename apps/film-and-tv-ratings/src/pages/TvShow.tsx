@@ -8,7 +8,7 @@ import {
 } from '@juxt-home/site';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery, useQueryClient } from 'react-query';
-import { api_key, client } from '../common';
+import { api_key, client, devMode } from '../common';
 import { useReviews } from '../hooks';
 import { AxiosTMDBError, TTVShow } from '../types';
 import { toast } from 'react-toastify';
@@ -88,7 +88,7 @@ export function TvShow({ itemId }: { itemId: string }) {
     score,
   }: Partial<TvFilmReviewInput>) => {
     setValue('TVFilmReview.reviewHTML', reviewHTML);
-    setValue('TVFilmReview.score', score);
+    score && setValue('TVFilmReview.score', score);
   };
 
   const { handleSubmit, reset, control, setValue } =
@@ -115,8 +115,6 @@ export function TvShow({ itemId }: { itemId: string }) {
       });
     }
   };
-
-  const devMode = true;
 
   return (
     <ScrollArea style={{ height: '100%' }}>
