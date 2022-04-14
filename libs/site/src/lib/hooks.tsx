@@ -198,11 +198,12 @@ export function useUser() {
     {
       select: (data) => data?.myJuxtcode,
       staleTime: Infinity,
+      enabled: process.env['NODE_ENV'] !== 'development',
     },
   );
   const userImg = userAvatar(data);
   return {
-    id: data,
+    id: data || 'devUser',
     avatar: userImg || '',
   };
 }

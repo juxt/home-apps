@@ -132,7 +132,7 @@ export type CustomInputProps = {
   component: JSX.Element;
 } & WithIdAndType<'custom'>;
 
-export type FormInputField<T> = {
+export type FormInputField<T extends FieldValues> = {
   path: FieldPath<T>;
   id?: string;
   label?: string;
@@ -153,7 +153,7 @@ export type FormInputField<T> = {
   | CustomInputProps
 );
 
-export type FormProps<T> = {
+export type FormProps<T extends FieldValues> = {
   fields?: FormInputField<T>[];
   options?: {
     label: string;
@@ -173,4 +173,5 @@ export type FormProps<T> = {
   onSubmit?: (e: BaseSyntheticEvent) => void;
 };
 
-export type ModalFormProps<T> = FormProps<T> & ModalStateProps;
+export type ModalFormProps<T extends FieldValues> = FormProps<T> &
+  ModalStateProps;

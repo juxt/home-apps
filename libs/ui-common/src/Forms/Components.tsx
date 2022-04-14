@@ -111,7 +111,7 @@ export function ErrorMessage({ error }: { error: FieldError | undefined }) {
   return <p className="text-red-600">{error.message}</p>;
 }
 
-export function RenderField<T>({
+export function RenderField<T extends FieldValues>({
   field,
   props,
 }: {

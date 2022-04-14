@@ -9,18 +9,22 @@ type Query {
 
 type Mutation {
   createPhoto(input: CreatePhotoInput): Photo
+  deletePhoto(id: ID!): Photo @site(mutation: "delete")
 }
 
 input CreatePhotoInput {
   id: ID
   title: String!
-  description: String!
-  image: String!
+  description: String
+  rating: Int
+  imageUrl: String!
 }
 
 type Photo {
   id: ID!
-  title: String!
-  description: String!
-  image: String!
+  title: String
+  rating: Int
+  description: String
+  imageUrl: String
+  _siteSubject: String
 }

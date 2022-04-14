@@ -3,12 +3,20 @@ query allPhotos {
     id
     title
     description
-    image
+    imageUrl
+    rating
+    _siteSubject
   }
 }
 
 mutation createPhoto($input: CreatePhotoInput!) {
   createPhoto(input: $input) {
+    id
+  }
+}
+
+mutation deletePhoto($id: ID!) {
+  deletePhoto(id: $id) {
     id
   }
 }
