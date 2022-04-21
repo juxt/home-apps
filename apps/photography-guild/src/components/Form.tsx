@@ -59,6 +59,7 @@ export function ImageForm({
         },
       };
       await createPhotoMutator(data);
+      
       setCloudinaryImage(undefined);
     }
   };
