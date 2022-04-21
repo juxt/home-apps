@@ -7,10 +7,10 @@ export function Gallery() {
 
   return (
     <div className="flex flex-wrap">
-      {data?.allPhotos?.filter(notEmpty).map(({ publicId, imageUrl }) => (
+      {data?.allPhotos?.filter(notEmpty).map(({ publicId }) => (
         <>
           {publicId && (
-            <div className="flex" key={imageUrl}>
+            <div className="flex" key={publicId}>
               <CloudinaryImage publicId={publicId} />
             </div>
           )}
