@@ -17,14 +17,19 @@ input CreatePhotoInput {
   title: String!
   description: String
   rating: Int
-  imageUrl: String!
+  exif: String
+  imageUrl: String
+  publicId: String
 }
 
 type Photo {
   id: ID!
   title: String
   rating: Int
+  exif: String
   description: String
   imageUrl: String
+  publicId: String
   _siteSubject: String
 }
+

@@ -4,6 +4,8 @@ query allPhotos {
     title
     description
     imageUrl
+    exif
+    publicId
     rating
     _siteSubject
   }
