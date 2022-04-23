@@ -12,7 +12,7 @@ export type ExifType = {
   shutterSpeed: string;
   iso: string;
   dateTime: string;
-  lensSpec: string;
+  lensModel: string;
   make: string;
   width: string;
   height: string;

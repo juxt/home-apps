@@ -42,7 +42,7 @@ export function CloudinaryUploadWidget({
             shutterSpeed: exif['ShutterSpeedValue']?.description,
             iso: exif['ISOSpeedRatings']?.description,
             dateTime: exif['DateTimeOriginal']?.description,
-            lensSpec: exif['LensSpecification']?.description,
+            lensModel: exif['LensModel']?.description,
             make: exif['Make']?.description,
             width: exif['Image Width']?.description,
             height: exif['Image Height']?.description,

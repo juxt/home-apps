@@ -35,14 +35,14 @@ function ExifInfo({ exifData }: { exifData: ExifType }) {
     fNumber,
     focalLength,
     iso,
-    lensSpec,
+    lensModel,
     make,
     shutterSpeed,
   } = exifData;
 
   return (
     <div>
-      {make && lensSpec && (
+      {make && lensModel && (
         <div className="flex gap-4 items-center">
           <img
             className="shrink-0 w-2/6"
@@ -51,7 +51,7 @@ function ExifInfo({ exifData }: { exifData: ExifType }) {
           />
           <div className="flex flex-col gap-1 text-sm">
             <div className="font-semibold">{make}</div>
-            <div className="italic text-gray-500">{lensSpec}</div>
+            <div className="text-xs italic text-gray-500 w-1/2">{lensModel}</div>
           </div>
         </div>
       )}
