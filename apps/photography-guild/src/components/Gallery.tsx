@@ -73,7 +73,7 @@ function ExifInfo({ exifData }: { exifData: ExifType }) {
         <div className="flex gap-4 items-center pb-6">
           <img
             className="shrink-0 w-28"
-            src="/assets/sonyCameraIcon.png"
+            src={`${assetPath}/sonyCameraIcon.png`}
             alt="camera icon"
           />
           <div className="flex flex-col gap-1 text-sm">
@@ -139,23 +139,28 @@ export function Gallery() {
         .map(({ publicId, exif, _siteSubject, id, imageUrl }) => {
           const exifData: ExifType = exif && JSON.parse(exif);
 
-            return (
-              <>
-                {publicId && (
-                  <div className="flex" key={publicId}>
-                    {/*  */}
-                    <div className="relative group">
-                      <CloudinaryImage publicId={publicId} />
-                      <div
-                        className={classNames(
-                          'opacity-0 group-hover:opacity-100 duration-300 absolute top-0 w-full',
-                          'h-full flex p-6 items-center text-xl bg-gray-50/80 text-black',
-                          'cursor-pointer',
-                        )}>
-                        <ExifInfo exifData={exifData} />
-                      </div>
+          return (
+            <>
+              {publicId && (
+                <div className="flex" key={publicId}>
+                  <div className="relative group">
+                    {imageUrl && (
+                      <CloudinaryImage
+                        publicId={publicId}
+                        imageUrl={imageUrl}
+                      />
+                    )}
+
+                    <div
+                      className={classNames(
+                        'opacity-0 group-hover:opacity-100 duration-300 absolute top-0 w-full',
+                        'h-full flex p-6 items-center text-xl bg-gray-50/80 text-black',
+                        'cursor-pointer',
+                      )}>
+                      <ExifInfo exifData={exifData} />
                     </div>
-                    {/* { <OptionsMenu
+                  </div>
+                  {/* { <OptionsMenu
                       options={[
                         {
                           label: 'Delete',
@@ -170,7 +175,6 @@ export function Gallery() {
                         },
                       },
                     ]} */}
-                  />
                 </div>
               )}
             </>

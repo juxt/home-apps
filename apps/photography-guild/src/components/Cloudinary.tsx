@@ -1,7 +1,7 @@
+import ReactImageMagnify from '@blacklab/react-image-magnify';
 import ExifReader from 'exifreader';
 import React, { useEffect, useState } from 'react';
 import { CloudinaryImageFields } from './types';
-import ReactImageMagnify from '@blacklab/react-image-magnify';
 
 // this is a global var coming from cloudinary js script in index.html
 declare const cloudinary: any;
@@ -72,8 +72,8 @@ export function CloudinaryImage({ publicId, imageUrl }: CloudinaryImageProps) {
         imageProps={{
           alt: 'user image',
           src: ThumbnailUrl,
-          width: 200,
-          height: 200,
+          width: 400,
+          height: 350,
         }}
         magnifiedImageProps={{
           src: imageUrl,
