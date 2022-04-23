@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
 import { Outlet, Router } from '@tanstack/react-location';
 import { NewLocation } from '@juxt-home/utils';
+import { NavStructure } from './components/types';
+import { PhotoPage } from './components/PhotoPage';
 
 const location = NewLocation();
 const queryClient = new QueryClient();
@@ -13,20 +15,19 @@ const rootElement = document.getElementById('root');
 
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>
-    <Router
+    <Router<NavStructure>
       location={location}
+      basepath="/_apps/photography-guild/app"
       routes={[
-        {
-          path: '/_apps/photography-guild/index.html',
-          element: <App />,
-        },
-        {
-          path: '/_apps/photography-guild',
-          element: <App />,
-        },
         {
           path: '/',
           element: <App />,
+        },
+        {
+          path: '/photos/:photoId',
+          element: async ({ params: { photoId } }) => (
+            <PhotoPage id={photoId && decodeURI(photoId)} />
+          ),
         },
       ]}>
       <Outlet />

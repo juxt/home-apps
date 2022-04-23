@@ -1,4 +1,5 @@
 import { useQuery, UseQueryOptions } from 'react-query';
+import { AllPhotosQuery } from './generated/graphql';
 
 const POSITIONSTACK_API_KEY = '20cf0a250943e36a5e260d16e62637c9';
 

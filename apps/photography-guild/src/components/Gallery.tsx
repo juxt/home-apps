@@ -1,6 +1,13 @@
 import { useUser } from '@juxt-home/site';
+import {
+  OptionsMenu,
+  DeleteInactiveIcon,
+  DeleteActiveIcon,
+} from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
+import { Link } from '@tanstack/react-location';
 import classNames from 'classnames';
+import { Fragment } from 'react';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { assetPath } from '../constants';
@@ -153,13 +160,13 @@ export function Gallery() {
     <div className="flex flex-wrap gap-1">
       {data?.allPhotos
         ?.filter(notEmpty)
-        .map(({ publicId, exif, _siteSubject, imageUrl, rating }) => {
+        .map(({ publicId, id, exif, _siteSubject, imageUrl, rating }) => {
           const exifData: ExifType = exif && JSON.parse(exif);
 
           return (
-            <>
+            <Fragment key={id}>
               {publicId && (
-                <div className="flex" key={publicId}>
+                <div className="flex" key={id}>
                   <div className="relative group">
                     {imageUrl && (
                       <CloudinaryImage
@@ -167,24 +174,42 @@ export function Gallery() {
                         imageUrl={imageUrl}
                       />
                     )}
-
-                    <div
-                      className={classNames(
-                        'opacity-0 group-hover:opacity-100 duration-300 absolute top-0 w-full',
-                        'h-full flex p-6 items-center text-xl bg-gray-50/80 text-black',
-                        'cursor-pointer',
-                      )}>
-                      <ExifInfo exifData={exifData} />
-                      {rating && (
-                        <div className="p-2 absolute bottom-0 right-0 w-full flex justify-end">
-                          <RatingStars rating={rating} />
+                    <Link to={`/photos/${id}`}>
+                      <div
+                        className={classNames(
+                          'opacity-0 group-hover:opacity-100 duration-300 absolute top-0 w-full',
+                          'h-full flex p-6 items-center text-xl bg-gray-50/80 text-black',
+                        )}>
+                        <ExifInfo exifData={exifData} />
+                        {rating && (
+                          <div className="p-2 absolute bottom-0 right-0 w-full flex justify-end">
+                            <RatingStars rating={rating} />
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-0">
+                          <OptionsMenu
+                            options={[
+                              {
+                                label: 'Delete',
+                                id: 'delete',
+                                hidden:
+                                  userId !== 'devUser' &&
+                                  userId !== _siteSubject,
+                                Icon: DeleteInactiveIcon,
+                                ActiveIcon: DeleteActiveIcon,
+                                props: {
+                                  onClick: () => deletePhotoMutator({ id }),
+                                },
+                              },
+                            ]}
+                          />
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    </Link>
                   </div>
                 </div>
               )}
-            </>
+            </Fragment>
           );
         })}
     </div>
