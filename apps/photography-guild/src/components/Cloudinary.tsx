@@ -65,7 +65,7 @@ type CloudinaryImageProps = {
 };
 
 export function CloudinaryImage({ publicId, imageUrl }: CloudinaryImageProps) {
-  const ThumbnailUrl = `https://res.cloudinary.com/${cloudName}/image/upload/c_thumb,w_200,h_200/${publicId}`;
+  const ThumbnailUrl = `https://res.cloudinary.com/${cloudName}/image/upload/c_thumb,w_400,h_350/${publicId}`;
   return (
     <div>
       <ReactImageMagnify
