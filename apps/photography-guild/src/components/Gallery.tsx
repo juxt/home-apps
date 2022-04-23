@@ -109,9 +109,6 @@ function ExifInfo({ exifData }: { exifData: ExifType }) {
           />
         )}
       </div>
-      {/* <button onClick={() => console.dir(exifData)} type="button">
-        Show All Data
-      </button> */}
     </div>
   );
 }
@@ -190,21 +187,6 @@ export function Gallery() {
                       )}
                     </div>
                   </div>
-                  {/* { <OptionsMenu
-                      options={[
-                        {
-                          label: 'Delete',
-                          id: 'delete',
-                          hidden:
-                            userId !== 'devUser' && userId !== _siteSubject,
-                          Icon: DeleteInactiveIcon,
-                          ActiveIcon: DeleteActiveIcon,
-                          props: {
-                            onClick: () => deletePhotoMutator({ id }),
-                          },
-                        },
-                      },
-                    ]} */}
                 </div>
               )}
             </>
