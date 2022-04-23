@@ -10,20 +10,16 @@ export function App() {
     useState<CloudinaryImageFields>();
 
   return (
-    <div>
-      <Navbar />
+    <div className="max-w-7xl mx-auto">
+      <h1>my photos</h1>
 
-      <div className="max-w-7xl mx-auto">
-        <h1>my photos</h1>
+      <CloudinaryUploadWidget setCloudinaryImage={setCloudinaryImage} />
+      <ImageForm
+        setCloudinaryImage={setCloudinaryImage}
+        cloudinaryImage={cloudinaryImage}
+      />
 
-        <CloudinaryUploadWidget setCloudinaryImage={setCloudinaryImage} />
-        <ImageForm
-          setCloudinaryImage={setCloudinaryImage}
-          cloudinaryImage={cloudinaryImage}
-        />
-
-        <Gallery />
-      </div>
+      <Gallery />
     </div>
   );
 }

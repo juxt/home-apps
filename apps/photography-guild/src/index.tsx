@@ -8,6 +8,7 @@ import { Outlet, Router } from '@tanstack/react-location';
 import { NewLocation } from '@juxt-home/utils';
 import { NavStructure } from './components/types';
 import { PhotoPage } from './components/PhotoPage';
+import { Navbar } from '@juxt-home/ui-common';
 
 const location = NewLocation();
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ ReactDOM.render(
           ),
         },
       ]}>
+      <Navbar />
       <Outlet />
     </Router>
     <ToastContainer
