@@ -3,7 +3,7 @@ import { Cloudinary } from '@cloudinary/url-gen';
 import { thumbnail } from '@cloudinary/url-gen/actions/resize';
 import ExifReader from 'exifreader';
 import React, { useEffect, useState } from 'react';
-import { CloudinaryImageFields, ExifType } from './types';
+import { CloudinaryImageFields } from './types';
 
 // this is a global var coming from cloudinary js script in index.html
 declare const cloudinary: any;
@@ -33,25 +33,12 @@ export function CloudinaryUploadWidget({
         result: { event: string; info: CloudinaryInfo },
       ) => {
         if (!error && result && result.event === 'success') {
-          const exif: Record<string, { description: string }> =
-            await ExifReader.load(result.info.secure_url);
-
-          const exifSelection: ExifType = {
-            fNumber: exif['FNumber']?.description,
-            focalLength: exif['FocalLength']?.description,
-            shutterSpeed: exif['ShutterSpeedValue']?.description,
-            iso: exif['ISOSpeedRatings']?.description,
-            dateTime: exif['DateTimeOriginal']?.description,
-            lensModel: exif['LensModel']?.description,
-            make: exif['Make']?.description,
-            width: exif['Image Width']?.description,
-            height: exif['Image Height']?.description,
-          };
+          const exifRaw = await ExifReader.load(result.info.secure_url);
 
           setCloudinaryImage({
             publicId: result.info.public_id,
             imageUrl: result.info.secure_url,
-            exif: JSON.stringify(exifSelection),
+            exif: JSON.stringify(exifRaw),
           });
         }
       },

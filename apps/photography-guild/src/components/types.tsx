@@ -6,14 +6,6 @@ export type CloudinaryImageFields =
     }
   | undefined;
 
-export type ExifType = {
-  fNumber: string;
-  focalLength: string;
-  shutterSpeed: string;
-  iso: string;
-  dateTime: string;
-  lensModel: string;
-  make: string;
-  width: string;
-  height: string;
-};
+export type ExifType = ExifReader.Tags &
+  ExifReader.XmpTags &
+  ExifReader.IccTags;

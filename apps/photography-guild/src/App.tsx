@@ -18,21 +18,6 @@ import { CloudinaryImageFields } from './components/types';
 import { useAllPhotosQuery, useDeletePhotoMutation } from './generated/graphql';
 
 export function App() {
-  const { id: userId } = useUser();
-  const { data } = useAllPhotosQuery();
-
-  const queryClient = useQueryClient();
-
-  const { mutate: deletePhotoMutator } = useDeletePhotoMutation({
-    onSuccess: (resp) => {
-      toast.success(`Photo deleted`);
-      const id = resp.deletePhoto?.id;
-      if (id) {
-        queryClient.refetchQueries(useAllPhotosQuery.getKey());
-      }
-    },
-  });
-
   const [cloudinaryImage, setCloudinaryImage] =
     useState<CloudinaryImageFields>();
 
@@ -47,32 +32,6 @@ export function App() {
       />
 
       <Gallery />
-      {/* {data?.allPhotos?.filter(notEmpty).map((photo) => (
-        <div className="flex justify-center items-center" key={photo.id}>
-          <OptionsMenu
-            options={[
-              {
-                label: 'Delete',
-                id: 'delete',
-                hidden: userId !== 'devUser' && userId !== photo?._siteSubject,
-                Icon: DeleteInactiveIcon,
-                ActiveIcon: DeleteActiveIcon,
-                props: {
-                  onClick: () => deletePhotoMutator({ id: photo.id }),
-                },
-              },
-            ]}
-          />
-          <div className="flex flex-col">
-            <h2>{photo.title}</h2>
-            <p>{photo.description}</p>
-            {photo.imageUrl && photo.title && (
-              <img src={photo.imageUrl} alt={photo.title} />
-            )}
-            <p>rating = {photo.rating}</p>
-          </div>
-        </div>
-      ))} */}
     </div>
   );
 }
