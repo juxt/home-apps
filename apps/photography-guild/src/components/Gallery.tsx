@@ -81,7 +81,7 @@ function ExifInfo({ exifData }: { exifData: ExifType }) {
           <div className="flex flex-col gap-1 text-sm">
             <div className="font-semibold">{Make?.description}</div>
             <div>{Model?.description}</div>
-            <div className="text-xs italic text-gray-500 w-1/2">
+            <div className="text-xs italic text-gray-600 w-1/2">
               {lensModel}
             </div>
           </div>
@@ -184,6 +184,11 @@ export function Gallery() {
                         {rating && (
                           <div className="p-2 absolute bottom-0 right-0 w-full flex justify-end">
                             <RatingStars rating={rating} />
+                            {exifData.DateTimeOriginal?.description && (
+                              <div className="text-xs text-gray-800 p-2 absolute bottom-0 left-0">
+                                {exifData.DateTimeOriginal.description}
+                              </div>
+                            )}
                           </div>
                         )}
                         <div className="absolute top-2 right-0">
