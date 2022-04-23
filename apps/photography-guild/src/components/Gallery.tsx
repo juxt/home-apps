@@ -135,7 +135,7 @@ function RatingStars({ rating }: { rating: number }) {
 
   return (
     <div className="flex flex-row-reverse">
-      {ratings.map((x) => rating >= x && <StarIcon />)}
+      {ratings.map((x) => rating >= x && <StarIcon key={x} />)}
     </div>
   );
 }
