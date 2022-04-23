@@ -73,7 +73,7 @@ type CloudinaryImageProps = {
 
 export function CloudinaryImage({ publicId }: CloudinaryImageProps) {
   const myImage = cld.image(publicId);
-  myImage.resize(thumbnail().width(250).height(250));
+  myImage.resize(thumbnail().height(250));
 
   return (
     <div>

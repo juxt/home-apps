@@ -131,7 +131,7 @@ export function Gallery() {
   });
 
   return (
-    <div className="flex flex-wrap">
+    <div className="flex flex-wrap gap-1">
       {data?.allPhotos
         ?.filter(notEmpty)
         .map(
@@ -150,9 +150,11 @@ export function Gallery() {
               <>
                 {publicId && (
                   <div className="flex" key={publicId}>
-                    <ExifInfo exifData={exifData} />
-                    <CloudinaryImage publicId={publicId} />
-                    <OptionsMenu
+                    {/* <ExifInfo exifData={exifData} /> */}
+                    <div>
+                      <CloudinaryImage publicId={publicId} />
+                    </div>
+                    {/* <OptionsMenu
                       options={[
                         {
                           label: 'Delete',
@@ -166,12 +168,12 @@ export function Gallery() {
                           },
                         },
                       ]}
-                    />
-                    <div className="flex flex-col">
+                    /> */}
+                    {/* <div className="flex flex-col">
                       <h2>{title}</h2>
                       <p>{description}</p>
                       <p>rating = {rating}</p>
-                    </div>
+                    </div> */}
                   </div>
                 )}
               </>
