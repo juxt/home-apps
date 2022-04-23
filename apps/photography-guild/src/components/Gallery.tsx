@@ -1,9 +1,4 @@
 import { useUser } from '@juxt-home/site';
-import {
-  OptionsMenu,
-  DeleteInactiveIcon,
-  DeleteActiveIcon,
-} from '@juxt-home/ui-common';
 import { notEmpty } from '@juxt-home/utils';
 import classNames from 'classnames';
 import { useQueryClient } from 'react-query';
