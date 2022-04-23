@@ -7,6 +7,7 @@ import {
 import { notEmpty } from '@juxt-home/utils';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
+import { assetPath } from '../constants';
 import {
   useAllPhotosQuery,
   useDeletePhotoMutation,
@@ -32,7 +33,7 @@ function ExifSingleEntry({
           {image ? (
             <img
               className="m-0"
-              src={`/assets/${image}.png`}
+              src={`${assetPath}/${image}.png`}
               alt={image}
               width="24px"
             />
@@ -71,7 +72,7 @@ function ExifInfo({ exifData }: { exifData: ExifType }) {
         <div className="flex gap-4 items-center">
           <img
             className="shrink-0 w-2/6"
-            src="/assets/sonyCameraIcon.png"
+            src={`${assetPath}/sonyCameraIcon.png`}
             alt="camera icon"
           />
           <div className="flex flex-col gap-1 text-sm">
@@ -134,52 +135,36 @@ export function Gallery() {
     <div className="flex flex-wrap gap-1">
       {data?.allPhotos
         ?.filter(notEmpty)
-        .map(
-          ({
-            publicId,
-            exif,
-            _siteSubject,
-            id,
-            title,
-            description,
-            rating,
-          }) => {
-            const exifData: ExifType = exif && JSON.parse(exif);
+        .map(({ publicId, exif, _siteSubject, id, imageUrl }) => {
+          const exifData: ExifType = exif && JSON.parse(exif);
 
-            return (
-              <>
-                {publicId && (
-                  <div className="flex" key={publicId}>
-                    {/* <ExifInfo exifData={exifData} /> */}
-                    <div>
-                      <CloudinaryImage publicId={publicId} />
-                    </div>
-                    {/* <OptionsMenu
-                      options={[
-                        {
-                          label: 'Delete',
-                          id: 'delete',
-                          hidden:
-                            userId !== 'devUser' && userId !== _siteSubject,
-                          Icon: DeleteInactiveIcon,
-                          ActiveIcon: DeleteActiveIcon,
-                          props: {
-                            onClick: () => deletePhotoMutator({ id }),
-                          },
+          return (
+            <>
+              {publicId && (
+                <div className="flex flex-wrap" key={publicId}>
+                  <ExifInfo exifData={exifData} />
+                  {imageUrl && (
+                    <CloudinaryImage imageUrl={imageUrl} publicId={publicId} />
+                  )}
+                  <OptionsMenu
+                    options={[
+                      {
+                        label: 'Delete',
+                        id: 'delete',
+                        hidden: userId !== 'devUser' && userId !== _siteSubject,
+                        Icon: DeleteInactiveIcon,
+                        ActiveIcon: DeleteActiveIcon,
+                        props: {
+                          onClick: () => deletePhotoMutator({ id }),
                         },
-                      ]}
-                    /> */}
-                    {/* <div className="flex flex-col">
-                      <h2>{title}</h2>
-                      <p>{description}</p>
-                      <p>rating = {rating}</p>
-                    </div> */}
-                  </div>
-                )}
-              </>
-            );
-          },
-        )}
+                      },
+                    ]}
+                  />
+                </div>
+              )}
+            </>
+          );
+        })}
     </div>
   );
 }

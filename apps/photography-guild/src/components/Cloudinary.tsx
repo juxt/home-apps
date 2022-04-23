@@ -1,9 +1,7 @@
-import { AdvancedImage } from '@cloudinary/react';
-import { Cloudinary } from '@cloudinary/url-gen';
-import { thumbnail } from '@cloudinary/url-gen/actions/resize';
 import ExifReader from 'exifreader';
 import React, { useEffect, useState } from 'react';
 import { CloudinaryImageFields } from './types';
+import ReactImageMagnify from '@blacklab/react-image-magnify';
 
 // this is a global var coming from cloudinary js script in index.html
 declare const cloudinary: any;
@@ -61,23 +59,35 @@ export function CloudinaryUploadWidget({
   );
 }
 
-const cld = new Cloudinary({
-  cloud: {
-    cloudName,
-  },
-});
-
 type CloudinaryImageProps = {
   publicId: string;
+  imageUrl: string;
 };
 
-export function CloudinaryImage({ publicId }: CloudinaryImageProps) {
-  const myImage = cld.image(publicId);
-  myImage.resize(thumbnail().height(250));
-
+export function CloudinaryImage({ publicId, imageUrl }: CloudinaryImageProps) {
+  const ThumbnailUrl = `https://res.cloudinary.com/${cloudName}/image/upload/c_thumb,w_200,h_200/${publicId}`;
   return (
     <div>
-      <AdvancedImage cldImg={myImage} />
+      <ReactImageMagnify
+        imageProps={{
+          alt: 'user image',
+          src: ThumbnailUrl,
+          width: 200,
+          height: 200,
+        }}
+        magnifiedImageProps={{
+          src: imageUrl,
+          height: 600,
+          width: 600,
+        }}
+        magnifyContainerProps={{
+          scale: 2,
+        }}
+        portalProps={{
+          id: 'portal-test-id',
+          horizontalOffset: 10,
+        }}
+      />
     </div>
   );
 }
@@ -106,32 +116,4 @@ type CloudinaryInfo = {
   version: number;
   version_id: string;
   width: number;
-};
-
-const mockCloudinaryResponse = {
-  access_mode: 'public',
-  asset_id: '456bec7c34cecffea5d33aa46bb3d765',
-  batchId: 'uw-batch2',
-  bytes: 773801,
-  created_at: '2022-04-20T21:13:02Z',
-  etag: '23e19145b6ab4c8dee54db1098f613c5',
-  format: 'jpg',
-  height: 2757,
-  id: 'uw-file3',
-  original_filename: 'DSC05276',
-  path: 'v1650489182/z3kk8qgn1afpneszcilh.jpg',
-  placeholder: false,
-  public_id: 'z3kk8qgn1afpneszcilh',
-  resource_type: 'image',
-  secure_url:
-    'https://res.cloudinary.com/dzwm2uynx/image/upload/v1650489182/z3kk8qgn1afpneszcilh.jpg',
-  signature: '0a345ed2b0971912622da73897c4e96827573cb7',
-  length: 0,
-  thumbnail_url:
-    'https://res.cloudinary.com/dzwm2uynx/image/upload/c_limit,h_60,w_90/v1650489182/z3kk8qgn1afpneszcilh.jpg',
-  type: 'upload',
-  url: 'http://res.cloudinary.com/dzwm2uynx/image/upload/v1650489182/z3kk8qgn1afpneszcilh.jpg',
-  version: 1650489182,
-  version_id: 'fd60fb545437f2adf2b552761245826c',
-  width: 4135,
 };

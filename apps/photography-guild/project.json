@@ -11,7 +11,7 @@
         "compiler": "babel",
         "outputPath": "dist/apps/photography-guild",
         "index": "apps/photography-guild/src/index.html",
-        "baseHref": "/",
+        "baseHref": "/_apps/photography-guild/",
         "main": "apps/photography-guild/src/index.tsx",
         "polyfills": "apps/photography-guild/src/polyfills.ts",
         "tsConfig": "apps/photography-guild/tsconfig.app.json",
