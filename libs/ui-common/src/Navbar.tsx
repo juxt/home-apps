@@ -32,12 +32,12 @@ export function Navbar() {
                 <div className="flex-shrink-0 flex items-center">
                   <img
                     className="block lg:hidden h-8 w-auto"
-                    src="/assets/logo.svg"
+                    src="assets/logo.svg"
                     alt="PG"
                   />
                   <img
                     className="animate-bounce hidden lg:block h-8 w-auto"
-                    src="/assets/logo.svg"
+                    src="assets/logo.svg"
                     alt="PG"
                   />
                 </div>
