@@ -1,4 +1,3 @@
-import { Navbar } from '@juxt-home/ui-common';
 import { useState } from 'react';
 import { CloudinaryUploadWidget } from './components/Cloudinary';
 import { ImageForm } from './components/Form';

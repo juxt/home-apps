@@ -1,11 +1,10 @@
-import ReactImageMagnify from '@blacklab/react-image-magnify';
 import ExifReader from 'exifreader';
 import React, { useEffect, useState } from 'react';
+import { cloudName } from '../constants';
 import { CloudinaryImageFields } from './types';
 
 // this is a global var coming from cloudinary js script in index.html
 declare const cloudinary: any;
-const cloudName = 'dzwm2uynx';
 const presetName = 'wqbfsiai';
 
 type CloudinaryUploadWidgetProps = {
@@ -65,29 +64,12 @@ type CloudinaryImageProps = {
 };
 
 export function CloudinaryImage({ publicId, imageUrl }: CloudinaryImageProps) {
-  const ThumbnailUrl = `https://res.cloudinary.com/${cloudName}/image/upload/c_thumb,w_400,h_350/${publicId}`;
+  const width = 400;
+  const height = 350;
+  const ThumbnailUrl = `https://res.cloudinary.com/${cloudName}/image/upload/c_thumb,w_${width},h_${height}/${publicId}`;
   return (
     <div>
-      <ReactImageMagnify
-        imageProps={{
-          alt: 'user image',
-          src: ThumbnailUrl,
-          width: 400,
-          height: 350,
-        }}
-        magnifiedImageProps={{
-          src: imageUrl,
-          height: 600,
-          width: 600,
-        }}
-        magnifyContainerProps={{
-          scale: 2,
-        }}
-        portalProps={{
-          id: 'portal-test-id',
-          horizontalOffset: 10,
-        }}
-      />
+      <img src={ThumbnailUrl} width={width} height={height} alt="user" />
     </div>
   );
 }

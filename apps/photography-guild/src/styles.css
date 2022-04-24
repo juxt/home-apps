@@ -109,3 +109,7 @@
 .fixed-form-height {
   height: calc(100% - 62px);
 }
+
+img {
+  max-width: none !important;
+}

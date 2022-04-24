@@ -8,7 +8,7 @@ import { Outlet, Router } from '@tanstack/react-location';
 import { NewLocation } from '@juxt-home/utils';
 import { NavStructure } from './components/types';
 import { PhotoPage } from './components/PhotoPage';
-import { Navbar } from '@juxt-home/ui-common';
+import { Navbar } from './components/Navbar';
 
 const location = NewLocation();
 const queryClient = new QueryClient();
