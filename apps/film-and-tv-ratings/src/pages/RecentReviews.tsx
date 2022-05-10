@@ -85,12 +85,9 @@ function Review({ reviews }: { id: string; reviews: Array<TReview | null> }) {
             {reviews.filter(notEmpty).map((review) => (
               <div key={review.id}>
                 <ReviewCard
-                  siteSubject={review._siteSubject}
-                  reviewHTML={review.reviewHTML}
                   devMode={devMode}
-                  score={review.score}
                   username={username}
-                  id={review.id}
+                  review={review}
                   handleDeleteFunction={handleDelete}
                 />
               </div>

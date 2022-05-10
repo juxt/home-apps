@@ -29,6 +29,7 @@ fragment reviewFields on TVFilmReview {
   id
   type
   tmdb_id
+  tmdb_id_unique
   reviewHTML
   score
 }

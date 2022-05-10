@@ -39,8 +39,6 @@ async function fetchMovieById(id: string) {
 function useMovieById(id = '') {
   return useQuery<TMovie, Error>(['movie', id], () => fetchMovieById(id), {
     enabled: !!id,
-    // why is this line here but not in TV page?
-    select: (data) => ({ ...data, id: id.toString() }),
   });
 }
 
@@ -105,6 +103,7 @@ export function Movie({ itemId }: { itemId: string }) {
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
+          tmdb_id_unique: `${tmdb_id}-movie`,
           tmdb_id,
           type: 'movie',
           id: `user:${username},tmdb_id:${tmdb_id}-movie`,
@@ -151,12 +150,9 @@ export function Movie({ itemId }: { itemId: string }) {
               .map((review) => (
                 <div key={review.id}>
                   <ReviewCard
-                    siteSubject={review._siteSubject}
-                    reviewHTML={review.reviewHTML}
-                    score={review.score}
+                    review={review}
                     devMode={devMode}
                     username={username}
-                    id={review.id}
                     handleDeleteFunction={handleDelete}
                     handleEditFunction={handleEdit}
                   />
@@ -182,6 +178,7 @@ export function Movie({ itemId }: { itemId: string }) {
                 })}>
                 Score (out of 10):
               </Text>
+
               <Controller
                 control={control}
                 name="TVFilmReview.score"

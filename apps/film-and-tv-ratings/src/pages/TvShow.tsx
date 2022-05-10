@@ -40,6 +40,7 @@ function useTvById(id = '') {
   return useQuery<TTVShow, AxiosTMDBError>(
     ['movie', id],
     () => fetchTvShowById(id),
+    // here
     {
       enabled: !!id,
     },
@@ -107,6 +108,7 @@ export function TvShow({ itemId }: { itemId: string }) {
       mutate({
         TVFilmReview: {
           ...values.TVFilmReview,
+          // this is not in movie?
           tmdb_id_unique: `${tmdb_id}-tv`,
           tmdb_id,
           type: 'tv',
@@ -162,12 +164,9 @@ export function TvShow({ itemId }: { itemId: string }) {
               .map((review) => (
                 <div key={review.id}>
                   <ReviewCard
-                    siteSubject={review._siteSubject}
-                    reviewHTML={review.reviewHTML}
-                    score={review.score}
+                    review={review}
                     devMode={devMode}
                     username={username}
-                    id={review.id}
                     handleDeleteFunction={handleDelete}
                     handleEditFunction={handleEdit}
                   />

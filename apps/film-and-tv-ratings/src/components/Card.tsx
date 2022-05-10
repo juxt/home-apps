@@ -1,4 +1,5 @@
 import {
+  TvFilmReview,
   TvFilmReviewInput,
   UpsertReviewMutationVariables,
 } from '@juxt-home/site';
@@ -62,27 +63,23 @@ export function TvFilmCard({
 }
 
 export function ReviewCard({
-  siteSubject,
-  reviewHTML,
+  review,
   devMode,
-  score,
   username,
-  id,
   handleDeleteFunction,
   handleEditFunction,
 }: {
-  siteSubject?: string | null;
-  reviewHTML?: string | null;
+  review: TvFilmReview;
   devMode?: boolean;
-  score?: number;
   username?: string | null;
-  id: string;
   handleDeleteFunction?: (id: string) => Promise<void>;
   handleEditFunction?: ({
     reviewHTML,
     score,
   }: Partial<TvFilmReviewInput>) => Promise<void>;
 }) {
+  const score = review?.score;
+  const id = review?.id;
   return (
     <Card
       shadow="lg"
@@ -91,23 +88,26 @@ export function ReviewCard({
         border: '0.5px solid #e7e8e7',
       })}>
       <Text weight={700} my="md">
-        Review by {siteSubject || 'admin'}:
+        Review by {review?._siteSubject || 'admin'}:
       </Text>
-      {reviewHTML && (
+      {review?.reviewHTML && (
         <RichTextEditor
           readOnly
           my="md"
-          value={reviewHTML}
+          value={review?.reviewHTML}
           id="review"
           onChange={() => null}
         />
       )}
       <Text>Score: {score}</Text>
-      {(devMode || siteSubject === username) && handleDeleteFunction && (
+
+      {(devMode || review?._siteSubject === username) && handleDeleteFunction && (
         <Group position="right">
           {handleEditFunction && (
             <Button
-              onClick={() => handleEditFunction({ reviewHTML, score })}
+              onClick={() =>
+                handleEditFunction({ reviewHTML: review?.reviewHTML, score })
+              }
               color="orange"
               variant="light"
               mt="sm">
