@@ -100,6 +100,7 @@ export function ReviewCard({
         />
       )}
       <Text>Score: {score}</Text>
+      {/* <Text>Recommended: {review.recommended ? 'true' : 'false'}</Text> */}
 
       {(devMode || review?._siteSubject === username) && handleDeleteFunction && (
         <Group position="right">
