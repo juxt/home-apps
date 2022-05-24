@@ -19,6 +19,7 @@ import {
   useMoveCard,
   roles,
   useUser,
+  juxters,
 } from '@juxt-home/site';
 
 import {
@@ -83,9 +84,13 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
     if (data) {
       const newIds = data.workflowStates
         .filter((c) => {
-          return !c?.roles?.find(
+          const hasRole = c.roles?.find(
             (role) => role && roles?.[role]?.find((user) => user === username),
           );
+          const hasUsername = c.roles?.find(
+            (role) => role && role === username,
+          );
+          return !(hasRole || hasUsername);
         })
         .map((c) => c.id);
       if (!isEqual(search?.filters?.roleFilters, newIds)) {
