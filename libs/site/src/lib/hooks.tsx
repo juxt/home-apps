@@ -22,7 +22,9 @@ import {
 } from '..';
 import {
   useAllClientsQuery,
+  useAllRejectionReasonsQuery,
   useCreateClientMutation,
+  useCreateRejectionReasonMutation,
 } from '../generated/graphql';
 
 type ModalState = LocationGenerics['Search']['modalState'];
@@ -107,6 +109,17 @@ export function useProjectOptions(workflowId: string) {
       value: p.id,
     })) ?? []
   );
+}
+
+export function useRejectionReasons() {
+  const clients = useAllRejectionReasonsQuery(undefined, {
+    select: (data) =>
+      data?.allRejectionReasons?.filter(notEmpty).map((reason) => ({
+        label: reason.name,
+        value: reason.id,
+      })) ?? [],
+  });
+  return clients;
 }
 
 export function useClientOptions() {
@@ -307,6 +320,32 @@ export function useAddClientTags(): (tag: string) => void {
     if (tagStr) {
       createTagMutation.mutate({
         client: {
+          id,
+          name: tagStr,
+        },
+      });
+    }
+    return {
+      label: tagStr,
+      value: id,
+    };
+  };
+  return addTag;
+}
+
+export function useAddRejectionReason(): (tag: string) => void {
+  const createTagMutation = useCreateRejectionReasonMutation({
+    onSuccess: () => {
+      purgeQueries(['allRejectionReasons']);
+      toast.success('New rejection reason created');
+    },
+  });
+  const addTag = (tag: string) => {
+    const tagStr = tag.toLocaleLowerCase().trim();
+    const id = `RejectionReason-${tagStr}`;
+    if (tagStr) {
+      createTagMutation.mutate({
+        reason: {
           id,
           name: tagStr,
         },

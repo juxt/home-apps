@@ -177,6 +177,16 @@ export function Workflow({ workflow }: { workflow: TWorkflow }) {
         Filter: SelectColumnFilter,
       },
       {
+        id: 'rejectionReasons',
+        Header: 'rejection',
+        accessor: (row) =>
+          row.rejectionReasons
+            ?.filter(notEmpty)
+            .map(({ name }: { name: string }) => name)
+            .join(', '),
+        Filter: SelectColumnFilter,
+      },
+      {
         id: 'project',
         Header: 'Project',
         accessor: 'project.name',

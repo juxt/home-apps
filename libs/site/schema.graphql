@@ -24,6 +24,7 @@ type Query {
   cardsForProject(id: ID!): [Card] @site(itemForId: "workflowProjectId")
   feedbackForCard(id: ID!): [InterviewFeedback] @site(itemForId: "cardId")
   allClients: [Client]
+  allRejectionReasons: [RejectionReason]
   allProgressItems: [ProgressItem]
   progressHistory(id: ID!): [ProgressItem] @site(history: "desc")
 }
@@ -85,6 +86,7 @@ type Mutation {
   createGrowTag(growTag: GrowTagInput): GrowTag
   deleteGrowResource(id: ID!): GrowResource @site(mutation: "delete")
   createClient(client: ClientInput): Client
+  createRejectionReason(rejectionReason: RejectionReasonInput): RejectionReason
   createProgressItem(progressItem: ProgressItemInput): ProgressItem
   updateProgressItem(id: ID!, progressItem: ProgressItemInput): ProgressItem
     @site(mutation: "update")
@@ -159,6 +161,8 @@ input HiringCardInput {
   isFastTrack: Boolean
   hasRemoteFee: Boolean
   potentialClientIds: [ID]
+  rejectionReasonIds: [ID]
+  rejectionFeedback: String
   stateStr: String
   taskHtml: String
   workflowId: ID
@@ -224,6 +228,16 @@ type Client {
   id: ID!
 }
 
+input RejectionReasonInput {
+  name: String!
+  id: ID
+}
+
+type RejectionReason {
+  name: String!
+  id: ID!
+}
+
 type HiringCard {
   id: ID!
   title: String!
@@ -235,6 +249,8 @@ type HiringCard {
   isFastTrack: Boolean
   currentOwnerUsernames: [String]
   potentialClients: [Client] @site(each: "potentialClientIds")
+  rejectionReasons: [RejectionReason] @site(each: "rejectionReasonIds")
+  rejectionFeedback: String
   project: WorkflowProject @site(ref: "workflowProjectId")
   taskHtml: String
   takeHomeLanguage: String

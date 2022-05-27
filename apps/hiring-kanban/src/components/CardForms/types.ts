@@ -18,4 +18,5 @@ export type UpdateHiringCardInput = UpdateHiringCardMutationVariables & {
   owners?: Option[] | null;
   workflowState: Option;
   potentialClients?: Option[] | null;
+  rejectionReasons?: Option[] | null;
 };

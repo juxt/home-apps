@@ -30,6 +30,19 @@ query allClients {
   }
 }
 
+query allRejectionReasons {
+  allRejectionReasons {
+    name
+    id
+  }
+}
+
+mutation createRejectionReason($reason: RejectionReasonInput!) {
+  createRejectionReason(rejectionReason: $reason) {
+    id
+  }
+}
+
 mutation createClient($client: ClientInput!) {
   createClient(client: $client) {
     id

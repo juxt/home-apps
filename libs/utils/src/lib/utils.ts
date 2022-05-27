@@ -3,9 +3,9 @@ import {
   parseSearchWith,
   stringifySearchWith,
 } from '@tanstack/react-location';
+import { stringify, parse } from './jsurl';
 import { useState, useEffect } from 'react';
 import Resizer from 'react-image-file-resizer';
-import { stringify, parse } from 'zipson';
 import { toast } from 'react-toastify';
 
 export function utils(): string {
@@ -195,16 +195,10 @@ export function formatDate(date: Date) {
   }).format(date);
 }
 
-export function searchObjToUrl(searchObj: unknown) {
-  return btoa(encodeURIComponent(stringify(searchObj)));
-}
-
 export function NewLocation() {
   return new ReactLocation({
-    parseSearch: parseSearchWith((value) =>
-      parse(decodeURIComponent(atob(value))),
-    ),
-    stringifySearch: stringifySearchWith(searchObjToUrl),
+    parseSearch: parseSearchWith(parse),
+    stringifySearch: stringifySearchWith(stringify),
   });
 }
 

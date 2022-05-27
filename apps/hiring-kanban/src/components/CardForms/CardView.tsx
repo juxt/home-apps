@@ -15,14 +15,18 @@ import {
   IconForScore,
   Modal,
 } from '@juxt-home/ui-common';
-import { notEmpty, searchObjToUrl } from '@juxt-home/utils';
+import { notEmpty } from '@juxt-home/utils';
 import Tippy from '@tippyjs/react';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useSearch } from '@tanstack/react-location';
 import { toast } from 'react-toastify';
 import { InterviewFeedback } from './InterviewForms';
-import { QuickEditCardWrapper, TaskListForState } from './UpdateHiringCardForm';
+import {
+  QuickEditCardWrapper,
+  RejectionPanelWrapper,
+  TaskListForState,
+} from './UpdateHiringCardForm';
 import { ArrowsExpandIcon, ClipboardCopyIcon } from '@heroicons/react/solid';
 
 function CardInfo({ card }: { card?: CardDetailsFragment }) {
@@ -141,6 +145,25 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
             </MetadataGrid>
             <div className="w-full h-full sm:overflow-y-auto lg:overflow-hidden mx-auto text-center flex flex-wrap lg:flex-nowrap items-center lg:items-baseline">
               <div className="w-full lg:h-full lg:overflow-y-auto m-4 lg:m-0">
+                <Disclosure
+                  defaultOpen={false}
+                  as="div"
+                  className="mt-2 w-full">
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className={accordionButtonClass}>
+                        <span>Rejection Options</span>
+                        {CloseIcon(open)}
+                      </Disclosure.Button>
+                      <Disclosure.Panel className=" pt-4 pb-2 text-sm text-muted">
+                        <div className="mt-2 flex justify-between items-center">
+                          <RejectionPanelWrapper cardId={card.id} />
+                        </div>
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+
                 <Disclosure defaultOpen as="div" className="mt-2 w-full">
                   {({ open }) => (
                     <>
@@ -218,13 +241,7 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                           type="button"
                           className="flex items-center pr-2 bg-slate-200 rounded-lg text-primary-800 p-2"
                           onClick={() => {
-                            const feedbackUrl = `${
-                              window.location.origin
-                            }/_apps/interview/index.html?interviewCardId=${searchObjToUrl(
-                              card.id,
-                            )}&filters=${searchObjToUrl({
-                              tabs: ['feedback', 'pdf'],
-                            })}`;
+                            const feedbackUrl = `${window.location.origin}/_apps/interview/index.html?interviewCardId=${card.id}&filters=~(tabs~(~-feedback~-pdf))`;
                             navigator.clipboard.writeText(feedbackUrl);
                             toast.success('Copied to clipboard');
                           }}>

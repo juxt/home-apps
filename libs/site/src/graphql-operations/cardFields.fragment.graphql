@@ -11,6 +11,11 @@ fragment CardFields on Card {
     takeHomeLanguage
     hasRemoteFee
     isFastTrack
+    rejectionFeedback
+    rejectionReasons {
+      id
+      name
+    }
     potentialClients {
       id
       name

@@ -3,6 +3,7 @@ import classNames from 'classnames';
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
   primary?: boolean;
+  red?: boolean;
   noMargin?: boolean;
   className?: string;
 };
@@ -11,6 +12,7 @@ export function Button({
   children,
   className,
   primary,
+  red,
   noMargin,
   ...rest
 }: ButtonProps) {
@@ -22,7 +24,12 @@ export function Button({
         !noMargin && 'sm:mr-3 sm:last:mr-0',
         primary &&
           'w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm bg-blue-600 text-base font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm',
-        primary ? 'text-white' : 'text-gray-700 bg-white hover:bg-gray-50',
+        red &&
+          'w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm bg-red-600 text-base font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto sm:text-sm',
+
+        primary || red
+          ? 'text-white'
+          : 'text-gray-700 bg-white hover:bg-gray-50',
         className,
       )}
       {...rest}>

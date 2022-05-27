@@ -13,6 +13,8 @@ import {
   purgeAllLists,
   useClientOptions,
   useAddClientTags,
+  useRejectionReasons,
+  useAddRejectionReason,
 } from '@juxt-home/site';
 import {
   ArchiveInactiveIcon,
@@ -559,6 +561,161 @@ export function QuickEditCardWrapper({ cardId }: { cardId: string }) {
           stateOptions={stateOptions}
           cardClientIds={cardClientIds}
           cols={cols}
+        />
+      )}
+    </>
+  );
+}
+
+export function RejectionPanel({
+  card,
+  oldState,
+  rejectionReasons,
+}: {
+  card: TDetailedCard;
+  oldState: TWorkflowState;
+  rejectionReasons: Option[];
+}) {
+  const rejectedState = {
+    value: 'WorkflowStateRejected',
+  };
+  const formHooks = useForm<UpdateHiringCardInput>({
+    defaultValues: {
+      card,
+      cardId: card?.id,
+      workflowState: rejectedState,
+      rejectionReasons: rejectionReasons.filter((reason) =>
+        card.rejectionReasons?.map((r) => r?.id)?.includes(reason.value),
+      ),
+    },
+  });
+  const queryClient = useQueryClient();
+
+  const UpdateHiringCardMutation = useUpdateHiringCardMutation({
+    onSuccess: (data) => {
+      toast.success('Card updated!');
+      const id = data.updateHiringCard?.id;
+      onHiringCardUpdate(id, (cardId: string) =>
+        queryClient.refetchQueries(useCardByIdsQuery.getKey({ ids: [cardId] })),
+      );
+    },
+    onError: (error) => {
+      toast.error(`Error updating card ${error.message}`);
+    },
+  });
+
+  const moveCardMutation = useMoveCardMutation({
+    ...defaultMutationProps(queryClient, workflowId),
+    onSuccess: (data) => {
+      splitbee.track('Reject Card', {
+        data: JSON.stringify(data),
+      });
+    },
+  });
+
+  const UpdateHiringCard = (input: UpdateHiringCardInput) => {
+    const { workflowState, ...cardInput } = input;
+    const cardData: UpdateHiringCardMutationVariables = {
+      card: {
+        ...cardInput.card,
+        stateStr: workflowState?.value,
+        rejectionReasonIds: input.rejectionReasons?.map(
+          (reason) => reason.value,
+        ),
+      },
+      cardId: input.cardId,
+    };
+
+    if (card && !_.isEqual(cardData.card, card)) {
+      UpdateHiringCardMutation.mutate({
+        card: cardData.card,
+        cardId: input.cardId,
+      });
+    }
+    if (rejectedState && rejectedState.value !== oldState?.id) {
+      moveCardMutation.mutate({
+        workflowStateId: rejectedState.value,
+        cardId: input.cardId,
+        previousCard: 'end',
+      });
+    }
+    formHooks.reset(input);
+  };
+  const onSubmit = formHooks.handleSubmit(UpdateHiringCard, () =>
+    toast.error(`WoopsieDoopsy, the form is invalid`),
+  );
+
+  const { isDirty } = useFormState(formHooks);
+
+  useDirty({ isDirty });
+
+  const handleRejectionReasonCreate = useAddRejectionReason();
+  const rejected =
+    oldState.id === 'WorkflowStateToReject' ||
+    oldState.id === 'WorkflowStateRejected';
+
+  return (
+    <div className="relative h-full w-full text-left">
+      {rejected ? (
+        <div className="flex flex-col">
+          rejected reasons:
+          <ul>
+            {card.rejectionReasons?.filter(notEmpty).map((reason) => (
+              <li key={reason.id}>{reason.name}</li>
+            ))}
+          </ul>
+          details:
+          <p>{card.rejectionFeedback}</p>
+        </div>
+      ) : (
+        <>
+          <Form
+            id="rejection-form"
+            title="Reject Card"
+            formHooks={formHooks}
+            fields={[
+              {
+                id: 'reason',
+                label: 'Rejection Reasons',
+                type: 'multiselect',
+                options: rejectionReasons,
+                onCreateOption: handleRejectionReasonCreate,
+                isCreatable: true,
+                path: 'rejectionReasons',
+              },
+              {
+                id: 'feedback',
+                label: 'Rejection Feedback',
+                type: 'textarea',
+                path: 'card.rejectionFeedback',
+              },
+            ]}
+          />
+          <div className="px-6">
+            <Button onClick={onSubmit} red>
+              Reject
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function RejectionPanelWrapper({ cardId }: { cardId: string }) {
+  const { card } = useCardById(cardId);
+  const { data: rejectionReasons } = useRejectionReasons();
+  const cols = useWorkflowStates({ workflowId }).data || [];
+  const oldState = cols.find((c) =>
+    c.cards?.find((wfCard) => wfCard?.id === card?.id),
+  );
+  return (
+    <>
+      {card && rejectionReasons && oldState && (
+        <RejectionPanel
+          card={card}
+          rejectionReasons={rejectionReasons}
+          oldState={oldState}
         />
       )}
     </>
