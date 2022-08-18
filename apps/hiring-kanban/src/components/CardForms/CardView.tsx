@@ -263,7 +263,19 @@ function CardInfo({ card }: { card?: CardDetailsFragment }) {
                   </div>
                   {averageScore ? (
                     <InterviewFeedback
-                      feedbackForCard={cardFeedbackData?.feedbackForCard}
+                      feedbackForCard={cardFeedbackData?.feedbackForCard?.sort(
+                        (a, b) => {
+                          if (a && b) {
+                            if (a?._siteCreatedAt > b?._siteCreatedAt) {
+                              return -1;
+                            }
+                            if (a?._siteCreatedAt < b?._siteCreatedAt) {
+                              return 1;
+                            }
+                          }
+                          return 0;
+                        },
+                      )}
                     />
                   ) : null}
                   {averageScore ? (

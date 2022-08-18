@@ -379,9 +379,11 @@ function defaultFeedbackData(card: TDetailedCard, username: string) {
 function InterviewForm({
   card,
   feedbackData,
+  username
 }: {
   card: TDetailedCard;
   feedbackData: FeedbackForCardQuery;
+  username: string;
 }) {
   const projectOptions = useProjectOptions(hiringWorkflowId);
   const cardFormHooks = useForm<InterviewCardFormFields>({
@@ -394,7 +396,6 @@ function InterviewForm({
     },
   });
 
-  const { id: username } = useUser();
 
   const myFeedback = feedbackData.feedbackForCard
     ?.filter((f) => f && f.stateStr === card.stateStr)
@@ -408,11 +409,7 @@ function InterviewForm({
       : undefined,
   };
 
-  const schema = yup.object({
-    interviewFeedback: InterviewFeedbackInputSchema(),
-  });
   const feedbackFormHooks = useForm<CreateInterviewFeedbackMutationVariables>({
-    resolver: yupResolver(schema),
     defaultValues: {
       interviewFeedback: initialFeedback.questions
         ? initialFeedback
@@ -622,12 +619,13 @@ function PDF({ width, base64 }: { width: string; base64?: string }) {
 
 function InterviewFormWrapper({ card }: { card: TDetailedCard }) {
   const { isLoading, data } = useFeedbackForCardQuery({ cardId: card.id });
+    const { id: username } = useUser();
   return (
     <div>
-      {isLoading ? (
+      {!username || isLoading ? (
         <div>loading...</div>
-      ) : data ? (
-        <InterviewForm feedbackData={data} card={card} />
+      ) : data && username ? (
+        <InterviewForm feedbackData={data} card={card} username={username} />
       ) : (
         <div>no data</div>
       )}

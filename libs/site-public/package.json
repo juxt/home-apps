@@ -7,7 +7,7 @@
     "watch-schema-upload": " cross-env-shell \"ls schema.graphql resources.edn | entr -s './deploy'\"",
     "build-generate-hooks": "cross-env-shell GRAPHQL_API_URL='https://alexd.uk/public/graphql' \"yarn graphql-codegen --config ./codegen.js\"",
     "build-schema-upload": " cross-env-shell \"./deploy\"",
-    "prod-generate": "cross-env-shell SITE_BASE_URI=https://alexd.uk GRAPHQL_PATH=/public/graphql GRAPHQL_URI=https://graphcdn.alexd.uk concurrently \"yarn:watch-*\"",
+    "prod-generate": "cross-env-shell SITE_BASE_URI=https://alexd.uk GRAPHQL_PATH=/public/graphql GRAPHQL_URI=https://alexd.uk/kanban/graphql concurrently \"yarn:watch-*\"",
     "dev-generate": "cross-env-shell SITE_BASE_URI=http://localhost:5509 GRAPHQL_PATH=/public/graphql GRAPHQL_URI='http://localhost:5509/public/graphql' concurrently \"yarn:watch-*\"",
     "serve": "yarn prod-generate",
     "build": "cross-env-shell SITE_BASE_URI=https://alexd.uk GRAPHQL_PATH=/public/graphql concurrently \"yarn:build-*\""
