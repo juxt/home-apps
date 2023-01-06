@@ -25,3 +25,21 @@ yarn prod-generate
 which will build react hooks for each 'operation' in operations.graphql as well as deploying the schema to the remote Site server when you edit the file.
 
 If you have a local Site server running, see if there is a `dev-generate` command in the `package.json` file. If not you should be able to figure it out as its just a case of updating the domain from the prod example.
+
+## Full process to develop the hiring app
+
+First install [Site](https://github.com/juxt/site)
+
+```
+git clone https://github.com/juxt/site.git
+cd site
+mkdir -p $HOME/.config/site
+cp etc/config.edn $HOME/.config/site/config.edn
+bin/site-server
+
+(new terminal window)
+
+rlwrap ncat localhost 50505
+(init! "admin" "admin")
+ctrl-c
+```
